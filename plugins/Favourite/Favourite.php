@@ -24,6 +24,7 @@ namespace Plugin\Favourite;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
@@ -36,7 +37,6 @@ use App\Util\Nickname;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
 class Favourite extends NoteHandlerPlugin
 {
@@ -60,7 +60,7 @@ class Favourite extends NoteHandlerPlugin
             return Event::next;
         }
 
-        // if note is favourited, "is_set" is 1
+        // if note is favoured, "is_set" is 1
         $opts     = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
         $is_set   = DB::find('favourite', $opts) !== null;
         $form_fav = Form::create([
@@ -83,7 +83,7 @@ class Favourite extends NoteHandlerPlugin
             /**
              * Called from form handler
              *
-             * @param Note $note to be favourited
+             * @param Note $note to be favoured
              * @param Form $data input
              *
              * @throws RedirectException Always thrown in order to prevent accidental form re-submit from browser
@@ -117,16 +117,18 @@ class Favourite extends NoteHandlerPlugin
     public function onInsertLeftPanelLink(string $user_nickname, &$res): bool
     {
         $res[] = Formatting::twigRenderString(<<<END
-<a href="{{ path("favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("favourites") }}'>Favourites</a>
-<a href="{{ path("reverse_favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("reverse_favourites") }}'>Reverse Favs</a>
+<a href="{{ path("actor_favourites_nickname", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("favourites") }}'>Favourites</a>
+<a href="{{ path("actor_reverse_favourites_nickname", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("reverse_favourites") }}'>Reverse Favs</a>
 END, ['user_nickname' => $user_nickname]);
         return Event::next;
     }
 
     public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect('favourites', '/favourites/{nickname<' . Nickname::DISPLAY_FMT . '>}', [Controller\Favourite::class, 'favourites']);
-        $r->connect('reverse_favourites', '/reverse_favourites/{nickname<' . Nickname::DISPLAY_FMT . '>}', [Controller\Favourite::class, 'reverseFavourites']);
+        $r->connect(id: 'actor_favourites_id', uri_path: '/actor/{id<\d+>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorId']);
+        $r->connect(id: 'actor_reverse_favourites_id', uri_path: '/actor/{id<\d+>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorId']);
+        $r->connect('actor_favourites_nickname', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', [Controller\Favourite::class, 'favouritesByActorNickname']);
+        $r->connect('actor_reverse_favourites_nickname', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/reverse_favourites', [Controller\Favourite::class, 'reverseFavouritesByActorNickname']);
         return Event::next;
     }
 }

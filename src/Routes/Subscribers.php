@@ -20,13 +20,12 @@
 // }}}
 
 /**
- * Define social's Note routes
+ * Define social's GSActor's subscribers routes
  *
  * @package  GNUsocial
  * @category Router
  *
  * @author    Diogo Cordeiro <mail@diogo.site>
- * @author    Hugo Sales <hugo@hsal.es>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -35,12 +34,14 @@ namespace App\Routes;
 
 use App\Controller as C;
 use App\Core\Router\RouteLoader;
+use App\Util\Nickname;
 
-abstract class Note
+abstract class Subscribers
 {
-    const LOAD_ORDER = 40;
+    const LOAD_ORDER = 31;
     public static function load(RouteLoader $r): void
     {
-        $r->connect('note_view', '/object/note/{id<\d+>}', [C\Note::class, 'NoteShow']);
+        $r->connect(id: 'actor_subscribers_id', uri_path: '/actor/{id<\d+>}/subscribers', target: [C\Subscribers::class, 'SubscribersByActorId']);
+        $r->connect(id: 'actor_subscribers_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/subscribers', target: [C\Subscribers::class, 'SubscribersByActorNickname']);
     }
 }

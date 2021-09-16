@@ -19,7 +19,7 @@ class GSActorToType
      */
     public static function translate(GSActor $gsactor)
     {
-        $uri  = Router::url('gsactor_view_id', ['id' => $gsactor->getId()], Router::ABSOLUTE_URL);
+        $uri  = Router::url('actor_view_id', ['id' => $gsactor->getId()], Router::ABSOLUTE_URL);
         $attr = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
             'id'       => $uri,
@@ -42,7 +42,7 @@ class GSActorToType
             'summary'   => $gsactor->getBio(),
             //'tag' =>
             'updated' => $gsactor->getModified()->format(DateTimeInterface::RFC3339),
-            'url'     => Router::url('gsactor_view_nickname', ['nickname' => $gsactor->getNickname()], Router::ABSOLUTE_URL),
+            'url'     => Router::url('actor_view_nickname', ['nickname' => $gsactor->getNickname()], Router::ABSOLUTE_URL),
         ];
         return Type::create(type: 'Person', attributes: $attr);
     }

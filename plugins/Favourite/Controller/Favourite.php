@@ -23,17 +23,19 @@ namespace Plugin\Favourite\Controller;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Util\Common;
 use Symfony\Component\HttpFoundation\Request;
 
 class Favourite
 {
-    public function favourites(Request $request)
+    public function favouritesByActorId(Request $request, int $id)
     {
-        $actor_id = Common::ensureLoggedIn()->getId();
-        $notes    = DB::dql('select f from Plugin\Favourite\Entity\Favourite f ' .
-                            'where f.gsactor_id = :id ' .
-                            'order by f.created DESC', ['id' => $actor_id]);
+        $notes = DB::dql(
+            'select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f ' .
+            'where n.id = f.note_id ' .
+            'and f.gsactor_id = :id ' .
+            'order by f.created DESC',
+            ['id' => $id]
+        );
 
         $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
@@ -42,6 +44,11 @@ class Favourite
             '_template' => 'network/public.html.twig',
             'notes'     => $notes_out,
         ];
+    }
+    public function favouritesByActorNickname(Request $request, string $nickname)
+    {
+        $user = DB::findOneBy('local_user', ['nickname' => $nickname]);
+        return self::favouritesByActorId($request, $user->getId());
     }
 
     /**
@@ -53,15 +60,15 @@ class Favourite
      *
      * @return array template
      */
-    public function reverseFavourites(Request $request)
+    public function reverseFavouritesByActorId(Request $request, int $id)
     {
-        $actor_id = Common::ensureLoggedIn()->getId();
-        $notes    = DB::dql('select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f ' .
+        $notes = DB::dql('select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f ' .
                             'where n.id = f.note_id ' .
                             'and f.gsactor_id != :id ' .
                             'and n.gsactor_id = :id ' .
                             'order by f.created DESC' ,
-                            ['id' => $actor_id]);
+                            ['id' => $id]
+        );
 
         $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
@@ -70,5 +77,10 @@ class Favourite
             '_template' => 'network/reversefavs.html.twig',
             'notes'     => $notes,
         ];
+    }
+    public function reverseFavouritesByActorNickname(Request $request, string $nickname)
+    {
+        $user = DB::findOneBy('local_user', ['nickname' => $nickname]);
+        return self::reverseFavouritesByActorId($request, $user->getId());
     }
 }

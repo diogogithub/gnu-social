@@ -33,6 +33,7 @@ class Left extends Component
             $user = Common::user();
             if ($user != null) {
                 $actor                  = $user->getActor();
+                $vars['user_id']        = $user->getId();
                 $vars['user_nickname']  = $user->getNickname();
                 $vars['user_tags']      = $actor->getSelfTags();
                 $vars['user_followers'] = $actor->getFollowersCount();

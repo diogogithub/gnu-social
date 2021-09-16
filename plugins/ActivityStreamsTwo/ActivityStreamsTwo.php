@@ -4,7 +4,6 @@ namespace Plugin\ActivityStreamsTwo;
 
 use App\Core\Event;
 use App\Core\Modules\Plugin;
-use App\Core\Router\RouteLoader;
 use Exception;
 use Plugin\ActivityStreamsTwo\Util\Response\ActorResponse;
 use Plugin\ActivityStreamsTwo\Util\Response\NoteResponse;
@@ -41,33 +40,24 @@ class ActivityStreamsTwo extends Plugin
             return Event::next;
         }
         switch ($route) {
+            case 'actor_view_id':
+            case 'actor_view_nickname':
+                $response = ActorResponse::handle($vars['gsactor']);
+                return Event::stop;
             case 'note_view':
                 $response = NoteResponse::handle($vars['note']);
                 return Event::stop;
-            case 'gsactor_view_id':
-            case 'gsactor_view_nickname':
-                $response = ActorResponse::handle($vars['gsactor']);
+            case 'actor_favourites':
+                $response = LikeResponse::handle($vars['gsactor']);
+                return Event::stop;
+            case 'actor_subscriptions':
+                $response = FollowingResponse::handle($vars['gsactor']);
+                return Event::stop;
+            case 'actor_subscribers':
+                $response = FollowersResponse::handle($vars['gsactor']);
                 return Event::stop;
             default:
                 return Event::next;
         }
-    }
-
-    /**
-     * This code executes when GNU social creates the page routing, and we hook
-     * on this event to add our action handler for Embed.
-     *
-     * @param RouteLoader $r the router that was initialized.
-     *
-     * @return bool
-     */
-    public function onAddRoute(RouteLoader $r): bool
-    {
-        /*$r->connect('note_view_as2',
-                    '/note/{id<\d+>}',
-                    [NoteResponse::class, 'handle'],
-                    options: ['accept' => self::$accept_headers]
-        );*/
-        return Event::next;
     }
 }

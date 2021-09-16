@@ -20,14 +20,14 @@
 // }}}
 
 /**
- * Define social's attachment routes
+ * Define social's Actor routes
  *
  * @package  GNUsocial
  * @category Router
  *
  * @author    Diogo Cordeiro <mail@diogo.site>
  * @author    Hugo Sales <hugo@hsal.es>
- * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -40,9 +40,10 @@ use App\Util\Nickname;
 abstract class GSActor
 {
     const LOAD_ORDER = 30;
+
     public static function load(RouteLoader $r): void
     {
-        $r->connect(id: 'gsactor_view_id', uri_path: '/actor/{id<\d+>}', target: [C\GSActor::class, 'GSActorShowId']);
-        $r->connect(id: 'gsactor_view_nickname', uri_path: '/{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\GSActor::class, 'GSActorShowNickname'], options: ['is_system_path' => false]);
+        $r->connect(id: 'actor_view_id', uri_path: '/actor/{id<\d+>}', target: [C\GSActor::class, 'GSActorShowId']);
+        $r->connect(id: 'actor_view_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\GSActor::class, 'GSActorShowNickname'], options: ['is_system_path' => false]);
     }
 }

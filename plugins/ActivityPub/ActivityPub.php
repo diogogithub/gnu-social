@@ -27,8 +27,20 @@ class ActivityPub extends Plugin
     public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect(
+            'activitypub_actor_inbox',
+            '/actor/{gsactor_id<\d+>}/inbox.json',
+            [Inbox::class, 'handle'],
+            options: ['accept' => ActivityStreamsTwo::$accept_headers]
+        );
+        $r->connect(
+            'activitypub_actor_outbox',
+            '/actor/{gsactor_id<\d+>}/outbox.json',
+            [Inbox::class, 'handle'],
+            options: ['accept' => ActivityStreamsTwo::$accept_headers]
+        );
+        $r->connect(
             'activitypub_inbox',
-            '{gsactor_id<\d+>}/inbox',
+            '/inbox.json',
             [Inbox::class, 'handle'],
             options: ['accept' => ActivityStreamsTwo::$accept_headers]
         );
@@ -48,12 +60,12 @@ class ActivityPub extends Plugin
     public static function validateAcceptHeader(array|string|null $accept, bool $strict): bool
     {
         if (is_string($accept)
-            && in_array($accept, self::$accept_headers)
+            && in_array($accept, ActivityStreamsTwo::$accept_headers)
         ) {
             return true;
         } elseif (is_array($accept)
             && count(
-                array_intersect($accept, self::$accept_headers)
+                array_intersect($accept, ActivityStreamsTwo::$accept_headers)
             ) > 0
         ) {
             return true;

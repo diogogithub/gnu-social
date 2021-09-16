@@ -26,7 +26,8 @@
  * @category Router
  *
  * @author    Hugo Sales <hugo@hsal.es>
- * @author    Eliseu Amaro <eliseu@fc.up.pt>
+ * @author    Eliseu Amaro <mail@eliseuama.ro>
+ * @author    Diogo Cordeiro <mail@diogo.site>
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -54,8 +55,8 @@ abstract class Main
         $r->connect('root', '/', RedirectController::class, ['defaults' => ['route' => 'main_all']]);
         $r->connect('main_public', '/main/public', [C\Network::class, 'public']);
         $r->connect('main_all', '/main/all', [C\Network::class, 'network']);
-        $r->connect('home_all', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/all', [C\Network::class, 'home']);
-        $r->connect('replies', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [C\Network::class, 'replies']);
+        $r->connect('home_all', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/all', [C\Network::class, 'home']);
+        $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [C\Network::class, 'replies']);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);

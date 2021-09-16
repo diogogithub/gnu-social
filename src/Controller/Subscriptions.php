@@ -27,7 +27,7 @@ use function App\Core\I18n\_m;
 use App\Util\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Request;
 
-class GSActor extends Controller
+class Subscriptions extends Controller
 {
     /**
      * Generic function that handles getting a representation for an actor from id
@@ -56,14 +56,14 @@ class GSActor extends Controller
     }
 
     /**
-     * The page where the actor's info is shown
+     * Collection of an actor's subscriptions
      */
     public function GSActorShowId(Request $request, int $id)
     {
-        return $this->GSActorById($id, fn ($gsactor) => ['_template' => 'actor/view.html.twig', 'gsactor' => $gsactor]);
+        return $this->GSActorById($id, fn ($gsactor) => ['_template' => 'subscriptions/view.html.twig', 'gsactor' => $gsactor]);
     }
     public function GSActorShowNickname(Request $request, string $nickname)
     {
-        return $this->GSActorByNickname($nickname, fn ($gsactor) => ['_template' => 'actor/view.html.twig', 'gsactor' => $gsactor]);
+        return $this->GSActorByNickname($nickname, fn ($gsactor) => ['_template' => 'subscriptions/view.html.twig', 'gsactor' => $gsactor]);
     }
 }

@@ -68,7 +68,6 @@ class RouteLoader extends Loader
         }
 
         ksort($to_load);
-
         foreach ($to_load as $ns) {
             $ns::load($this);
         }
