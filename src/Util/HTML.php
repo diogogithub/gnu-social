@@ -28,17 +28,21 @@
 namespace App\Util;
 
 use Functional as F;
-use InvalidArgumentException;
 
 abstract class HTML
 {
+    const ALLOWED_TAGS         = ['p', 'br', 'a'];
+    const FORBIDDEN_ATTRIBUTES = ['onerror', 'form', 'onforminput', 'onbeforescriptexecute', 'formaction', 'onfocus', 'onload',
+        'data', 'event', 'autofocus', 'onactivate', 'onanimationstart', 'onwebkittransitionend', 'onblur', 'poster',
+        'onratechange', 'ontoggle', 'onscroll', 'actiontype', 'dirname', 'srcdoc', ];
+
     /**
      * Creates an HTML tag without attributes
      *
      * @param string       $tag
+     * @param null|mixed   $attrs
      * @param array|string $content
      * @param bool         $empty_tag
-     * @param null|mixed   $attrs
      *
      * @return array
      */
@@ -76,23 +80,34 @@ abstract class HTML
      *
      * @return string
      */
-    private static function attr(array $attrs): string
+    private static function attr(array $attrs, array $options = []): string
     {
-        return ' ' . implode(' ', F\map($attrs, function ($val, $key, $_) {
-            return "{$key}=\"{$val}\"";
+        return ' ' . implode(' ',
+                             F\map($attrs,
+                                   /**
+                                    * Convert an attr ($key), $val pair to an HTML attribute, but validate to exclude some vectors of injection
+                                    */
+                                   function (string $val, string $key, array $_): string {
+                                       if (in_array($key, array_merge($options['forbidden_attributes'] ?? [], self::FORBIDDEN_ATTRIBUTES))
+                                           || str_starts_with($val, 'javascript:')) {
+                                           throw new \InvalidArgumentException("HTML::html: Attribute {$key} is not allowed");
+                                       }
+                                       $val = htmlspecialchars($val, flags: ENT_QUOTES | ENT_SUBSTITUTE, double_encode: false);
+                                       return "{$key}=\"{$val}\"";
         }));
     }
 
     /**
-     * @param mixed $html
+     * @param array|string $html    The input to convert to HTML
+     * @param array        $options = [] ['allowed_tags' => ['a', 'p']]
      *
      * @return string
      */
-    public static function html($html): string
+    public static function html(string|array $html, array $options = []): string
     {
         if (is_string($html)) {
             return $html;
-        } elseif (is_array($html)) {
+        } else {
             $out = '';
             foreach ($html as $tag => $contents) {
                 if ($contents == 'empty' || isset($contents['empty'])) {
@@ -101,13 +116,18 @@ abstract class HTML
                     $attrs  = isset($contents['attrs']) ? self::attr(array_shift($contents)) : '';
                     $is_tag = preg_match('/[A-Za-z][A-Za-z0-9]*/', $tag);
                     $inner  = self::html($contents);
-                    $inner  = $is_tag ? Formatting::indent($inner) : $inner;
-                    $out .= $is_tag ? "<{$tag}{$attrs}>\n{$inner}\n</{$tag}>\n" : $inner;
+                    if ($is_tag) {
+                        if (!in_array($tag, array_merge($options['allowed_tags'] ?? [], self::ALLOWED_TAGS))) {
+                            throw new \InvalidArgumentException("HTML::html: Tag {$tag} is not allowed");
+                        }
+                        $inner = $inner != '' ? "\n{$inner}\n" : '';
+                        $inner = Formatting::indent($inner);
+                        $out .= "<{$tag}{$attrs}>{$inner}</{$tag}>";
+                    }
+                    $out .= $inner;
                 }
             }
             return $out;
-        } else {
-            throw new InvalidArgumentException('HTML::html argument must be of type string or array');
         }
     }
 }
