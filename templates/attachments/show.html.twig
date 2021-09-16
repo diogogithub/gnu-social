@@ -1,18 +1,13 @@
 {% extends 'stdgrid.html.twig' %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}"
-          media="screen and (min-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_mid.css') }}"
-          media="screen and (max-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_small.css') }}"
-          media="screen and (max-width: 750px)">
-{% endblock %}
-
 {% block body %}
     <div class="content">
-        <a href="{{ download }}"> {{ 'Download link' | trans }}</a>
-        {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': null} only %}
+        <section class="section-widget section-widget-padded">
+
+            {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': null} only %}
+
+            <a class="section-widget-button-like" href="{{ download }}"> {{ 'Download link' | trans }}</a>
+        </section>
+
     </div>
 {% endblock body %}

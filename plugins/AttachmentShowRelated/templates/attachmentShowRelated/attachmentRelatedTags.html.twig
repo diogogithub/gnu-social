@@ -1,9 +1,11 @@
-<div id="related-tags" style="margin: var(--unit-size);">
-    {{ 'Tags for this attachment' | trans }}
-    <br/>
+<section class="section-widget section-widget-padded">
+    <div class="section-title">
+        {{ 'Tags for this attachment' | trans }}
+    </div>
+
     {% for tag in related_tags %}
         <i>#{{ tag['tag'] }}</i>
     {% else %}
         {{ 'No tags' | trans }}
     {% endfor %}
-</div>
+</section>

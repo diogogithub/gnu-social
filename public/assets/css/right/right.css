@@ -15,3 +15,17 @@
     cursor: pointer !important;
     border: 2px solid transparent;
 }
+
+@media only screen
+and (min-width: 1200px) {
+    #panel-right-icon {
+        display: none;
+    }
+}
+
+@media only screen
+and (min-width: 2200px) {
+    .panel-right > * {
+        margin-right: 10rem;
+    }
+}

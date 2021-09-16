@@ -5,13 +5,13 @@
     <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <aside class="panel-content accessibility-target">
         {% if app.user %}
-            <section class='profile' title="{{ 'Your profile information.' | trans }}">
+            <section class='section-widget section-widget-padded' title="{{ 'Your profile information.' | trans }}">
                 <a id="user" href="{{ path('settings') }}">
                     <img src='{{ user_avatar }}' class="icon icon-avatar" alt="{{ 'Your account\'s avatar.' | trans }}">
-                    <div id="user-info">
+                    <div class="user-info">
                         <strong id="user-nickname" title="{{ 'Your account\' nickname.' | trans }}">{{ user_nickname }}</strong>
 
-                        <nav id="user-tags">
+                        <nav class="user-tags">
                             {% if user_tags %}
                                 {% for tag in user_tags %}
                                     <a href='#'> #{{ tag }}</a>
@@ -27,54 +27,57 @@
                         </section>
                     </div>
                 </a>
-            </section>
 
-            {# {% for extra in profile_extras %}
-                {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
-                {% endfor %} #}
 
-            <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
-                <strong id="timeline-nav-header">Profile</strong>
+                {# {% for extra in profile_extras %}
+                    {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
+                    {% endfor %} #}
 
-                <a title='{{ 'Your messages.' | trans }}' href='{{ path('settings') }}' class='{{ active("replies") }}'>
-                    Messages
-                </a>
+                <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
+                    <a title='{{ 'Your messages.' | trans }}' href='{{ path('settings') }}' class='{{ active("replies") }}'>
+                        Messages
+                    </a>
 
-                <a title='{{ 'Replies to your notes.' | trans }}' href="{{ path('replies', {'nickname' : user_nickname}) }}" class='{{ active("replies") }}'>
-                    Replies
-                </a>
+                    <a title='{{ 'Replies to your notes.' | trans }}' href="{{ path('replies', {'nickname' : user_nickname}) }}" class='{{ active("replies") }}'>
+                        Replies
+                    </a>
 
-                {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
-                    {{ link | raw }}
-                {% endfor %}
+                    {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
+                        {{ link | raw }}
+                    {% endfor %}
 
-                <a title='{{ 'Access your account settings.' | trans }}' href="{{ path('settings') }}" class='{{ active('settings') }}'>
-                    Settings
-                </a>
+                    <a title='{{ 'Access your account settings.' | trans }}' href="{{ path('settings') }}" class='{{ active('settings') }}'>
+                        Settings
+                    </a>
 
-                <a title='{{ 'Logout from your account.' | trans }}' href='{{ path('logout') }}'>
-                    Logout
-                </a>
-            </nav>
+                    <a title='{{ 'Logout from your account.' | trans }}' href='{{ path('logout') }}'>
+                        Logout
+                    </a>
+                </nav>
 
-        {% else %}
-            <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
+            {% else %}
 
-                <a title='{{ 'Login with your existing account.' | trans }}' href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>
-                    Login
-                </a>
+                <section class='section-widget section-widget-padded' title="{{ 'Your profile information.' | trans }}">
+                    <h2 class="section-title">Account</h2>
+                    <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
 
-                <a title='{{ 'Register a new account!' | trans }}' href="{{ path('register') }}">
-                    Register
-                </a>
+                        <a title='{{ 'Login with your existing account.' | trans }}' href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>
+                            Login
+                        </a>
 
-            </nav>
-        {% endif %}
+                        <a title='{{ 'Register a new account!' | trans }}' href="{{ path('register') }}">
+                            Register
+                        </a>
 
-        <div class="timeline-nav">
+                    </nav>
+                </section>
+
+            {% endif %}
+        </section>
+
+        <section class="section-widget section-widget-padded">
+            <h2 class="section-title">Timeline</h2>
             <nav class='sec-nav' tabindex="0" title="{{ 'Navigate through each timeline.' | trans }}">
-                <strong id="timeline-nav-header">Timeline</strong>
-
                 <ul>
                     <li>
                         <a href="{{ path('main_public') }}" class='{{ active('main_public') }}'>
@@ -105,7 +108,7 @@
                     {% endif %}
                 </ul>
             </nav>
-        </div>
+        </section>
 
         <footer class="footer">
             <nav>

@@ -1,7 +1,9 @@
 {% set handled = false %}
 {% for block in handle_event('ViewAttachment', {'attachment': attachment, 'note': note}) %}
     {% set handled = true %}
-    {{ block | raw }}
+    <div class="note-attachments">
+        {{ block | raw }}
+    </div>
 {% endfor %}
 {% if not handled %}
     <div>

@@ -408,17 +408,17 @@ summary:hover .icon-details-open {
     border-radius: var(--unit-size);
     background-color: var(--translucent);
     padding: var(--small-size);
+
+    width: auto;
+    height: auto;
+    max-width: 100%;
 }
 
 .note-attachments > figure figcaption {
     display: flex;
+    max-width: 100%;
+    word-break: break-all;
     padding-top: var(--small-size);
-}
-
-.note-attachments > figure img,
-.note-attachments > figure video {
-    width: 100%;
-    height: auto;
 }
 
 /* SECTIONS */
@@ -430,9 +430,33 @@ summary:hover .icon-details-open {
     background-color: var(--translucent);
     border-radius: var(--unit-size);
     border: solid 2px var(--bg2);
-    margin-bottom: var(--unit-size);
+    margin-bottom: var(--medium-size);
 
     color: var(--white);
+}
+.section-widget-padded {
+    padding: var(--unit-size);
+}
+
+.section-title {
+    font-size: var(--main-size);
+    font-weight: 700;
+    margin: 0;
+}
+
+.section-widget-button-like {
+    border: 2px solid var(--bg2);
+    border-radius: var(--unit-size);
+    background: var(--bg-button);
+    padding: 5px 10px;
+    margin-top: 5px;
+
+    cursor: pointer;
+    float: right;
+    align-self: end;
+
+    font-family: var(--main-font);
+    font-weight: 700;
 }
 
 .section-title-details {
@@ -466,10 +490,6 @@ summary:hover .icon-details-open {
     padding: var(--unit-size);
 }
 
-.section-form fieldset .form-group:last-of-type {
-    margin-bottom: unset;
-}
-
 .section-form-legend {
     margin-top: unset;
     margin-bottom: 10px;
@@ -487,6 +507,7 @@ summary:hover .icon-details-open {
 
     display: flex;
     flex-direction: column;
+    margin-bottom: 10px;
 }
 
 .help-block {
@@ -739,14 +760,12 @@ input[type=file] {
     padding: var(--unit-size);
 }
 
-@media (min-width: 1200px) {
-    #panel-left-icon,
-    #panel-right-icon {
-        display: none;
-    }
+
+@media only screen
+and (min-width : 1200px) {
 
     .panel .panel-content {
-        width: 100%;
+        width: 25rem;
         max-width: 20%;
     }
 
@@ -757,7 +776,8 @@ input[type=file] {
     }
 }
 
-@media (max-width: 1200px) {
+@media only screen
+and (max-width: 1200px) {
     /* content should occupy the entire width at this size */
     .container {
         margin-left: unset;

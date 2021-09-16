@@ -37,6 +37,7 @@
     <section tabindex="0" role="dialog" class="e-content entry-content note-content">
       {{ note.getRendered() | raw }}
       {% if hide_attachments is not defined %}
+
         <div class="note-attachments" tabindex="0" title="{{ 'Note attachments' | trans }}">
           {% for attachment in note.getAttachments() %}
             {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}

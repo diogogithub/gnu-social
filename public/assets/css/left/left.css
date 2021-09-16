@@ -17,6 +17,7 @@
 }
 
 .panel-left nav {
+    padding-top: var(--unit-size);
     font-size: var(--medium-size);
 }
 
@@ -52,11 +53,10 @@
     font-size: var(--main-size);
 }
 
+
 .profile-navigation {
-    margin-bottom: var(--main-size);
-}
-.profile-navigation > * {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
 /* TIMELINE NAVIGATION / PLUGINS */
@@ -90,4 +90,24 @@
 .footer {
     margin-top: auto;
     font-size: var(--small-size);
+}
+
+@media only screen
+and (min-width : 1200px) {
+
+    #panel-left-icon {
+        display: none;
+    }
+}
+
+@media only screen
+and (min-width: 2200px) {
+    .panel-left > * {
+        margin-left: 10rem;
+    }
+
+    .footer {
+        left: -10rem;
+        position: relative;
+    }
 }

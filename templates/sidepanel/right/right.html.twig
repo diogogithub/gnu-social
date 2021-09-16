@@ -42,15 +42,11 @@
         {% set current_path = app.request.get('_route') %}
         {% if right_panel_vars is defined %}
             {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars}) %}
-                <section class="section-widget">
-                    {{ block | raw }}
-                </section>
+                {{ block | raw }}
             {% endfor %}
         {% else %}
             {% for block in handle_event('AppendRightPanelBlock', {'path': current_path}) %}
-                <section class="section-widget">
-                    {{ block | raw }}
-                </section>
+                {{ block | raw }}
             {% endfor %}
         {% endif %}
     </aside>

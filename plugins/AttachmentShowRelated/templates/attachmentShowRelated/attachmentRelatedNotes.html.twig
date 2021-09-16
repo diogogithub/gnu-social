@@ -1,6 +1,9 @@
-<div id="related-notes" style="margin: var(--unit-size);">
-    {{ 'Notes where this attachment appears' | trans }}
+<section class="section-widget section-widget-padded">
+    <div class="section-title">
+        {{ 'Notes related' | trans }}
+    </div>
+
     {% for note in related_notes %}
         {% include '/note/view.html.twig' with {'note' : note, 'hide_attachments': true, 'have_user': have_user} only %}
     {% endfor %}
-</div>
+</section>
