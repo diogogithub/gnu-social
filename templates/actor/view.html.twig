@@ -1,0 +1,55 @@
+{% extends 'stdgrid.html.twig' %}
+
+{% set id = gsactor.id %}
+{% set nick = gsactor.nickname %}
+
+{# TODO: how to get avatar in here? Tags and rest of profile info? #}
+{% set avatar = gsactor.nickname %}
+
+{% block title %}{{ nick }}'s profile{% endblock %}
+
+{% block body %}
+<section class="section-widget section-widget-padded">
+    <div class="section-title">
+        <img class="icon icon-avatar" src="{{ avatar }}" alt="{{ nick }}'s avatar">{{ nick }}
+    </div>
+    {#
+
+    <div class="actor-nickname-and-tags">
+
+        {% set actor_tags = actor.getSelfTags() %}
+
+        <div class="tags">
+        {% if actor_tags %}
+            {% for tag in actor_tags %}
+                <a href='#'><i> #{{ tag }} </i></a>
+            {% endfor %}
+        {% else %}
+            <i> {{ '(No tags)' | trans }} </i>
+        {% endif %}
+        </div>
+    </div>
+
+    {% set actor_bio = actor.getBio() %}
+    <div class="actor-bio">
+        {% if actor_bio %}
+            <p>{{ actor_bio }}</p>
+        {% else %}
+            <p>{{ '(No bio)' | trans }}</p>
+        {% endif %}
+    </div>#}
+</section>
+
+<main class="timeline" tabindex="0" role="feed">
+    <div class="h-feed hfeed notes">
+        {% if notes is defined and notes is not empty %}
+            {% for conversation in notes %}
+                {% include '/note/view.html.twig' with {'note': conversation['note'], 'have_user': have_user, 'replies': conversation['replies']} only %}
+                <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+            {% endfor %}
+        {% else %}
+            <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
+        {% endif %}
+    </div>
+</main>
+{% endblock body %}

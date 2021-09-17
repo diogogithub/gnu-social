@@ -1,117 +1,17 @@
 {% extends 'stdgrid.html.twig' %}
 
-{% block meta %}
-    {{ parent() }}
-{% endblock %}
-
-{% block title %}Actors{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}"
-          media="screen and (min-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_mid.css') }}"
-          media="screen and (max-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_small.css') }}"
-          media="screen and (max-width: 750px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/directory/groups.css') }}">
-{% endblock %}
-
-{% block header %}
-    {{ parent() }}
-{% endblock %}
-
-{% block left %}
-    {{ parent() }}
-{% endblock %}
+{% block title %}Groups{% endblock %}
 
 {% block body %}
-    <div class="content">
-        {% if post_form is defined %}
-            {{ form_start(post_form) }}
-            <div class="create-notice">
-                <div class="target">
-                    <div class="target-top">
-                        {{ form_label(post_form.to) }}
-                    </div>
-                    <div class="target-bot">
-                        {{ form_widget(post_form.to) }}
-                    </div>
-                </div>
-                <div class="create-right">
-                    <div class="create-top-right">
-                        <div class="scope">
-                            {{ form_row(post_form.visibility) }}
-                        </div>
-                        <div class="tabs">
-                            {% for tab in tabs %}
-                                <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="input-wrapper">
-                        <div class="content-input">
-                            {{ form_row(post_form.content) }}
-                        </div>
-                    </div>
-                    <div class="notice-options">
-                        <div class="attachments">
-                            {{ form_widget(post_form.attachments) }}
-                            <label for="{{ post_form.attachments.vars.id }}">
-                                {{ icon('attach', 'icon icon-attach') | raw }}
-                            </label>
-                        </div>
-                        <div class="post">
-                            {{ form_row(post_form.post) }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {{ form_end(post_form) }}
-        {% endif %}
-        <div class="main">
-            <nav class='main-nav'>
-                <ul>
-                    <li>
-                        <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public', 'main_all', "home_all") }}'>Timeline</a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="nav-content">
-                <nav class='main-nav'>
-                    <ul>
-                        <li>
-                            <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public') }}'>Public</a>
-                        </li>
-                        {% if user_nickname is defined %}
-                            <li>
-                                <a href="{{ path("home_all", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("home_all") }}'>Home</a>
-                            </li>
-                        {% endif %}
-                        <li>
-                            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
-                        </li>
-                        {% for tab in main_nav_tabs %}
-                            <li>
-                                <a href="{{ path(tab['route']) }}" class='hover-effect {{ active(tab['route']) }}' >{{ tab['title'] }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </nav>
-                <div class="timeline">
-                    <div class="groups">
-                        {% if groups is defined and groups is not empty %}
-                            {% for group in groups %}
-                                {% include 'directory/group.html.twig' with {'group': group, 'have_user': have_user} only %}
-                            {% endfor %}
-                        {% else %}
-                            <h1>{% trans %}No groups here.{% endtrans %}</h1>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+    <div class="timeline">
+        <div class="groups">
+            {% if groups is defined and groups is not empty %}
+                {% for group in groups %}
+                    {% include 'directory/group.html.twig' with {'group': group, 'have_user': have_user} only %}
+                {% endfor %}
+            {% else %}
+                <h1>{% trans %}No groups here.{% endtrans %}</h1>
+            {% endif %}
         </div>
     </div>
 {% endblock body %}
-
-{% block javascripts %}{% endblock %}

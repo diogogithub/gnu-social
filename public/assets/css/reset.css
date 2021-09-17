@@ -43,6 +43,7 @@ details summary > * {
     margin: unset;
     padding: unset;
 }
+
 details > summary {
     list-style: none;
 }
@@ -100,13 +101,16 @@ p {
     font-weight: 400;
     margin: unset;
 }
+
 p:first-line {
     padding-left: var(--small-size);
 }
+
 p:first-line {
     margin-top: 0;
     margin-bottom: 10px;
 }
+
 p:not(:first-line) {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -135,6 +139,7 @@ button {
     float: right !important;
     align-self: end !important;
 }
+
 input {
     cursor: text !important;
 }
@@ -144,11 +149,13 @@ input {
     all: unset;
     padding: 5px 10px;
 }
+
 button,
 select,
 input:not([type=text]) {
     cursor: pointer !important;
 }
+
 input:not([type=button], [type=color], [type=checkbox], [type=radio]) {
     cursor: auto !important;
 }
@@ -159,12 +166,11 @@ input:not([type=button], [type=color], [type=checkbox], [type=radio]) {
 }
 
 input[type=checkbox] {
-    all: unset;
-
-    display: inline-block;
+    display: inline-flex;
     width: 1em;
     height: 1em;
 }
+
 input[type=radio] {
     all: unset;
     cursor: pointer !important;

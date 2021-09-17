@@ -1,17 +1,25 @@
 {% block form_notify %}
-    <div class='form'>
-        <div class="separator"></div>
-        <ul>
-            {% for transport, form_transport in tabbed_forms_notify %}
-                <input type="radio" id="toggle-{{ transport }}" name="tabs"
-                       value="toggle-{{ transport }}" {% if transport == "email" %} checked {% endif %}>
-                <label for="toggle-{{ transport }}" id='tabs'>
-                    {{ transport }}
-                </label>
-                <div id="form_{{ transport }}" class='form'>
-                    {{ form(form_transport) }}
-                </div>
-            {% endfor %}
-        </ul>
-    </div>
+    <section>
+
+        <nav class='set-nav'>
+            <ul>
+                {% for transport, form_transport in tabbed_forms_notify %}
+                    <li>
+                        <details class="section-title-settings">
+                            <summary>
+                                <h3>{{ transport }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
+                                <em>{{ transport }}'s notification options.</em>
+                            </summary>
+
+                            <div id="form_{{ transport }}" class='form'>
+                                {{ form(form_transport) }}
+                            </div>
+                        </details>
+                    </li>
+                    <hr>
+                {% endfor %}
+            </ul>
+        </nav>
+
+    </section>
 {% endblock %}

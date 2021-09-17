@@ -1,8 +1,15 @@
+{% extends 'stdgrid.html.twig' %}
+
+{% set nickname = group.getNickname() %}
+
+{% block title %}{{ nickname }}'s page{% endblock %}
+
+{% block body %}
 <div class="group">
     <div class="group-content">
         <a href="{{ group.getHomepage() }}">
             <div class="group-info">
-                {% set nickname = group.getNickname() %}
+
                 <div class="group-img">
                     <img class="icon icon-group" src="{{  group.getStreamLogo() }}" alt="{{ nickname }}'s logo">
                 </div>
@@ -21,3 +28,4 @@
         </div>
     </div>
 </div>
+{% endblock body %}
