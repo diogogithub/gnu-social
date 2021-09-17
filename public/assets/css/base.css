@@ -260,6 +260,7 @@ hr {
 .h-entry {
     margin-top: var(--unit-size);
 }
+
 .notes hr {
     margin-top: 5px;
 }
@@ -270,13 +271,38 @@ hr {
 .h-entry .embed header {
     padding: var(--unit-size);
 }
+
 .h-entry .embed .p-summary {
     padding: var(--unit-size);
 }
+
 .h-entry,
 .note {
+    display: flex;
     background-color: var(--translucent);
     border-radius: var(--unit-size);
+}
+.note-wrapper {
+    width: 100%;
+    height: available;
+}
+
+.note-sidebar {
+    padding: var(--unit-size);
+}
+.note-sidebar * {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 100%;
+}
+
+.note-sidebar .avatar {
+    width: 3rem;
+    height: 3rem;
+    background: unset;
+    margin-bottom: var(--unit-size);
 }
 
 .h-entry .replies .h-entry {
@@ -308,18 +334,9 @@ hr {
     align-self: center;
 }
 
-.note-author .avatar {
-    width: auto;
-    height: var(--main-size);
-    border-radius: var(--unit-size);
-    margin-right: 5px;
-}
-
 .note-actions {
     display: flex;
     vertical-align: middle;
-    height: 100%;
-    max-height: 100%;
 }
 
 .button-container {
@@ -328,10 +345,10 @@ hr {
 
     background-repeat: no-repeat !important;
 
-    width: 1em !important;
-    height: 1em !important;
+    width: var(--main-size) !important;
+    height: var(--main-size) !important;
 
-    margin-left: 5px;
+    margin-top: var(--unit-size);
     text-indent: -9999em;
 }
 
@@ -373,6 +390,7 @@ hr {
     border-top: unset;
     border-radius: 0 0 var(--unit-size) var(--unit-size);
 
+    height: max-content;
     padding: var(--small-size);
 }
 

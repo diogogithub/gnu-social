@@ -1,24 +1,13 @@
 <article class="h-entry hentry note">
     {% set nickname = note.getActorNickname() %}
-    <header tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
 
-        {# TODO: this should link to the note's user profile? #}
-        <strong class="note-author u-url">
-            {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
-            <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar" width="32px" height="32px">
-            {{ nickname }}
-        </strong>
-
-        {% set reply_to = note.getReplyToNickname() %}
-        {% if reply_to is not null and not skip_reply_to is defined %}
-            {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
-        {% endif %}
-
+    <aside class="note-sidebar">
+        <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar" width="32px" height="32px">
         {% if app.user %}
-        <div class="note-actions">
-            {% if have_user %}
-                {% for current_action in get_note_actions(note) %}
-                    {{ form_start(current_action) }}
+            <div class="note-actions">
+                {% if have_user %}
+                    {% for current_action in get_note_actions(note) %}
+                        {{ form_start(current_action) }}
                         {% if current_action.submit_favourite is defined %}
                             {{ form_widget(current_action.submit_favourite) }}
                         {% endif %}
@@ -28,47 +17,64 @@
                         {% if current_action.reply is defined %}
                             {{ form_widget(current_action.reply) }}
                         {% endif %}
-                    {{ form_end(current_action) }}
-                {% endfor %}
+                        {{ form_end(current_action) }}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </aside>
+
+    <div class="note-wrapper">
+
+        {# TODO: this should link to the note's user profile? #}
+        <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
+            <strong class="note-author u-url">
+                {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
+                {{ nickname }}
+            </strong>
+
+            {% set reply_to = note.getReplyToNickname() %}
+            {% if reply_to is not null and not skip_reply_to is defined %}
+                {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
             {% endif %}
         </div>
+
+        <section tabindex="0" role="dialog" class="e-content entry-content note-content">
+
+            <div class="note-text" tabindex="0" title="{{ 'Note text content.' | trans }}">
+                {{ note.getRendered() | raw }}
+            </div>
+
+            {% if hide_attachments is not defined %}
+                <div class="note-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
+                    {% for attachment in note.getAttachments() %}
+                        {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if note.getLinks() is not empty %}
+                <div tabindex="0" class="note-links" title="{{ 'Shared links.' | trans }}">
+                    {% for link in note.getLinks() %}
+                        {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
+                            {{ block | raw }}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+
+        {% if replies is defined and replies is not empty %}
+            <div class="u-in-reply-to replies" tabindex="0" title="{{ 'Begin replies to ' | trans }} {{ nickname }}'s note!">
+                {% for conversation in replies %}
+                    {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
+                {% endfor %}
+            </div>
         {% endif %}
-    </header>
-    <section tabindex="0" role="dialog" class="e-content entry-content note-content">
 
-        <div class="note-text" tabindex="0" title="{{ 'Note text content.' | trans }}">
-        {{ note.getRendered() | raw }}
-        </div>
-
-        {% if hide_attachments is not defined %}
-        <div class="note-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
-        {% for attachment in note.getAttachments() %}
-            {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
-        {% endfor %}
-        </div>
+        {% if reply_to is not empty %}
+            <hr tabindex="0" title="{{ 'End of this reply' | trans }}">
         {% endif %}
-
-        {% if note.getLinks() is not empty %}
-        <div tabindex="0" class="note-links" title="{{ 'Shared links.' | trans }}">
-        {% for link in note.getLinks() %}
-            {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
-            {{ block | raw }}
-            {% endfor %}
-        {% endfor %}
-        </div>
-        {% endif %}
-
-    </section>
-
-    {% if replies is defined and replies is not empty %}
-    <div class="u-in-reply-to replies" tabindex="0" title="{{ 'Begin replies to ' | trans }} {{ nickname }}'s note!">
-        {% for conversation in replies %}
-        {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
-        {% endfor %}
     </div>
-    {% endif %}
 
-    {% if reply_to is not empty %}
-        <hr tabindex="0" title="{{ 'End of this reply' | trans }}">
-    {% endif %}
 </article>

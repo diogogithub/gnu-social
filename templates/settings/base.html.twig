@@ -17,60 +17,54 @@
 {% endblock %}
 
 {% block body %}
-    <nav class='main-nav fg'>
+    <nav class='main-nav'>
         <h1>Settings</h1>
         <ul>
             <li>
                 <details class="section-title-settings">
-                    <summary>
-                        <h2>Profile {{ icon('arrow-down', 'icon icon-details-open') | raw }}</h2>
+                <summary>
+                    <h2>Profile {{ icon('arrow-down', 'icon icon-details-open') | raw }}</h2>
+                    <em>Personal Information, Avatar and Profile</em>
+                </summary>
 
-                        <em>Personal Information, Avatar and Profile</em>
-                    </summary>
+                <section>
+                    <nav class='set-nav'>
+                        <ul>
+                            <li>
+                            <details class="section-title-settings">
+                                <summary>
+                                    <h3>Personal Info{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
+                                    <em>Nickname, Homepage, Bio, Self Tags and more.</em>
+                                </summary>
 
-                    <section>
-                        <nav class='set-nav'>
-                            <ul>
-                                <li>
-                                    <details class="section-title-settings">
-                                        <summary>
-                                            <h3>Personal
-                                                Info{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
+                                {% block form_profile %}{% include '/settings/profile.html.twig' %}{% endblock %}
+                            </details>
+                            </li>
 
-                                            <em>Nickname, Homepage, Bio, Self Tags and more.</em>
-                                        </summary>
+                            <hr>
 
-                                        {% block form_profile %}
-                                            {% include '/settings/profile.html.twig' %}
-                                        {% endblock %}
-                                    </details>
-                                </li>
+                        {% set profile_tabs = handle_event('PopulateProfileSettingsTabs', app.request) %}
+                        {% for tab in profile_tabs %}
+                            <li>
+                                <details class="section-title-settings">
+                                <summary>
+                                    <h3>{{ tab['title'] }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
+                                    <em>{{ tab['desc'] }}</em>
+                                </summary>
 
-                                <hr>
+                                {% include tab['controller']['_template'] with tab['controller'] only %}
 
-                                {% set profile_tabs = handle_event('PopulateProfileSettingsTabs', app.request) %}
-                                {% for tab in profile_tabs %}
-                                    <li>
-                                        <details class="section-title-settings">
-                                            <summary>
-                                                <h3>{{ tab['title'] }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
+                                {# <a href="{{ path(tab['route']) }}"
+                                class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a> #}
 
-                                                <em>{{ tab['desc'] }}</em>
-                                            </summary>
+                                </details>
+                            </li>
 
-                                            {% include tab['controller']['_template'] with tab['controller'] only %}
-
-                                            {# <a href="{{ path(tab['route']) }}"
-                                                   class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a> #}
-
-                                        </details>
-                                    </li>
-
-                                    <hr>
-                                {% endfor %}
-                            </ul>
-                        </nav>
-                    </section>
+                            <hr>
+                        {% endfor %}
+                        </ul>
+                    </nav>
+                </section>
                 </details>
             </li>
 
