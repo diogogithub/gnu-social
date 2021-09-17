@@ -57,7 +57,7 @@ class Avatar extends Component
 
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        if (Common::user() != null) {
+        if (Common::user() !== null) {
             $vars['user_avatar'] = self::getAvatarUrl();
         }
         return Event::next;

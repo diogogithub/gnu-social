@@ -5,7 +5,7 @@
     <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <aside class="panel-content accessibility-target">
 
-        {% if post_form is defined %}
+        {% if post_form is defined  and not post_form.isRendered() %}
             <section class="section-widget" title={{ 'Create a new note.' | trans }}>
                 <details class="section-title-details" title={{ 'Expand if you want to access more options.' | trans }}>
                     <summary class="section-title-summary">

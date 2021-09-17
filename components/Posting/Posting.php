@@ -53,7 +53,7 @@ class Posting extends Component
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        if (($user = Common::user()) == null) {
+        if (($user = Common::user()) === null) {
             return Event::next;
         }
 

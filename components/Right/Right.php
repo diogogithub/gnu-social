@@ -21,10 +21,11 @@ namespace Component\Right;
 
 use App\Core\Event;
 use App\Core\Modules\Component;
+use App\Util\Common;
 
 class Right extends Component
 {
-    public function onEndTwigPopulateVars(array &$vars)
+    public function onStartTwigPopulateVars(array &$vars)
     {
         return Event::next;
     }

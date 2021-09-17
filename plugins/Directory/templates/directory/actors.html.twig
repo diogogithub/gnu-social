@@ -4,10 +4,12 @@
 
 {% block body %}
 <section class="section-widget section-widget-padded">
-    <div class="actors">
+    <h2 class="section-title">{{ "Actors" | trans }}</h2>
+
+    <div class="section-widget-padded">
         {% if actors is defined and actors is not empty %}
             {% for actor in actors %}
-                {% include 'directory/actor.html.twig' with {'actor': actor, 'have_user': have_user} only %}
+                {% include 'directory/actor.html.twig' %}
             {% endfor %}
         {% else %}
             <h1>{% trans %}No actors here.{% endtrans %}</h1>
