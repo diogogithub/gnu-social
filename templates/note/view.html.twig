@@ -3,25 +3,6 @@
 
     <aside class="note-sidebar">
         <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar" width="32px" height="32px">
-        {% if app.user %}
-            <div class="note-actions">
-                {% if have_user %}
-                    {% for current_action in get_note_actions(note) %}
-                        {{ form_start(current_action) }}
-                        {% if current_action.submit_favourite is defined %}
-                            {{ form_widget(current_action.submit_favourite) }}
-                        {% endif %}
-                        {% if current_action.submit_repeat is defined %}
-                            {{ form_widget(current_action.submit_repeat) }}
-                        {% endif %}
-                        {% if current_action.reply is defined %}
-                            {{ form_widget(current_action.reply) }}
-                        {% endif %}
-                        {{ form_end(current_action) }}
-                    {% endfor %}
-                {% endif %}
-            </div>
-        {% endif %}
     </aside>
 
     <div class="note-wrapper">
@@ -32,6 +13,26 @@
                 {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
                 {{ nickname }}
             </strong>
+
+            {% if app.user %}
+                <div class="note-actions">
+                    {% if have_user %}
+                        {% for current_action in get_note_actions(note) %}
+                            {{ form_start(current_action) }}
+                            {% if current_action.submit_favourite is defined %}
+                                {{ form_widget(current_action.submit_favourite) }}
+                            {% endif %}
+                            {% if current_action.submit_repeat is defined %}
+                                {{ form_widget(current_action.submit_repeat) }}
+                            {% endif %}
+                            {% if current_action.reply is defined %}
+                                {{ form_widget(current_action.reply) }}
+                            {% endif %}
+                            {{ form_end(current_action) }}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endif %}
 
             {% set reply_to = note.getReplyToNickname() %}
             {% if reply_to is not null and not skip_reply_to is defined %}

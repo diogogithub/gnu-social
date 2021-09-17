@@ -281,10 +281,11 @@ hr {
     display: flex;
     background-color: var(--translucent);
     border-radius: var(--unit-size);
+    border: solid 2px var(--bg2);
 }
 .note-wrapper {
     width: 100%;
-    height: available;
+    height: inherit;
 }
 
 .note-sidebar {
@@ -317,13 +318,12 @@ hr {
     align-items: center;
     max-height: 3rem;
 
-    border: solid 2px var(--bg2);
     border-bottom: unset;
     border-radius: var(--unit-size) var(--unit-size) 0 0;
 
-    background-color: var(--translucent);
+    background: linear-gradient(to left, var(--translucent), transparent);
     font-size: var(--medium-size);
-    padding: 5px 10px 5px 10px;
+    padding: 5px 10px 5px 0;
 }
 
 .note-author {
@@ -345,10 +345,10 @@ hr {
 
     background-repeat: no-repeat !important;
 
-    width: var(--main-size) !important;
-    height: var(--main-size) !important;
+    width: var(--medium-size) !important;
+    height: var(--medium-size) !important;
 
-    margin-top: var(--unit-size);
+    margin-left: var(--unit-size);
     text-indent: -9999em;
 }
 
@@ -386,8 +386,6 @@ hr {
 }
 
 .note-content {
-    border: solid 2px var(--bg2);
-    border-top: unset;
     border-radius: 0 0 var(--unit-size) var(--unit-size);
 
     height: max-content;
