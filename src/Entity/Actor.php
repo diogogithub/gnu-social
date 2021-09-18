@@ -24,11 +24,11 @@ namespace App\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Core\Event;
 use App\Core\Router\Router;
 use App\Core\UserRoles;
 use App\Util\Exception\NicknameException;
 use App\Util\Nickname;
+use Component\Avatar\Avatar;
 use DateTimeInterface;
 use Functional as F;
 
@@ -215,11 +215,9 @@ class Actor extends Entity
         return DB::findOneBy('local_user', ['id' => $this->getId()]);
     }
 
-    public function getAvatarUrl()
+    public function getAvatarUrl(string $size = 'full')
     {
-        $url = null;
-        Event::handle('GetAvatarUrl', [$this->getId(), &$url]);
-        return $url;
+        return Avatar::getAvatarUrl($this->getId(), $size);
     }
 
     public static function getFromId(int $id): ?self

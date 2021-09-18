@@ -24,8 +24,8 @@ namespace App\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Core\Event;
 use App\Core\VisibilityScope;
+use Component\Avatar\Avatar;
 use DateTimeInterface;
 
 /**
@@ -220,11 +220,9 @@ class Note extends Entity
         return Actor::getNicknameFromId($this->actor_id);
     }
 
-    public function getAvatarUrl()
+    public function getActorAvatarUrl(string $size = 'full'): string
     {
-        $url = null;
-        Event::handle('GetAvatarUrl', [$this->getActorId(), &$url]);
-        return $url;
+        return Avatar::getAvatarUrl($this->getActorId(), $size);
     }
 
     public static function getAllNotes(int $noteScope): array

@@ -1,19 +1,17 @@
 {% extends 'stdgrid.html.twig' %}
 
-{% set id = actor.id %}
-{% set nick = actor.nickname %}
+{% set id = actor.getId() %}
+{% set nickname = actor.getNickname() %}
 
-{# TODO: how to get avatar in here? Tags and rest of profile info? #}
-{% set avatar = actor.nickname %}
+{% set avatar = actor.getAvatarUrl() %}
 
-{% block title %}{{ nick }}'s profile{% endblock %}
+{% block title %}{{ nickname }}'s profile{% endblock %}
 
 {% block body %}
 <section class="section-widget section-widget-padded">
     <div class="section-title">
-        <img class="icon icon-avatar" src="{{ avatar }}" alt="{{ nick }}'s avatar">{{ nick }}
+        <img class="icon icon-avatar" src="{{ avatar }}" alt="{{ nickname }}'s avatar">{{ nickname }}
     </div>
-    {#
 
     <div class="actor-nickname-and-tags">
 
@@ -37,7 +35,7 @@
         {% else %}
             <p>{{ '(No bio)' | trans }}</p>
         {% endif %}
-    </div>#}
+    </div>
 </section>
 
 <main class="timeline" tabindex="0" role="feed">

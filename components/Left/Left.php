@@ -38,6 +38,7 @@ class Left extends Component
                 $vars['user_tags']      = $actor->getSelfTags();
                 $vars['user_followers'] = $actor->getFollowersCount();
                 $vars['user_followed']  = $actor->getFollowedCount();
+                $vars['user_avatar']    = $actor->getAvatarUrl();
             }
         } catch (Exception $e) {
             Log::error('Got an exception while populating variables for the left panel: ' . $e);

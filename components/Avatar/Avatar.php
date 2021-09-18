@@ -43,6 +43,11 @@ class Avatar extends Component
         return Event::next;
     }
 
+    /**
+     * @param mixed $tabs
+     *
+     * @throws \App\Util\Exception\ClientException
+     */
     public function onPopulateProfileSettingsTabs(Request $request, &$tabs): bool
     {
         // TODO avatar template shouldn't be on settings folder
@@ -52,20 +57,6 @@ class Avatar extends Component
             'controller' => C\Avatar::settings_avatar($request),
         ];
 
-        return Event::next;
-    }
-
-    public function onStartTwigPopulateVars(array &$vars): bool
-    {
-        if (Common::user() !== null) {
-            $vars['user_avatar'] = self::getAvatarUrl();
-        }
-        return Event::next;
-    }
-
-    public function onGetAvatarUrl(int $actor_id, ?string &$url): bool
-    {
-        $url = self::getAvatarUrl($actor_id);
         return Event::next;
     }
 
@@ -98,11 +89,10 @@ class Avatar extends Component
     /**
      * Get the cached avatar associated with the given Actor id, or the current user if not given
      */
-    public static function getAvatarUrl(?int $actor_id = null, string $size = 'full'): string
+    public static function getAvatarUrl(int $actor_id, string $size = 'full'): string
     {
-        $actor_id = $actor_id ?: Common::userId();
-        return Cache::get("avatar-url-{$actor_id}", function () use ($actor_id) {
-            return Router::url('avatar', ['actor_id' => $actor_id, 'size' => 'full']);
+        return Cache::get("avatar-url-{$actor_id}", function () use ($actor_id, $size) {
+            return Router::url('avatar', ['actor_id' => $actor_id, 'size' => $size]);
         });
     }
 
