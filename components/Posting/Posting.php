@@ -28,7 +28,9 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Entity\Actor;
+use App\Entity\ActorToAttachment;
 use App\Entity\Attachment;
+use App\Entity\AttachmentToNote;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -109,6 +111,21 @@ class Posting extends Component
         return Event::next;
     }
 
+    /**
+     * Store the given note with $content and $attachments, created by
+     * $actor_id, possibly as a reply to note $reply_to and with flag
+     * $is_local. Sanitizes $content and $attachments
+     *
+     * @param Actor     $actor
+     * @param string    $content
+     * @param string    $content_type
+     * @param array     $attachments
+     * @param null|Note $reply_to
+     * @param null|Note $repeat_of
+     *
+     * @throws ClientException
+     * @throws ServerException
+     */
     public static function storeLocalNote(Actor $actor, string $content, string $content_type, array $attachments, ?Note $reply_to = null, ?Note $repeat_of = null)
     {
         $rendered = null;
@@ -118,11 +135,36 @@ class Posting extends Component
             'content'      => $content,
             'content_type' => $content_type,
             'rendered'     => $rendered,
-            'attachments'  => $attachments, // Not a regular field
             'is_local'     => true,
         ]);
+
+        $processed_attachments = [];
+        /** @var \Symfony\Component\HttpFoundation\File\UploadedFile[] $attachments */
+        foreach ($attachments as $f) {
+            $filesize      = $f->getSize();
+            $max_file_size = Common::config('attachments', 'file_quota');
+            if ($max_file_size < $filesize) {
+                throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. ' .
+                    'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize]));
+            }
+            Event::handle('EnforceUserFileQuota', [$filesize, $actor->getId()]);
+            $processed_attachments[] = [GSFile::sanitizeAndStoreFileAsAttachment($f), $f->getClientOriginalName()];
+        }
+
+        DB::persist($note);
+
+        // Need file and note ids for the next step
         Event::handle('ProcessNoteContent', [$note->getId(), $content, $content_type]);
         DB::flush();
+
+        if ($processed_attachments != []) {
+            foreach ($processed_attachments as [$a, $fname]) {
+                if (DB::count('actor_to_attachment', $args = ['attachment_id' => $a->getId(), 'actor_id' => $args['actor_id']]) === 0) {
+                    DB::persist(ActorToAttachment::create($args));
+                }
+                DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
+            }
+        }
     }
 
     public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, Actor $author, ?Note $reply_to = null)

@@ -69,12 +69,6 @@ select sum(at.size) as total
     where ua.actor_id = :actor_id and at.size is not null
 END;
 
-        $max_file_size = Common::config('attachments', 'file_quota');
-        if ($max_file_size < $filesize) {
-            throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. ',
-                                         ['quota' => $max_file_size, 'size' => $filesize]));
-        }
-
         $max_user_quota = Common::config('attachments', 'user_quota');
         if ($max_user_quota !== false) { // If not disabled
             $cache_key_user_total = "FileQuota-total-user-{$user_id}";

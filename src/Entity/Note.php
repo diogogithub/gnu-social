@@ -25,7 +25,6 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
-use App\Core\GSFile;
 use App\Core\VisibilityScope;
 use DateTimeInterface;
 
@@ -297,40 +296,6 @@ class Note extends Entity
                                                'join note n with i.activity_id = n.id ' .
                                                'where n.id = :note_id and m.actor_id = :actor_id',
                                                ['note_id' => $this->id, 'actor_id' => $a->getId()]));
-    }
-
-    /**
-     * Create an instance of NoteToLink or fill in the
-     * properties of $obj with the associative array $args. Does
-     * persist the result
-     */
-    public static function create(array $args, mixed $obj = null): self
-    {
-        /** @var \Symfony\Component\HttpFoundation\File\UploadedFile[] $attachments */
-        $attachments = $args['attachments'];
-        unset($args['attachments']);
-
-        $note = parent::create($args, new self());
-
-        $processed_attachments = [];
-        foreach ($attachments as $f) {
-            Event::handle('EnforceUserFileQuota', [$f->getSize(), $args['actor_id']]);
-            $processed_attachments[] = [GSFile::sanitizeAndStoreFileAsAttachment($f), $f->getClientOriginalName()];
-        }
-
-        // Need file and note ids for the next step
-        DB::persist($note);
-
-        if ($processed_attachments != []) {
-            foreach ($processed_attachments as [$a, $fname]) {
-                if (DB::count('actor_to_attachment', $args = ['attachment_id' => $a->getId(), 'actor_id' => $args['actor_id']]) === 0) {
-                    DB::persist(ActorToAttachment::create($args));
-                }
-                DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
-            }
-        }
-
-        return $note;
     }
 
     /**
