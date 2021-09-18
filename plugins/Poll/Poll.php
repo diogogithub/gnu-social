@@ -70,14 +70,14 @@ class Poll extends NoteHandlerPlugin
      * @param array $vars
      *
      * @return bool hook value; true means continue processing, false means stop.
-     */
-    public function onStartTwigPopulateVars(array &$vars): bool
-    {
-        $vars['tabs'][] = ['title' => 'Poll',
-            'href'                 => 'newpoll',
-        ];
-        return Event::next;
-    }
+     *
+     * public function onStartTwigPopulateVars(array &$vars): bool
+     * {
+     * $vars['tabs'][] = ['title' => 'Poll',
+     * 'href'                 => 'newpoll',
+     * ];
+     * return Event::next;
+     * }*/
 
     /**
      * Output our dedicated stylesheet

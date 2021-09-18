@@ -27,12 +27,12 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
+use App\Core\Router\Router;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
-use App\Util\Formatting;
 use App\Util\Nickname;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -114,12 +114,10 @@ class Favourite extends NoteHandlerPlugin
         return Event::next;
     }
 
-    public function onInsertLeftPanelLink(string $user_nickname, &$res): bool
+    public function onAddProfileNavigationItem(array $vars, array &$res): bool
     {
-        $res[] = Formatting::twigRenderString(<<<END
-<a href="{{ path("actor_favourites_nickname", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("favourites") }}'>Favourites</a>
-<a href="{{ path("actor_reverse_favourites_nickname", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("reverse_favourites") }}'>Reverse Favs</a>
-END, ['user_nickname' => $user_nickname]);
+        $res[] = ['title' => 'Favourites', 'path' => Router::url('actor_favourites_nickname', ['nickname' => $vars['nickname']])];
+        $res[] = ['title' => 'Reverse Favourites', 'path' => Router::url('actor_reverse_favourites_nickname', ['nickname' => $vars['nickname']])];
         return Event::next;
     }
 

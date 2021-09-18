@@ -113,7 +113,7 @@ abstract class Common
 
     public static function actor(): ?Actor
     {
-        return self::user()->getActor();
+        return self::user()?->getActor();
     }
 
     public static function userNickname(): ?string

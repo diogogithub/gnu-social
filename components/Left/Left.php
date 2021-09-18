@@ -19,30 +19,8 @@
 
 namespace Component\Left;
 
-use App\Core\Event;
-use App\Core\Log;
 use App\Core\Modules\Component;
-use App\Util\Common;
-use Exception;
 
 class Left extends Component
 {
-    public function onEndTwigPopulateVars(array &$vars)
-    {
-        try {
-            $user = Common::user();
-            if ($user != null) {
-                $actor                  = $user->getActor();
-                $vars['user_id']        = $user->getId();
-                $vars['user_nickname']  = $user->getNickname();
-                $vars['user_tags']      = $actor->getSelfTags();
-                $vars['user_followers'] = $actor->getFollowersCount();
-                $vars['user_followed']  = $actor->getFollowedCount();
-                $vars['user_avatar']    = $actor->getAvatarUrl();
-            }
-        } catch (Exception $e) {
-            Log::error('Got an exception while populating variables for the left panel: ' . $e);
-        }
-        return Event::next;
-    }
 }

@@ -71,22 +71,22 @@ class ProfileColor extends Plugin
      * @param array $vars
      *
      * @return bool hook value; true means continue processing, false means stop.
-     */
-    public function onStartTwigPopulateVars(array &$vars): bool
-    {
-        /*$vars['profile_tabs'][] = [
-            'title' => 'Color',
-            'desc'                         => 'Change your profile color.',
-            'path'                        => 'profilecolor/profilecolor.html.twig',
-        ];*/
-        if (Common::user() != null) {
-            $color = DB::find('profile_color', ['actor_id' => Common::user()->getId()]);
-            if ($color != null) {
-                $vars['profile_extras'][] = ['name' => 'profilecolor', 'vars' => ['color' => $color->getColor()]];
-            }
-        }
-        return Event::next;
-    }
+     *
+     * public function onStartTwigPopulateVars(array &$vars): bool
+     * {
+     * /*$vars['profile_tabs'][] = [
+     * 'title' => 'Color',
+     * 'desc'                         => 'Change your profile color.',
+     * 'path'                        => 'profilecolor/profilecolor.html.twig',
+     * ];
+     * if (Common::user() != null) {
+     * $color = DB::find('profile_color', ['actor_id' => Common::user()->getId()]);
+     * if ($color != null) {
+     * $vars['profile_extras'][] = ['name' => 'profilecolor', 'vars' => ['color' => $color->getColor()]];
+     * }
+     * }
+     * return Event::next;
+     * }*/
 
     /**
      * Output our dedicated stylesheet

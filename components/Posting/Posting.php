@@ -53,7 +53,7 @@ class Posting extends Component
      * @throws RedirectException
      * @throws ServerException
      */
-    public function onStartTwigPopulateVars(array &$vars): bool
+    public function onAppendRightPostingBlock(array $vars, array &$res): bool
     {
         if (($user = Common::user()) === null) {
             return Event::next;
@@ -106,7 +106,7 @@ class Posting extends Component
             }
         }
 
-        $vars['post_form'] = $form->createView();
+        $res = $form->createView();
 
         return Event::next;
     }

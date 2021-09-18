@@ -5,39 +5,34 @@
     <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <aside class="panel-content accessibility-target">
 
-        {% if post_form is defined  and not post_form.isRendered() %}
-            <section class="section-widget" title={{ 'Create a new note.' | trans }}>
-                <details class="section-title-details" title={{ 'Expand if you want to access more options.' | trans }}>
-                    <summary class="section-title-summary">
-                        {{ "Create a note" | trans }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}
-                    </summary>
+        {% set post_form = handle_event('AppendRightPostingBlock', {'request': request}) %}
+        <section class="section-widget" title={{ 'Create a new note.' | trans }}>
+            <details class="section-title-details" title={{ 'Expand if you want to access more options.' | trans }}>
+                <summary class="section-title-summary">
+                    {{ "Create a note" | trans }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                </summary>
+            </details>
 
-                    {% for tab in tabs %}
-                        <a class="section-title-menu-element" href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
-                    {% endfor %}
-                </details>
+            <div class="section-form">
+                <fieldset>
+                    {{ form_start(post_form) }}
 
-                <div class="section-form">
-                    <fieldset>
-                        {{ form_start(post_form) }}
+                    {{ form_row(post_form.to, {'attr': {'class': 'section-form-scope'}}) }}
 
-                        {{ form_row(post_form.to, {'attr': {'class': 'section-form-scope'}}) }}
+                    {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
 
-                        {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
+                    {{ form_row(post_form.content, {'attr': {'class': 'section-form-textarea'}}) }}
 
-                        {{ form_row(post_form.content, {'attr': {'class': 'section-form-textarea'}}) }}
+                    <label for="{{ post_form.attachments.vars.id }}" class="section-form-options">
+                        {{ form_widget(post_form.attachments) }}
+                    </label>
 
-                        <label for="{{ post_form.attachments.vars.id }}" class="section-form-options">
-                            {{ form_widget(post_form.attachments) }}
-                        </label>
+                    {{ form_row(post_form.post_note, {'attr': {'class': 'section-form-send'}}) }}
 
-                        {{ form_row(post_form.post_note, {'attr': {'class': 'section-form-send'}}) }}
-
-                        {{ form_end(post_form) }}
-                    </fieldset>
-                </div>
-            </section>
-        {% endif %}
+                    {{ form_end(post_form) }}
+                </fieldset>
+            </div>
+        </section>
 
         {% set current_path = app.request.get('_route') %}
         {% if right_panel_vars is defined %}

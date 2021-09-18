@@ -71,19 +71,19 @@ class Cover extends Plugin
      * @param array $vars
      *
      * @return bool hook value; true means continue processing, false means stop.
-     */
-    public function onStartTwigPopulateVars(array &$vars): bool
-    {
-        /*if (Common::user() != null) {
-            $cover = DB::find('cover', ['actor_id' => Common::user()->getId()]);
-            if ($cover != null) {
-                $vars['profile_extras'][] = ['name' => 'cover', 'vars' => ['img' => '/cover']];
-            } else {
-                $vars['profile_extras'][] = ['name' => 'cover', 'vars' => []];
-            }
-        }*/
-        return Event::next;
-    }
+     *
+     * public function onStartTwigPopulateVars(array &$vars): bool
+     * {
+     * if (Common::user() != null) {
+     * $cover = DB::find('cover', ['actor_id' => Common::user()->getId()]);
+     * if ($cover != null) {
+     * $vars['profile_extras'][] = ['name' => 'cover', 'vars' => ['img' => '/cover']];
+     * } else {
+     * $vars['profile_extras'][] = ['name' => 'cover', 'vars' => []];
+     * }
+     * }
+     * return Event::next;
+     * }*/
 
     /**
      * Output our dedicated stylesheet

@@ -89,8 +89,12 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $request    = $event->getRequest();
 
         $this->request = $request;
-        $this->vars    = ['controller' => $controller, 'request' => $request, 'have_user' => Common::user() !== null];
-        Event::handle('StartTwigPopulateVars', [&$this->vars]);
+
+        $this->vars = ['controller' => $controller, 'request' => $request];
+        $user       = Common::user();
+        if ($user !== null) {
+            $this->vars['current_actor'] = $user->getActor();
+        }
 
         $event->stopPropagation();
         return $event;
@@ -111,10 +115,9 @@ class Controller extends AbstractController implements EventSubscriberInterface
         }
 
         $this->vars = array_merge_recursive($this->vars, $response);
-        Event::handle('EndTwigPopulateVars', [&$this->vars]);
 
         $template = $this->vars['_template'];
-        unset($this->vars['_template'], $this->vars['request'], $response['_template']);
+        unset($this->vars['_template'], $response['_template']);
 
         // Respond in the most preferred acceptable content type
         $accept = $request->getAcceptableContentTypes() ?: ['text/html'];

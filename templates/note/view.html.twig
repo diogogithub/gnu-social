@@ -16,21 +16,19 @@
 
             {% if app.user %}
                 <div class="note-actions">
-                    {% if have_user %}
-                        {% for current_action in get_note_actions(note) %}
-                            {{ form_start(current_action) }}
-                            {% if current_action.submit_favourite is defined %}
-                                {{ form_widget(current_action.submit_favourite) }}
-                            {% endif %}
-                            {% if current_action.submit_repeat is defined %}
-                                {{ form_widget(current_action.submit_repeat) }}
-                            {% endif %}
-                            {% if current_action.reply is defined %}
-                                {{ form_widget(current_action.reply) }}
-                            {% endif %}
-                            {{ form_end(current_action) }}
-                        {% endfor %}
-                    {% endif %}
+                    {% for current_action in get_note_actions(note) %}
+                        {{ form_start(current_action) }}
+                        {% if current_action.submit_favourite is defined %}
+                            {{ form_widget(current_action.submit_favourite) }}
+                        {% endif %}
+                        {% if current_action.submit_repeat is defined %}
+                            {{ form_widget(current_action.submit_repeat) }}
+                        {% endif %}
+                        {% if current_action.reply is defined %}
+                            {{ form_widget(current_action.reply) }}
+                        {% endif %}
+                        {{ form_end(current_action) }}
+                    {% endfor %}
                 </div>
             {% endif %}
 

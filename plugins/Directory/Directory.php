@@ -24,6 +24,7 @@ namespace Plugin\Directory;
 use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
+use App\Core\Router\Router;
 
 class Directory extends Plugin
 {
@@ -39,17 +40,16 @@ class Directory extends Plugin
     }
 
     /**
-     * Populate twig vars
+     * Add Links to menu
      *
-     * @param array $vars
+     * @param array $res out menu items
      *
      * @return bool hook value; true means continue processing, false means stop.
      */
-    public function onStartTwigPopulateVars(array &$vars): bool
+    public function onAddMainNavigationItem(array $vars, array &$res): bool
     {
-        $vars['main_nav_tabs'][] = ['title' => 'Actors', 'route' => 'directory_actors'];
-        $vars['main_nav_tabs'][] = ['title' => 'Groups', 'route' => 'directory_groups'];
-
+        $res[] = ['title' => 'Actors', 'path' => Router::url('directory_actors', [])];
+        $res[] = ['title' => 'Groups', 'path' => Router::url('directory_groups', [])];
         return Event::next;
     }
 }

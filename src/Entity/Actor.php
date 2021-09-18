@@ -265,7 +265,7 @@ class Actor extends Entity
         Cache::delete('selftags-' . $this->id);
     }
 
-    public function getFollowersCount()
+    public function getSubscribersCount()
     {
         return Cache::get('followers-' . $this->id,
                           function () {
@@ -274,7 +274,7 @@ class Actor extends Entity
                           });
     }
 
-    public function getFollowedCount()
+    public function getSubscriptionsCount()
     {
         return Cache::get('followed-' . $this->id,
                           function () {
