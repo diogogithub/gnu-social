@@ -27,43 +27,43 @@ use function App\Core\I18n\_m;
 use App\Util\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Request;
 
-class GSActor extends Controller
+class Actor extends Controller
 {
     /**
      * Generic function that handles getting a representation for an actor from id
      */
-    private function GSActorById(int $id, callable $handle)
+    private function ActorById(int $id, callable $handle)
     {
-        $gsactor = DB::findOneBy('gsactor', ['id' => $id]);
-        if (empty($gsactor)) {
+        $actor = DB::findOneBy('actor', ['id' => $id]);
+        if (empty($actor)) {
             throw new ClientException(_m('No such actor.'), 404);
         } else {
-            return $handle($gsactor);
+            return $handle($actor);
         }
     }
     /**
      * Generic function that handles getting a representation for an actor from nickname
      */
-    private function GSActorByNickname(string $nickname, callable $handle)
+    private function ActorByNickname(string $nickname, callable $handle)
     {
-        $user    = DB::findOneBy('local_user', ['nickname' => $nickname]);
-        $gsactor = DB::findOneBy('gsactor', ['id' => $user->getId()]);
-        if (empty($gsactor)) {
+        $user  = DB::findOneBy('local_user', ['nickname' => $nickname]);
+        $actor = DB::findOneBy('actor', ['id' => $user->getId()]);
+        if (empty($actor)) {
             throw new ClientException(_m('No such actor.'), 404);
         } else {
-            return $handle($gsactor);
+            return $handle($actor);
         }
     }
 
     /**
      * The page where the actor's info is shown
      */
-    public function GSActorShowId(Request $request, int $id)
+    public function ActorShowId(Request $request, int $id)
     {
-        return $this->GSActorById($id, fn ($gsactor) => ['_template' => 'actor/view.html.twig', 'gsactor' => $gsactor]);
+        return $this->ActorById($id, fn ($actor) => ['_template' => 'actor/view.html.twig', 'actor' => $actor]);
     }
-    public function GSActorShowNickname(Request $request, string $nickname)
+    public function ActorShowNickname(Request $request, string $nickname)
     {
-        return $this->GSActorByNickname($nickname, fn ($gsactor) => ['_template' => 'actor/view.html.twig', 'gsactor' => $gsactor]);
+        return $this->ActorByNickname($nickname, fn ($actor) => ['_template' => 'actor/view.html.twig', 'actor' => $actor]);
     }
 }

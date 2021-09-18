@@ -41,7 +41,7 @@ class GroupBlock extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $group_id;
-    private int $blocked_gsactor;
+    private int $blocked_actor;
     private int $blocker_user;
     private \DateTimeInterface $modified;
 
@@ -56,15 +56,15 @@ class GroupBlock extends Entity
         return $this->group_id;
     }
 
-    public function setBlockedGSActor(int $blocked_gsactor): self
+    public function setBlockedActor(int $blocked_actor): self
     {
-        $this->blocked_gsactor = $blocked_gsactor;
+        $this->blocked_actor = $blocked_actor;
         return $this;
     }
 
-    public function getBlockedGSActor(): int
+    public function getBlockedActor(): int
     {
-        return $this->blocked_gsactor;
+        return $this->blocked_actor;
     }
 
     public function setBlockerUser(int $blocker_user): self
@@ -97,12 +97,12 @@ class GroupBlock extends Entity
         return [
             'name'   => 'group_block',
             'fields' => [
-                'group_id'        => ['type' => 'int', 'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'group gsactor is blocked from'],
-                'blocked_gsactor' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'gsactor that is blocked'],
-                'blocker_user'    => ['type' => 'int', 'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'user making the block'],
-                'modified'        => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'group_id'      => ['type' => 'int', 'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'group actor is blocked from'],
+                'blocked_actor' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'actor that is blocked'],
+                'blocker_user'  => ['type' => 'int', 'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'user making the block'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['group_id', 'blocked_gsactor'],
+            'primary key' => ['group_id', 'blocked_actor'],
         ];
     }
 }

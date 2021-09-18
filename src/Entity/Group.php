@@ -47,7 +47,7 @@ class Group extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private int $gsactor_id;
+    private int $actor_id;
     private ?string $nickname;
     private ?string $fullname;
     private ?string $homepage;
@@ -76,15 +76,15 @@ class Group extends Entity
         return $this->id;
     }
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setNickname(?string $nickname): self
@@ -266,12 +266,12 @@ class Group extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public function getActor(): GSActor
+    public function getActor(): Actor
     {
-        return GSActor::getFromId($this->getId());
+        return Actor::getFromId($this->getId());
     }
 
-    public static function getFromNickname(string $nickname, ?GSActor $actor = null): ?self
+    public static function getFromNickname(string $nickname, ?Actor $actor = null): ?self
     {
         $nickname = Nickname::normalize($nickname, check_already_used: false);
         $group    = null;
@@ -295,7 +295,7 @@ class Group extends Entity
             'name'   => '`group`',
             'fields' => [
                 'id'            => ['type' => 'serial',    'not null' => true],
-                'gsactor_id'    => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'actor_id'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'foreign key to actor table'],
                 'nickname'      => ['type' => 'varchar',   'length' => 64, 'description' => 'nickname for addressing'],
                 'fullname'      => ['type' => 'varchar',   'length' => 191, 'description' => 'display name'],
                 'homepage'      => ['type' => 'varchar',   'length' => 191, 'description' => 'URL, cached so we dont regenerate'],
@@ -303,7 +303,7 @@ class Group extends Entity
                 'is_local'      => ['type' => 'bool',      'description' => 'whether this group was created in this instance'],
                 'location'      => ['type' => 'varchar',   'length' => 191, 'description' => 'related physical location, if any'],
                 'original_logo' => ['type' => 'varchar',   'length' => 191, 'description' => 'original size logo'],
-                'homepage_logo' => ['type' => 'varchar',   'length' => 191, 'description' => 'homepage (gsactor) size logo'],
+                'homepage_logo' => ['type' => 'varchar',   'length' => 191, 'description' => 'homepage (actor) size logo'],
                 'stream_logo'   => ['type' => 'varchar',   'length' => 191, 'description' => 'stream-sized logo'],
                 'mini_logo'     => ['type' => 'varchar',   'length' => 191, 'description' => 'mini logo'],
                 'uri'           => ['type' => 'varchar',   'length' => 191, 'description' => 'universal identifier'],
@@ -315,12 +315,12 @@ class Group extends Entity
             ],
             'primary key' => ['id'],
             'unique keys' => [
-                'user_group_uri_key'  => ['uri'],
-                'user_gsactor_id_key' => ['gsactor_id'],
+                'user_group_uri_key' => ['uri'],
+                'user_actor_id_key'  => ['actor_id'],
             ],
             'indexes' => [
-                'user_group_nickname_idx'   => ['nickname'],
-                'user_group_gsactor_id_idx' => ['gsactor_id'],
+                'user_group_nickname_idx' => ['nickname'],
+                'user_group_actor_id_idx' => ['actor_id'],
             ],
         ];
     }

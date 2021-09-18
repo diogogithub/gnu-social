@@ -34,7 +34,7 @@ namespace App\Util;
 
 use App\Core\Router\Router;
 use App\Core\Security;
-use App\Entity\GSActor;
+use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Exception\NoLoggedInUser;
 use Functional as F;
@@ -111,7 +111,7 @@ abstract class Common
         return Security::getUser();
     }
 
-    public static function actor(): ?GSActor
+    public static function actor(): ?Actor
     {
         return self::user()->getActor();
     }

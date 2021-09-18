@@ -20,34 +20,34 @@
 namespace App\Tests\Entity;
 
 use App\Core\DB\DB;
-use App\Entity\GSActor;
-use App\Entity\GSActorTag;
+use App\Entity\Actor;
+use App\Entity\ActorTag;
 use App\Util\GNUsocialTestCase;
 use Functional as F;
 use Jchook\AssertThrows\AssertThrows;
 
-class GSActorTest extends GNUsocialTestCase
+class ActorTest extends GNUsocialTestCase
 {
     use AssertThrows;
 
     public function testGetAvatarUrl()
     {
-        $actor = DB::findOneBy('gsactor', ['nickname' => 'taken_user']);
+        $actor = DB::findOneBy('actor', ['nickname' => 'taken_user']);
         static::assertSame("/{$actor->getId()}/avatar", $actor->getAvatarUrl());
     }
 
     public function testGetFromNickname()
     {
-        static::assertNotNull(GSActor::getFromNickname('taken_user'));
+        static::assertNotNull(Actor::getFromNickname('taken_user'));
     }
 
     public function testSelfTags()
     {
-        $actor = DB::findOneBy('gsactor', ['nickname' => 'taken_user']);
+        $actor = DB::findOneBy('actor', ['nickname' => 'taken_user']);
         $tags  = $actor->getSelfTags();
         $actor->setSelfTags(['foo'], $tags);
         DB::flush();
-        $get_tags = fn ($tags) => F\map($tags, fn (GSActorTag $t) => (string) $t);
+        $get_tags = fn ($tags) => F\map($tags, fn (ActorTag $t) => (string) $t);
         static::assertSame(['foo'], $get_tags($tags = $actor->getSelfTags()));
         $actor->setSelfTags(['bar'], $tags);
         DB::flush();

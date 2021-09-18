@@ -48,11 +48,11 @@ class Avatar extends Controller
     /**
      * @throws Exception
      */
-    public function avatar_view(Request $request, int $gsactor_id, string $size): Response
+    public function avatar_view(Request $request, int $actor_id, string $size): Response
     {
         switch ($size) {
             case 'full':
-                $res = \Component\Avatar\Avatar::getAvatarFileInfo($gsactor_id);
+                $res = \Component\Avatar\Avatar::getAvatarFileInfo($actor_id);
                 return M::sendFile($res['filepath'], $res['mimetype'], $res['title']);
             default:
                 throw new Exception('Not implemented');
@@ -74,12 +74,12 @@ class Avatar extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data       = $form->getData();
-            $user       = Common::user();
-            $gsactor_id = $user->getId();
+            $data     = $form->getData();
+            $user     = Common::user();
+            $actor_id = $user->getId();
             if ($data['remove'] == true) {
                 try {
-                    $avatar = DB::findOneBy('avatar', ['gsactor_id' => $gsactor_id]);
+                    $avatar = DB::findOneBy('avatar', ['actor_id' => $actor_id]);
                     $avatar->delete();
                     Event::handle('AvatarUpdate', [$user->getId()]);
                 } catch (NotFoundException) {
@@ -109,12 +109,12 @@ class Avatar extends Controller
                     throw new ClientException('Invalid form');
                 }
                 // Delete current avatar if there's one
-                $avatar = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
+                $avatar = DB::find('avatar', ['actor_id' => $actor_id]);
                 $avatar?->delete();
                 DB::persist($attachment);
                 // Can only get new id after inserting
                 DB::flush();
-                DB::persist(AvatarEntity::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $attachment->getId()]));
+                DB::persist(AvatarEntity::create(['actor_id' => $actor_id, 'attachment_id' => $attachment->getId()]));
                 DB::flush();
                 Event::handle('AvatarUpdate', [$user->getId()]);
             }

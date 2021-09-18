@@ -38,20 +38,20 @@ class ProfileColor extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $gsactor_id;
+    private int $actor_id;
     private string $color;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setColor(string $color): self
@@ -94,12 +94,12 @@ class ProfileColor extends Entity
         return [
             'name'   => 'profile_color',
             'fields' => [
-                'gsactor_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
-                'color'      => ['type' => 'text',      'not null' => true, 'description' => 'color hex code'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
+                'actor_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
+                'color'    => ['type' => 'text',      'not null' => true, 'description' => 'color hex code'],
+                'created'  => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
-            'primary key' => ['gsactor_id'],
+            'primary key' => ['actor_id'],
         ];
     }
 }

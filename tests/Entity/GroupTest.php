@@ -30,7 +30,7 @@ class GroupTest extends GNUsocialTestCase
     public function testGetActor()
     {
         $group = DB::findOneBy('local_group', ['nickname' => 'taken_group']);
-        $actor = DB::findOneBy('gsactor', ['nickname' => 'taken_group']);
+        $actor = DB::findOneBy('actor', ['nickname' => 'taken_group']);
         static::assertSame($actor, $group->getActor());
     }
 }

@@ -19,7 +19,7 @@
 
 namespace App\Tests\Util\Form;
 
-use App\Entity\GSActor;
+use App\Entity\Actor;
 use App\Util\Form\ActorArrayTransformer;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -29,9 +29,9 @@ class ActorArrayTransformerTest extends WebTestCase
     {
         static::assertSame('', (new ActorArrayTransformer)->transform([]));
 
-        $user1 = GSActor::create(['nickname' => 'user1']);
-        $user2 = GSActor::create(['nickname' => 'user2']);
-        $user3 = GSActor::create(['nickname' => 'user3']);
+        $user1 = Actor::create(['nickname' => 'user1']);
+        $user2 = Actor::create(['nickname' => 'user2']);
+        $user3 = Actor::create(['nickname' => 'user3']);
 
         $testArr = [$user1, $user2, $user3];
 

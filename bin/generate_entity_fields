@@ -50,7 +50,7 @@ foreach ($files as $file) {
         $nullable       = !@$schema['fields'][$field]['not null'] ? '?' : '';
         $type           = types[$schema['fields'][$field]['type']];
         $type           = $type !== '' ? $nullable . $type : $type;
-        $method_name    = str_replace([' ', 'Gsactor'], ['', 'GSActor'], ucwords(str_replace('_', ' ', $field)));
+        $method_name    = str_replace([' ', 'actor'], ['', 'Actor'], ucwords(str_replace('_', ' ', $field)));
         $default        = @$schema['fields'][$field]['default'];
 
         if (isset($default) && $nullable != '?' && $type != '\DateTimeInterface') {

@@ -187,7 +187,7 @@ class Link extends Entity
             ],
             'primary key' => ['id'],
             'indexes'     => [
-                'gsactor_url_hash_idx' => ['url_hash'],
+                'actor_url_hash_idx' => ['url_hash'],
             ],
         ];
     }

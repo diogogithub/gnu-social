@@ -170,12 +170,12 @@ class UserPanel extends AbstractController
             $label    = str_replace('_', ' ', ucfirst($name));
 
             $labels = [
-                'target_gsactor_id' => 'Target Actors',
-                'dm'                => 'DM',
+                'target_actor_id' => 'Target Actors',
+                'dm'              => 'DM',
             ];
 
             $help = [
-                'target_gsactor_id'     => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
+                'target_actor_id'       => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
                 'activity_by_followed'  => 'Notify me when someone I follow has new activity',
                 'mention'               => 'Notify me when mentions me in a notice',
                 'reply'                 => 'Notify me when someone replies to a notice made by me',
@@ -192,7 +192,7 @@ class UserPanel extends AbstractController
                 $form_defs['placeholder'][$name] = [$name, CheckboxType::class, ['data' => $val, 'label' => _m($labels[$name] ?? $label), 'help' => _m($help[$name])]];
                 break;
             case Types::INTEGER:
-                if ($name == 'target_gsactor_id') {
+                if ($name == 'target_actor_id') {
                     $form_defs['placeholder'][$name] = [$name, TextType::class, ['data' => $val, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ActorArrayTransformer::class];
                 }
                 break;

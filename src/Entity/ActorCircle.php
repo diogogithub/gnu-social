@@ -23,7 +23,7 @@ use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for List of gsactors
+ * Entity for List of actors
  *
  * @category  DB
  * @package   GNUsocial
@@ -36,7 +36,7 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class GSActorCircle extends Entity
+class ActorCircle extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
@@ -119,11 +119,11 @@ class GSActorCircle extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'gsactor_circle',
-            'description' => 'a gsactor can have lists of gsactors, to separate their timeline',
+            'name'        => 'actor_circle',
+            'description' => 'a actor can have lists of actors, to separate their timeline',
             'fields'      => [
-                'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'gsactor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
-                'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'GSActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'gsactor tag'], // Join with GSActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
+                'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
+                'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
                 'description' => ['type' => 'text',      'description' => 'description of the people tag'],
                 'private'     => ['type' => 'bool',      'default' => false, 'description' => 'is this tag private'],
                 'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
@@ -131,9 +131,9 @@ class GSActorCircle extends Entity
             ],
             'primary key' => ['tagger', 'tag'],
             'indexes'     => [
-                'gsactor_list_modified_idx'   => ['modified'],
-                'gsactor_list_tag_idx'        => ['tag'],
-                'gsactor_list_tagger_tag_idx' => ['tagger', 'tag'],
+                'actor_list_modified_idx'   => ['modified'],
+                'actor_list_tag_idx'        => ['tag'],
+                'actor_list_tagger_tag_idx' => ['tagger', 'tag'],
             ],
         ];
     }

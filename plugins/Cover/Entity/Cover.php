@@ -41,20 +41,20 @@ class Cover extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $gsactor_id;
+    private int $actor_id;
     private int $attachment_id;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setAttachmentId(int $attachment_id): self
@@ -131,7 +131,7 @@ class Cover extends Entity
         if (!$cascading) {
             $attachments = $this->getAttachment()->kill();
         } else {
-            DB::remove(DB::getReference('cover', ['gsactor_id' => $this->gsactor_id]));
+            DB::remove(DB::getReference('cover', ['actor_id' => $this->actor_id]));
             $attachment_path = $this->getAttachmentPath();
             $attachments[]   = $attachment_path;
             if ($flush) {
@@ -147,12 +147,12 @@ class Cover extends Entity
         return [
             'name'   => 'cover',
             'fields' => [
-                'gsactor_id'    => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'actor_id'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
                 'attachment_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to attachment table'],
                 'created'       => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
-            'primary key' => ['gsactor_id'],
+            'primary key' => ['actor_id'],
             'indexes'     => [
                 'cover_attachment_id_idx' => ['attachment_id'],
             ],

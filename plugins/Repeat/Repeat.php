@@ -22,6 +22,7 @@ namespace Plugin\Repeat;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Entity\Note;
 use App\Util\Common;
@@ -29,7 +30,6 @@ use App\Util\Exception\RedirectException;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
 class Repeat extends NoteHandlerPlugin
 {
@@ -45,7 +45,7 @@ class Repeat extends NoteHandlerPlugin
             return Event::next;
         }
 
-        $opts        = ['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId()];
+        $opts        = ['actor_id' => $user->getId(), 'repeat_of' => $note->getId()];
         $is_set      = DB::count('note', $opts) == 1;
         $form_repeat = Form::create([
             ['submit_repeat', SubmitType::class,
@@ -66,13 +66,13 @@ class Repeat extends NoteHandlerPlugin
             $request, $form_repeat, $note, "repeat-{$note->getId()}", function ($note, $data, $user) {
                 if ($data["repeat-{$note->getId()}"] === '0') {
                     DB::persist(Note::create([
-                        'gsactor_id' => $user->getId(),
-                        'repeat_of'  => $note->getId(),
-                        'content'    => $note->getContent(),
-                        'is_local'   => true,
+                        'actor_id'  => $user->getId(),
+                        'repeat_of' => $note->getId(),
+                        'content'   => $note->getContent(),
+                        'is_local'  => true,
                     ]));
                 } else {
-                    DB::remove(DB::findOneBy('note', ['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId()]));
+                    DB::remove(DB::findOneBy('note', ['actor_id' => $user->getId(), 'repeat_of' => $note->getId()]));
                 }
                 DB::flush();
 

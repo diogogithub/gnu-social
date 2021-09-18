@@ -44,7 +44,7 @@ class Note extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private int $gsactor_id;
+    private int $actor_id;
     private string $content_type = 'text/plain';
     private string $content;
     private string $rendered;
@@ -68,15 +68,15 @@ class Note extends Entity
         return $this->id;
     }
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     /**
@@ -89,6 +89,8 @@ class Note extends Entity
 
     /**
      * @param string $content_type
+     *
+     * @return Note
      */
     public function setContentType(string $content_type): self
     {
@@ -209,20 +211,20 @@ class Note extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public function getActor(): GSActor
+    public function getActor(): Actor
     {
-        return GSActor::getFromId($this->gsactor_id);
+        return Actor::getFromId($this->actor_id);
     }
 
     public function getActorNickname(): string
     {
-        return GSActor::getNicknameFromId($this->gsactor_id);
+        return Actor::getNicknameFromId($this->actor_id);
     }
 
     public function getAvatarUrl()
     {
         $url = null;
-        Event::handle('GetAvatarUrl', [$this->getGSActorId(), &$url]);
+        Event::handle('GetAvatarUrl', [$this->getActorId(), &$url]);
         return $url;
     }
 
@@ -272,7 +274,7 @@ class Note extends Entity
         if (!empty($this->reply_to)) {
             return Cache::get('note-reply-to-' . $this->id, function () {
                 return DB::dql('select g from App\Entity\Note n join ' .
-                                   'App\Entity\GSActor g with n.gsactor_id = g.id where n.reply_to = :reply',
+                                   'App\Entity\Actor g with n.actor_id = g.id where n.reply_to = :reply',
                                    ['reply' => $this->reply_to])[0]->getNickname();
             });
         }
@@ -282,18 +284,18 @@ class Note extends Entity
     /**
      * Whether this note is visible to the given actor
      */
-    public function isVisibleTo(GSActor | LocalUser $a): bool
+    public function isVisibleTo(Actor | LocalUser $a): bool
     {
         $scope = VisibilityScope::create($this->scope);
         return $scope->public
             || ($scope->follower
-                && null != DB::find('follow', ['follower' => $a->getId(), 'followed' => $this->gsactor_id]))
+                && null != DB::find('follow', ['follower' => $a->getId(), 'followed' => $this->actor_id]))
             || ($scope->addressee
-                && null != DB::find('notification', ['activity_id' => $this->id, 'gsactor_id' => $a->getId()]))
+                && null != DB::find('notification', ['activity_id' => $this->id, 'actor_id' => $a->getId()]))
             || ($scope->group && [] != DB::dql('select m from group_member m ' .
                                                'join group_inbox i with m.group_id = i.group_id ' .
                                                'join note n with i.activity_id = n.id ' .
-                                               'where n.id = :note_id and m.gsactor_id = :actor_id',
+                                               'where n.id = :note_id and m.actor_id = :actor_id',
                                                ['note_id' => $this->id, 'actor_id' => $a->getId()]));
     }
 
@@ -312,7 +314,7 @@ class Note extends Entity
 
         $processed_attachments = [];
         foreach ($attachments as $f) {
-            Event::handle('EnforceUserFileQuota', [$f->getSize(), $args['gsactor_id']]);
+            Event::handle('EnforceUserFileQuota', [$f->getSize(), $args['actor_id']]);
             $processed_attachments[] = [GSFile::sanitizeAndStoreFileAsAttachment($f), $f->getClientOriginalName()];
         }
 
@@ -321,8 +323,8 @@ class Note extends Entity
 
         if ($processed_attachments != []) {
             foreach ($processed_attachments as [$a, $fname]) {
-                if (DB::count('gsactor_to_attachment', $args = ['attachment_id' => $a->getId(), 'gsactor_id' => $args['gsactor_id']]) === 0) {
-                    DB::persist(GSActorToAttachment::create($args));
+                if (DB::count('actor_to_attachment', $args = ['attachment_id' => $a->getId(), 'actor_id' => $args['actor_id']]) === 0) {
+                    DB::persist(ActorToAttachment::create($args));
                 }
                 DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
             }
@@ -332,7 +334,7 @@ class Note extends Entity
     }
 
     /**
-     * @return GSActor[]
+     * @return Actor[]
      */
     public function getAttentionProfiles(): array
     {
@@ -346,7 +348,7 @@ class Note extends Entity
             'name'   => 'note',
             'fields' => [
                 'id'           => ['type' => 'serial',    'not null' => true],
-                'gsactor_id'   => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'who made the note'],
+                'actor_id'     => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'who made the note'],
                 'content'      => ['type' => 'text',      'not null' => true, 'description' => 'note content'],
                 'content_type' => ['type' => 'varchar',   'not null' => true, 'default' => 'text/plain', 'length' => 129,      'description' => 'A note can be written in a multitude of formats such as text/plain, text/markdown, application/x-latex, and text/html'],
                 'rendered'     => ['type' => 'text',      'description' => 'rendered note content, so we can keep the microtags (if not local)'],
@@ -361,12 +363,12 @@ class Note extends Entity
             ],
             'primary key' => ['id'],
             'indexes'     => [
-                'note_created_id_is_local_idx'      => ['created', 'is_local'],
-                'note_gsactor_created_idx'          => ['gsactor_id', 'created'],
-                'note_is_local_created_gsactor_idx' => ['is_local', 'created', 'gsactor_id'],
-                'note_repeat_of_created_idx'        => ['repeat_of', 'created'],
-                'note_conversation_created_idx'     => ['conversation', 'created'],
-                'note_reply_to_idx'                 => ['reply_to'],
+                'note_created_id_is_local_idx'    => ['created', 'is_local'],
+                'note_actor_created_idx'          => ['actor_id', 'created'],
+                'note_is_local_created_actor_idx' => ['is_local', 'created', 'actor_id'],
+                'note_repeat_of_created_idx'      => ['repeat_of', 'created'],
+                'note_conversation_created_idx'   => ['conversation', 'created'],
+                'note_reply_to_idx'               => ['reply_to'],
             ],
             'fulltext indexes' => ['notice_fulltext_idx' => ['content']],
         ];

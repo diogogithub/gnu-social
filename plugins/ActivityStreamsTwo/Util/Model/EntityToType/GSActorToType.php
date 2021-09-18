@@ -3,7 +3,7 @@
 namespace Plugin\ActivityStreamsTwo\Util\Model\EntityToType;
 
 use App\Core\Router\Router;
-use App\Entity\GSActor;
+use App\Entity\Actor;
 use DateTimeInterface;
 use Exception;
 use Plugin\ActivityStreamsTwo\Util\Type;
@@ -11,13 +11,14 @@ use Plugin\ActivityStreamsTwo\Util\Type;
 class GSActorToType
 {
     /**
-     * @param GSActor $gsactor
+     * @param Actor $gsactor
      *
-     * @throws Exception
+     *@throws Exception
      *
      * @return Type
+     *
      */
-    public static function translate(GSActor $gsactor)
+    public static function translate(Actor $gsactor)
     {
         $uri  = Router::url('actor_view_id', ['id' => $gsactor->getId()], Router::ABSOLUTE_URL);
         $attr = [

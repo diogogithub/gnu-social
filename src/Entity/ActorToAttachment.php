@@ -32,12 +32,12 @@ use DateTimeInterface;
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class GSActorToAttachment extends Entity
+class ActorToAttachment extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
-    private int $gsactor_id;
+    private int $actor_id;
     private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
@@ -51,15 +51,15 @@ class GSActorToAttachment extends Entity
         return $this->attachment_id;
     }
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -79,16 +79,16 @@ class GSActorToAttachment extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'gsactor_to_attachment',
+            'name'   => 'actor_to_attachment',
             'fields' => [
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_attachment_id_fkey', 'not null' => true, 'description' => 'id of attachment'],
-                'gsactor_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
+                'actor_id'      => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['attachment_id', 'gsactor_id'],
+            'primary key' => ['attachment_id', 'actor_id'],
             'indexes'     => [
                 'attachment_id_idx' => ['attachment_id'],
-                'gsactor_id_idx'    => ['gsactor_id'],
+                'actor_id_idx'      => ['actor_id'],
             ],
         ];
     }

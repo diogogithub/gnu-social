@@ -21,7 +21,7 @@ namespace App\Tests\Util;
 
 use App\Core\DB\DB;
 use App\Core\Security;
-use App\Entity\GSActor;
+use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Common;
 use App\Util\Exception\NoLoggedInUser;
@@ -86,11 +86,11 @@ class CommonTest extends GNUsocialTestCase
         static::assertFalse(Common::isLoggedIn());
 
         $metadata = $this->createMock(ClassMetadataInfo::class);
-        $metadata->method('getTableName')->willReturn('gsactor');
-        $metadata->method('getMetadataValue')->willReturn('App\Entity\GSActor');
+        $metadata->method('getTableName')->willReturn('actor');
+        $metadata->method('getMetadataValue')->willReturn('App\Entity\Actor');
         $factory = $this->createMock(ClassMetadataFactory::class);
         $factory->method('getAllMetadata')->willReturn([$metadata]);
-        $actor = GSActor::create(['nickname' => 'nick']);
+        $actor = Actor::create(['nickname' => 'nick']);
         $actor->setId(0);
         $em = $this->createMock(EntityManager::class);
         $em->method('find')->willReturn($actor);

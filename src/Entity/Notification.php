@@ -41,7 +41,7 @@ class Notification extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $activity_id;
-    private int $gsactor_id;
+    private int $actor_id;
     private ?string $reason;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
@@ -57,15 +57,15 @@ class Notification extends Entity
         return $this->activity_id;
     }
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setReason(?string $reason): self
@@ -108,18 +108,18 @@ class Notification extends Entity
     {
         return [
             'name'        => 'notification',
-            'description' => 'Activity notification for gsactors (that are not a mention and not result of a subscription)',
+            'description' => 'Activity notification for actors (that are not a mention and not result of a subscription)',
             'fields'      => [
                 'activity_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Activity.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'activity_id to give attention'],
-                'gsactor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id',  'multiplicity' => 'one to one', 'not null' => true, 'description' => 'gsactor_id for feed receiver'],
-                'reason'      => ['type' => 'varchar',   'length' => 191,       'description' => 'Optional reason why this was brought to the attention of gsactor_id'],
+                'actor_id'    => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id',  'multiplicity' => 'one to one', 'not null' => true, 'description' => 'actor_id for feed receiver'],
+                'reason'      => ['type' => 'varchar',   'length' => 191,       'description' => 'Optional reason why this was brought to the attention of actor_id'],
                 'created'     => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'    => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['activity_id', 'gsactor_id'],
+            'primary key' => ['activity_id', 'actor_id'],
             'indexes'     => [
                 'attention_activity_id_idx' => ['activity_id'],
-                'attention_gsactor_id_idx'  => ['gsactor_id'],
+                'attention_actor_id_idx'    => ['actor_id'],
             ],
         ];
     }

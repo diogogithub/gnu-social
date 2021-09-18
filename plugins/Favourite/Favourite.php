@@ -61,7 +61,7 @@ class Favourite extends NoteHandlerPlugin
         }
 
         // if note is favoured, "is_set" is 1
-        $opts     = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
+        $opts     = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
         $is_set   = DB::find('favourite', $opts) !== null;
         $form_fav = Form::create([
             ['submit_favourite', SubmitType::class,

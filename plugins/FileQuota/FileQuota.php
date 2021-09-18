@@ -65,8 +65,8 @@ class FileQuota extends Plugin
         $query = <<<END
 select sum(at.size) as total
     from attachment at
-        join gsactor_to_attachment ua with at.id = ua.attachment_id
-    where ua.gsactor_id = :actor_id and at.size is not null
+        join actor_to_attachment ua with at.id = ua.attachment_id
+    where ua.actor_id = :actor_id and at.size is not null
 END;
 
         $max_file_size = Common::config('attachments', 'file_quota');

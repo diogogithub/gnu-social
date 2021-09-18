@@ -98,7 +98,7 @@ class Cover
             }
             $file     = GSFile::sanitizeAndStoreFileAsAttachment($sfile);
             $old_file = null;
-            $cover    = DB::find('cover', ['gsactor_id' => $actor_id]);
+            $cover    = DB::find('cover', ['gctor_id' => $actor_id]);
             // Must get old id before inserting another one
             if ($cover != null) {
                 $old_file = $cover->delete();
@@ -107,7 +107,7 @@ class Cover
             DB::persist($file);
             // Can only get new id after inserting
             DB::flush();
-            $cover = CoverEntity::create(['gsactor_id' => $actor_id, 'file_id' => $file->getId()]);
+            $cover = CoverEntity::create(['actor_id' => $actor_id, 'file_id' => $file->getId()]);
             DB::persist($cover);
             DB::flush();
             // Only delete files if the commit went through
@@ -118,7 +118,7 @@ class Cover
         }
 
         $removeForm = null;
-        $cover      = DB::find('cover', ['gsactor_id' => $actor_id]);
+        $cover      = DB::find('cover', ['actor_id' => $actor_id]);
         if ($cover != null) {
             $form2 = Form::create([
                 ['remove',   SubmitType::class, ['label' => _m('Remove')]],
@@ -143,7 +143,7 @@ class Cover
      */
     public function cover()
     {
-        // $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
+        // $cover = DB::find('cover', ['actor_id' => Common::user()->getId()]);
         // if ($cover == null) {
         //     return  new Response('Cover not found',Response::HTTP_NOT_FOUND);
         // }

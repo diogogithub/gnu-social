@@ -42,7 +42,7 @@ class PollResponse extends Entity
     private int $id;
     private ?string $uri;
     private int $poll_id;
-    private ?int $gsactor_id;
+    private ?int $actor_id;
     private ?int $selection;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
@@ -80,15 +80,15 @@ class PollResponse extends Entity
         return $this->poll_id;
     }
 
-    public function setGSActorId(?int $gsactor_id): self
+    public function setActorId(?int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): ?int
+    public function getActorId(): ?int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setSelection(?int $selection): self
@@ -140,25 +140,25 @@ class PollResponse extends Entity
             'fields'      => [
                 'id' => ['type' => 'serial', 'not null' => true],
                 //'uri' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'UUID to the response notice'),
-                'uri'        => ['type' => 'varchar', 'length' => 191, 'description' => 'UUID to the response notice'],
-                'poll_id'    => ['type' => 'int', 'length' => 36, 'not null' => true, 'description' => 'UUID of poll being responded to'],
-                'gsactor_id' => ['type' => 'int'],
-                'selection'  => ['type' => 'int'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'uri'       => ['type' => 'varchar', 'length' => 191, 'description' => 'UUID to the response notice'],
+                'poll_id'   => ['type' => 'int', 'length' => 36, 'not null' => true, 'description' => 'UUID of poll being responded to'],
+                'actor_id'  => ['type' => 'int'],
+                'selection' => ['type' => 'int'],
+                'created'   => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'  => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
 
             'unique keys' => [
                 //'poll_uri_key' => array('uri'),
-                //'poll_response_poll_id_gsactor_id_key' => ['poll_id', 'gsactor_id'], //doctrine bug?
+                //'poll_response_poll_id_actor_id_key' => ['poll_id', 'actor_id'], //doctrine bug?
             ],
             'foreign keys' => [
                 'foreign_poll' => ['poll', ['poll_id' => 'id']],
             ],
 
             'indexes' => [
-                'poll_response_gsactor_id_poll_id_index' => ['gsactor_id', 'poll_id'],
+                'poll_response_actor_id_poll_id_index' => ['actor_id', 'poll_id'],
             ],
         ];
     }
@@ -167,15 +167,15 @@ class PollResponse extends Entity
      * Checks if a user already responded to the poll
      *
      * @param int $pollId
-     * @param int $gsactorId user
+     * @param int $actorId user
      *
      * @return bool
      */
-    public static function exits(int $pollId, int $gsactorId): bool
+    public static function exits(int $pollId, int $actorId): bool
     {
         $res = DB::dql('select pr from App\Entity\PollResponse pr
-                   where pr.poll_id = :pollId and pr.gsactor_id = :gsactorId',
-                ['pollId' => $pollId, 'gsactorId' => $gsactorId]);
+                   where pr.poll_id = :pollId and pr.actor_id = :actorId',
+                ['pollId' => $pollId, 'actorId' => $actorId]);
         return count($res) != 0;
     }
 }

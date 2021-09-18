@@ -37,13 +37,13 @@ use App\Controller as C;
 use App\Core\Router\RouteLoader;
 use App\Util\Nickname;
 
-abstract class GSActor
+abstract class Actor
 {
     const LOAD_ORDER = 30;
 
     public static function load(RouteLoader $r): void
     {
-        $r->connect(id: 'actor_view_id', uri_path: '/actor/{id<\d+>}', target: [C\GSActor::class, 'GSActorShowId']);
-        $r->connect(id: 'actor_view_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\GSActor::class, 'GSActorShowNickname'], options: ['is_system_path' => false]);
+        $r->connect(id: 'actor_view_id', uri_path: '/actor/{id<\d+>}', target: [C\Actor::class, 'ActorShowId']);
+        $r->connect(id: 'actor_view_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\Actor::class, 'ActorShowNickname'], options: ['is_system_path' => false]);
     }
 }

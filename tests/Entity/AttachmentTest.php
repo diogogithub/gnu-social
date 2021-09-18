@@ -102,8 +102,8 @@ class AttachmentTest extends GNUsocialTestCase
         static::assertSame('Untitled attachment', $attachment->getBestTitle());
         $attachment->setFilename($filename);
 
-        $actor = DB::findOneBy('gsactor', ['nickname' => 'taken_user']);
-        DB::persist($note = Note::create(['gsactor_id' => $actor->getId(), 'content' => 'some content']));
+        $actor = DB::findOneBy('actor', ['nickname' => 'taken_user']);
+        DB::persist($note = Note::create(['actor_id' => $actor->getId(), 'content' => 'some content']));
         DB::persist(AttachmentToNote::create(['attachment_id' => $attachment->getId(), 'note_id' => $note->getId(), 'title' => 'A title']));
         DB::flush();
 

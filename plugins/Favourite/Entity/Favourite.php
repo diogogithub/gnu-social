@@ -27,7 +27,7 @@ class Favourite extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $note_id;
-    private int $gsactor_id;
+    private int $actor_id;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -42,15 +42,15 @@ class Favourite extends Entity
         return $this->note_id;
     }
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -83,15 +83,15 @@ class Favourite extends Entity
         return [
             'name'   => 'favourite',
             'fields' => [
-                'note_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'App\Entity\Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'note that is the favorite of'],
-                'gsactor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'App\Entity\GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'actor who favourited this note'],  // note: formerly referenced notice.id, but we can now record remote users' favorites
-                'created'    => ['type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'note_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'App\Entity\Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'note that is the favorite of'],
+                'actor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'App\Entity\Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'actor who favourited this note'],  // note: formerly referenced notice.id, but we can now record remote users' favorites
+                'created'  => ['type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['note_id', 'gsactor_id'],
+            'primary key' => ['note_id', 'actor_id'],
             'indexes'     => [
                 'fave_note_id_idx'  => ['note_id'],
-                'fave_actor_id_idx' => ['gsactor_id', 'modified'],
+                'fave_actor_id_idx' => ['actor_id', 'modified'],
                 'fave_modified_idx' => ['modified'],
             ],
         ];

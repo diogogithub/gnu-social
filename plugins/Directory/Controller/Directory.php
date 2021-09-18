@@ -35,7 +35,7 @@ class Directory
      */
     public function actors(Request $request)
     {
-        return ['_template' => 'directory/actors.html.twig', 'actors' => DB::dql('select g from App\Entity\GSActor g order by g.nickname ASC')];
+        return ['_template' => 'directory/actors.html.twig', 'actors' => DB::dql('select g from App\Entity\Actor g order by g.nickname ASC')];
     }
 
     /**

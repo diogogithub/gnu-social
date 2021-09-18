@@ -40,7 +40,7 @@ class Activity extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private int $gsactor_id;
+    private int $actor_id;
     private string $verb;
     private string $object_type;
     private int $object_id;
@@ -59,15 +59,15 @@ class Activity extends Entity
         return $this->id;
     }
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setVerb(string $verb): self
@@ -145,7 +145,7 @@ class Activity extends Entity
             'name'   => 'activity',
             'fields' => [
                 'id'          => ['type' => 'serial',   'not null' => true],
-                'gsactor_id'  => ['type' => 'int',      'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'actor_id'    => ['type' => 'int',      'not null' => true, 'description' => 'foreign key to actor table'],
                 'verb'        => ['type' => 'varchar',  'length' => 32,     'not null' => true, 'description' => 'internal activity verb, influenced by activity pub verbs'],
                 'object_type' => ['type' => 'varchar',  'length' => 32,     'not null' => true, 'description' => 'the name of the table this object refers to'],
                 'object_id'   => ['type' => 'int',      'not null' => true, 'description' => 'id in the referenced table'],

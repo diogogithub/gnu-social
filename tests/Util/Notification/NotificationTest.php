@@ -19,7 +19,7 @@
 
 namespace App\Tests\Util\Notification;
 
-use App\Entity\GSActor;
+use App\Entity\Actor;
 use App\Util\Notification\Notification;
 use Jchook\AssertThrows\AssertThrows;
 use PHPUnit\Framework\TestCase;
@@ -30,6 +30,6 @@ class NotificationTest extends TestCase
 
     public function testNotificationBitmap()
     {
-        static::assertTrue((new Notification(Notification::DM, new GSActor())) instanceof Notification);
+        static::assertTrue((new Notification(Notification::DM, new Actor())) instanceof Notification);
     }
 }

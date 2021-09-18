@@ -23,7 +23,7 @@ namespace App\Tests\Core;
 
 use App\Core\DB\DB;
 use App\Core\Form;
-use App\Entity\GSActor;
+use App\Entity\Actor;
 use App\Util\Exception\ServerException;
 use App\Util\Form\ArrayTransformer;
 use App\Util\GNUsocialTestCase;
@@ -93,7 +93,7 @@ class FormTest extends GNUsocialTestCase
     public function testCreateUpdateObject()
     {
         $nick = 'form_testing_new_user';
-        $user = GSActor::create(['nickname' => $nick, 'normalized_nickname' => $nick]);
+        $user = Actor::create(['nickname' => $nick, 'normalized_nickname' => $nick]);
         $form = Form::create([
             ['nickname',            TextareaType::class, []],
             ['normalized_nickname', TextareaType::class, []],
@@ -116,7 +116,7 @@ class FormTest extends GNUsocialTestCase
         $ret = Form::handle(form_definition: [/* not normal usage */], request: $mock_request, target: null, extra_args: [], extra_step: null, create_args: [], testing_only_form: $mock_form);
         static::assertSame($data, $ret);
 
-        $user = GSActor::create(['nickname' => 'form_testing_new_user', 'normalized_nickname' => 'form_testing_new_user']);
+        $user = Actor::create(['nickname' => 'form_testing_new_user', 'normalized_nickname' => 'form_testing_new_user']);
         DB::persist($user);
         $ret = Form::handle(form_definition: [/* not normal usage */], request: $mock_request, target: $user, extra_args: [], extra_step: null, create_args: [], testing_only_form: $mock_form);
         static::assertSame($mock_form, $ret);

@@ -41,7 +41,7 @@ class GroupMember extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $group_id;
-    private int $gsactor_id;
+    private int $actor_id;
     private ?bool $is_admin;
     private ?string $uri;
     private \DateTimeInterface $created;
@@ -58,15 +58,15 @@ class GroupMember extends Entity
         return $this->group_id;
     }
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setIsAdmin(?bool $is_admin): self
@@ -121,22 +121,22 @@ class GroupMember extends Entity
         return [
             'name'   => 'group_member',
             'fields' => [
-                'group_id'   => ['type' => 'int',       'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'one to one', 'name' => 'group_member_group_id_fkey', 'not null' => true,  'description' => 'foreign key to group table'],
-                'gsactor_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'name' => 'group_member_gsactor_id_fkey', 'not null' => true,  'description' => 'foreign key to gsactor table'],
-                'is_admin'   => ['type' => 'bool',      'default' => false,    'description' => 'is this actor an admin?'],
-                'uri'        => ['type' => 'varchar',   'length' => 191,       'description' => 'universal identifier'],
-                'created'    => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'group_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'one to one', 'name' => 'group_member_group_id_fkey', 'not null' => true,  'description' => 'foreign key to group table'],
+                'actor_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'group_member_actor_id_fkey', 'not null' => true,  'description' => 'foreign key to actor table'],
+                'is_admin' => ['type' => 'bool',      'default' => false,    'description' => 'is this actor an admin?'],
+                'uri'      => ['type' => 'varchar',   'length' => 191,       'description' => 'universal identifier'],
+                'created'  => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['group_id', 'gsactor_id'],
+            'primary key' => ['group_id', 'actor_id'],
             'unique keys' => [
                 'group_member_uri_key' => ['uri'],
             ],
             'indexes' => [
-                'group_member_gsactor_id_idx'         => ['gsactor_id'],
-                'group_member_created_idx'            => ['created'],
-                'group_member_gsactor_id_created_idx' => ['gsactor_id', 'created'],
-                'group_member_group_id_created_idx'   => ['group_id', 'created'],
+                'group_member_actor_id_idx'         => ['actor_id'],
+                'group_member_created_idx'          => ['created'],
+                'group_member_actor_id_created_idx' => ['actor_id', 'created'],
+                'group_member_group_id_created_idx' => ['group_id', 'created'],
             ],
         ];
     }

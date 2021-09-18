@@ -1,10 +1,10 @@
 {% extends 'stdgrid.html.twig' %}
 
-{% set id = gsactor.id %}
-{% set nick = gsactor.nickname %}
+{% set id = actor.id %}
+{% set nick = actor.nickname %}
 
 {# TODO: how to get avatar in here? Tags and rest of profile info? #}
-{% set avatar = gsactor.nickname %}
+{% set avatar = actor.nickname %}
 
 {% block title %}{{ nick }}'s profile{% endblock %}
 

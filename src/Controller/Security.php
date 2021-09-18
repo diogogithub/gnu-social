@@ -5,25 +5,24 @@ namespace App\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
-use App\Util\Exception\DuplicateFoundException;
-use App\Util\Exception\NicknameEmptyException;
-use App\Util\Exception\NicknameReservedException;
-use App\Util\Exception\NicknameTooLongException;
-use App\Util\Exception\NicknameTooShortException;
-use App\Util\Exception\NotImplementedException;
-use Symfony\Component\HttpFoundation\Response;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\VisibilityScope;
+use App\Entity\Actor;
 use App\Entity\Follow;
-use App\Entity\GSActor;
 use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Security\Authenticator;
 use App\Security\EmailVerifier;
 use App\Util\Common;
+use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\EmailTakenException;
+use App\Util\Exception\NicknameEmptyException;
+use App\Util\Exception\NicknameReservedException;
 use App\Util\Exception\NicknameTakenException;
+use App\Util\Exception\NicknameTooLongException;
+use App\Util\Exception\NicknameTooShortException;
+use App\Util\Exception\NotImplementedException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use App\Util\Nickname;
@@ -32,6 +31,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Validator\Constraints\Length;
@@ -69,16 +69,15 @@ class Security extends Controller
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
-
     /**
      *
      * Register a user, making sure the nickname is not reserved and
      * possibly sending a confirmation email
      *
-     * @param Request $request
+     * @param Request                   $request
      * @param GuardAuthenticatorHandler $guard_handler
-     * @param Authenticator $authenticator
-     * @return array|Response|null
+     * @param Authenticator             $authenticator
+     *
      * @throws EmailTakenException
      * @throws NicknameTakenException
      * @throws ServerException
@@ -88,10 +87,12 @@ class Security extends Controller
      * @throws NicknameTooLongException
      * @throws NicknameTooShortException
      * @throws NotImplementedException
+     *
+     * @return null|array|Response
      */
-    public function register(Request                   $request,
+    public function register(Request $request,
                              GuardAuthenticatorHandler $guard_handler,
-                             Authenticator             $authenticator)
+                             Authenticator $authenticator)
     {
         $form = Form::create([
             ['nickname', TextType::class, [
@@ -105,16 +106,16 @@ class Security extends Controller
                         'max'        => Nickname::MAX_LEN,
                         'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]), ]),
                 ],
-                'block_name' => 'nickname',
-                'label_attr' => ['class' => 'section-form-label'],
+                'block_name'      => 'nickname',
+                'label_attr'      => ['class' => 'section-form-label'],
                 'invalid_message' => _m('Nickname not valid. Please provide a valid nickname.'),
             ]],
             ['email', EmailType::class, [
-                'label'       => _m('Email'),
-                'help'        => _m('Desired email for this account (e.g., john@provider.com)'),
-                'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ])],
-                'block_name'  => 'email',
-                'label_attr'  => ['class' => 'section-form-label'],
+                'label'           => _m('Email'),
+                'help'            => _m('Desired email for this account (e.g., john@provider.com)'),
+                'constraints'     => [ new NotBlank(['message' => _m('Please enter an email') ])],
+                'block_name'      => 'email',
+                'label_attr'      => ['class' => 'section-form-label'],
                 'invalid_message' => _m('Email not valid. Please provide a valid email.'),
             ]],
             FormFields::repeated_password(),
@@ -134,11 +135,11 @@ class Security extends Controller
                 // If we do find something, there's a duplicate
                 if ($user->getNickname() === $data['nickname']) {
                     // Register page feedback on nickname already in use
-                    $this->addFlash("verify_nickname_error", _m('Nickname is already in use on this server.'));
+                    $this->addFlash('verify_nickname_error', _m('Nickname is already in use on this server.'));
                     throw new NicknameTakenException;
                 } else {
                     // Register page feedback on email already in use
-                    $this->addFlash("verify_email_error", _m('Email is already taken.'));
+                    $this->addFlash('verify_email_error', _m('Email is already taken.'));
                     throw new EmailTakenException;
                 }
             }
@@ -147,7 +148,7 @@ class Security extends Controller
 
             try {
                 // This already checks if the nickname is being used
-                $actor = GSActor::create(['nickname' => $valid_nickname]);
+                $actor = Actor::create(['nickname' => $valid_nickname]);
                 $user  = LocalUser::create([
                     'nickname'       => $valid_nickname,
                     'outgoing_email' => $data['email'],

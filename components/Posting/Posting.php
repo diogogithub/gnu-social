@@ -27,8 +27,8 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
+use App\Entity\Actor;
 use App\Entity\Attachment;
-use App\Entity\GSActor;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -60,7 +60,7 @@ class Posting extends Component
         $actor_id = $user->getId();
         $to_tags  = [];
         $tags     = Cache::get("actor-circle-{$actor_id}",
-                               fn () => DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]));
+                               fn () => DB::dql('select c.tag from App\Entity\ActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]));
         foreach ($tags as $t) {
             $t           = $t['tag'];
             $to_tags[$t] = $t;
@@ -109,12 +109,12 @@ class Posting extends Component
         return Event::next;
     }
 
-    public static function storeLocalNote(GSActor $actor, string $content, string $content_type, array $attachments, ?Note $reply_to = null, ?Note $repeat_of = null)
+    public static function storeLocalNote(Actor $actor, string $content, string $content_type, array $attachments, ?Note $reply_to = null, ?Note $repeat_of = null)
     {
         $rendered = null;
         Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $reply_to]);
         $note = Note::create([
-            'gsactor_id'   => $actor->getId(),
+            'actor_id'     => $actor->getId(),
             'content'      => $content,
             'content_type' => $content_type,
             'rendered'     => $rendered,
@@ -125,7 +125,7 @@ class Posting extends Component
         DB::flush();
     }
 
-    public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, GSActor $author, ?Note $reply_to = null)
+    public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, Actor $author, ?Note $reply_to = null)
     {
         if ($content_type === 'text/plain') {
             $content  = Formatting::renderPlainText($content);

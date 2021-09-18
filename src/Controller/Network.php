@@ -68,7 +68,7 @@ class Network extends Controller
     public function home(Request $request, string $nickname)
     {
         try {
-            $target = DB::findOneBy('gsactor', ['nickname' => $nickname]);
+            $target = DB::findOneBy('actor', ['nickname' => $nickname]);
         } catch (NotFoundException) {
             throw new ClientException(_m('User {nickname} doesn\'t exist', ['{nickname}' => $nickname]));
         }
@@ -78,7 +78,7 @@ class Network extends Controller
         select note.* from note left join -- left join ensures all returned notes' ids are not null
         (
             -- Followed by target
-            select n.id from note n inner join follow f on n.gsactor_id = f.followed
+            select n.id from note n inner join follow f on n.actor_id = f.followed
                 where f.follower = :target_actor_id
             union all
             -- Replies to notes by target
@@ -89,7 +89,7 @@ class Network extends Controller
             union all
             -- Notes in groups target follows
             select gi.activity_id from group_inbox gi inner join group_member gm on gi.group_id = gm.group_id
-                where gm.gsactor_id = :target_actor_id
+                where gm.actor_id = :target_actor_id
         )
         as s on s.id = note.id
         where
@@ -125,7 +125,7 @@ END;
     {
         $actor_id = Common::ensureLoggedIn()->getId();
         $notes    = DB::dql('select n from App\Entity\Note n ' .
-                         'where n.reply_to is not null and n.gsactor_id = :id ' .
+                         'where n.reply_to is not null and n.actor_id = :id ' .
                          'order by n.created DESC', ['id' => $actor_id]);
 
         $notes_out = null;

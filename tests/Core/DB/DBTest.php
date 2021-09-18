@@ -20,7 +20,7 @@
 namespace App\Tests\Core\DB;
 
 use App\Core\DB\DB;
-use App\Entity\GSActor;
+use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
@@ -34,51 +34,51 @@ class DBTest extends GNUsocialTestCase
     public function testDql()
     {
         static::bootKernel();
-        $actor = DB::dql('select a from gsactor a where a.nickname = :nickname', ['nickname' => 'taken_user']);
+        $actor = DB::dql('select a from actor a where a.nickname = :nickname', ['nickname' => 'taken_user']);
         static::assertTrue(is_array($actor));
-        static::assertTrue($actor[0] instanceof GSActor);
+        static::assertTrue($actor[0] instanceof Actor);
     }
 
     public function testSql()
     {
         static::bootKernel();
-        $actor = DB::sql('select {select} from gsactor a where a.nickname = :nickname', ['a' => 'App\Entity\GSActor'], ['nickname' => 'taken_user']);
+        $actor = DB::sql('select {select} from actor a where a.nickname = :nickname', ['a' => 'App\Entity\Actor'], ['nickname' => 'taken_user']);
         static::assertTrue(is_array($actor));
-        static::assertTrue($actor[0] instanceof GSActor);
+        static::assertTrue($actor[0] instanceof Actor);
     }
 
     public function testFindBy()
     {
         static::bootKernel();
-        $actor = DB::findBy('gsactor', ['nickname' => 'taken_user']);
+        $actor = DB::findBy('actor', ['nickname' => 'taken_user']);
         static::assertTrue(is_array($actor));
-        static::assertTrue($actor[0] instanceof GSActor);
+        static::assertTrue($actor[0] instanceof Actor);
 
-        $actor = DB::findBy('gsactor', ['and' => ['is_null' => 'bio', 'or' => ['nickname' => 'user does not exist', 'gte' => ['id' => 0]]]]);
+        $actor = DB::findBy('actor', ['and' => ['is_null' => 'bio', 'or' => ['nickname' => 'user does not exist', 'gte' => ['id' => 0]]]]);
         static::assertTrue(is_array($actor));
-        static::assertTrue($actor[0] instanceof GSActor);
+        static::assertTrue($actor[0] instanceof Actor);
     }
 
     public function testFindOneBy()
     {
         static::bootKernel();
-        $actor = DB::findOneBy('gsactor', ['nickname' => 'taken_user']);
-        static::assertTrue($actor instanceof GSActor);
+        $actor = DB::findOneBy('actor', ['nickname' => 'taken_user']);
+        static::assertTrue($actor instanceof Actor);
 
-        static::assertThrows(DuplicateFoundException::class, fn () => DB::findOneBy('gsactor', ['is_null' => 'bio']));
-        static::assertThrows(NotFoundException::class, fn () => DB::findOneBy('gsactor', ['nickname' => 'nickname_not_in_use']));
+        static::assertThrows(DuplicateFoundException::class, fn () => DB::findOneBy('actor', ['is_null' => 'bio']));
+        static::assertThrows(NotFoundException::class, fn () => DB::findOneBy('actor', ['nickname' => 'nickname_not_in_use']));
     }
 
     public function testCount()
     {
         static::bootKernel();
-        static::assertTrue(DB::count('gsactor', ['nickname' => 'taken_user']) == 1);
-        static::assertTrue(DB::count('gsactor', []) != 1);
+        static::assertTrue(DB::count('actor', ['nickname' => 'taken_user']) == 1);
+        static::assertTrue(DB::count('actor', []) != 1);
     }
 
     public function testPersistWithSameId()
     {
-        $actor = GSActor::create(['nickname' => 'test', 'normalized_nickname' => 'test']);
+        $actor = Actor::create(['nickname' => 'test', 'normalized_nickname' => 'test']);
         $user  = LocalUser::create(['nickname' => 'test']);
         $id    = DB::persistWithSameId($actor, $user, fn ($id) => $id);
         static::assertTrue($id != 0);

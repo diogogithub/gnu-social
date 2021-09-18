@@ -22,7 +22,7 @@ Store
 
 ```php
 /**
- * Get the cached avatar file info associated with the given GSActor id
+ * Get the cached avatar file info associated with the given Actor id
  *
  * Returns the avatar file's hash, mimetype, title and path.
  * Ensures exactly one cached value exists

@@ -51,7 +51,7 @@ foreach ($files as $file) {
     foreach ($schema['fields'] as $field => $opts) {
         if (isset($opts['foreign key'])) {
             [$foreign_entity, $foreign_key] = explode('.', $opts['target']);
-            $foreign_table = Formatting::camelCaseToSnakeCase(preg_replace('/GSActor/', 'gsactor', $foreign_entity));
+            $foreign_table = Formatting::camelCaseToSnakeCase(preg_replace('/Actor/', 'actor', $foreign_entity));
             $edges[]     = "{$table}:{$field} -- {$foreign_table}:{$foreign_key}";
         }
     }

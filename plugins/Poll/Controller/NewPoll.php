@@ -83,7 +83,7 @@ class NewPoll
             if ($form->isValid()) {
                 $data = $form->getData();
 
-                $note = Note::create(['gsactor_id' => $user->getId(), $is_local = true]);
+                $note = Note::create(['actor_id' => $user->getId(), $is_local = true]);
                 DB::persist($note);
 
                 Security::sanitize($question = $data['Question']);
@@ -92,7 +92,7 @@ class NewPoll
                 }
 
                 $options = implode("\n",$opt);
-                $poll    = Poll::create(['gsactor_id' => $user->getId(), 'question' => $question, 'options' => $options, 'note_id' => $note->getId()]);
+                $poll    = Poll::create(['actor_id' => $user->getId(), 'question' => $question, 'options' => $options, 'note_id' => $note->getId()]);
                 DB::persist($poll);
                 DB::flush();
                 throw new RedirectException('root');

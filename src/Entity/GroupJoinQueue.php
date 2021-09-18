@@ -39,18 +39,18 @@ class GroupJoinQueue extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $gsactor_id;
+    private int $actor_id;
     private int $group_id;
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setGroupId(int $group_id): self
@@ -73,13 +73,13 @@ class GroupJoinQueue extends Entity
             'name'        => 'group_join_queue',
             'description' => 'Holder for group join requests awaiting moderation.',
             'fields'      => [
-                'gsactor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'group_join_queue_gsactor_id_fkey', 'not null' => true, 'description' => 'remote or local gsactor making the request'],
-                'group_id'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Group.id',   'multiplicity' => 'many to one',   'name' => 'group_join_queue_group_id_fkey',   'not null' => true, 'description' => 'remote or local group to join, if any'],
+                'actor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'group_join_queue_actor_id_fkey', 'not null' => true, 'description' => 'remote or local actor making the request'],
+                'group_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Group.id',   'multiplicity' => 'many to one',   'name' => 'group_join_queue_group_id_fkey',   'not null' => true, 'description' => 'remote or local group to join, if any'],
             ],
-            'primary key' => ['gsactor_id', 'group_id'],
+            'primary key' => ['actor_id', 'group_id'],
             'indexes'     => [
-                'group_join_queue_gsactor_id_idx' => ['gsactor_id'],
-                'group_join_queue_group_id_idx'   => ['group_id'],
+                'group_join_queue_actor_id_idx' => ['actor_id'],
+                'group_join_queue_group_id_idx' => ['group_id'],
             ],
         ];
     }

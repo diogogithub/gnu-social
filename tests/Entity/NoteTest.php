@@ -31,10 +31,10 @@ class NoteTest extends GNUsocialTestCase
     public function testGetReplies()
     {
         $user    = DB::findOneBy('local_user', ['nickname' => 'taken_user']);
-        $note    = DB::findBy('note', ['gsactor_id' => $user->getId(), 'content' => 'some content', 'reply_to' => null], limit: 1)[0];
+        $note    = DB::findBy('note', ['actor_id' => $user->getId(), 'content' => 'some content', 'reply_to' => null], limit: 1)[0];
         $replies = $note->getReplies();
         static::assertSame('some other content', $replies[0]->getContent());
-        static::assertSame($user->getId(), $replies[0]->getGSActorId());
+        static::assertSame($user->getId(), $replies[0]->getActorId());
         static::assertSame($note->getId(), $replies[0]->getReplyTo());
 
         static::assertSame($user->getNickname(), $replies[0]->getReplyToNickname());
@@ -42,21 +42,21 @@ class NoteTest extends GNUsocialTestCase
 
     public function testIsVisibleTo()
     {
-        $actor1 = DB::findOneBy('gsactor', ['nickname' => 'taken_user']);
-        $actor2 = DB::findOneBy('gsactor', ['nickname' => 'taken_group']);
-        $actor3 = DB::findOneBy('gsactor', ['nickname' => 'some_user']);
+        $actor1 = DB::findOneBy('actor', ['nickname' => 'taken_user']);
+        $actor2 = DB::findOneBy('actor', ['nickname' => 'taken_group']);
+        $actor3 = DB::findOneBy('actor', ['nickname' => 'some_user']);
 
-        $note_visible_to_1 = DB::findBy('note', ['gsactor_id' => $actor1->getId(), 'content' => 'private note', 'scope' => VisibilityScope::FOLLOWER], limit: 1)[0];
+        $note_visible_to_1 = DB::findBy('note', ['actor_id' => $actor1->getId(), 'content' => 'private note', 'scope' => VisibilityScope::FOLLOWER], limit: 1)[0];
         static::assertTrue($note_visible_to_1->isVisibleTo($actor1));
         static::assertFalse($note_visible_to_1->isVisibleTo($actor2));
         static::assertFalse($note_visible_to_1->isVisibleTo($actor3));
 
-        $note_public = DB::findBy('note', ['gsactor_id' => $actor1->getId(), 'content' => 'some content', 'reply_to' => null], limit: 1)[0];
+        $note_public = DB::findBy('note', ['actor_id' => $actor1->getId(), 'content' => 'some content', 'reply_to' => null], limit: 1)[0];
         static::assertTrue($note_public->isVisibleTo($actor1));
         static::assertTrue($note_public->isVisibleTo($actor2));
         static::assertTrue($note_public->isVisibleTo($actor3));
 
-        $group_note = DB::findBy('note', ['gsactor_id' => $actor1->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP], limit: 1)[0];
+        $group_note = DB::findBy('note', ['actor_id' => $actor1->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP], limit: 1)[0];
         static::assertTrue($group_note->isVisibleTo($actor3));
         static::assertFalse($group_note->isVisibleTo($actor2));
         static::assertFalse($group_note->isVisibleTo($actor1));

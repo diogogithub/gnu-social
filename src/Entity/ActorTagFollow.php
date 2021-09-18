@@ -23,7 +23,7 @@ use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Gsactor Tag Subscription
+ * Entity for actor Tag Subscription
  *
  * @category  DB
  * @package   GNUsocial
@@ -36,35 +36,35 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class GSActorTagFollow extends Entity
+class ActorTagFollow extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $gsactor_id;
-    private int $gsactor_tag;
+    private int $actor_id;
+    private int $actor_tag;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
-    public function setGSActorId(int $gsactor_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): int
+    public function getActorId(): int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
-    public function setGSActorTag(int $gsactor_tag): self
+    public function setActorTag(int $actor_tag): self
     {
-        $this->gsactor_tag = $gsactor_tag;
+        $this->actor_tag = $actor_tag;
         return $this;
     }
 
-    public function getGSActorTag(): int
+    public function getActorTag(): int
     {
-        return $this->gsactor_tag;
+        return $this->actor_tag;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -95,18 +95,18 @@ class GSActorTagFollow extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'gsactor_tag_follow',
+            'name'   => 'actor_tag_follow',
             'fields' => [
-                'gsactor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'name' => 'gsactor_tag_follow_gsactor_id_fkey', 'not null' => true, 'description' => 'foreign key to gsactor table'],
-                'gsactor_tag' => ['type' => 'int',       // 'foreign key' => true, 'target' => 'GSActorTag.tag', 'multiplicity' => 'one to one', // tag can't unique, but doctrine doesn't understand this
-                    'name'               => 'gsactor_tag_follow_gsactor_tag_fkey', 'not null' => true, 'description' => 'foreign key to gsactor_tag', ],
+                'actor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_follow_actor_id_fkey', 'not null' => true, 'description' => 'foreign key to actor table'],
+                'actor_tag' => ['type' => 'int',       // 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'one to one', // tag can't unique, but doctrine doesn't understand this
+                    'name'             => 'actor_tag_follow_actor_tag_fkey', 'not null' => true, 'description' => 'foreign key to actor_tag', ],
                 'created'  => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['gsactor_tag_id', 'gsactor_id'],
+            'primary key' => ['actor_tag_id', 'actor_id'],
             'indexes'     => [
-                'gsactor_tag_follow_gsactor_id_idx' => ['gsactor_id'],
-                'gsactor_tag_follow_created_idx'    => ['created'],
+                'actor_tag_follow_actor_id_idx' => ['actor_id'],
+                'actor_tag_follow_created_idx'  => ['created'],
             ],
         ];
     }

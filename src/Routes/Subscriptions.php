@@ -20,7 +20,7 @@
 // }}}
 
 /**
- * Define social's GSActor's subscriptions routes
+ * Define social's Actor's subscriptions routes
  *
  * @package  GNUsocial
  * @category Router

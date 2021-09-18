@@ -38,7 +38,7 @@ class UserNotificationPrefs extends Entity
     // @codeCoverageIgnoreStart
     private int $user_id;
     private string $transport;
-    private ?int $target_gsactor_id;
+    private ?int $target_actor_id;
     private bool $activity_by_followed  = true;
     private bool $mention               = true;
     private bool $reply                 = true;
@@ -73,15 +73,15 @@ class UserNotificationPrefs extends Entity
         return $this->transport;
     }
 
-    public function setTargetGSActorId(?int $target_gsactor_id): self
+    public function setTargetActorId(?int $target_actor_id): self
     {
-        $this->target_gsactor_id = $target_gsactor_id;
+        $this->target_actor_id = $target_actor_id;
         return $this;
     }
 
-    public function getTargetGSActorId(): ?int
+    public function getTargetActorId(): ?int
     {
-        return $this->target_gsactor_id;
+        return $this->target_actor_id;
     }
 
     public function setActivityByFollowed(bool $activity_by_followed): self
@@ -215,7 +215,7 @@ class UserNotificationPrefs extends Entity
             'fields' => [
                 'user_id'               => ['type' => 'int',       'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'not null' => true],
                 'transport'             => ['type' => 'varchar',   'length' => 191, 'not null' => true, 'description' => 'transport (ex email. xmpp, aim)'],
-                'target_gsactor_id'     => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'default' => null, 'description' => 'If not null, settings are specific only to a given gsactors'],
+                'target_actor_id'       => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'default' => null, 'description' => 'If not null, settings are specific only to a given actors'],
                 'activity_by_followed'  => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when a new activity by someone we follow is made'],
                 'mention'               => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when mentioned by someone we do not follow'],
                 'reply'                 => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when someone replies to a notice made by us'],
@@ -230,7 +230,7 @@ class UserNotificationPrefs extends Entity
             ],
             'primary key' => ['user_id', 'transport'],
             'indexes'     => [
-                'user_notification_prefs_user_target_gsactor_idx' => ['user_id', 'target_gsactor_id'],
+                'user_notification_prefs_user_target_actor_idx' => ['user_id', 'target_actor_id'],
             ],
         ];
     }

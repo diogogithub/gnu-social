@@ -31,7 +31,7 @@ class UpdateListenerTest extends GNUsocialTestCase
     public function testPreUpdateExists()
     {
         static::bootKernel();
-        $actor = DB::findOneBy('gsactor', ['nickname' => 'taken_user']);
+        $actor = DB::findOneBy('actor', ['nickname' => 'taken_user']);
         $date  = new DateTime('1999-09-23');
         $actor->setModified($date);
         static::assertSame($actor->getModified(), $date);

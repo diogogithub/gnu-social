@@ -97,8 +97,8 @@ class Follow extends Entity
         return [
             'name'   => 'follow',
             'fields' => [
-                'follower' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'name' => 'follow_follower_fkey', 'not null' => true,  'description' => 'gsactor listening'],
-                'followed' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'name' => 'follow_followed_fkey', 'not null' => true,  'description' => 'gsactor being listened to'],
+                'follower' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'follow_follower_fkey', 'not null' => true,  'description' => 'actor listening'],
+                'followed' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'follow_followed_fkey', 'not null' => true,  'description' => 'actor being listened to'],
                 'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

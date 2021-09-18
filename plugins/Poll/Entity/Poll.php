@@ -41,7 +41,7 @@ class Poll extends Entity
     // @codeCoverageIgnoreStart
     private int $id;
     private ?string $uri;
-    private ?int $gsactor_id;
+    private ?int $actor_id;
     private int $note_id;
     private ?string $question;
     private ?string $options;
@@ -70,15 +70,15 @@ class Poll extends Entity
         return $this->uri;
     }
 
-    public function setGSActorId(?int $gsactor_id): self
+    public function setActorId(?int $actor_id): self
     {
-        $this->gsactor_id = $gsactor_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getGSActorId(): ?int
+    public function getActorId(): ?int
     {
-        return $this->gsactor_id;
+        return $this->actor_id;
     }
 
     public function setNoteId(int $note_id): self
@@ -150,14 +150,14 @@ class Poll extends Entity
             'name'        => 'poll',
             'description' => 'Per-notice poll data for Poll plugin',
             'fields'      => [
-                'id'         => ['type' => 'serial', 'not null' => true],
-                'uri'        => ['type' => 'varchar', 'length' => 191],
-                'gsactor_id' => ['type' => 'int'],
-                'note_id'    => ['type' => 'int', 'not null' => true],
-                'question'   => ['type' => 'text'],
-                'options'    => ['type' => 'text'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'       => ['type' => 'serial', 'not null' => true],
+                'uri'      => ['type' => 'varchar', 'length' => 191],
+                'actor_id' => ['type' => 'int'],
+                'note_id'  => ['type' => 'int', 'not null' => true],
+                'question' => ['type' => 'text'],
+                'options'  => ['type' => 'text'],
+                'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [

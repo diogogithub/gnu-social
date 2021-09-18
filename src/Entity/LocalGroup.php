@@ -96,7 +96,7 @@ class LocalGroup extends Entity
 
     public function getActor()
     {
-        return DB::find('gsactor', ['id' => $this->group_id]);
+        return DB::find('actor', ['id' => $this->group_id]);
     }
 
     public static function schemaDef(): array

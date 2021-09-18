@@ -30,7 +30,7 @@
 
 namespace App\Util\Notification;
 
-use App\Entity\GSActor;
+use App\Entity\Actor;
 
 class Notification
 {
@@ -50,11 +50,11 @@ class Notification
     /**
      * Who caused this notification
      */
-    private GSActor $gsactor;
+    private Actor $actor;
 
-    public function __construct(int $type, GSActor $gsactor)
+    public function __construct(int $type, Actor $actor)
     {
-        $this->type    = $type;
-        $this->gsactor = $gsactor;
+        $this->type  = $type;
+        $this->actor = $actor;
     }
 }

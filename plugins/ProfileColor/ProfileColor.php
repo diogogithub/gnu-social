@@ -80,7 +80,7 @@ class ProfileColor extends Plugin
             'path'                        => 'profilecolor/profilecolor.html.twig',
         ];*/
         if (Common::user() != null) {
-            $color = DB::find('profile_color', ['gsactor_id' => Common::user()->getId()]);
+            $color = DB::find('profile_color', ['actor_id' => Common::user()->getId()]);
             if ($color != null) {
                 $vars['profile_extras'][] = ['name' => 'profilecolor', 'vars' => ['color' => $color->getColor()]];
             }

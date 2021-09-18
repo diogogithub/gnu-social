@@ -23,7 +23,7 @@ use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for User's GSActor Block
+ * Entity for Actor Tag
  *
  * @category  DB
  * @package   GNUsocial
@@ -36,34 +36,46 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class GSActorBlock extends Entity
+class ActorTag extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $blocker;
-    private int $blocked;
+    private int $tagger;
+    private int $tagged;
+    private string $tag;
     private \DateTimeInterface $modified;
 
-    public function setBlocker(int $blocker): self
+    public function setTagger(int $tagger): self
     {
-        $this->blocker = $blocker;
+        $this->tagger = $tagger;
         return $this;
     }
 
-    public function getBlocker(): int
+    public function getTagger(): int
     {
-        return $this->blocker;
+        return $this->tagger;
     }
 
-    public function setBlocked(int $blocked): self
+    public function setTagged(int $tagged): self
     {
-        $this->blocked = $blocked;
+        $this->tagged = $tagged;
         return $this;
     }
 
-    public function getBlocked(): int
+    public function getTagged(): int
     {
-        return $this->blocked;
+        return $this->tagged;
+    }
+
+    public function setTag(string $tag): self
+    {
+        $this->tag = $tag;
+        return $this;
+    }
+
+    public function getTag(): string
+    {
+        return $this->tag;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -83,13 +95,24 @@ class GSActorBlock extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'gsactor_block',
+            'name'   => 'actor_tag',
             'fields' => [
-                'blocker'  => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'gsactor_block_blocker_fkey', 'not null' => true, 'description' => 'user making the block'],
-                'blocked'  => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'gsactor_block_blocked_fkey', 'not null' => true, 'description' => 'gsactor that is blocked'],
+                'tagger'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
+                'tagged'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'not null' => true, 'description' => 'actor tagged'],
+                'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['blocker', 'blocked'],
+            'primary key' => ['tagger', 'tagged', 'tag'],
+            'indexes'     => [
+                'actor_tag_modified_idx'   => ['modified'],
+                'actor_tag_tagger_tag_idx' => ['tagger', 'tag'], // For Circles
+                'actor_tag_tagged_idx'     => ['tagged'],
+            ],
         ];
+    }
+
+    public function __toString()
+    {
+        return $this->tag;
     }
 }

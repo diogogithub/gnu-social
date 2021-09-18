@@ -33,8 +33,8 @@ namespace App\Util;
 use App\Core\Event;
 use App\Core\Log;
 use App\Core\Router\Router;
+use App\Entity\Actor;
 use App\Entity\Group;
-use App\Entity\GSActor;
 use App\Entity\Note;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\ServerException;
@@ -527,14 +527,14 @@ abstract class Formatting
      * Note the return data format is internal, to be used for building links and
      * such. Should not be used directly; rather, call common_linkify_mentions().
      *
-     * @param string  $text
-     * @param GSActor $actor  the GSActor that is sending the current text
-     * @param Note    $parent the Note this text is in reply to, if any
+     * @param string $text
+     * @param Actor  $actor  the Actor that is sending the current text
+     * @param Note   $parent the Note this text is in reply to, if any
      *
      * @return array
      *
      */
-    public static function findMentions(string $text, GSActor $actor, Note $parent = null)
+    public static function findMentions(string $text, Actor $actor, Note $parent = null)
     {
         $mentions = [];
         if (Event::handle('StartFindMentions', [$actor, $text, &$mentions])) {
@@ -583,7 +583,7 @@ abstract class Formatting
                     $mentioned = $actor->findRelativeActor($nickname);
                 }
 
-                if ($mentioned instanceof GSActor) {
+                if ($mentioned instanceof Actor) {
                     $url = $mentioned->getUri();    // prefer the URI as URL, if it is one.
                     if (!Common::isValidHttpUrl($url)) {
                         $url = $mentioned->getUrl();
@@ -697,13 +697,13 @@ abstract class Formatting
      *
      * Should generally not be called except from common_render_content().
      *
-     * @param string  $text   partially-rendered HTML
-     * @param GSActor $author the GSActor that is composing the current notice
-     * @param Note    $parent the Note this is sent in reply to, if any
+     * @param string $text   partially-rendered HTML
+     * @param Actor  $author the Actor that is composing the current notice
+     * @param Note   $parent the Note this is sent in reply to, if any
      *
      * @return string partially-rendered HTML
      */
-    public static function linkifyMentions($text, GSActor $author, ?Note $parent = null)
+    public static function linkifyMentions($text, Actor $author, ?Note $parent = null)
     {
         $mentions = self::findMentions($text, $author, $parent);
 

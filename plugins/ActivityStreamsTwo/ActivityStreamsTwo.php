@@ -42,19 +42,19 @@ class ActivityStreamsTwo extends Plugin
         switch ($route) {
             case 'actor_view_id':
             case 'actor_view_nickname':
-                $response = ActorResponse::handle($vars['gsactor']);
+                $response = ActorResponse::handle($vars['actor']);
                 return Event::stop;
             case 'note_view':
                 $response = NoteResponse::handle($vars['note']);
                 return Event::stop;
             case 'actor_favourites':
-                $response = LikeResponse::handle($vars['gsactor']);
+                $response = LikeResponse::handle($vars['actor']);
                 return Event::stop;
             case 'actor_subscriptions':
-                $response = FollowingResponse::handle($vars['gsactor']);
+                $response = FollowingResponse::handle($vars['actor']);
                 return Event::stop;
             case 'actor_subscribers':
-                $response = FollowersResponse::handle($vars['gsactor']);
+                $response = FollowersResponse::handle($vars['actor']);
                 return Event::stop;
             default:
                 return Event::next;

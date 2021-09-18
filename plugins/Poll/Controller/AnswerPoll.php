@@ -82,7 +82,7 @@ class AnswerPoll
                 if (PollResponse::exits($poll->getId(), $user->getId())) {
                     throw new ServerException('User already responded to poll');
                 }
-                $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
+                $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'actor_id' => $user->getId(), 'selection' => $selection]);
                 DB::persist($pollResponse);
                 DB::flush();
 

@@ -57,7 +57,7 @@ class ProfileColor
     {
         $user     = Common::user();
         $actor_id = $user->getId();
-        $pcolor   = DB::find('profile_color', ['gsactor_id' => $actor_id]);
+        $pcolor   = DB::find('profile_color', ['actor_id' => $actor_id]);
         $color    = '#000000';
         if ($pcolor != null) {
             $color = $pcolor->getColor();
@@ -78,7 +78,7 @@ class ProfileColor
                 DB::flush();
             }
 
-            $pcolor = Entity\ProfileColor::create(['gsactor_id' => $actor_id, 'color' => $data['color']]);
+            $pcolor = Entity\ProfileColor::create(['actor_id' => $actor_id, 'color' => $data['color']]);
             DB::persist($pcolor);
             DB::flush();
             throw new RedirectException();

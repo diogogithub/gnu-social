@@ -38,7 +38,7 @@ class Avatar extends Component
 
     public function onAddRoute($r): bool
     {
-        $r->connect('avatar', '/actor/{gsactor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar_view']);
+        $r->connect('avatar', '/actor/{actor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar_view']);
         $r->connect('settings_avatar', '/settings/avatar', [Controller\Avatar::class, 'settings_avatar']);
         return Event::next;
     }
@@ -63,64 +63,64 @@ class Avatar extends Component
         return Event::next;
     }
 
-    public function onGetAvatarUrl(int $gsactor_id, ?string &$url): bool
+    public function onGetAvatarUrl(int $actor_id, ?string &$url): bool
     {
-        $url = self::getAvatarUrl($gsactor_id);
+        $url = self::getAvatarUrl($actor_id);
         return Event::next;
     }
 
-    public function onAvatarUpdate(int $gsactor_id): bool
+    public function onAvatarUpdate(int $actor_id): bool
     {
-        Cache::delete('avatar-' . $gsactor_id);
-        Cache::delete('avatar-url-' . $gsactor_id);
-        Cache::delete('avatar-file-info-' . $gsactor_id);
+        Cache::delete('avatar-' . $actor_id);
+        Cache::delete('avatar-url-' . $actor_id);
+        Cache::delete('avatar-file-info-' . $actor_id);
         return Event::next;
     }
 
     // UTILS ----------------------------------
 
     /**
-     * Get the avatar associated with the given GSActor id
+     * Get the avatar associated with the given Actor id
      */
-    public static function getAvatar(?int $gsactor_id = null): Entity\Avatar
+    public static function getAvatar(?int $actor_id = null): Entity\Avatar
     {
-        $gsactor_id = $gsactor_id ?: Common::userId();
+        $actor_id = $actor_id ?: Common::userId();
         return GSFile::error(NoAvatarException::class,
-            $gsactor_id,
-            Cache::get("avatar-{$gsactor_id}",
-                function () use ($gsactor_id) {
+            $actor_id,
+            Cache::get("avatar-{$actor_id}",
+                function () use ($actor_id) {
                     return DB::dql('select a from Component\Avatar\Entity\Avatar a ' .
-                        'where a.gsactor_id = :gsactor_id',
-                        ['gsactor_id' => $gsactor_id]);
+                        'where a.actor_id = :actor_id',
+                        ['actor_id' => $actor_id]);
                 }));
     }
 
     /**
-     * Get the cached avatar associated with the given GSActor id, or the current user if not given
+     * Get the cached avatar associated with the given Actor id, or the current user if not given
      */
-    public static function getAvatarUrl(?int $gsactor_id = null, string $size = 'full'): string
+    public static function getAvatarUrl(?int $actor_id = null, string $size = 'full'): string
     {
-        $gsactor_id = $gsactor_id ?: Common::userId();
-        return Cache::get("avatar-url-{$gsactor_id}", function () use ($gsactor_id) {
-            return Router::url('avatar', ['gsactor_id' => $gsactor_id, 'size' => 'full']);
+        $actor_id = $actor_id ?: Common::userId();
+        return Cache::get("avatar-url-{$actor_id}", function () use ($actor_id) {
+            return Router::url('avatar', ['actor_id' => $actor_id, 'size' => 'full']);
         });
     }
 
     /**
-     * Get the cached avatar file info associated with the given GSActor id
+     * Get the cached avatar file info associated with the given Actor id
      *
      * Returns the avatar file's hash, mimetype, title and path.
      * Ensures exactly one cached value exists
      */
-    public static function getAvatarFileInfo(int $gsactor_id): array
+    public static function getAvatarFileInfo(int $actor_id): array
     {
-        $res = Cache::get("avatar-file-info-{$gsactor_id}",
-            function () use ($gsactor_id) {
+        $res = Cache::get("avatar-file-info-{$actor_id}",
+            function () use ($actor_id) {
                 return DB::dql('select f.id, f.filename, a.filename title, f.mimetype ' .
                     'from App\Entity\Attachment f ' .
                     'join Component\Avatar\Entity\Avatar a with f.id = a.attachment_id ' .
-                    'where a.gsactor_id = :gsactor_id',
-                    ['gsactor_id' => $gsactor_id]);
+                    'where a.actor_id = :actor_id',
+                    ['actor_id' => $actor_id]);
             }
         );
         if ($res === []) { // Avatar not found

@@ -46,7 +46,7 @@ use Functional as F;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class GSActor extends Entity
+class Actor extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
@@ -224,21 +224,21 @@ class GSActor extends Entity
 
     public static function getFromId(int $id): ?self
     {
-        return Cache::get('gsactor-id-' . $id, function () use ($id) {
-            return DB::find('gsactor', ['id' => $id]);
+        return Cache::get('actor-id-' . $id, function () use ($id) {
+            return DB::find('actor', ['id' => $id]);
         });
     }
 
     public static function getFromNickname(string $nickname): ?self
     {
-        return Cache::get('gsactor-nick-' . $nickname, function () use ($nickname) {
-            return DB::findOneBy('gsactor', ['nickname' => $nickname]);
+        return Cache::get('actor-nick-' . $nickname, function () use ($nickname) {
+            return DB::findOneBy('actor', ['nickname' => $nickname]);
         });
     }
 
     public static function getNicknameFromId(int $id): string
     {
-        return Cache::get('gsactor-nick-id-' . $id, function () use ($id) {
+        return Cache::get('actor-nick-id-' . $id, function () use ($id) {
             return self::getFromId($id)->getNickname();
         });
     }
@@ -247,7 +247,7 @@ class GSActor extends Entity
     {
         return Cache::get('selftags-' . $this->id,
                           function () {
-                              return DB::findBy('gsactor_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
+                              return DB::findBy('actor_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
                           }, beta: $_test_force_recompute ? INF : 1.0);
     }
 
@@ -258,7 +258,7 @@ class GSActor extends Entity
         $tag_to_remove = array_diff($tag_existing, $tags);
         $pt_to_remove  = F\filter($existing, function ($pt) use ($tag_to_remove) { return in_array($pt->getTag(), $tag_to_remove); });
         foreach ($tag_to_add as $tag) {
-            $pt = GSActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag]);
+            $pt = ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag]);
             DB::persist($pt);
         }
         foreach ($pt_to_remove as $pt) {
@@ -305,9 +305,9 @@ class GSActor extends Entity
         // Will throw exception on invalid input.
         $nickname = Nickname::normalize($nickname, check_already_used: false);
         return Cache::get('relative-nickname-' . $nickname . '-' . $this->getId(),
-                          fn () => DB::dql('select a from gsactor a where ' .
-                                           'a.id in (select followed from follow f join gsactor a on f.followed = a.id where and f.follower = :actor_id and a.nickname = :nickname) or' .
-                                           'a.id in (select follower from follow f join gsactor a on f.follower = a.id where and f.followed = :actor_id and a.nickname = :nickname) or' .
+                          fn () => DB::dql('select a from actor a where ' .
+                                           'a.id in (select followed from follow f join actor a on f.followed = a.id where and f.follower = :actor_id and a.nickname = :nickname) or' .
+                                           'a.id in (select follower from follow f join actor a on f.follower = a.id where and f.followed = :actor_id and a.nickname = :nickname) or' .
                                            'a.nickname = :nickname' .
                                            'limit 1',
                                            ['nickname' => $nickname, 'actor_id' => $this->getId()]
@@ -327,13 +327,13 @@ class GSActor extends Entity
     public static function schemaDef(): array
     {
         $def = [
-            'name'        => 'gsactor',
-            'description' => 'local and remote users, groups and bots are gsactors, for instance',
+            'name'        => 'actor',
+            'description' => 'local and remote users, groups and bots are actors, for instance',
             'fields'      => [
                 'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
                 'fullname'         => ['type' => 'text', 'description' => 'display name'],
-                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this gsactor has'],
+                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this actor has'],
                 'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
                 'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
                 'location'         => ['type' => 'text', 'description' => 'physical location'],
@@ -346,10 +346,10 @@ class GSActor extends Entity
             ],
             'primary key' => ['id'],
             'indexes'     => [
-                'gsactor_nickname_idx' => ['nickname'],
+                'actor_nickname_idx' => ['nickname'],
             ],
             'fulltext indexes' => [
-                'gsactor_fulltext_idx' => ['nickname', 'fullname', 'location', 'bio', 'homepage'],
+                'actor_fulltext_idx' => ['nickname', 'fullname', 'location', 'bio', 'homepage'],
             ],
         ];
 
