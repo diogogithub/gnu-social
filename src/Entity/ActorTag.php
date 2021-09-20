@@ -113,6 +113,6 @@ class ActorTag extends Entity
 
     public function __toString()
     {
-        return $this->tag;
+        return $this->getTag();
     }
 }
