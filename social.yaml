@@ -261,3 +261,6 @@ parameters:
 
     discovery:
       CORS: false
+
+    streams:
+      notes_per_page: 32
