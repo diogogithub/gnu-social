@@ -40,37 +40,27 @@ abstract class HTML
 
     /**
      * Creates an HTML tag without attributes
-     *
-     * @param string       $tag
-     * @param null|mixed   $attrs
-     * @param array|string $content
-     * @param bool         $empty_tag
-     *
-     * @return array
      */
-    public static function tag(string $tag, $attrs = null,  $content = null, bool $empty_tag = false): array
+    public static function tag(string $tag, mixed $attrs = null, mixed $content = null, array $options = []): array
     {
-        return self::attr_tag($tag, $attrs ?? '', $content ?? '', $empty_tag);
+        return self::attr_tag($tag, $attrs ?? '', $content ?? '', $options);
     }
 
     /**
      * Create tag, possibly with attributes and indentation
-     *
-     * @param string       $tag
-     * @param array|string $attrs     - element attributes
-     * @param array|string $content   - what goes inside the tag
-     * @param bool         $empty_tag
-     *
-     * @return array
      */
-    private static function attr_tag(string $tag, $attrs, $content = '', bool $empty_tag = false): array
+    private static function attr_tag(string $tag, mixed $attrs, mixed $content = '', array $options = []): array
     {
-        $html = '<' . $tag . (is_string($attrs) ? ($attrs ? ' ' : '') . $attrs : self::attr($attrs));
-        if ($empty_tag) {
+        $html = '<' . $tag . (is_string($attrs) ? ($attrs ? ' ' : '') . $attrs : self::attr($attrs, $options));
+        if ($options['empty'] ?? false) {
             $html .= '/>';
         } else {
-            $inner = Formatting::indent($content);
-            $html .= ">\n" . ($inner == '' ? '' : $inner . "\n") . "</{$tag}>";
+            if ($options['indent'] ?? true) {
+                $inner = Formatting::indent($content);
+                $html .= ">\n" . ($inner == '' ? '' : $inner . "\n") . "</{$tag}>";
+            } else {
+                $html .= ">{$content}</{$tag}>";
+            }
         }
         return explode("\n", $html);
     }
@@ -104,7 +94,7 @@ abstract class HTML
 
     /**
      * @param array|string $html    The input to convert to HTML
-     * @param array        $options = [] ['allowed_tags' => string[], 'forbidden_attributes' => string[], 'raw' => bool]
+     * @param array        $options = [] ['allowed_tags' => string[], 'forbidden_attributes' => string[], 'raw' => bool, 'indent' => bool]
      *
      * @return string
      */
@@ -130,7 +120,7 @@ abstract class HTML
                             throw new \InvalidArgumentException("HTML::html: Tag {$tag} is not allowed");
                         }
                         if (!empty($inner)) {
-                            $inner = "\n" . Formatting::indent($inner, $indent) . "\n";
+                            $inner = ($options['indent'] ?? true) ? ("\n" . Formatting::indent($inner, $indent) . "\n") : $inner;
                         }
                         $out .= "<{$tag}{$attrs}>{$inner}</{$tag}>";
                     } else {
