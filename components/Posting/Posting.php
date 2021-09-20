@@ -28,6 +28,7 @@ use App\Core\Form;
 use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
+use App\Core\Security;
 use App\Entity\Actor;
 use App\Entity\ActorToAttachment;
 use App\Entity\Attachment;
@@ -170,12 +171,18 @@ class Posting extends Component
 
     public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, Actor $author, ?Note $reply_to = null)
     {
-        if ($content_type === 'text/plain') {
-            $content  = Formatting::renderPlainText($content);
-            $rendered = Formatting::linkifyMentions($content, $author, $reply_to);
-            return Event::stop;
+        switch ($content_type) {
+            case 'text/plain':
+                $rendered = Formatting::renderPlainText($content);
+                $rendered = Formatting::linkifyMentions($rendered, $author, $reply_to);
+                return Event::stop;
+            case 'text/html':
+                // TODO: It has to linkify and stuff as well
+                $rendered = Security::sanitize($content);
+                return Event::stop;
+            default:
+                return Event::next;
         }
-        return Event::next;
     }
 
     /**
