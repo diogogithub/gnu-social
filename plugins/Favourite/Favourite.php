@@ -125,8 +125,8 @@ class Favourite extends NoteHandlerPlugin
     {
         $r->connect(id: 'actor_favourites_id', uri_path: '/actor/{id<\d+>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorId']);
         $r->connect(id: 'actor_reverse_favourites_id', uri_path: '/actor/{id<\d+>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorId']);
-        $r->connect('actor_favourites_nickname', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', [Controller\Favourite::class, 'favouritesByActorNickname']);
-        $r->connect('actor_reverse_favourites_nickname', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/reverse_favourites', [Controller\Favourite::class, 'reverseFavouritesByActorNickname']);
+        $r->connect(id:'actor_favourites_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorNickname']);
+        $r->connect(id: 'actor_reverse_favourites_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorNickname']);
         return Event::next;
     }
 }

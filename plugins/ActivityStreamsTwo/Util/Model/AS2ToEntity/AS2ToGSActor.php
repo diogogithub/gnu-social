@@ -8,7 +8,7 @@ use App\Entity\Note;
 use App\Util\Formatting;
 use DateTime;
 
-abstract class AS2ToNote
+abstract class AS2ToGSActor
 {
     /**
      * @param array $args
@@ -17,7 +17,7 @@ abstract class AS2ToNote
      *
      * @return Note
      */
-    public static function translate(array $args, ?string $source = null): Note
+    public static function translate(array $args, ?string $source = null): Actor
     {
         $map = [
             'isLocal'      => false,

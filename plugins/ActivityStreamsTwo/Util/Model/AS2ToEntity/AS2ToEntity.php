@@ -11,10 +11,10 @@ abstract class AS2ToEntity
      *
      * @return Entity
      */
-    public static function translate(array $activity): Entity
+    public static function translate(array $activity, ?string $source = null): Entity
     {
         return match ($activity['type']) {
-            'Note'  => AS2ToNote::translate($activity),
+            'Note'  => AS2ToNote::translate($activity, $source),
             default => Entity::create($activity),
         };
     }

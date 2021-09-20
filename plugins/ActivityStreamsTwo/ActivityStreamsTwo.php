@@ -47,13 +47,16 @@ class ActivityStreamsTwo extends Plugin
             case 'note_view':
                 $response = NoteResponse::handle($vars['note']);
                 return Event::stop;
-            case 'actor_favourites':
+            case 'actor_favourites_id':
+            case 'actor_favourites_nickname':
                 $response = LikeResponse::handle($vars['actor']);
                 return Event::stop;
-            case 'actor_subscriptions':
+            case 'actor_subscriptions_id':
+            case 'actor_subscriptions_nickname':
                 $response = FollowingResponse::handle($vars['actor']);
                 return Event::stop;
-            case 'actor_subscribers':
+            case 'actor_subscribers_id':
+            case 'actor_subscribers_nickname':
                 $response = FollowersResponse::handle($vars['actor']);
                 return Event::stop;
             default:
