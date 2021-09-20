@@ -146,7 +146,7 @@ abstract class Cache
      * Retrieve a list from the cache, with a different implementation
      * for redis and others, trimming to $max_count if given
      */
-    public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, float $beta = 1.0): array
+    public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, ?int $offset = null, ?int $limit = null, float $beta = 1.0): array
     {
         if (isset(self::$redis[$pool])) {
             if (!($recompute = $beta === INF || !(self::$redis[$pool]->exists($key)))) {
@@ -169,10 +169,10 @@ abstract class Cache
                 $res  = $calculate(null, $save);
                 if ($save) {
                     self::setList($key, $res, $pool, $max_count, $beta);
-                    return $res;
+                    return array_slice($res, $offset ?? 0, $limit);
                 }
             }
-            return self::$redis[$pool]->lRange($key, 0, $max_count ?? -1);
+            return self::$redis[$pool]->lRange($key, $offset ?? 0, ($offset ?? 0) + ($limit ?? $max_count ?? -1));
         } else {
             return self::get($key, function () use ($calculate, $max_count) {
                 $res = $calculate(null);
