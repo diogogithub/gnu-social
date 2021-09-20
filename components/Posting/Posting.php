@@ -156,7 +156,7 @@ class Posting extends Component
         DB::persist($note);
 
         // Need file and note ids for the next step
-        Event::handle('ProcessNoteContent', [$note->getId(), $content, $content_type]);
+        Event::handle('ProcessNoteContent', [$note, $content, $content_type]);
         DB::flush();
 
         if ($processed_attachments != []) {

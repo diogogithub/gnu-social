@@ -21,10 +21,12 @@
 
 namespace Component\Tag;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Core\Router\Router;
+use App\Entity\Note;
 use App\Entity\NoteTag;
 use App\Util\Formatting;
 use App\Util\HTML;
@@ -51,14 +53,16 @@ class Tag extends Component
     /**
      * Process note by extracting any tags present
      */
-    public function onProcessNoteContent(int $note_id, string $content)
+    public function onProcessNoteContent(Note $note, string $content)
     {
         $matched_tags   = [];
         $processed_tags = false;
         preg_match_all(self::TAG_REGEX, $content, $matched_tags, PREG_SET_ORDER);
         foreach ($matched_tags as $match) {
-            $tag = $match[2];
-            DB::persist(NoteTag::create(['tag' => $tag, 'canonical' => $this->canonicalTag($tag), 'note_id' => $note_id]));
+            $tag           = $match[2];
+            $canonical_tag = self::canonicalTag($tag);
+            DB::persist(NoteTag::create(['tag' => $tag, 'canonical' => $canonical_tag, 'note_id' => $note->getId()]));
+            Cache::pushList("tag-{$canonical_tag}", $note);
             $processed_tags = true;
         }
         if ($processed_tags) {
@@ -73,12 +77,12 @@ class Tag extends Component
 
     private function tagLink(string $tag): string
     {
-        $canonical = $this->canonicalTag($tag);
+        $canonical = self::canonicalTag($tag);
         $url       = Router::url('tag', ['tag' => $canonical]);
         return HTML::html(['a' => ['attrs' => ['href' => $url, 'title' => $tag, 'rel' => 'tag'], $tag]], options: ['indent' => false]);
     }
 
-    public function canonicalTag(string $tag): string
+    public static function canonicalTag(string $tag): string
     {
         return substr(Formatting::slugify($tag), 0, self::MAX_TAG_LENGTH);
     }

@@ -25,6 +25,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Entity;
+use App\Entity\Note;
 use App\Entity\NoteToLink;
 use App\Util\Common;
 use App\Util\HTML;
@@ -35,7 +36,7 @@ class Link extends Component
     /**
      * Extract URLs from $content and create the appropriate Link and NoteToLink entities
      */
-    public function onProcessNoteContent(int $note_id, string $content)
+    public function onProcessNoteContent(Note $note, string $content)
     {
         if (Common::config('attachments', 'process_links')) {
             $matched_urls = [];
@@ -44,7 +45,7 @@ class Link extends Component
             foreach ($matched_urls as $match) {
                 try {
                     $link_id = Entity\Link::getOrCreate($match)->getId();
-                    DB::persist(NoteToLink::create(['link_id' => $link_id, 'note_id' => $note_id]));
+                    DB::persist(NoteToLink::create(['link_id' => $link_id, 'note_id' => $note->getId()]));
                 } catch (InvalidArgumentException) {
                     continue;
                 }
