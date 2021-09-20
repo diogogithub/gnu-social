@@ -36,11 +36,13 @@ class Inbox extends Controller
     /**
      * Inbox handler
      */
-    public function handle(int $gsactor_id)
+    public function handle(?int $gsactor_id = null)
     {
-        $user = DB::find('local_user', ['id' => $gsactor_id]);
-        if (is_null($user)) {
-            throw new ClientException(_m('No such actor.'), 404);
+        if (!is_null($gsactor_id)) {
+            $user = DB::find('local_user', ['id' => $gsactor_id]);
+            if (is_null($user)) {
+                throw new ClientException(_m('No such actor.'), 404);
+            }
         }
 
         // Check accept header
@@ -58,8 +60,7 @@ class Inbox extends Controller
 
         // Cast as an ActivityStreams type
         $type = Type::create($payload);
-
-        dd(AS2ToEntity::translate($type->toArray()['object']));
+        dd(AS2ToEntity::translate(activity: $type->toArray()['object'], source: 'ActivityPub'));
 
         // $http_signature = new HttpSignature($this->server);
         // if ($http_signature->verify($request)) {
