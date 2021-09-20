@@ -1,0 +1,7 @@
+{% for note in notes %}
+  <div>
+    {{ note.getRendered() | raw }}
+  </div>
+{% endfor %}
+
+{{ "Page: " ~ page }}
