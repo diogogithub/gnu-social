@@ -4,23 +4,23 @@
 {% set actor_bio = actor.getBio() %}
 
 {% block body %}
-<section class='section-widget section-widget-padded' title="{{ 'Your profile information.' | trans }}">
-        <a id="user" href="{{ path('actor_view_nickname', {'nickname' : actor_nickname}) }}">
-            <img src='{{ actor_avatar }}' class="icon icon-avatar" alt="{{ 'Your account\'s avatar.' | trans }}">
-            <div class="user-info">
-                <strong id="user-nickname" title="{{ 'Your account\' nickname.' | trans }}">{{ actor_nickname }}</strong>
+<section title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
+        <a class='profile' href="{{ path('actor_view_nickname', {'nickname' : actor_nickname}) }}">
+            <img src='{{ actor_avatar }}' class="profile-avatar" alt="{{ 'Your account\'s avatar.' | trans }}">
+            <div class="profile-info">
+                <strong id="profile-info-nickname" title="{{ 'Your account\' nickname.' | trans }}">{{ actor_nickname }}</strong>
 
-                <nav class="user-tags">
+                <nav class="profile-info-tags">
                     {% if actor_tags %}
                         {% for tag in actor_tags %}
                             <a href='#'><i> #{{ tag }} </i></a>
                         {% endfor %}
                     {% else %}
-                        <i> {{ '(No tags)' | trans }} </i>
+                        {{ '(No tags)' | trans }}
                     {% endif %}
                 </nav>
 
-                <section class="user-bio">
+                <section class="profile-info-stats">
                     {% if actor_bio %}
                         <p>{{ actor_bio }}</p>
                     {% else %}
@@ -30,4 +30,6 @@
             </div>
         </a>
 </section>
+
+<hr>
 {% endblock body %}

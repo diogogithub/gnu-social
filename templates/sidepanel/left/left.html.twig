@@ -6,28 +6,36 @@
     <aside class="panel-content accessibility-target">
         {% if app.user %}
             <section class='section-widget section-widget-padded' title="{{ 'Your profile information.' | trans }}">
-                <a id="user" href="{{ path('actor_view_nickname', {'nickname' : current_actor.getNickname()}) }}">
-                    <img src='{{ current_actor.getAvatarUrl() }}' class="icon icon-avatar" alt="{{ 'Your account\'s avatar.' | trans }}">
-                    <div class="user-info">
-                        <strong id="user-nickname" title="{{ 'Your account\' nickname.' | trans }}">{{ current_actor.getNickname() }}</strong>
+                <a class="profile" href="{{ path('actor_view_nickname', {'nickname' : current_actor.getNickname()}) }}">
+                    <img class="profile-avatar" src='{{ current_actor.getAvatarUrl() }}' class="icon icon-avatar" alt="{{ 'Your account\'s avatar.' | trans }}">
+                    <div class="profile-info">
+                        <strong class="profile-info-nickname" title="{{ 'Your account\' nickname.' | trans }}">{{ current_actor.getNickname() }}</strong>
 
-                        <nav class="user-tags">
+
+
+                        <nav class="profile-info-tags">
                             {% set user_tags = current_actor.getSelfTags() %}
-                            {% if user_tags %}
-                                {% for tag in user_tags %}
-                                    <a href='#'> #{{ tag }}</a>
-                                {% endfor %}
-                            {% else %}
-                                {{ '(No tags)' | trans }}
-                            {% endif %}
+
+                            <ul>
+                                {% if user_tags %}
+                                    {% for tag in user_tags %}
+                                    <li><a href='#'> #{{ tag }}</a></li>
+                                    {% endfor %}
+                                {% else %}
+                                    {{ '(no tags)' | trans }}
+                                {% endif %}
+                            </ul>
                         </nav>
 
-                        <section id="user-stats">
-                            <h2>{{ 'Subscriptions' | trans }} {{ current_actor.getSubscriptionsCount() }}</h2>
-                            <h2>{{ 'Subscribers' | trans }} {{ current_actor.getSubscribersCount() }}</h2>
+                        <section class="profile-info-stats">
+                            <div><strong>{{ 'Subscriptions' | trans }}</strong>{{ current_actor.getSubscriptionsCount() }}</div>
+                            <div><strong>{{ 'Subscribers' | trans }}</strong>{{ current_actor.getSubscribersCount() }}</div>
                         </section>
                     </div>
                 </a>
+
+                <hr>
+
 
                 <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
                     <a title='{{ 'Your messages.' | trans }}' href='{{ path('settings') }}' class='{{ active("replies") }}'>

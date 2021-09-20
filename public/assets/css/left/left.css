@@ -16,44 +16,6 @@
     border: 2px solid transparent;
 }
 
-.panel-left nav {
-    padding-top: var(--unit-size);
-    font-size: var(--small-size);
-}
-
-/* PROFILE */
-.profile {
-    display: flex;
-    flex-direction: column;
-    font-family: var(--display-font);
-
-    background-color: var(--translucent);
-    margin-bottom: var(--main-size);
-    border: solid 2px var(--bg2);
-    border-radius: var(--unit-size);
-
-    padding: var(--unit-size);
-    box-sizing: border-box;
-}
-
-.profile ~ * {
-    padding: var(--unit-size);
-}
-
-#user {
-    align-content: center;
-}
-#user img {
-    float: left;
-    width: 5rem;
-    height: auto;
-    margin-right: 5px;
-}
-#user-nickname {
-    font-size: var(--medium-size);
-}
-
-
 .profile-navigation {
     display: flex;
     flex-direction: column;

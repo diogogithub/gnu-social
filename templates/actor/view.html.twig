@@ -2,41 +2,42 @@
 
 {% set id = actor.getId() %}
 {% set nickname = actor.getNickname() %}
-
+{% set actor_bio = actor.getBio() %}
+{% set actor_tags = actor.getSelfTags() %}
 {% set avatar = actor.getAvatarUrl() %}
 
 {% block title %}{{ nickname }}'s profile{% endblock %}
 
 {% block body %}
-<section class="section-widget section-widget-padded">
-    <div class="section-title">
-        <img class="icon icon-avatar" src="{{ avatar }}" alt="{{ nickname }}'s avatar">{{ nickname }}
-    </div>
+<section title="{{ nickname }}'s {{ 'profile information.' | trans }}">
+    <a class='profile' href="{{ path('actor_view_nickname', {'nickname' : nickname}) }}">
+        <img src="{{ avatar }}" class="profile-avatar" alt="{{ nickname }}{{ '\'s avatar.' | trans }}">
+        <div class="profile-info">
+            <strong id="profile-info-nickname" title="{{ nickname }}{{ '\'s nickname.' | trans }}">{{ nickname }}</strong>
 
-    <div class="actor-nickname-and-tags">
+            <nav class="profile-info-tags">
+                {% if actor_tags %}
+                    {% for tag in actor_tags %}
+                        <a href='#'><i> #{{ tag }} </i></a>
+                    {% endfor %}
+                {% else %}
+                    {{ '(no tags)' | trans }}
+                {% endif %}
+            </nav>
 
-        {% set actor_tags = actor.getSelfTags() %}
 
-        <div class="tags">
-        {% if actor_tags %}
-            {% for tag in actor_tags %}
-                <a href='#'><i> #{{ tag }} </i></a>
-            {% endfor %}
-        {% else %}
-            <i> {{ '(No tags)' | trans }} </i>
-        {% endif %}
+            <section class="profile-info-stats">
+                {% if actor_bio %}
+                    <p>{{ actor_bio }}</p>
+                {% else %}
+                    <p>{{ '(no bio)' | trans }}</p>
+                {% endif %}
+            </section>
         </div>
-    </div>
-
-    {% set actor_bio = actor.getBio() %}
-    <div class="actor-bio">
-        {% if actor_bio %}
-            <p>{{ actor_bio }}</p>
-        {% else %}
-            <p>{{ '(No bio)' | trans }}</p>
-        {% endif %}
-    </div>
+    </a>
 </section>
+
+<hr>
 
 <main class="timeline" tabindex="0" role="feed">
     <div class="h-feed hfeed notes">

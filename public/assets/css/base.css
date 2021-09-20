@@ -41,6 +41,10 @@ html {
     --fade-out: fadeOut 200ms cubic-bezier(0, 0.55, 0.45, 1);
 }
 
+h1,h2,h3,h4,h5,h6 {
+    font-family: var(--display-font);
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         /* colours and shadows */
@@ -125,7 +129,7 @@ figcaption a:link {
 hr {
     all: unset;
     display: block;
-    height: 2px;
+    height: 1px;
     background: var(--bg2);
 }
 
@@ -297,7 +301,7 @@ hr {
 .note-sidebar * {
     display: flex;
     flex-direction: column;
-    margin-left: auto;
+    margin-left: auto;hr
     margin-right: auto;
     max-height: 100%;
 }
@@ -632,8 +636,8 @@ textarea:hover,
 textarea:focus,
 button:hover,
 button:focus,
-input:hover :not([type=checkbox], [type=radio]),
-input:focus :not([type=checkbox], [type=radio]),
+input:hover,
+input:focus,
 select:hover,
 select:focus {
     color: var(--white) !important;
@@ -760,11 +764,53 @@ input[type=file] {
     }
 }
 
+
+/* PROFILE */
+.profile {
+    display: flex;
+    font-family: var(--main-font);
+
+    background-color: var(--translucent);
+    margin-bottom: var(--unit-size);
+
+    border-radius: var(--unit-size);
+
+    padding: var(--unit-size);
+}
+.profile > * {
+     flex: 1;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+.profile-info-nickname {
+    font-size: var(--medium-size);
+}
+.profile-info-tags {
+    margin: unset;
+}
+.profile-info-stats strong {
+    margin-right: 5px;
+}
+.profile-info-stats {
+    margin-top: var(--unit-size);
+}
+
+.profile-avatar {
+    max-width: 4rem;
+    width: 100%;
+    height: auto;
+    margin-right: 5px;
+}
+
 /* MEDIA QUERIES */
 /* sidepanels need to be shown by default on desktop, hidden on mobile */
 .panel .panel-content {
     display: flex;
     flex-direction: column;
+    font-family: var(--main-font);
     font-size: var(--small-size);
 
     /* should remain in place for the user */
