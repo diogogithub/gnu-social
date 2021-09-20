@@ -45,6 +45,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Avatar extends Controller
 {
+    public function default_avatar_view(Request $request, string $size): Response
+    {
+        return $this->avatar_view($request, 0, $size);
+    }
+
     /**
      * @throws Exception
      */

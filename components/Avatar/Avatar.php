@@ -38,8 +38,9 @@ class Avatar extends Component
 
     public function onAddRoute($r): bool
     {
-        $r->connect('avatar', '/actor/{actor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar_view']);
-        $r->connect('settings_avatar', '/settings/avatar', [Controller\Avatar::class, 'settings_avatar']);
+        $r->connect('avatar_actor', '/actor/{actor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar_view']);
+        $r->connect('avatar_default', '/avatar/default/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'default_avatar_view']);
+        $r->connect('avatar_settings', '/settings/avatar', [Controller\Avatar::class, 'settings_avatar']);
         return Event::next;
     }
 
@@ -62,9 +63,13 @@ class Avatar extends Component
 
     public function onAvatarUpdate(int $actor_id): bool
     {
-        Cache::delete('avatar-' . $actor_id);
-        Cache::delete('avatar-url-' . $actor_id);
-        Cache::delete('avatar-file-info-' . $actor_id);
+        foreach (['full', 'big', 'medium', 'small'] as $size) {
+            foreach ([Router::ABSOLUTE_PATH, Router::ABSOLUTE_URL] as $type) {
+                Cache::delete("avatar-{$actor_id}-{$size}-{$type}");
+                Cache::delete("avatar-url-{$actor_id}-{$size}-{$type}");
+                Cache::delete("avatar-file-info-{$actor_id}-{$size}-{$type}");
+            }
+        }
         return Event::next;
     }
 
@@ -89,11 +94,13 @@ class Avatar extends Component
     /**
      * Get the cached avatar associated with the given Actor id, or the current user if not given
      */
-    public static function getAvatarUrl(int $actor_id, string $size = 'full'): string
+    public static function getAvatarUrl(int $actor_id, string $size = 'full', int $type = Router::ABSOLUTE_PATH): string
     {
-        return Cache::get("avatar-url-{$actor_id}", function () use ($actor_id, $size) {
-            return Router::url('avatar', ['actor_id' => $actor_id, 'size' => $size]);
-        });
+        try {
+            return self::getAvatar($actor_id)->getUrl($size, $type);
+        } catch (NoAvatarException) {
+            return Router::url('avatar_default', ['size' => $size], $type);
+        }
     }
 
     /**

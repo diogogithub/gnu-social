@@ -21,6 +21,7 @@
 
 namespace Component\Avatar\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Router\Router;
@@ -117,9 +118,12 @@ class Avatar extends Entity
 
     private ?Attachment $attachment = null;
 
-    public function getUrl(): string
+    public function getUrl(string $size = 'full', int $type = Router::ABSOLUTE_PATH): string
     {
-        return Router::url('avatar', ['actor_id' => $this->actor_id]);
+        $actor_id = $this->getActorId();
+        return Cache::get("avatar-url-{$actor_id}-{$size}-{$type}", function () use ($actor_id, $size, $type) {
+            return Router::url('avatar_actor', ['actor_id' => $actor_id, 'size' => $size], $type);
+        });
     }
 
     public function getAttachment(): Attachment
