@@ -6,35 +6,39 @@
     <aside class="panel-content accessibility-target">
 
         {% set post_form = handle_event('AppendRightPostingBlock', {'request': request}) %}
-        <section class="section-widget" title={{ 'Create a new note.' | trans }}>
-            <details class="section-title-details" title={{ 'Expand if you want to access more options.' | trans }}>
-                <summary class="section-title-summary">
-                    {{ "Create a note" | trans }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}
-                </summary>
-            </details>
+        {% if post_form is defined %}
+            <section class="section-widget" title={{ 'Create a new note.' | trans }}>
+                <details class="section-title-details" title={{ 'Expand if you want to access more options.' | trans }}>
+                    <summary class="section-title-summary">
+                        {{ "Create a note" | trans }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                    </summary>
+                </details>
 
-            <div class="section-form">
-                <fieldset>
-                    {{ form_start(post_form) }}
+                <div class="section-form">
+                    <fieldset>
+                        {{ form_start(post_form) }}
 
-                    {{ form_row(post_form.to, {'attr': {'class': 'section-form-scope'}}) }}
+                        {{ form_row(post_form.to, {'attr': {'class': 'section-form-scope'}}) }}
 
-                    {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
+                        {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
 
-                    {{ form_row(post_form.content, {'attr': {'class': 'section-form-textarea'}}) }}
+                        {{ form_row(post_form.content, {'attr': {'class': 'section-form-textarea'}}) }}
 
-                    <label for="{{ post_form.attachments.vars.id }}" class="section-form-options">
-                        {{ form_widget(post_form.attachments) }}
-                    </label>
+                        <label for="{{ post_form.attachments.vars.id }}" class="section-form-options">
+                            {{ form_widget(post_form.attachments) }}
+                        </label>
 
-                    {{ form_row(post_form.post_note, {'attr': {'class': 'section-form-send'}}) }}
+                        {{ form_row(post_form.post_note, {'attr': {'class': 'section-form-send'}}) }}
 
-                    {{ form_end(post_form) }}
-                </fieldset>
-            </div>
-        </section>
+                        {{ form_end(post_form) }}
+                    </fieldset>
+                </div>
+            </section>
+
+        {% endif %}
 
         {% set current_path = app.request.get('_route') %}
+
         {% if right_panel_vars is defined %}
             {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars}) %}
                 {{ block | raw }}
@@ -44,5 +48,6 @@
                 {{ block | raw }}
             {% endfor %}
         {% endif %}
+
     </aside>
 </div>

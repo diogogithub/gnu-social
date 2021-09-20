@@ -568,10 +568,10 @@ label, button {
 select,
 button,
 textarea,
-input:not([type=checkbox], [type=radio]) {
+input {
     font-size: inherit !important;
     color: var(--white);
-    padding: 4px 8px;
+    padding: 2px 8px;
     border: 2px solid var(--bg2);
     border-radius: var(--unit-size);
     background-color: var(--translucent);
@@ -579,7 +579,8 @@ input:not([type=checkbox], [type=radio]) {
 
 button {
     background: var(--bg-button);
-    padding: 4px 8px;
+    padding: 2px 8px;
+    margin-left: auto;
 }
 
 select {
@@ -601,6 +602,13 @@ input[type=radio] {
 }
 
 input[type=checkbox] {
+    all: unset;
+
+    display: inline-block;
+    width: var(--medium-size);
+    height: var(--medium-size);
+    vertical-align: middle;
+
     background-color: var(--bg2) !important;
     background-size: cover;
     margin-right: 2px;

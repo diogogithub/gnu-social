@@ -25,6 +25,7 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Entity\Actor;
@@ -159,7 +160,7 @@ class Posting extends Component
 
         if ($processed_attachments != []) {
             foreach ($processed_attachments as [$a, $fname]) {
-                if (DB::count('actor_to_attachment', $args = ['attachment_id' => $a->getId(), 'actor_id' => $args['actor_id']]) === 0) {
+                if (DB::count('actor_to_attachment', $args = ['attachment_id' => $a->getId(), 'actor_id' => $actor->getId()]) === 0) {
                     DB::persist(ActorToAttachment::create($args));
                 }
                 DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
