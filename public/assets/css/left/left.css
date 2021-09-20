@@ -53,16 +53,23 @@
 }
 
 @media only screen
-and (min-width : 1200px) {
+and (min-width : 1800px) {
 
     #panel-left-icon {
         display: none;
     }
+    .panel-left > * {
+        margin-left: 12vw;
+    }
 }
 
 @media only screen
-and (min-width: 2200px) {
+and (min-width : 1200px) and (max-width : 1800px) {
+
+    #panel-left-icon {
+        display: none;
+    }
     .panel-left > * {
-        margin-left: 10rem;
+        margin-left: 0;
     }
 }

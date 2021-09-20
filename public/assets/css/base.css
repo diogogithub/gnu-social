@@ -197,9 +197,12 @@ hr {
 .container {
     position: relative;
     top: 3rem;
-    margin-left: 25%;
-    margin-right: 25%;
 
+    width: 53vw;
+    margin-left: auto;
+    margin-right: auto;
+
+    justify-content: center;
     padding: var(--unit-size) var(--unit-size) 0 var(--unit-size);
 }
 
@@ -768,13 +771,12 @@ input[type=file] {
 /* PROFILE */
 .profile {
     display: flex;
-    font-family: var(--main-font);
+    flex-wrap: wrap;
 
+    font-family: var(--main-font);
     background-color: var(--translucent);
     margin-bottom: var(--unit-size);
-
     border-radius: var(--unit-size);
-
     padding: var(--unit-size);
 }
 .profile > * {
@@ -783,6 +785,7 @@ input[type=file] {
 
 .profile-info {
     display: flex;
+    flex-wrap: wrap;
     flex-direction: column;
 }
 .profile-info-nickname {
@@ -795,11 +798,14 @@ input[type=file] {
     margin-right: 5px;
 }
 .profile-info-stats {
-    margin-top: var(--unit-size);
+    margin-top: var(--unit-size);.content {
+        max-width: 100%;
+    }
 }
 
 .profile-avatar {
     max-width: 4rem;
+    min-width: 3rem;
     width: 100%;
     height: auto;
     margin-right: 5px;
@@ -830,11 +836,26 @@ input[type=file] {
 
 
 @media only screen
-and (min-width: 1200px) {
+and (min-width: 1800px) {
+    .content {
+        padding: var(--unit-size) var(--main-size) 0 var(--main-size);
+    }
 
     .panel .panel-content {
-        width: 25rem;
-        max-width: 20%;
+        width: 12vw;
+    }
+
+    a[id|="anchor"]:target + .accessibility-target {
+        animation-name: highlight;
+        animation-duration: 600ms;
+        animation-timing-function: ease-in-out;
+    }
+}
+
+@media only screen
+and (min-width : 1200px) and (max-width : 1800px) {
+    .panel .panel-content {
+        width: 22vw;
     }
 
     a[id|="anchor"]:target + .accessibility-target {
@@ -848,12 +869,7 @@ and (min-width: 1200px) {
 and (max-width: 1200px) {
     /* content should occupy the entire width at this size */
     .container {
-        margin-left: unset;
-        margin-right: unset;
-    }
-
-    .content {
-        max-width: 100%;
+        width: 100%;
     }
 
     #panel-left-toggle:not(:checked) ~ .panel-content,
