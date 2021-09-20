@@ -24,18 +24,29 @@ namespace Component\Tag;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Component;
+use App\Core\Router\Router;
 use App\Entity\NoteTag;
+use App\Util\Formatting;
+use App\Util\HTML;
 
 /**
  * Component responsible for extracting tags from posted notes, as well as normalizing them
  *
- * @author Hugo Sales <hugo@hsal.es>
+ * @author    Hugo Sales <hugo@hsal.es>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Tag extends Component
 {
-    const TAG_REGEX = '/(?:^|\s)#([\pL\pN_\-\.]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
+    const MAX_TAG_LENGTH = 64;
+    const TAG_REGEX      = '/(^|\\s)(#[\\pL\\pN_\\-\\.]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
+    const TAG_SLUG_REGEX = '[A-Za-z0-9]{1,64}';
+
+    public function onAddRoute($r): bool
+    {
+        $r->connect('tag', '/tag/{tag<' . self::TAG_SLUG_REGEX . '>}' , [Controller\Tag::class, 'tag']);
+        return Event::next;
+    }
 
     /**
      * Process note by extracting any tags present
@@ -46,7 +57,8 @@ class Tag extends Component
         $processed_tags = false;
         preg_match_all(self::TAG_REGEX, $content, $matched_tags, PREG_SET_ORDER);
         foreach ($matched_tags as $match) {
-            DB::persist($tag = NoteTag::create(['tag' => $match[0], 'note_id' => $note_id]));
+            $tag = $match[2];
+            DB::persist(NoteTag::create(['tag' => $tag, 'canonical' => $this->canonicalTag($tag), 'note_id' => $note_id]));
             $processed_tags = true;
         }
         if ($processed_tags) {
@@ -54,9 +66,20 @@ class Tag extends Component
         }
     }
 
-    public function onAddRoute($r): bool
+    public function onRenderContent(string &$text)
     {
-        $r->connect('tag', '/tag/{tag' . self::TAG_REGEX . '}' , [Controller\Tag::class, 'tag']);
-        return Event::next;
+        $text = preg_replace_callback(self::TAG_REGEX, fn ($m) => $m[1] . $this->tagLink($m[2]), $text);
+    }
+
+    private function tagLink(string $tag): string
+    {
+        $canonical = $this->canonicalTag($tag);
+        $url       = Router::url('tag', ['tag' => $canonical]);
+        return HTML::html(['a' => ['attrs' => ['href' => $url, 'title' => $tag, 'rel' => 'tag'], $tag]], options: ['indent' => false]);
+    }
+
+    public function canonicalTag(string $tag): string
+    {
+        return substr(Formatting::slugify($tag), 0, self::MAX_TAG_LENGTH);
     }
 }
