@@ -84,14 +84,23 @@ class DB
     /**
      * Perform a Doctrine Query Language query
      */
-    public static function dql(string $query, array $params = [])
+    public static function dql(string $query, array $params = [], array $options = [])
     {
-        $query = preg_replace(F\map(self::$table_map, function ($_, $s) { return "/\\b{$s}\\b/"; }), self::$table_map, $query);
+        $query = preg_replace(F\map(self::$table_map, fn ($_, $s) => "/\\b{$s}\\b/"), self::$table_map, $query);
         $q     = new Query(self::$em);
         $q->setDQL($query);
+
+        if (isset($options['limit'])) {
+            $q->setMaxResults($options['limit']);
+        }
+        if (isset($options['offset'])) {
+            $q->setFirstResult($options['offset']);
+        }
+
         foreach ($params as $k => $v) {
             $q->setParameter($k, $v);
         }
+
         return $q->getResult();
     }
 
