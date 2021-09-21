@@ -35,7 +35,7 @@ parameters:
 
     cache:
       early_recompute: 0.95
-      notice_max_count: 128
+      max_note_count: 128
       adapters:
         default: redis://redis
 

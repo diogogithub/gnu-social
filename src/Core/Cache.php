@@ -22,6 +22,8 @@
 namespace App\Core;
 
 use App\Core\DB\DB;
+use App\Entity\Actor;
+use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
@@ -242,30 +244,39 @@ abstract class Cache
     }
 
     /**
-     * @param null|callable(int $offset, int $lenght): Note[] $getter
+     * Create a cached stream of Notes, paged
+     *
+     * Note: the number of notes per page may not always be the same,
+     * because of scoping. This would make this even more complicated
+     * and is left as an exercise to the reader :^)
+     * TODO Ensure same number of notes per page
+     *
+     * @return Note[]
      */
-    public static function pagedStream(string $key, ?callable $getter = null, ?string $query = null, array $query_args = null, int $page = 1, ?int $per_page = null, string $pool = 'default', ?int $max_count = null, float $beta = 1.0)
+    public static function pagedStream(string $key, string $query, array $query_args, LocalUser|Actor|null $actor = null, int $page = 1, ?int $per_page = null, string $pool = 'default', ?int $max_count = null, float $beta = 1.0): array
     {
-        // TODO scope
+        $max_count = $max_count ?? Common::config('cache', 'max_note_count');
+        if ($per_page > $max_count) {
+            throw new \InvalidArgumentException;
+        }
 
         if (is_null($per_page)) {
             $per_page = Common::config('streams', 'notes_per_page');
         }
 
-        if (!is_null($max_count) && $per_page > $max_count || !(is_null($getter) ^ is_null($query))) {
-            throw new \InvalidArgumentException;
-        }
+        $filter_scope = fn (Note $n) => $n->isVisibleTo($actor);
 
-        if (!is_callable($getter)) {
-            $getter = function (int $offset, int $lenght) use ($query, $query_args) {
-                return DB::dql($query, $query_args, options: ['offset' => $offset, 'limit' => $lenght]);
-            };
-        }
+        $getter = function (int $offset, int $lenght) use ($query, $query_args) {
+            return DB::dql($query, $query_args, options: ['offset' => $offset, 'limit' => $lenght]);
+        };
 
         $requested_left               = $offset               = $per_page * ($page - 1);
         $requested_right              = $requested_left + $per_page;
-        [$stored_left, $stored_right] = F\map(explode(':', self::get("{$key}-bounds", fn () => "{$requested_left}:{$requested_right}")), fn (string $v) => (int) $v);
-        $lenght                       = $stored_right - $stored_left;
+        [$stored_left, $stored_right] = F\map(
+            explode(':', self::get("{$key}-bounds", fn () => "{$requested_left}:{$requested_right}")),
+            fn (string $v) => (int) $v
+        );
+        $lenght = $stored_right - $stored_left;
 
         if (!is_null($max_count) && $lenght > $max_count) {
             $lenght          = $max_count;
@@ -276,9 +287,14 @@ abstract class Cache
             $res = $getter($stored_left, $stored_right);
             self::setList($key, value: $res, pool: $pool, max_count: $max_count, beta: $beta);
             self::set("{$key}-bounds", "{$stored_left}:{$stored_right}");
-            return $res;
+            return F\filter($res, $filter_scope);
         }
 
-        return self::getList($key, fn () => $getter($requested_left, $lenght), max_count: $max_count, left: $requested_left, right: $requested_right, beta: $beta);
+        return F\filter(
+            self::getList(
+                $key,
+                fn () => $getter($requested_left, $lenght), max_count: $max_count, left: $requested_left, right: $requested_right, beta: $beta),
+            $filter_scope
+        );
     }
 }
