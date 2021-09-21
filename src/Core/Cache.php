@@ -21,6 +21,8 @@
 
 namespace App\Core;
 
+use App\Core\DB\DB;
+use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
 use Functional as F;
@@ -146,7 +148,7 @@ abstract class Cache
      * Retrieve a list from the cache, with a different implementation
      * for redis and others, trimming to $max_count if given
      */
-    public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, ?int $offset = null, ?int $limit = null, float $beta = 1.0): array
+    public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, ?int $left = null, ?int $right = null, float $beta = 1.0): array
     {
         if (isset(self::$redis[$pool])) {
             if (!($recompute = $beta === INF || !(self::$redis[$pool]->exists($key)))) {
@@ -169,10 +171,10 @@ abstract class Cache
                 $res  = $calculate(null, $save);
                 if ($save) {
                     self::setList($key, $res, $pool, $max_count, $beta);
-                    return array_slice($res, $offset ?? 0, $limit);
+                    return array_slice($res, $left ?? 0, $right - ($left ?? 0));
                 }
             }
-            return self::$redis[$pool]->lRange($key, $offset ?? 0, ($offset ?? 0) + ($limit ?? $max_count ?? -1));
+            return self::$redis[$pool]->lRange($key, $left ?? 0, ($right ?? $max_count ?? 0) - 1);
         } else {
             return self::get($key, function () use ($calculate, $max_count) {
                 $res = $calculate(null);
@@ -212,7 +214,7 @@ abstract class Cache
             self::$redis[$pool]
                 // doesn't need to be atomic, adding at one end, deleting at the other
                 ->multi(Redis::PIPELINE)
-                ->rPush($key, $value)
+                ->lPush($key, $value)
                 // trim to $max_count, if given
                 ->lTrim($key, -$max_count ?? 0, -1)
                 ->exec();
@@ -237,5 +239,46 @@ abstract class Cache
         } else {
             return self::delete($key, $pool);
         }
+    }
+
+    /**
+     * @param null|callable(int $offset, int $lenght): Note[] $getter
+     */
+    public static function pagedStream(string $key, ?callable $getter = null, ?string $query = null, array $query_args = null, int $page = 1, ?int $per_page = null, string $pool = 'default', ?int $max_count = null, float $beta = 1.0)
+    {
+        // TODO scope
+
+        if (is_null($per_page)) {
+            $per_page = Common::config('streams', 'notes_per_page');
+        }
+
+        if (!is_null($max_count) && $per_page > $max_count || !(is_null($getter) ^ is_null($query))) {
+            throw new \InvalidArgumentException;
+        }
+
+        if (!is_callable($getter)) {
+            $getter = function (int $offset, int $lenght) use ($query, $query_args) {
+                return DB::dql($query, $query_args, options: ['offset' => $offset, 'limit' => $lenght]);
+            };
+        }
+
+        $requested_left               = $offset               = $per_page * ($page - 1);
+        $requested_right              = $requested_left + $per_page;
+        [$stored_left, $stored_right] = F\map(explode(':', self::get("{$key}-bounds", fn () => "{$requested_left}:{$requested_right}")), fn (string $v) => (int) $v);
+        $lenght                       = $stored_right - $stored_left;
+
+        if (!is_null($max_count) && $lenght > $max_count) {
+            $lenght          = $max_count;
+            $requested_right = $requested_left + $max_count;
+        }
+
+        if ($stored_left > $requested_left || $stored_right < $requested_right) {
+            $res = $getter($stored_left, $stored_right);
+            self::setList($key, value: $res, pool: $pool, max_count: $max_count, beta: $beta);
+            self::set("{$key}-bounds", "{$stored_left}:{$stored_right}");
+            return $res;
+        }
+
+        return self::getList($key, fn () => $getter($requested_left, $lenght), max_count: $max_count, left: $requested_left, right: $requested_right, beta: $beta);
     }
 }
