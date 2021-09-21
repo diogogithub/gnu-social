@@ -4,18 +4,21 @@ namespace Component\Tag\Controller;
 
 use App\Core\Cache;
 use App\Core\Controller;
+use App\Util\Common;
 use Component\Tag\Tag as CompTag;
 
 class Tag extends Controller
 {
     public function tag(string $tag)
     {
-        $page  = $this->int('page') ?: 1;
-        $tag   = CompTag::canonicalTag($tag);
-        $notes = Cache::pagedStream(
-            key: "tag-{$tag}",
-            query: 'select n from note n join note_tag nt with nt.note_id = n.id where nt.canonical = :tag order by nt.created DESC, n.id DESC',
-            query_args: ['tag' => $tag],
+        $user      = Common::user();
+        $page      = $this->int('page') ?: 1;
+        $canonical = CompTag::canonicalTag($tag);
+        $notes     = Cache::pagedStream(
+            key: "tag-{$canonical}",
+            query: 'select n from note n join note_tag nt with n.id = nt.note_id where nt.canonical = :canon order by nt.created DESC, nt.note_id DESC',
+            query_args: ['canon' => $canonical],
+            actor: $user,
             page: $page
         );
 
