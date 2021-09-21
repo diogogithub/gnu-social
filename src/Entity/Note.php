@@ -281,19 +281,20 @@ class Note extends Entity
     /**
      * Whether this note is visible to the given actor
      */
-    public function isVisibleTo(Actor | LocalUser $a): bool
+    public function isVisibleTo(null|Actor|LocalUser $a): bool
     {
+        // TODO cache this
         $scope = VisibilityScope::create($this->scope);
         return $scope->public
-            || ($scope->follower
-                && null != DB::find('follow', ['follower' => $a->getId(), 'followed' => $this->actor_id]))
-            || ($scope->addressee
-                && null != DB::find('notification', ['activity_id' => $this->id, 'actor_id' => $a->getId()]))
-            || ($scope->group && [] != DB::dql('select m from group_member m ' .
-                                               'join group_inbox i with m.group_id = i.group_id ' .
-                                               'join note n with i.activity_id = n.id ' .
-                                               'where n.id = :note_id and m.actor_id = :actor_id',
-                                               ['note_id' => $this->id, 'actor_id' => $a->getId()]));
+            || (!is_null($a) && (
+                ($scope->follower && 0 != DB::count('follow', ['follower' => $a->getId(), 'followed' => $this->actor_id]))
+                || ($scope->addressee && 0 != DB::count('notification', ['activity_id' => $this->id, 'actor_id' => $a->getId()]))
+                || ($scope->group && [] != DB::dql('select m from group_member m ' .
+                                                   'join group_inbox i with m.group_id = i.group_id ' .
+                                                   'join note n with i.activity_id = n.id ' .
+                                                   'where n.id = :note_id and m.actor_id = :actor_id',
+                                                   ['note_id' => $this->id, 'actor_id' => $a->getId()]))
+            ));
     }
 
     /**
