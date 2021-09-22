@@ -89,9 +89,12 @@ class Posting extends Component
         ];
         if (count($available_content_types) > 1) {
             $form_params[] = ['content_type', ChoiceType::class,
-                ['label'      => _m('Text format:'), 'multiple' => false, 'expanded' => false,
+                [
+                    'label'   => _m('Text format:'), 'multiple' => false, 'expanded' => false,
                     'data'    => $available_content_types[array_key_first($available_content_types)],
-                    'choices' => $available_content_types, ], ];
+                    'choices' => $available_content_types,
+                ],
+            ];
         }
         $form_params[] = ['post_note',   SubmitType::class,   ['label' => _m('Post')]];
         $form          = Form::create($form_params);
@@ -150,16 +153,15 @@ class Posting extends Component
                     'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize]));
             }
             Event::handle('EnforceUserFileQuota', [$filesize, $actor->getId()]);
-            $processed_attachments[] = [GSFile::sanitizeAndStoreFileAsAttachment($f), $f->getClientOriginalName()];
+            $processed_attachments[] = [GSFile::storeFileAsAttachment($f), $f->getClientOriginalName()];
         }
 
         DB::persist($note);
 
         // Need file and note ids for the next step
         Event::handle('ProcessNoteContent', [$note, $content, $content_type]);
-        DB::flush();
 
-        if ($processed_attachments != []) {
+        if ($processed_attachments !== []) {
             foreach ($processed_attachments as [$a, $fname]) {
                 if (DB::count('actor_to_attachment', $args = ['attachment_id' => $a->getId(), 'actor_id' => $actor->getId()]) === 0) {
                     DB::persist(ActorToAttachment::create($args));
@@ -167,6 +169,8 @@ class Posting extends Component
                 DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
             }
         }
+
+        DB::flush();
     }
 
     public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, Actor $author, ?Note $reply_to = null)
