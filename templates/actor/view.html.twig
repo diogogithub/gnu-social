@@ -1,43 +1,9 @@
 {% extends 'stdgrid.html.twig' %}
 
-{% set id = actor.getId() %}
-{% set nickname = actor.getNickname() %}
-{% set actor_bio = actor.getBio() %}
-{% set actor_tags = actor.getSelfTags() %}
-{% set avatar = actor.getAvatarUrl() %}
-
-{% block title %}{{ nickname }}'s profile{% endblock %}
+{% block title %}{{ actor.getNickname() }}'s profile{% endblock %}
 
 {% block body %}
-<section title="{{ nickname }}'s {{ 'profile information.' | trans }}">
-    <a class='profile' href="{{ path('actor_view_nickname', {'nickname' : nickname}) }}">
-        <img src="{{ avatar }}" class="profile-avatar" alt="{{ nickname }}{{ '\'s avatar.' | trans }}">
-        <div class="profile-info">
-            <strong id="profile-info-nickname" title="{{ nickname }}{{ '\'s nickname.' | trans }}">{{ nickname }}</strong>
-
-            <nav class="profile-info-tags">
-                {% if actor_tags %}
-                    {% for tag in actor_tags %}
-                        <a href='#'><i> #{{ tag }} </i></a>
-                    {% endfor %}
-                {% else %}
-                    {{ '(no tags)' | trans }}
-                {% endif %}
-            </nav>
-
-
-            <section class="profile-info-stats">
-                {% if actor_bio %}
-                    <p>{{ actor_bio }}</p>
-                {% else %}
-                    <p>{{ '(no bio)' | trans }}</p>
-                {% endif %}
-            </section>
-        </div>
-    </a>
-</section>
-
-<hr>
+{% block profile_view %}{% include 'cards/profile/view.html.twig' %}{% endblock profile_view %}
 
 <main class="timeline" tabindex="0" role="feed">
     <div class="h-feed hfeed notes">
