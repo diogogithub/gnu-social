@@ -60,8 +60,9 @@ class Network extends Controller
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template' => 'network/public.html.twig',
+            '_template' => 'network/feed.html.twig',
             'notes'     => $notes_out,
+            'page_title'     => 'Public timeline.',
         ];
     }
 
@@ -103,8 +104,9 @@ END;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template' => 'network/public.html.twig',
+            '_template' => 'network/feed.html.twig',
             'notes'     => $notes_out,
+            'page_title'     => 'Home timeline.',
         ];
     }
 
@@ -116,8 +118,9 @@ END;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template' => 'network/public.html.twig',
+            '_template' => 'network/feed.html.twig',
             'notes'     => $notes_out,
+            'page_title'     => 'Network timeline.',
         ];
     }
 
@@ -132,8 +135,9 @@ END;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template' => 'network/public.html.twig',
+            '_template' => 'network/feed.html.twig',
             'notes'     => $notes_out,
+            'page_title'     => 'Replies timeline.',
         ];
     }
 }

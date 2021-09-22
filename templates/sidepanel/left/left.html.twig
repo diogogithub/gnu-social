@@ -10,17 +10,13 @@
                 {% block profile_view %}{% include 'cards/profile/view.html.twig' with { actor: current_actor } %}{% endblock profile_view %}
 
                 <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
-                    <a title='{{ 'Your messages.' | trans }}' href='{{ path('settings') }}' class='{{ active("replies") }}'>
-                        Messages
-                    </a>
 
                     <a title='{{ 'Replies to your notes.' | trans }}' href="{{ path('replies', {'nickname' : current_actor.getNickname()}) }}" class='{{ active("replies") }}'>
                         Replies
                     </a>
 
-
                     {% for tab in handle_event('AddProfileNavigationItem', {'nickname': current_actor.getNickname()}) %}
-                        <a href="{{ tab['path'] }}">
+                        <a href="{{ tab['path'] }}" class='{{ active(tab['path_id']) }}'>
                             {{ tab['title'] }}
                         </a>
                     {% endfor %}
@@ -79,7 +75,7 @@
                     {% if app.user %}
                         {% for link in handle_event('AddMainNavigationItem', {'nickname': current_actor.getNickname()}) %}
                             <li>
-                                <a href="{{ link['path'] }}">
+                                <a href="{{ link['path'] }}" class='{{ active(link['path_id']) }}'>
                                     {{ link['title'] }}
                                 </a>
                             </li>

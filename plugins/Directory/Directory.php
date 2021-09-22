@@ -48,8 +48,8 @@ class Directory extends Plugin
      */
     public function onAddMainNavigationItem(array $vars, array &$res): bool
     {
-        $res[] = ['title' => 'Actors', 'path' => Router::url('directory_actors', [])];
-        $res[] = ['title' => 'Groups', 'path' => Router::url('directory_groups', [])];
+        $res[] = ['title' => 'Actors', 'path' => Router::url('directory_actors', []), 'path_id' => 'directory_actors'];
+        $res[] = ['title' => 'Groups', 'path' => Router::url('directory_groups', []), 'path_id' => 'directory_groups'];
         return Event::next;
     }
 }

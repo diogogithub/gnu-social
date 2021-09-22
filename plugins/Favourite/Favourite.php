@@ -116,8 +116,8 @@ class Favourite extends NoteHandlerPlugin
 
     public function onAddProfileNavigationItem(array $vars, array &$res): bool
     {
-        $res[] = ['title' => 'Favourites', 'path' => Router::url('actor_favourites_nickname', ['nickname' => $vars['nickname']])];
-        $res[] = ['title' => 'Reverse Favourites', 'path' => Router::url('actor_reverse_favourites_nickname', ['nickname' => $vars['nickname']])];
+        $res[] = ['title' => 'Favourites', 'path' => Router::url('actor_favourites_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'actor_favourites_nickname'];
+        $res[] = ['title' => 'Reverse Favourites', 'path' => Router::url('actor_reverse_favourites_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'actor_reverse_favourites_nickname'];
         return Event::next;
     }
 

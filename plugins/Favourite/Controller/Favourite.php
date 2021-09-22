@@ -41,8 +41,9 @@ class Favourite
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template' => 'network/public.html.twig',
-            'notes'     => $notes_out,
+            '_template'     => 'network/feed.html.twig',
+            'notes'         => $notes_out,
+            'page_title'    => 'Favourites timeline.',
         ];
     }
     public function favouritesByActorNickname(Request $request, string $nickname)
@@ -74,8 +75,9 @@ class Favourite
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template' => 'network/reversefavs.html.twig',
+            '_template' => 'network/feed.html.twig',
             'notes'     => $notes,
+            'page_title'    => 'Reverse favourites timeline.',
         ];
     }
     public function reverseFavouritesByActorNickname(Request $request, string $nickname)

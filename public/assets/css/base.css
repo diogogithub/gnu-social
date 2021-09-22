@@ -349,6 +349,10 @@ hr {
     vertical-align: middle;
 }
 
+.note-actions .form-group {
+    all: unset;
+}
+
 .button-container {
     all: unset;
     border: none !important;
@@ -444,6 +448,10 @@ hr {
     margin-bottom: var(--medium-size);
 
     color: var(--white);
+}
+
+.section-widget hr {
+    margin-bottom: var(--unit-size);
 }
 
 .section-widget-padded {
