@@ -345,9 +345,9 @@ class Attachment extends Entity
         return Router::url('attachment_view', ['id' => $this->getId()]);
     }
 
-    public function getThumbnailUrl()
+    public function getThumbnailUrl(?string $size = null)
     {
-        return Router::url('attachment_thumbnail', ['id' => $this->getId(), 'w' => Common::config('thumbnail', 'width'), 'h' => Common::config('thumbnail', 'height')]);
+        return Router::url('attachment_thumbnail', ['id' => $this->getId(), 'size' => $size ?? Common::config('thumbnail', 'default_size')]);
     }
 
     public static function schemaDef(): array

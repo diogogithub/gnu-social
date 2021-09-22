@@ -157,7 +157,7 @@ class StoreRemoteMedia extends Plugin
             // Create an attachment for this
             $temp_file = new TemporaryFile();
             $temp_file->write($media);
-            $attachment = GSFile::sanitizeAndStoreFileAsAttachment($temp_file);
+            $attachment = GSFile::storeFileAsAttachment($temp_file);
 
             // Relate the link with the attachment
             DB::persist(AttachmentToLink::create([
@@ -177,8 +177,7 @@ class StoreRemoteMedia extends Plugin
             if (!$this->getStoreOriginal()) {
                 $thumbnail = AttachmentThumbnail::getOrCreate(
                     attachment: $attachment,
-                    width: $this->getThumbnailWidth(),
-                    height: $this->getThumbnailHeight(),
+                    size: 'small',
                     crop: $this->getSmartCrop()
                 );
                 $attachment->deleteStorage();

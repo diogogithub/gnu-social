@@ -49,7 +49,7 @@ class Attachment extends Controller
         if ($id <= 0) { // This should never happen coming from the router, but let's bail if it does
             // @codeCoverageIgnoreStart
             Log::critical("Attachment controller called with {$id}, which should not be possible");
-            throw new ClientException(_m('No such attachment'), 404);
+            throw new ClientException(_m('No such attachment.'), 404);
         // @codeCoverageIgnoreEnd
         } else {
             $res = null;
@@ -92,7 +92,7 @@ class Attachment extends Controller
                 ];
             });
         } catch (NotFoundException) {
-            throw new ClientException(_m('No such attachment'), 404);
+            throw new ClientException(_m('No such attachment.'), 404);
         }
     }
 
@@ -132,28 +132,16 @@ class Attachment extends Controller
      *
      * @return Response
      */
-    public function attachment_thumbnail(Request $request, int $id): Response
+    public function attachment_thumbnail(Request $request, int $id, string $size = 'small'): Response
     {
         $attachment = DB::findOneBy('attachment', ['id' => $id]);
 
-        $default_width  = Common::config('thumbnail', 'width');
-        $default_height = Common::config('thumbnail', 'height');
-        $default_crop   = Common::config('thumbnail', 'smart_crop');
-        $width          = $this->int('w') ?: $default_width;
-        $height         = $this->int('h') ?: $default_height;
-        $crop           = $this->bool('c') ?: $default_crop;
+        $crop = Common::config('thumbnail', 'smart_crop');
 
-        $sizes = null;
-        Event::handle('GetAllowedThumbnailSizes', [&$sizes]);
-        if (!in_array(['width' => $width, 'height' => $height], $sizes)) {
-            throw new ClientException(_m('The requested thumbnail dimensions are not allowed'), 400); // 400 Bad Request
+        $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, size: $size, crop: $crop);
+        if (is_null($thumbnail)) {
+            throw new ClientException(_m('Can not generate thumbnail for attachment with id={id}', ['id' => $attachment->getId()]));
         }
-
-        if (!is_null($attachment->getWidth()) && !is_null($attachment->getHeight())) {
-            [$width, $height] = AttachmentThumbnail::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $width, $height, $crop);
-        }
-
-        $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, width: $width, height: $height, crop: $crop);
 
         $filename = $thumbnail->getFilename();
         $path     = $thumbnail->getPath();

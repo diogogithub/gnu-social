@@ -45,7 +45,6 @@ abstract class Attachments
         $r->connect('attachment_show',      '/attachment/{id<\d+>}',           [C\Attachment::class, 'attachment_show']);
         $r->connect('attachment_view',      '/attachment/{id<\d+>}/view',      [C\Attachment::class, 'attachment_view']);
         $r->connect('attachment_download',  '/attachment/{id<\d+>}/download',  [C\Attachment::class, 'attachment_download']);
-        $r->connect('attachment_thumbnail', '/attachment/{id<\d+>}/thumbnail', [C\Attachment::class, 'attachment_thumbnail']);
-        $r->connect('thumbnail',            '/thumbnail/{id<\d+>}',            [C\Attachment::class, 'attachment_thumbnail']); // Backwards-compatibility
+        $r->connect('attachment_thumbnail', '/attachment/{id<\d+>}/thumbnail/{size<big|medium|small>}', [C\Attachment::class, 'attachment_thumbnail']);
     }
 }

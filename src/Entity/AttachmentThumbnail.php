@@ -26,7 +26,6 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
 use App\Core\GSFile;
-use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
 use App\Util\Common;
@@ -50,17 +49,21 @@ use Symfony\Component\Mime\MimeTypes;
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
  * @author    Hugo Sales <hugo@hsal.es>
  * @author    Diogo Peralta Cordeiro <mail@diogo.site>
+ * @author    Eliseu Amaro <mail@eliseuama.ro>
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class AttachmentThumbnail extends Entity
 {
+    public const SIZE_SMALL  = 0;
+    public const SIZE_MEDIUM = 1;
+    public const SIZE_BIG    = 2;
+
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
     private ?string $mimetype;
-    private int $width;
-    private int $height;
+    private int $size = self::SIZE_SMALL;
     private string $filename;
     private \DateTimeInterface $modified;
 
@@ -97,15 +100,15 @@ class AttachmentThumbnail extends Entity
         return $this->width;
     }
 
-    public function setHeight(int $height): self
+    public function getSize(): int
     {
-        $this->height = $height;
-        return $this;
+        return $this->size;
     }
 
-    public function getHeight(): int
+    public function setSize(int $size): self
     {
-        return $this->height;
+        $this->size = $size;
+        return $this;
     }
 
     public function setFilename(string $filename): self
@@ -161,24 +164,24 @@ class AttachmentThumbnail extends Entity
      *
      * @return mixed
      */
-    public static function getOrCreate(Attachment $attachment, int $width, int $height, bool $crop)
+    public static function getOrCreate(Attachment $attachment, ?string $size = null, bool $crop = false)
     {
-        // We need to keep these in mind for DB indexing
-        $predicted_width  = null;
-        $predicted_height = null;
+        $size     = $size ?? Common::config('thumbnail', 'default_size');
+        $size_int = match ($size) {
+            'medium' => self::SIZE_MEDIUM,
+            'big'    => self::SIZE_BIG,
+            default  => self::SIZE_SMALL,
+        };
         try {
-            if (is_null($attachment->getWidth()) || is_null($attachment->getHeight())) {
-                // @codeCoverageIgnoreStart
-                // TODO: check if we can generate from an existing thumbnail
-                throw new ClientException(_m('Invalid dimensions requested for thumbnail.'));
-                // @codeCoverageIgnoreEnd
-            }
-            return Cache::get('thumb-' . $attachment->getId() . "-{$width}x{$height}",
-                function () use ($crop, $attachment, $width, $height, &$predicted_width, &$predicted_height) {
-                    [$predicted_width, $predicted_height] = self::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $width, $height, $crop);
-                    return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $predicted_width, 'height' => $predicted_height]);
+            return Cache::get('thumb-' . $attachment->getId() . "-{$size}",
+                function () use ($crop, $attachment, $size_int) {
+                    return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'size' => $size_int]);
                 });
-        } catch (NotFoundException $e) {
+        } catch (NotFoundException) {
+            if (is_null($attachment->getWidth()) || is_null($attachment->getHeight())) {
+                return null;
+            }
+            [$predicted_width, $predicted_height] = self::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $size, $crop);
             if (!file_exists($attachment->getPath())) {
                 throw new NotStoredLocallyException();
             }
@@ -194,10 +197,9 @@ class AttachmentThumbnail extends Entity
             foreach ($encoders as $encoder) {
                 /** @var ?TemporaryFile */
                 $temp = null; // Let the EncoderPlugin create a temporary file for us
-                if ($encoder($attachment->getPath(), $temp, $width, $height, $crop, $mimetype)) {
+                if ($encoder($attachment->getPath(), $temp, $predicted_width, $predicted_height, $crop, $mimetype)) {
                     $thumbnail->setAttachment($attachment);
-                    $thumbnail->setWidth($predicted_width);
-                    $thumbnail->setHeight($predicted_height);
+                    $thumbnail->setSize($size_int);
                     $mimetype = $temp->getMimeType();
                     $ext      = '.' . MimeTypes::getDefault()->getExtensions($mimetype)[0];
                     $filename = "{$predicted_width}x{$predicted_height}{$ext}-" . $attachment->getFilehash();
@@ -209,7 +211,7 @@ class AttachmentThumbnail extends Entity
                     return $thumbnail;
                 }
             }
-            throw new ClientException(_m('Can not generate thumbnail for attachment with id={id}', ['id' => $attachment->getId()]));
+            return null;
         }
     }
 
@@ -220,20 +222,7 @@ class AttachmentThumbnail extends Entity
 
     public function getUrl()
     {
-        return Router::url('attachment_thumbnail', ['id' => $this->getAttachmentId(), 'w' => $this->getWidth(), 'h' => $this->getHeight()]);
-    }
-
-    /**
-     * Get the HTML attributes for this thumbnail
-     */
-    public function getHTMLAttributes(array $orig = [], bool $overwrite = true)
-    {
-        $attrs = [
-            'height' => $this->getHeight(),
-            'width'  => $this->getWidth(),
-            'src'    => $this->getUrl(),
-        ];
-        return $overwrite ? array_merge($orig, $attrs) : array_merge($attrs, $orig);
+        return Router::url('attachment_thumbnail', ['id' => $this->getAttachmentId(), 'size' => $this->getSize()]);
     }
 
     /**
@@ -245,7 +234,7 @@ class AttachmentThumbnail extends Entity
         if (file_exists($filepath)) {
             if (@unlink($filepath) === false) {
                 // @codeCoverageIgnoreStart
-                Log::warning("Failed deleting file for attachment thumbnail with id={$this->attachment_id}, width={$this->width}, height={$this->height} at {$filepath}");
+                Log::warning("Failed deleting file for attachment thumbnail with id={$this->getAttachmentId()}, size={$this->getSize()} at {$filepath}");
                 // @codeCoverageIgnoreEnd
             }
         }
@@ -261,35 +250,78 @@ class AttachmentThumbnail extends Entity
      * Values will scale _up_ to fit max values if cropping is enabled!
      * With cropping disabled, the max value of each axis will be respected.
      *
-     * @param int  $existing_width   Original width
-     * @param int  $existing_height  Original height
-     * @param int  $requested_width  Resulting max width
-     * @param int  $requested_height Resulting max height
-     * @param bool $crop             Crop to the size (not preserving aspect ratio)
+     * @param int  $existing_width        Original width
+     * @param int  $existing_height       Original height
+     * @param int  $allowed_aspect_ratios
+     * @param int  $requested_size
+     * @param bool $crop
      *
      * @return array [predicted width, predicted height]
      */
     public static function predictScalingValues(
         int $existing_width,
         int $existing_height,
-        int $requested_width,
-        int $requested_height,
+        string $requested_size,
         bool $crop
     ): array {
-        if ($crop) {
-            $rw = min($existing_width, $requested_width);
-            $rh = min($existing_height, $requested_height);
-        } else {
-            if ($existing_width > $existing_height) {
-                $rw = min($existing_width, $requested_width);
-                $rh = ceil($existing_height * $rw / $existing_width);
-            } else {
-                $rh = min($existing_height, $requested_height);
-                $rw = ceil($existing_width * $rh / $existing_height);
-            }
+        /**
+         * 1:1   => Square
+         * 4:3   => SD
+         * 11:8  => Academy Ratio
+         * 3:2   => Classic 35mm
+         * 16:10 => Golden Ratio
+         * 16:9  => Widescreen
+         * 2.2:1 => Standard 70mm film
+         */
+        $allowed_aspect_ratios = [1, 1.3, 1.376, 1.5, 1.6, 1.7, 2.2]; // Ascending array
+        $sizes                 = [
+            'small'  => Common::config('thumbnail', 'small'),
+            'medium' => Common::config('thumbnail', 'medium'),
+            'big'    => Common::config('thumbnail', 'big'),
+        ];
+
+        // We only scale if the image is larger than the minimum width and height for a thumbnail
+        if ($existing_width < Common::config('thumbnail', 'minimum_width') && $existing_height < Common::config('thumbnail', 'minimum_height')) {
+            return [$existing_width, $existing_height];
         }
 
-        return [(int) $rw, (int) $rh];
+        // We only scale if the total of pixels is greater than the maximum allowed for a thumbnail
+        $total_of_pixels = $existing_width * $existing_height;
+        if ($total_of_pixels < Common::config('thumbnail', 'maximum_pixels')) {
+            return [$existing_width, $existing_height];
+        }
+
+        // Is this a portrait image?
+        $flip = $existing_height > $existing_width;
+
+        // Find the aspect ratio of the given image
+        $existing_aspect_ratio = !$flip ? $existing_width / $existing_height : $existing_height / $existing_width;
+
+        // Binary search the closer allowed aspect ratio
+        $left  = 0;
+        $right = count($allowed_aspect_ratios) - 1;
+        while ($left < $right) {
+            $mid = floor($left + ($right - $left) / 2);
+
+            // Comparing absolute distances with middle value and right value
+            if (abs($existing_aspect_ratio - $allowed_aspect_ratios[$mid]) < abs($existing_aspect_ratio - $allowed_aspect_ratios[$right])) {
+                // search the left side of the array
+                $right = $mid;
+            } else {
+                // search the right side of the array
+                $left = $mid + 1;
+            }
+        }
+        $closest_aspect_ratio = $allowed_aspect_ratios[$left];
+        unset($mid, $left, $right);
+
+        // TODO: For crop, we should test a threshold and understand if the image would better be cropped
+
+        // Resulting width and height
+        $rw = (int) ($sizes[$requested_size]);
+        $rh = (int) ($rw / $closest_aspect_ratio);
+
+        return !$flip ? [$rw, $rh] : [$rh, $rw];
     }
 
     public static function schemaDef(): array
@@ -299,12 +331,11 @@ class AttachmentThumbnail extends Entity
             'fields' => [
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what attachment'],
                 'mimetype'      => ['type' => 'varchar',   'length' => 129,  'description' => 'resource mime type 64+1+64, images hardly will show up with long mimetypes, this is probably safe considering rfc6838#section-4.2'],
-                'width'         => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
-                'height'        => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
+                'size'          => ['type' => 'int', 'not null' => true, 'default' => 0, 'description' => '0 = small; 1 = medium; 2 = big'],
                 'filename'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thumbnail filename'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['attachment_id', 'width', 'height'],
+            'primary key' => ['attachment_id', 'size'],
             'indexes'     => [
                 'attachment_thumbnail_attachment_id_idx' => ['attachment_id'],
             ],

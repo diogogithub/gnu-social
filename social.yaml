@@ -102,7 +102,7 @@ parameters:
       uploads: true
       show_thumbs: true
       process_links: true
-      sanitize: true
+      sanitize: false
       ext_blacklist: []
       memory_limit: 1024M
 
@@ -111,17 +111,23 @@ parameters:
       ssl:
       dir: "%kernel.project_dir%/file/thumbnails/"
       smart_crop: false
-      max_size_px: 1000
-      width: 450
-      height: 600
+      maximum_pixels: 256000
+      minimum_width: 16
+      minimum_height: 16
+      small: 32
+      medium: 256
+      big: 496
+      default_size: medium
       mimetype: 'image/webp'
       extension: '.webp'
 
-    plugin_embed:
-      width: 128
-      height: 128
+    plugin_store_remote_media:
+      max_file_size: 4000000
       smart_crop: false
 
+    plugin_embed:
+      max_px: 64000
+      smart_crop: false
 
     theme:
       server:

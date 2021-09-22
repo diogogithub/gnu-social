@@ -107,101 +107,6 @@ class Embed extends Plugin
     }
 
     /**
-     * Add common favicon, embed sizes and social media image sizes
-     * (Commented out ancient sizes)
-     * TODO: This is a temporary "solution" until we handle different sizes properly, discuss with Eliseu
-     *
-     * @param array $sizes
-     *
-     * @return bool
-     */
-    public function onGetAllowedThumbnailSizes(array &$sizes): bool
-    {
-        $sizes[] = ['width' => 16, 'height' => 16]; // Standard favicon size for browsers
-        $sizes[] = ['width' => 24, 'height' => 24]; // IE9 pinned site size for user interface
-        $sizes[] = ['width' => 32, 'height' => 32]; // Standard for most desktop browsers, facebook small photo thumbnail
-        $sizes[] = ['width' => 36, 'height' => 36]; // Facebook big photo thumbnail
-        // $sizes[] = ['width' => 48, 'height' => 48]; // Windows site (mid-size standard favicon)
-        $sizes[] = ['width' => 55, 'height' => 55]; // Pinterest small thumb
-        // $sizes[] = ['width' => 57, 'height' => 57]; // Standard iOS home screen (iPod Touch, iPhone first generation to 3G)
-        // $sizes[] = ['width' => 60, 'height' => 60]; // iPhone touch up to iOS 7
-        // $sizes[] = ['width' => 64, 'height' => 64]; // Windows site, Safari Reader List sidebar in HiDPI/Retina
-        // $sizes[] = ['width' => 70, 'height' => 70]; // Win 8.1 Metro tile
-        // $sizes[] = ['width' => 72, 'height' => 72]; // iPad touch up to iOS 6
-        // $sizes[] = ['width' => 76, 'height' => 76]; // iPad home screen icon up to iOS 7
-        // $sizes[] = ['width' => 96, 'height' => 96]; // GoogleTV icon
-        $sizes[] = ['width' => 110, 'height' => 110]; // Instagram profile picture
-        // $sizes[] = ['width' => 114, 'height' => 114]; // iPhone retina touch up to iOS6
-        $sizes[] = ['width' => 116, 'height' => 116]; // Facebook page small square shared link
-        // $sizes[] = ['width' => 120, 'height' => 120]; // iPhone retina touch up to iOS6
-        $sizes[] = ['width' => 128, 'height' => 128]; // Chrome Web Store icon and Small Windows 8 Star Screen Icon, Facebook profile picture smartphone
-        // $sizes[] = ['width' => 144, 'height' => 144]; // IE10 Metro tile for pinned site, Apple iPad retina iOS 6 to iOS 7
-        $sizes[] = ['width' => 150, 'height' => 150]; // Win 8.1 Metro tile (standard MS tile)
-        $sizes[] = ['width' => 154, 'height' => 154]; // Facebook feed small square shared link
-        $sizes[] = ['width' => 152, 'height' => 152]; // Apple iPad iOS 10 retina touch icon
-        $sizes[] = ['width' => 161, 'height' => 161]; // Instagram thumbnails
-        $sizes[] = ['width' => 165, 'height' => 165]; // Pinterest profile picture
-        $sizes[] = ['width' => 167, 'height' => 167]; // Apple iPad Retina touch icon
-        $sizes[] = ['width' => 170, 'height' => 170]; // Facebook Profile Picture desktop
-        $sizes[] = ['width' => 180, 'height' => 180]; // Apple iPhone Retina touch icon, Facebook Profile Picture
-        $sizes[] = ['width' => 192, 'height' => 192]; // Google Developer Web App Manifest Recommendation
-        // $sizes[] = ['width' => 195, 'height' => 195]; // Opera Speed Dial icon
-        $sizes[] = ['width' => 196, 'height' => 196]; // Chrome for Android home screen icon
-        $sizes[] = ['width' => 200, 'height' => 200]; // GitHub profile photo
-        $sizes[] = ['width' => 222, 'height' => 150]; // Pinterest large thumb
-        // $sizes[] = ['width' => 228, 'height' => 228]; // Opera Coast icon
-        $sizes[] = ['width' => 250, 'height' => 250]; // Google My Business minimum
-        // $sizes[] = ['width' => 260, 'height' => 260];
-        $sizes[] = ['width' => 300, 'height' => 300]; // Instagram personal profile image
-        // $sizes[] = ['width' => 310, 'height' => 150]; // Win 8.1 wide Metro tile
-        // $sizes[] = ['width' => 310, 'height' => 310]; // Win 8.1 big Metro tile
-        $sizes[] = ['width' => 360, 'height' => 360];
-        $sizes[] = ['width' => 400, 'height' => 150]; // Facebook small cover photo, facebook small fundraiser image
-        // $sizes[] = ['width' => 400, 'height' => 300];
-        $sizes[] = ['width' => 400, 'height' => 400]; // Twitter profile photo
-        $sizes[] = ['width' => 470, 'height' => 174]; // Facebook event small image
-        $sizes[] = ['width' => 470, 'height' => 246]; // Facebook feed small rectangular link
-        $sizes[] = ['width' => 480, 'height' => 360]; // YouTube video thumbnail
-        $sizes[] = ['width' => 484, 'height' => 252]; // Facebook page small rectangular link
-        $sizes[] = ['width' => 510, 'height' => 510]; // Instagram feed image
-        $sizes[] = ['width' => 512, 'height' => 512]; // Android Chrome big
-        // $sizes[] = ['width' => 560, 'height' => 315];
-        // $sizes[] = ['width' => 560, 'height' => 340];
-        $sizes[] = ['width' => 600, 'height' => 900]; // Pinterest expanded pin
-        $sizes[] = ['width' => 612, 'height' => 612]; // Instagram small photo
-        // $sizes[] = ['width' => 640, 'height' => 385];
-        $sizes[] = ['width' => 700, 'height' => 800]; // Twitter two image post
-        $sizes[] = ['width' => 720, 'height' => 720]; // Google My Business
-        $sizes[] = ['width' => 800, 'height' => 300]; // Facebook fundraiser image
-        $sizes[] = ['width' => 800, 'height' => 800]; // Youtube channel profile image
-        $sizes[] = ['width' => 820, 'height' => 312]; // Facebook cover photo
-        // $sizes[] = ['width' => 853, 'height' => 505];
-        $sizes[] = ['width' => 900, 'height' => 600]; // Instagram company photo
-        $sizes[] = ['width' => 943, 'height' => 943]; // Big safari pinned tab
-        $sizes[] = ['width' => 1024, 'height' => 768]; // Standard 4:3 ratio photo
-        $sizes[] = ['width' => 1080, 'height' => 720]; // Standard 3:2 ratio photo
-        $sizes[] = ['width' => 1080, 'height' => 1080]; // Standard 1:1 ratio photo, Instagram photo
-        $sizes[] = ['width' => 1080, 'height' => 1350]; // Instagram portrait photo
-        $sizes[] = ['width' => 1080, 'height' => 1920]; // Instagram story
-        $sizes[] = ['width' => 1128, 'height' => 191]; // Instagram company cover image
-        $sizes[] = ['width' => 1128, 'height' => 376]; // Instagram Main image
-        $sizes[] = ['width' => 1200, 'height' => 600]; // Twitter four images
-        $sizes[] = ['width' => 1200, 'height' => 627]; // Instagram shared link
-        $sizes[] = ['width' => 1200, 'height' => 628]; // Facebook and Twitter shared link
-        $sizes[] = ['width' => 1200, 'height' => 630]; // Facebook shared image
-        $sizes[] = ['width' => 1200, 'height' => 686]; // Twitter three images
-        $sizes[] = ['width' => 1200, 'height' => 675]; // Twitter shared image
-        $sizes[] = ['width' => 1280, 'height' => 720]; // Standard small 16:9 ratio photo, YouTube HD
-        $sizes[] = ['width' => 1500, 'height' => 1500]; // Twitter header photo
-        $sizes[] = ['width' => 1584, 'height' => 396]; // Instagram personal background image
-        $sizes[] = ['width' => 1920, 'height' => 1005]; // Facebook event image
-        $sizes[] = ['width' => 1920, 'height' => 1080]; // Standard big 16:9 ratio photo
-        $sizes[] = ['width' => 2048, 'height' => 1152]; // YouTube channel cover photo
-
-        return Event::next;
-    }
-
-    /**
      * This code executes when GNU social creates the page routing, and we hook
      * on this event to add our action handler for Embed.
      *
@@ -329,7 +234,7 @@ class Embed extends Plugin
                 $temp_file = new TemporaryFile();
                 $temp_file->write($img_data);
                 try {
-                    $attachment                  = GSFile::sanitizeAndStoreFileAsAttachment($temp_file);
+                    $attachment                  = GSFile::storeFileAsAttachment($temp_file);
                     $embed_data['attachment_id'] = $attachment->getId();
                 } catch (ClientException) {
                     DB::persist($attachment = Attachment::create(['mimetype' => $link->getMimetype()]));
