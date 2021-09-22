@@ -20,7 +20,7 @@ class MediaFixtures extends Fixture
                   $file = new TemporaryFile();
                   $file->write(file_get_contents($filepath));
                   try {
-                      GSFile::sanitizeAndStoreFileAsAttachment($file);
+                      GSFile::storeFileAsAttachment($file);
                   } catch (Exception $e) {
                       echo "Could not save file {$filepath}, failed with {$e}\n";
                   } finally {

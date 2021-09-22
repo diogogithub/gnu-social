@@ -96,7 +96,7 @@ class Cover
             if (explode('/',$sfile->getMimeType())[0] != 'image') {
                 throw new ServerException('Invalid file type');
             }
-            $file     = GSFile::sanitizeAndStoreFileAsAttachment($sfile);
+            $file     = GSFile::storeFileAsAttachment($sfile);
             $old_file = null;
             $cover    = DB::find('cover', ['gctor_id' => $actor_id]);
             // Must get old id before inserting another one

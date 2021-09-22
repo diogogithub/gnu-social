@@ -109,7 +109,7 @@ class Avatar extends Component
      * Returns the avatar file's hash, mimetype, title and path.
      * Ensures exactly one cached value exists
      */
-    public static function getAvatarFileInfo(int $actor_id): array
+    public static function getAvatarFileInfo(int $actor_id, int $size = 0): array
     {
         $res = Cache::get("avatar-file-info-{$actor_id}",
             function () use ($actor_id) {

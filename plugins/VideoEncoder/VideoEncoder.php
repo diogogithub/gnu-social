@@ -61,13 +61,29 @@ class VideoEncoder extends Plugin
      *
      * @return bool
      */
+    public function onFileMetaAvailable(array &$event_map, string $mimetype): bool
+    {
+        if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
+            return Event::next;
+        }
+        $event_map['video'][]     = [$this, 'fileMeta'];
+        $event_map['image/gif'][] = [$this, 'fileMeta'];
+        return Event::next;
+    }
+
+    /**
+     * @param array  $event_map
+     * @param string $mimetype
+     *
+     * @return bool
+     */
     public function onFileSanitizerAvailable(array &$event_map, string $mimetype): bool
     {
         if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
             return Event::next;
         }
-        $event_map['video'][]     = [$this, 'fileSanitize'];
-        $event_map['image/gif'][] = [$this, 'fileSanitize'];
+        $event_map['video'][]     = [$this, 'fileMeta'];
+        $event_map['image/gif'][] = [$this, 'fileMeta'];
         return Event::next;
     }
 
@@ -97,7 +113,7 @@ class VideoEncoder extends Plugin
      *
      * @return bool true if sanitized
      */
-    public function fileSanitize(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
+    public function fileMeta(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
     {
         if (//GSFile::mimetypeMajor($mimetype) !== 'video' &&
             $mimetype !== 'image/gif') {

@@ -59,6 +59,21 @@ class ImageEncoder extends Plugin
      *
      * @return bool
      */
+    public function onFileMetaAvailable(array &$event_map, string $mimetype): bool
+    {
+        if (GSFile::mimetypeMajor($mimetype) !== 'image') {
+            return Event::next;
+        }
+        $event_map['image'][] = [$this, 'fileMeta'];
+        return Event::next;
+    }
+
+    /**
+     * @param array  $event_map
+     * @param string $mimetype
+     *
+     * @return bool
+     */
     public function onFileSanitizerAvailable(array &$event_map, string $mimetype): bool
     {
         if (GSFile::mimetypeMajor($mimetype) !== 'image') {
@@ -83,8 +98,29 @@ class ImageEncoder extends Plugin
         return Event::next;
     }
 
+    public function fileMeta(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
+    {
+        $original_mimetype = $mimetype;
+        if (GSFile::mimetypeMajor($original_mimetype) !== 'image') {
+            // Nothing concerning us
+            return false;
+        }
+
+        try {
+            $image = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
+        } catch (Vips\Exception $e) {
+            Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e}.");
+            throw new UnsupportedFileTypeException(_m("Unsupported image file with {$mimetype}.", previous: $e));
+        }
+        $width  = $image->width;
+        $height = $image->height;
+
+        // Only one plugin can handle meta
+        return true;
+    }
+
     /**
-     * Re-encodes the image ensuring it's valid.
+     * Re-encodes the image ensuring it is valid.
      * Also ensures that the image is not greater than the max width and height configured.
      *
      * @param SplFileInfo $file
@@ -103,7 +139,7 @@ class ImageEncoder extends Plugin
     public function fileSanitize(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
     {
         $original_mimetype = $mimetype;
-        if (GSFile::mimetypeMajor($original_mimetype) != 'image') {
+        if (GSFile::mimetypeMajor($original_mimetype) !== 'image') {
             // Nothing concerning us
             return false;
         }

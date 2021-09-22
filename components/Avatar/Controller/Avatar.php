@@ -101,7 +101,7 @@ class Avatar extends Controller
                             $data_user = base64_decode($data_user);
                             $tempfile  = new TemporaryFile(['prefix' => 'gs-avatar']);
                             $tempfile->write($data_user);
-                            $attachment = GSFile::sanitizeAndStoreFileAsAttachment($tempfile);
+                            $attachment = GSFile::storeFileAsAttachment($tempfile);
                         } else {
                             Log::info('Avatar upload got an invalid encoding, something\'s fishy and/or wrong');
                         }
@@ -109,7 +109,7 @@ class Avatar extends Controller
                 } elseif (isset($data['avatar'])) {
                     // Cropping failed (e.g. disabled js), use file as uploaded
                     $file       = $data['avatar'];
-                    $attachment = GSFile::sanitizeAndStoreFileAsAttachment($file);
+                    $attachment = GSFile::storeFileAsAttachment($file);
                 } else {
                     throw new ClientException('Invalid form');
                 }

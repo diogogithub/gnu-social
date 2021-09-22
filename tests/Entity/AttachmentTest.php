@@ -39,7 +39,7 @@ class AttachmentTest extends GNUsocialTestCase
 
         // Setup first attachment
         $file       = new TemporaryFile();
-        $attachment = GSFile::sanitizeAndStoreFileAsAttachment($file);
+        $attachment = GSFile::storeFileAsAttachment($file);
         $path       = $attachment->getPath();
         $hash       = $attachment->getFilehash();
         static::assertTrue(file_exists($attachment->getPath()));
@@ -55,7 +55,7 @@ class AttachmentTest extends GNUsocialTestCase
 
         // Setup the second attachment, re-adding the backed store
         $file                = new TemporaryFile();
-        $repeated_attachment = GSFile::sanitizeAndStoreFileAsAttachment($file);
+        $repeated_attachment = GSFile::storeFileAsAttachment($file);
         $path                = $attachment->getPath();
         static::assertSame(2, $repeated_attachment->getLives());
         static::assertTrue(file_exists($path));
@@ -84,7 +84,7 @@ class AttachmentTest extends GNUsocialTestCase
             DB::flush();
 
             $file = new File($temp_file->getRealPath());
-            GSFile::sanitizeAndStoreFileAsAttachment($file);
+            GSFile::storeFileAsAttachment($file);
             static::assertNotNull($attachment->getFilename());
             static::assertTrue(file_exists($attachment->getPath()));
         };
