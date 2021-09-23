@@ -5,6 +5,11 @@ html {
     scroll-margin-top: 4rem;
 }
 
+* {
+    max-width: 100%;
+    max-height: 100%;
+}
+
 *:hover,
 *:active {
     -webkit-box-shadow: unset;
@@ -305,7 +310,7 @@ hr {
 .note-sidebar * {
     display: flex;
     flex-direction: column;
-    margin-left: auto;hr
+    margin-left: auto;
     margin-right: auto;
     max-height: 100%;
 }
@@ -315,6 +320,7 @@ hr {
     height: auto;
     background: unset;
     margin-bottom: var(--unit-size);
+    border-radius: 2px;
 }
 
 .h-entry .replies .h-entry {
@@ -408,20 +414,19 @@ hr {
     border-radius: 0 0 var(--unit-size) var(--unit-size);
     padding: var(--small-size);
 }
-.note-content * {
-    max-width: 100%;
-    max-height: 100%;
-}
 
 .note-text {
     margin-bottom: var(--unit-size);
 }
 
-figure { margin: unset; max-width: 100%; max-height: border-box;}
-.note-content > .note-attachments {
+figure {
+    margin: unset;
+    object-fit: cover;
+}
+.section-attachments {
     display: grid;
-    grid-template-columns: repeat(2, fit-content(100%));
-    grid-template-rows: repeat(2, fit-content(100%));
+    grid-template-columns: repeat(3, auto);
+    grid-template-rows: repeat(3, auto);
 
     border-radius: var(--unit-size);
     background-color: var(--translucent);
@@ -429,11 +434,12 @@ figure { margin: unset; max-width: 100%; max-height: border-box;}
 
     align-self: flex-start;
 }
-.note-attachments:not(:only-child){
-    margin: 5px;
-}
 
+.note-attachments:not(:only-child) {
+    margin: var(--small-size);
+}
 .note-attachments > figure figcaption {
+    display: flex;
     word-break: break-all;
 }
 
@@ -441,7 +447,7 @@ figure { margin: unset; max-width: 100%; max-height: border-box;}
 .section-widget {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: fit-content;
 
     background-color: var(--translucent);
     border-radius: var(--unit-size);
@@ -817,6 +823,7 @@ input[type=file] {
     width: 100%;
     height: auto;
     margin-right: 5px;
+    border-radius: 2px;
 }
 
 /* MEDIA QUERIES */
