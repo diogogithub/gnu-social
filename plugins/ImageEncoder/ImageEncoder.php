@@ -100,21 +100,25 @@ class ImageEncoder extends Plugin
 
     public function fileMeta(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
     {
-        $original_mimetype = $mimetype;
-        if (GSFile::mimetypeMajor($original_mimetype) !== 'image') {
-            // Nothing concerning us
-            return false;
-        }
-
+        $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
         try {
-            $image = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
-        } catch (Vips\Exception $e) {
-            Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e}.");
-            throw new UnsupportedFileTypeException(_m("Unsupported image file with {$mimetype}.", previous: $e));
-        }
-        $width  = $image->width;
-        $height = $image->height;
+            $original_mimetype = $mimetype;
+            if (GSFile::mimetypeMajor($original_mimetype) !== 'image') {
+                // Nothing concerning us
+                return false;
+            }
 
+            try {
+                $image = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
+            } catch (Vips\Exception $e) {
+                Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e}.");
+                throw new UnsupportedFileTypeException(_m("Unsupported image file with {$mimetype}.", previous: $e));
+            }
+            $width  = $image->width;
+            $height = $image->height;
+        } finally {
+            ini_set('memory_limit', $old_limit); // Restore the old memory limit
+        }
         // Only one plugin can handle meta
         return true;
     }
@@ -138,42 +142,47 @@ class ImageEncoder extends Plugin
      */
     public function fileSanitize(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
     {
-        $original_mimetype = $mimetype;
-        if (GSFile::mimetypeMajor($original_mimetype) !== 'image') {
-            // Nothing concerning us
-            return false;
-        }
+        $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
+        try {
+            $original_mimetype = $mimetype;
+            if (GSFile::mimetypeMajor($original_mimetype) !== 'image') {
+                // Nothing concerning us
+                return false;
+            }
 
-        // Try to maintain original mimetype extension, otherwise default to preferred.
-        $extension = '.' . Common::config('thumbnail', 'extension');
-        $extension = GSFile::ensureFilenameWithProperExtension(
+            // Try to maintain original mimetype extension, otherwise default to preferred.
+            $extension = '.' . Common::config('thumbnail', 'extension');
+            $extension = GSFile::ensureFilenameWithProperExtension(
                 title: $file->getFilename(),
                 mimetype: $original_mimetype,
                 ext: $extension,
                 force: false
             ) ?? $extension;
 
-        // TemporaryFile handles deleting the file if some error occurs
-        // IMPORTANT: We have to specify the extension for the temporary file
-        // in order to have a format conversion
-        $temp = new TemporaryFile(['prefix' => 'image', 'suffix' => $extension]);
+            // TemporaryFile handles deleting the file if some error occurs
+            // IMPORTANT: We have to specify the extension for the temporary file
+            // in order to have a format conversion
+            $temp = new TemporaryFile(['prefix' => 'image', 'suffix' => $extension]);
 
-        try {
-            $image = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
-        } catch (Vips\Exception $e) {
-            Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e}.");
-            throw new UnsupportedFileTypeException(_m("Unsupported image file with {$mimetype}.", previous: $e));
+            try {
+                $image = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
+            } catch (Vips\Exception $e) {
+                Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e}.");
+                throw new UnsupportedFileTypeException(_m("Unsupported image file with {$mimetype}.", previous: $e));
+            }
+            $width  = $image->width;
+            $height = $image->height;
+            $image  = $image->crop(left: 0,
+                                   top: 0,
+                                   width: $width,
+                                   height: $height);
+            $image->writeToFile($temp->getRealPath());
+
+            // Replace original file with the sanitized one
+            $temp->commit($file->getRealPath());
+        } finally {
+            ini_set('memory_limit', $old_limit); // Restore the old memory limit
         }
-        $width  = $image->width;
-        $height = $image->height;
-        $image  = $image->crop(left: 0,
-            top: 0,
-            width: $width,
-            height: $height);
-        $image->writeToFile($temp->getRealPath());
-
-        // Replace original file with the sanitized one
-        $temp->commit($file->getRealPath());
 
         // Only one plugin can handle sanitization
         return true;
