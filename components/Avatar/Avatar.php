@@ -63,9 +63,9 @@ class Avatar extends Component
 
     public function onAvatarUpdate(int $actor_id): bool
     {
+        Cache::delete("avatar-{$actor_id}");
         foreach (['full', 'big', 'medium', 'small'] as $size) {
             foreach ([Router::ABSOLUTE_PATH, Router::ABSOLUTE_URL] as $type) {
-                Cache::delete("avatar-{$actor_id}-{$size}-{$type}");
                 Cache::delete("avatar-url-{$actor_id}-{$size}-{$type}");
                 Cache::delete("avatar-file-info-{$actor_id}-{$size}-{$type}");
             }
@@ -109,11 +109,11 @@ class Avatar extends Component
      * Returns the avatar file's hash, mimetype, title and path.
      * Ensures exactly one cached value exists
      */
-    public static function getAvatarFileInfo(int $actor_id, int $size = 0): array
+    public static function getAvatarFileInfo(int $actor_id, string $size = 'full'): array
     {
-        $res = Cache::get("avatar-file-info-{$actor_id}",
+        $res = Cache::get("avatar-file-info-{$actor_id}-{$size}",
             function () use ($actor_id) {
-                return DB::dql('select f.id, f.filename, a.filename title, f.mimetype ' .
+                return DB::dql('select f.id, f.filename, a.title, f.mimetype ' .
                     'from App\Entity\Attachment f ' .
                     'join Component\Avatar\Entity\Avatar a with f.id = a.attachment_id ' .
                     'where a.actor_id = :actor_id',

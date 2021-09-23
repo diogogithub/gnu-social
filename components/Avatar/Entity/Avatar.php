@@ -49,7 +49,7 @@ class Avatar extends Entity
     // @codeCoverageIgnoreStart
     private int $actor_id;
     private int $attachment_id;
-    private ?string $filename;
+    private ?string $title;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -78,17 +78,17 @@ class Avatar extends Entity
     /**
      * @return null|string
      */
-    public function getFilename(): ?string
+    public function getTitle(): ?string
     {
-        return $this->filename;
+        return $this->title;
     }
 
     /**
-     * @param null|string $filename
+     * @param null|string $title
      */
-    public function setFilename(?string $filename): void
+    public function setTitle(?string $title): void
     {
-        $this->filename = $filename;
+        $this->title = $title;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -128,7 +128,7 @@ class Avatar extends Entity
 
     public function getAttachment(): Attachment
     {
-        $this->attachment = $this->attachment ?: DB::findOneBy('attachment', ['id' => $this->attachment_id]);
+        $this->attachment = $this->attachment ?? DB::findOneBy('attachment', ['id' => $this->attachment_id]);
         return $this->attachment;
     }
 
@@ -163,7 +163,7 @@ class Avatar extends Entity
             'fields' => [
                 'actor_id'      => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to attachment table'],
-                'filename'      => ['type' => 'varchar',   'length' => 191, 'description' => 'file name of resource when available'],
+                'title'         => ['type' => 'varchar',   'length' => 191, 'description' => 'file name of resource when available'],
                 'created'       => ['type' => 'datetime', 'not null' => true, 'description' => 'date this record was created', 'default' => 'CURRENT_TIMESTAMP'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],

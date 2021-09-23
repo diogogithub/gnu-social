@@ -89,17 +89,6 @@ class AttachmentThumbnail extends Entity
         return $this->mimetype;
     }
 
-    public function setWidth(int $width): self
-    {
-        $this->width = $width;
-        return $this;
-    }
-
-    public function getWidth(): int
-    {
-        return $this->width;
-    }
-
     public function getSize(): int
     {
         return $this->size;
@@ -154,8 +143,7 @@ class AttachmentThumbnail extends Entity
 
     /**
      * @param Attachment $attachment
-     * @param int        $width
-     * @param int        $height
+     * @param ?string    $size
      * @param bool       $crop
      *
      * @throws ClientException
@@ -174,7 +162,7 @@ class AttachmentThumbnail extends Entity
         };
         try {
             return Cache::get('thumb-' . $attachment->getId() . "-{$size}",
-                function () use ($crop, $attachment, $size_int) {
+                function () use ($attachment, $size_int) {
                     return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'size' => $size_int]);
                 });
         } catch (NotFoundException) {
@@ -250,11 +238,10 @@ class AttachmentThumbnail extends Entity
      * Values will scale _up_ to fit max values if cropping is enabled!
      * With cropping disabled, the max value of each axis will be respected.
      *
-     * @param int  $existing_width        Original width
-     * @param int  $existing_height       Original height
-     * @param int  $allowed_aspect_ratios
-     * @param int  $requested_size
-     * @param bool $crop
+     * @param int    $existing_width  Original width
+     * @param int    $existing_height Original height
+     * @param string $requested_size
+     * @param bool   $crop
      *
      * @return array [predicted width, predicted height]
      */
