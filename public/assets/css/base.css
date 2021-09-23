@@ -285,6 +285,7 @@ hr {
     flex-direction: column;
     padding: var(--unit-size);
     border: unset;
+    width: max-content;
 }
 
 .h-entry .embed header img {
@@ -298,6 +299,10 @@ hr {
     background-color: var(--translucent);
     border-radius: var(--unit-size);
     border: solid 2px var(--bg2);
+}
+.h-entry *,
+.note * {
+    font-family: var(--main-font);
 }
 
 .note-wrapper {
@@ -346,7 +351,7 @@ hr {
 }
 
 .note-author {
-    font-size: var(--medium-size);
+    font-size: var(--small-size);
     font-weight: bold;
     display: flex;
     align-items: center;
