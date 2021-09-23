@@ -160,6 +160,7 @@ class StoreRemoteMedia extends Plugin
             $attachment = GSFile::storeFileAsAttachment($temp_file);
 
             // Relate the link with the attachment
+            // TODO: Create a function that gets the title from content disposition or URL when such header isn't available
             DB::persist(AttachmentToLink::create([
                 'link_id'       => $link->getId(),
                 'attachment_id' => $attachment->getId(),

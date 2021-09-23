@@ -152,7 +152,7 @@ class AttachmentThumbnail extends Entity
      *
      * @return mixed
      */
-    public static function getOrCreate(Attachment $attachment, ?string $size = null, bool $crop = false)
+    public static function getOrCreate(Attachment $attachment, ?string $size = null, bool $crop = false): ?self
     {
         $size     = $size ?? Common::config('thumbnail', 'default_size');
         $size_int = match ($size) {
@@ -171,7 +171,13 @@ class AttachmentThumbnail extends Entity
             }
             [$predicted_width, $predicted_height] = self::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $size, $crop);
             if (!file_exists($attachment->getPath())) {
-                throw new NotStoredLocallyException();
+                // Before we quit, check if there's any other thumb
+                $alternative_thumbs = DB::findBy('attachment_thumbnail', ['attachment_id' => $attachment->getId()]);
+                if ($alternative_thumbs === []) {
+                    throw new NotStoredLocallyException();
+                } else {
+                    return $alternative_thumbs[0];
+                }
             }
             $thumbnail              = self::create(['attachment_id' => $attachment->getId()]);
             $mimetype               = $attachment->getMimetype();
