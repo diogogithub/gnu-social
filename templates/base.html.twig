@@ -35,8 +35,9 @@
 
 <aside id="accessibility-menu">
     <h2 id="accessibility-menu-title" tabindex="0">{{ 'Accessibility menu.' | trans }}</h2>
-    <h3 tabindex="0">{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</h3>
+    <p tabindex="0">{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</p>
     <p tabindex="0">{{ 'Provided the following keyboard shortcut, the link is targeted.' | trans }}</p>
+    <br>
     <p tabindex="0">{{ 'Be mindful that another ' | trans }}<kbd>Tab</kbd>{{ ' is needed in order to focus.' | trans }}</p>
     <p tabindex="0">
         {% if is_firefox() == true %}

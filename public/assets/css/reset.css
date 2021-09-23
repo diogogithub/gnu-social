@@ -79,9 +79,15 @@ html {
     font-size: var(--small-size);
 }
 
+h1,h2,h3,h4,h5,h6 {
+    all: unset;
+    display: block;
+}
+
 h1 {
     font-size: var(--main-size);
     font-weight: 700;
+    margin-bottom: 15px;
 }
 
 h2 {
@@ -91,8 +97,14 @@ h2 {
 }
 
 h3 {
+    font-size: var(--medium-size);
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+h4, h5 {
     font-size: var(--small-size);
     font-weight: 600;
+    margin-bottom: 5px;
 }
 
 p {

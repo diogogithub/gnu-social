@@ -45,7 +45,7 @@
             {% endif %}
 
             {% if note.getLinks() is not empty %}
-                <div tabindex="0" class="note-links" title="{{ 'Shared links.' | trans }}">
+                <div class="note-links" title="{{ 'Shared links.' | trans }}">
                     {% for link in note.getLinks() %}
                         {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
                             {{ block | raw }}
