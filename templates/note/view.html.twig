@@ -35,11 +35,13 @@
             </div>
 
             {% if hide_attachments is not defined %}
-                <div class="note-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
-                    {% for attachment in note.getAttachments() %}
-                        {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
-                    {% endfor %}
-                </div>
+                {% if note.getAttachments() is not empty %}
+                    <div class="note-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
+                        {% for attachment in note.getAttachments() %}
+                            {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
+                        {% endfor %}
+                    </div>
+                {% endif %}
             {% endif %}
 
             {% if note.getLinks() is not empty %}

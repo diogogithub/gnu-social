@@ -21,7 +21,7 @@ html {
 :root {
     /* FONTS */
     --display-font: 'Poppins', sans-serif;
-    --main-font: 'Open Sans', sans-serif;
+    --main-font:    'Open Sans', sans-serif;
 
     /* UNITS
      * unit size      - every element should be a multiplier of this
@@ -29,16 +29,17 @@ html {
      * medium size    - same as above, except that the element in question is contained in something else
      * small size     - used in common text, borders
      */
-    --unit-size: 0.5rem;
-    --main-size: 1.5rem;
-    --medium-size: 1.2rem;
-    --small-size: 1rem;
+    --unit-size:    0.5rem;
+    --main-size:    1.5rem;
+    --medium-size:  1.2rem;
+    --small-size:   1rem;
+    --smaller-size: 0.8rem;
 
 
     /* transitions and animations */
     --cubic-transition: all 200ms cubic-bezier(0, 0.55, 0.45, 1);
-    --fade-in: fadeIn 200ms cubic-bezier(0, 0.55, 0.45, 1);
-    --fade-out: fadeOut 200ms cubic-bezier(0, 0.55, 0.45, 1);
+    --fade-in:          fadeIn 200ms cubic-bezier(0, 0.55, 0.45, 1);
+    --fade-out:         fadeOut 200ms cubic-bezier(0, 0.55, 0.45, 1);
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -122,7 +123,7 @@ a:hover {
 }
 
 figcaption a:link {
-    font-size: var(--small-size);
+    font-size: var(--smaller-size);
     color: var(--white);
 }
 
@@ -402,38 +403,38 @@ hr {
 }
 
 .note-content {
+    display: flex;
+    flex-direction: column;
     border-radius: 0 0 var(--unit-size) var(--unit-size);
-
-    height: max-content;
     padding: var(--small-size);
+}
+.note-content * {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .note-text {
     margin-bottom: var(--unit-size);
 }
 
-.note-attachments * {
-    display: flex;
-    max-width: 100%;
-}
+figure { margin: unset; max-width: 100%; max-height: border-box;}
+.note-content > .note-attachments {
+    display: grid;
+    grid-template-columns: repeat(2, fit-content(100%));
+    grid-template-rows: repeat(2, fit-content(100%));
 
-.note-attachments > figure {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
     border-radius: var(--unit-size);
     background-color: var(--translucent);
-    padding: var(--small-size);
-}
+    padding: var(--smaller-size);
 
-.note-attachments > figure * {
-    width: max-content;
-    height: auto;
+    align-self: flex-start;
+}
+.note-attachments:not(:only-child){
+    margin: 5px;
 }
 
 .note-attachments > figure figcaption {
     word-break: break-all;
-    padding-top: var(--small-size);
 }
 
 /* SECTIONS */
