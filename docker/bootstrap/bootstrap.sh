@@ -5,7 +5,9 @@
 
 . bootstrap.env
 
-sed -ri "s/%hostname%/${MAIL_DOMAIN}/" /etc/nginx/conf.d/challenge.conf
+# TODO: Add mail domain when implemented
+rm -f /etc/nginx/conf.d/default.conf
+sed -ri "s/%hostname%/${WEB_DOMAIN}/" /etc/nginx/conf.d/challenge.conf
 
 nginx
 
@@ -59,4 +61,5 @@ obtain_certificates () {
 }
 
 obtain_certificates "${WEB_DOMAIN}"
-obtain_certificates "${MAIL_DOMAIN}"
+#TODO: Uncomment when implemented (:
+#obtain_certificates "${MAIL_DOMAIN}"
