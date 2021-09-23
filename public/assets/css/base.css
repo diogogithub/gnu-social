@@ -779,6 +779,7 @@ input[type=file] {
 /* PROFILE */
 .profile {
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
 
     font-family: var(--main-font);
@@ -806,9 +807,7 @@ input[type=file] {
     margin-right: 5px;
 }
 .profile-info-stats {
-    margin-top: var(--unit-size);.content {
-        max-width: 100%;
-    }
+    margin-top: var(--unit-size);
 }
 
 .profile-avatar {
@@ -878,6 +877,9 @@ and (max-width: 1200px) {
     /* content should occupy the entire width at this size */
     .container {
         width: 100%;
+    }
+    .content {
+        max-width: 100%;
     }
 
     #panel-left-toggle:not(:checked) ~ .panel-content,

@@ -4,21 +4,11 @@
 {% set actor_bio = actor.getBio() %}
 
 {% block profile_view %}
-    <section title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
-        <a class='profile' href="{{ path('actor_view_nickname', {'nickname' : actor_nickname}) }}">
-            <img src='{{ actor_avatar }}' class="profile-avatar" alt="{{ actor_nickname }}{{ '\'s avatar.' | trans }}">
+    <section class='profile' title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
+        <a href="{{ path('actor_view_nickname', {'nickname' : actor_nickname}) }}">
             <div class="profile-info">
+                <img src='{{ actor_avatar }}' class="profile-avatar" alt="{{ actor_nickname }}{{ '\'s avatar.' | trans }}">
                 <strong id="profile-info-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
-
-                <nav class="profile-info-tags">
-                    {% if actor_tags %}
-                        {% for tag in actor_tags %}
-                            <a href='#'><em>#{{ tag }}</em></a>
-                        {% endfor %}
-                    {% else %}
-                        {{ '(No tags)' | trans }}
-                    {% endif %}
-                </nav>
 
                 <section class="profile-info-bio">
                     {% if actor_bio %}
@@ -27,13 +17,23 @@
                         <p>{{ '(No bio)' | trans }}</p>
                     {% endif %}
                 </section>
-
-                <section class="profile-info-stats">
-                    <div><strong>{{ 'Subscriptions' | trans }}</strong>{{ actor.getSubscriptionsCount() }}</div>
-                    <div><strong>{{ 'Subscribers' | trans }}</strong>{{ actor.getSubscribersCount() }}</div>
-                </section>
             </div>
         </a>
+
+        <section class="profile-info-stats">
+            <div><strong>{{ 'Subscriptions' | trans }}</strong>{{ actor.getSubscriptionsCount() }}</div>
+            <div><strong>{{ 'Subscribers' | trans }}</strong>{{ actor.getSubscribersCount() }}</div>
+        </section>
+
+        <nav class="profile-info-tags">
+            {% if actor_tags %}
+                {% for tag in actor_tags %}
+                    <a href='#'><em>#{{ tag }}</em></a>
+                {% endfor %}
+            {% else %}
+                {{ '(No tags)' | trans }}
+            {% endif %}
+        </nav>
     </section>
 
     <hr>
