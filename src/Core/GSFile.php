@@ -81,6 +81,7 @@ class GSFile
                     Event::handle('FileMetaAvailable', [&$event_map, $mimetype]);
                 }
                 // Always prefer specific encoders
+                /** @var array<callable(TemporaryFile|SymfonyFile &$file, string &$mimetype, int &$width, int &$height): bool> $encoders */
                 $encoders = array_merge($event_map[$mimetype], $event_map[$major_mime]);
                 foreach ($encoders as $encoder) {
                     // These are all I/O params
