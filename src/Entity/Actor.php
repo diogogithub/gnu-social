@@ -244,22 +244,22 @@ class Actor extends Entity
     public function getSelfTags(bool $_test_force_recompute = false): array
     {
         return Cache::get('selftags-' . $this->id,
-                          function () {
-                              return DB::findBy('actor_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
-                          }, beta: $_test_force_recompute ? INF : 1.0);
+                          fn () => DB::findBy('actor_tag', ['tagger' => $this->id, 'tagged' => $this->id]),
+                          beta: $_test_force_recompute ? INF : 1.0);
     }
 
     public function setSelfTags(array $tags, array $existing): void
     {
-        $tag_existing  = F\map($existing, function ($pt) { return $pt->getTag(); });
+        $tag_existing  = F\map($existing, fn ($pt) => $pt->getTag());
         $tag_to_add    = array_diff($tags, $tag_existing);
         $tag_to_remove = array_diff($tag_existing, $tags);
-        $pt_to_remove  = F\filter($existing, function ($pt) use ($tag_to_remove) { return in_array($pt->getTag(), $tag_to_remove); });
+        $pt_to_remove  = F\filter($existing, fn ($pt) => in_array($pt->getTag(), $tag_to_remove));
         foreach ($tag_to_add as $tag) {
             $pt = ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag]);
             DB::persist($pt);
         }
         foreach ($pt_to_remove as $pt) {
+            DB::persist($pt);
             DB::remove($pt);
         }
         Cache::delete('selftags-' . $this->id);
