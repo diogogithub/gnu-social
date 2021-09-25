@@ -26,7 +26,7 @@ html {
 :root {
     /* FONTS */
     --display-font: 'Poppins', sans-serif;
-    --main-font:    'Open Sans', sans-serif;
+    --main-font: 'Open Sans', sans-serif;
 
     /* UNITS
      * unit size      - every element should be a multiplier of this
@@ -34,20 +34,20 @@ html {
      * medium size    - same as above, except that the element in question is contained in something else
      * small size     - used in common text, borders
      */
-    --unit-size:    0.5rem;
-    --main-size:    1.5rem;
-    --medium-size:  1.2rem;
-    --small-size:   1rem;
+    --unit-size: 0.5rem;
+    --main-size: 1.5rem;
+    --medium-size: 1.2rem;
+    --small-size: 1rem;
     --smaller-size: 0.8rem;
 
 
     /* transitions and animations */
     --cubic-transition: all 200ms cubic-bezier(0, 0.55, 0.45, 1);
-    --fade-in:          fadeIn 200ms cubic-bezier(0, 0.55, 0.45, 1);
-    --fade-out:         fadeOut 200ms cubic-bezier(0, 0.55, 0.45, 1);
+    --fade-in: fadeIn 200ms cubic-bezier(0, 0.55, 0.45, 1);
+    --fade-out: fadeOut 200ms cubic-bezier(0, 0.55, 0.45, 1);
 }
 
-h1,h2,h3,h4,h5,h6 {
+h1, h2, h3, h4, h5, h6 {
     font-family: var(--display-font);
 }
 
@@ -184,9 +184,11 @@ hr {
     margin-left: auto;
     margin-right: auto;
 }
+
 #instance > * {
     margin: unset;
 }
+
 .icon {
     fill: var(--white);
     align-self: center;
@@ -202,7 +204,7 @@ hr {
     position: relative;
     top: 3rem;
 
-    width: 53vw;
+    width: 48vw;
     margin-left: auto;
     margin-right: auto;
 
@@ -268,41 +270,8 @@ hr {
     padding: var(--unit-size);
 }
 
-.h-entry {
-    margin-top: var(--unit-size);
-}
-
 .notes hr {
     margin-top: 5px;
-}
-
-.h-entry a:focus {
-    text-decoration: underline;
-}
-
-.h-entry .embed {
-    display: flex;
-    flex-direction: column;
-    padding: var(--unit-size);
-    border: unset;
-    width: max-content;
-}
-
-.h-entry .embed header img {
-    padding: unset;
-    max-width: inherit;
-}
-
-.h-entry,
-.note {
-    display: flex;
-    background-color: var(--translucent);
-    border-radius: var(--unit-size);
-    border: solid 2px var(--bg2);
-}
-.h-entry *,
-.note * {
-    font-family: var(--main-font);
 }
 
 .note-wrapper {
@@ -328,6 +297,44 @@ hr {
     background: unset;
     margin-bottom: var(--unit-size);
     border-radius: 2px;
+}
+
+.h-entry {
+    margin-top: var(--unit-size);
+}
+
+.h-entry .embed {
+    display: flex;
+    flex-direction: column;
+    padding: var(--smaller-size);
+    border: unset;
+    width: max-content;
+}
+
+.h-entry .embed[class*="p-"] {
+    padding: unset !important;
+}
+
+.h-entry a:focus {
+    text-decoration: underline;
+}
+
+.h-entry .embed header img {
+    padding: unset;
+    max-width: min-content;
+    max-height: min-content;
+}
+
+.h-entry {
+    display: flex;
+    background-color: var(--translucent);
+    border-radius: var(--unit-size);
+    border: solid 2px var(--bg2);
+}
+
+.h-entry figure {
+    margin: unset;
+    object-fit: cover;
 }
 
 .h-entry .replies .h-entry {
@@ -426,14 +433,10 @@ hr {
     margin-bottom: var(--unit-size);
 }
 
-figure {
-    margin: unset;
-    object-fit: cover;
-}
 .section-attachments {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    grid-template-rows: repeat(3, auto);
+    display: flex;
+    flex-wrap: wrap;
+    max-width: max-content;
 
     border-radius: var(--unit-size);
     background-color: var(--translucent);
@@ -443,12 +446,13 @@ figure {
 }
 
 .note-attachments:not(:only-child) {
-    margin: var(--small-size);
+    margin-right: var(--unit-size);
 }
+
 .note-attachments > figure figcaption {
     display: flex;
     word-break: break-all;
-    max-width: inherit;
+    margin-bottom: var(--unit-size);
 }
 
 /* SECTIONS */
@@ -607,6 +611,7 @@ input {
     border-radius: var(--unit-size);
     background-color: var(--translucent);
 }
+
 select,
 textarea {
     padding: 4px;
@@ -808,8 +813,9 @@ input[type=file] {
     border-radius: var(--unit-size);
     padding: var(--unit-size);
 }
+
 .profile > * {
-     flex: 1;
+    flex: 1;
 }
 
 .profile-info {
@@ -817,15 +823,19 @@ input[type=file] {
     flex-wrap: wrap;
     flex-direction: column;
 }
+
 .profile-info-nickname {
     font-size: var(--medium-size);
 }
+
 .profile-info-tags {
     margin: unset;
 }
+
 .profile-info-stats strong {
     margin-right: 5px;
 }
+
 .profile-info-stats {
     margin-top: var(--unit-size);
 }
@@ -864,13 +874,13 @@ input[type=file] {
 
 
 @media only screen
-and (min-width: 1800px) {
+and (min-width: 1281px) {
     .content {
         padding: var(--unit-size) var(--main-size) 0 var(--main-size);
     }
 
     .panel .panel-content {
-        width: 12vw;
+        width: 15vw;
     }
 
     a[id|="anchor"]:target + .accessibility-target {
@@ -881,24 +891,12 @@ and (min-width: 1800px) {
 }
 
 @media only screen
-and (min-width : 1200px) and (max-width : 1800px) {
-    .panel .panel-content {
-        width: 22vw;
-    }
-
-    a[id|="anchor"]:target + .accessibility-target {
-        animation-name: highlight;
-        animation-duration: 600ms;
-        animation-timing-function: ease-in-out;
-    }
-}
-
-@media only screen
-and (max-width: 1200px) {
+and (max-width: 1280px) {
     /* content should occupy the entire width at this size */
     .container {
         width: 100%;
     }
+
     .content {
         max-width: 100%;
     }
