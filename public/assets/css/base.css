@@ -5,11 +5,6 @@ html {
     scroll-margin-top: 3rem;
 }
 
-* {
-    max-width: 100%;
-    max-height: 100%;
-}
-
 *:focus {
     -webkit-box-shadow: inset 0 0 0 3px var(--bg3);
     -moz-box-shadow: inset 0 0 0 3px var(--bg3);
@@ -483,7 +478,6 @@ hr {
     margin-bottom: var(--medium-size);
 
     box-shadow: var(--shadow);
-
     color: var(--white);
 }
 
@@ -557,16 +551,17 @@ hr {
     font-size: var(--main-size);
 }
 
-.section-form-label {
-    margin-bottom: 1.62px;
-}
-
 .form-group {
     all: unset;
 
     display: flex;
     flex-direction: column;
     margin-bottom: 6px;
+}
+
+.form-group textarea {
+    height: 7rem;
+    max-height: 100%;
 }
 
 .help-block {
@@ -591,24 +586,6 @@ hr {
     padding: 2px 6px;
     margin-top: 6px;
     margin-bottom: 6px;
-}
-
-.section-form-options {
-    display: block !important;
-    margin-bottom: var(--unit-size);
-}
-
-.section-form-textarea {
-    border-radius: var(--unit-size);
-    background-color: var(--translucent);
-    color: var(--white);
-
-    width: 100%;
-    max-width: 100%;
-    height: calc(6 * var(--main-size));
-
-    border: 2px solid transparent;
-    resize: vertical;
 }
 
 /* PROFILE */

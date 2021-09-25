@@ -228,6 +228,8 @@ select,
 button,
 textarea,
 input {
+    display: inline-block;
+    overflow: hidden;
     font-size: inherit !important;
     color: var(--white);
 
