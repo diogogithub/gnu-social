@@ -233,16 +233,11 @@ input {
     font-size: inherit !important;
     color: var(--white);
 
-    padding: 2px 8px;
+    padding: 6px 8px;
     border: 2px solid var(--bg2);
     border-radius: var(--unit-size);
     background-color: var(--translucent);
     box-shadow: var(--shadow);
-}
-
-select,
-textarea {
-    padding: 4px;
 }
 
 button {
