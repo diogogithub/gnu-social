@@ -235,6 +235,7 @@ input {
     border: 2px solid var(--bg2);
     border-radius: var(--unit-size);
     background-color: var(--translucent);
+    box-shadow: var(--shadow);
 }
 
 select,
@@ -344,6 +345,7 @@ input[type=file] {
     background: var(--bg-button);
     border: 2px solid var(--bg2);
     border-radius: var(--unit-size);
+    box-shadow: var(--shadow);
 }
 
 /* button part of file selector */

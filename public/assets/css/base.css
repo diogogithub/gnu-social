@@ -27,7 +27,7 @@ html {
      * medium size    - same as above, except that the element in question is contained in something else
      * small size     - used in common text, borders
      */
-    --unit-size: 0.62rem;
+    --unit-size: 0.6rem;
     --main-size: 1.62rem;
     --medium-size: 1.3rem;
     --small-size: 1rem;
@@ -51,8 +51,8 @@ html {
         --translucent: #1A1A2666;
         --white: #FFFFFF;
 
-        --shadow: 0px 0px 32px 0px #00000066;
-        --shadow-light: 0px 0px 32px 0px #FFFFFF66;
+        --shadow: 0px 0px 16px 0px #00000016;
+        --shadow-light: 0px 0px 16px 0px #FFFFFF16;
     }
 
     .bg {
@@ -90,8 +90,8 @@ html {
         --translucent: #eceff488;
         --white: #2e3440;
 
-        --shadow: 0px 0px 32px 0px #00000066;
-        --shadow-light: 0px 0px 32px 0px #FFFFFF66;
+        --shadow: 0px 0px 16px 0px #00000016;
+        --shadow-light: 0px 0px 16px 0px #FFFFFF16;
     }
 
     .bg {
@@ -287,7 +287,7 @@ hr {
 }
 
 .notes hr {
-    margin-top: 6.2px;
+    margin-top: 6px;
 }
 
 .note-wrapper {
@@ -346,6 +346,7 @@ hr {
     background-color: var(--translucent);
     border-radius: var(--unit-size);
     border: solid 2px var(--bg2);
+    box-shadow: var(--shadow);
 }
 
 .h-entry figure {
@@ -370,7 +371,7 @@ hr {
 
     background: linear-gradient(to left, var(--translucent), transparent);
     font-size: var(--medium-size);
-    padding: 6.2px 10px 6.2px 0;
+    padding: 6px 10px 6px 0;
 }
 
 .note-author {
@@ -481,6 +482,8 @@ hr {
     border: solid 2px var(--bg2);
     margin-bottom: var(--medium-size);
 
+    box-shadow: var(--shadow);
+
     color: var(--white);
 }
 
@@ -502,8 +505,8 @@ hr {
     border: 2px solid var(--bg2);
     border-radius: var(--unit-size);
     background: var(--bg-button);
-    padding: 6.2px 10px;
-    margin-top: 6.2px;
+    padding: 6px 10px;
+    margin-top: 6px;
 
     cursor: pointer;
     float: right;
@@ -518,9 +521,10 @@ hr {
     font-weight: 700;
 
     border-radius: var(--unit-size);
-    padding: 6.2px 10px 6.2px 10px;
+    padding: 6px 10px 6px 10px;
 
     background-color: var(--translucent);
+    box-shadow: var(--shadow);
 }
 
 .section-title-details[open] svg {
@@ -562,17 +566,17 @@ hr {
 
     display: flex;
     flex-direction: column;
-    margin-bottom: 6.2px;
+    margin-bottom: 6px;
 }
 
 .help-block {
-    margin-bottom: 6.2px;
+    margin-bottom: 6px;
 }
 
 .help-text {
     font-style: italic;
     font-size: var(--small-size);
-    margin-bottom: 6.2px;
+    margin-bottom: 6px;
 }
 
 .help-block > .list-unstyled,
@@ -585,8 +589,8 @@ hr {
     border-radius: var(--unit-size);
 
     padding: 2px 6px;
-    margin-top: 5px;
-    margin-bottom: 10px;
+    margin-top: 6px;
+    margin-bottom: 6px;
 }
 
 .section-form-options {
@@ -618,6 +622,7 @@ hr {
     margin-bottom: var(--unit-size);
     border-radius: var(--unit-size);
     padding: var(--unit-size);
+    box-shadow: var(--shadow);
 }
 
 .profile > * {
