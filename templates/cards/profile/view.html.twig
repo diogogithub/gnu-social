@@ -8,7 +8,7 @@
         <a href="{{ path('actor_view_nickname', {'nickname' : actor_nickname}) }}">
             <div class="profile-info">
                 <img src='{{ actor_avatar }}' class="profile-avatar" alt="{{ actor_nickname }}{{ '\'s avatar.' | trans }}">
-                <strong id="profile-info-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
+                <strong class="profile-info-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
 
                 <section class="profile-info-bio">
                     {% if actor_bio %}

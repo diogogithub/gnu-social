@@ -602,10 +602,10 @@ hr {
     box-shadow: var(--shadow);
 }
 
-.profile > text {
+.profile *[class*="profile-info-"] {
     flex: 1;
-    filter: invert(1) !important;
-    mix-blend-mode: difference !important;
+    mix-blend-mode: difference;
+    filter: invert(1);
 }
 
 .profile-info {
