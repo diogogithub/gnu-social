@@ -396,8 +396,8 @@ hr {
 
     background-repeat: no-repeat !important;
 
-    width: var(--small-size) !important;
-    height: var(--small-size) !important;
+    width: 1em !important;
+    height: 1em !important;
 
     margin-left: var(--unit-size);
     text-indent: -9999em;
