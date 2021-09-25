@@ -4,7 +4,7 @@
 {% set actor_bio = actor.getBio() %}
 
 {% block profile_view %}
-    <section class='profile' title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
+    <section id='profile-{{ actor.id }}' class='profile' title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
         <a href="{{ path('actor_view_nickname', {'nickname' : actor_nickname}) }}">
             <div class="profile-info">
                 <img src='{{ actor_avatar }}' class="profile-avatar" alt="{{ actor_nickname }}{{ '\'s avatar.' | trans }}">
@@ -35,7 +35,7 @@
             {% endif %}
         </nav>
 
-        {% for block in handle_event('AppendCardProfile') %}
+        {% for block in handle_event('AppendCardProfile', {'actor': actor}) %}
             {{ block | raw }}
         {% endfor %}
     </section>

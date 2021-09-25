@@ -133,7 +133,7 @@ class Cover
             }
             $removeForm = $form2->createView();
         }
-        return ['_template' => 'cover/cover.html.twig', 'form' => $form->createView(), 'remove_form' => $removeForm];
+        return ['_template' => 'cover/cover.html.twig', 'cover' => $form->createView(), 'cover_remove_form' => $removeForm];
     }
 
     /**

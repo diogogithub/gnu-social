@@ -23,6 +23,7 @@ namespace Plugin\ProfileColor\Controller;
 
 use App\Core\DB\DB;
 use App\Core\Form;
+use App\Util\Exception\ServerException;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
@@ -39,51 +40,54 @@ use Symfony\Component\HttpFoundation\Request;
  * @category ProfileColor
  *
  * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @author    Eliseu Amaro <mail@eliseuama.ro>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ProfileColor
 {
+
     /**
-     * Add/change profile color
-     *
+     * Change Profile color background
      * @param Request $request
-     *
+     * @return array
      * @throws RedirectException
-     *
-     * @return array template
+     * @throws ServerException
      */
     public static function profileColorSettings(Request $request)
     {
-        $user     = Common::user();
-        $actor_id = $user->getId();
-        $pcolor   = DB::find('profile_color', ['actor_id' => $actor_id]);
-        $color    = '#000000';
-        if ($pcolor != null) {
-            $color = $pcolor;
-        }
+        $user       = Common::user();
+        $actor_id   = $user->getId();
+        $pcolor     = DB::findOneBy('profile_color', ['actor_id' => $actor_id]);
 
         $form = Form::create([
-            ['color',   ColorType::class,   ['data' => $color, 'label' => _m('Profile Color'), 'help' => _m('Choose your Profile Color')] ],
+            ['color',   ColorType::class, [
+                'html5' => true,
+                'data' => "#000000",
+                'label' => _m('Profile Color'),
+                'help' => _m('Choose your Profile Color')]
+            ],
             ['hidden', HiddenType::class, []],
             ['save_profile_color',   SubmitType::class, ['label' => _m('Submit')]],
         ]);
 
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
 
             if ($pcolor !== null) {
                 DB::remove($pcolor);
                 DB::flush();
             }
 
-            $pcolor = Entity\ProfileColor::create(['actor_id' => $actor_id, 'profile_color' => $data['color']]);
+            $data = $form->getData();
+            $pcolor = Entity\ProfileColor::create(['actor_id' => $actor_id, 'color' => $data['color']]);
             DB::persist($pcolor);
             DB::flush();
+
             throw new RedirectException();
         }
 
-        return ['_template' => 'profileColor/profileColorSettings.html.twig', 'form' => $form->createView()];
+        return ['_template' => 'profileColor/profileColorSettings.html.twig', 'profile_color' => $form->createView()];
     }
 }

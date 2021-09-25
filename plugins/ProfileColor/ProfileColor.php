@@ -25,6 +25,8 @@ use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Util\Common;
+use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Plugin\ProfileColor\Controller as C;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,10 +52,17 @@ class ProfileColor extends Plugin
      */
     public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect('settings_profile_color', 'settings/color', [Controller\ProfileColor::class, 'profilecolorsettings']);
+        $r->connect('settings_profile_color', 'settings/color', [Controller\ProfileColor::class, 'profileColorSettings']);
         return Event::next;
     }
 
+    /**
+     * @param Request $request
+     * @param $tabs
+     * @return bool
+     * @throws RedirectException
+     * @throws ServerException
+     */
     public function onPopulateProfileSettingsTabs(Request $request, &$tabs)
     {
         // TODO avatar template shouldn't be on settings folder
@@ -74,15 +83,15 @@ class ProfileColor extends Plugin
      * @param $res
      * @return bool
      */
-    public function onAppendCardProfile(&$res): bool
+    public function onAppendCardProfile($vars, &$res): bool
     {
-        $user     = Common::user();
-        if ($user !== null) {
-            $actor_id = $user->getId();
+        $actor     = $vars['actor'];
+        if ($actor !== null) {
+            $actor_id = $actor->getId();
 
             $color = DB::find('profile_color', ['actor_id' => $actor_id]);
             if ($color !== null) {
-                $res[] = Formatting::twigRenderFile('/profileColor/profileColorView.html.twig', ['profile' => $color]);
+                $res[] = Formatting::twigRenderFile('/profileColor/profileColorView.html.twig', ['profile_color' => $color, 'actor' => $actor_id]);
             }
         }
 
