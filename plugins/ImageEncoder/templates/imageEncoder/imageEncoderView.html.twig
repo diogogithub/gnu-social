@@ -1,7 +1,10 @@
 <figure>
+    {% set thumbnail = attachment.getThumbnail() %}
     <img class="u-photo"
          alt="{{ attachment.getBestTitle(note) }}"
-         src="{{ attachment.getThumbnailUrl() }}">
+         src="{{ attachment.getThumbnailUrl() }}"
+         width="{{ thumbnail.getWidth() }}"
+         height="{{ thumbnail.getHeight() }}">
     <figcaption><a
                 href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
     </figcaption>

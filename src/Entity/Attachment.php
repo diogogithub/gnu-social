@@ -30,6 +30,7 @@ use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
@@ -343,6 +344,21 @@ class Attachment extends Entity
     public function getUrl()
     {
         return Router::url('attachment_view', ['id' => $this->getId()]);
+    }
+
+    /**
+     * @param null|string $size
+     * @param bool        $crop
+     *
+     * @throws ClientException
+     * @throws NotFoundException
+     * @throws ServerException
+     *
+     * @return AttachmentThumbnail
+     */
+    public function getThumbnail(?string $size = null, bool $crop = false): AttachmentThumbnail
+    {
+        return AttachmentThumbnail::getOrCreate(attachment: $this, size: $size, crop: $crop);
     }
 
     public function getThumbnailUrl(?string $size = null)

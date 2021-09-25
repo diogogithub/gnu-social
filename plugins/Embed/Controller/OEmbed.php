@@ -44,7 +44,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @copyright 2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Embed extends Controller
+class OEmbed extends Controller
 {
     /**
      * Handle OEmbed server requests

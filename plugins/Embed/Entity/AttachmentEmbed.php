@@ -57,8 +57,6 @@ class AttachmentEmbed extends Entity
     private ?string $author_name;
     private ?string $author_url;
     private ?string $thumbnail_url;
-    private ?int $thumbnail_width;
-    private ?int $thumbnail_height;
     private \DateTimeInterface $modified;
 
     public function setLinkId(int $link_id): self
@@ -188,12 +186,13 @@ class AttachmentEmbed extends Entity
     {
         $attr       = ['class' => 'u-photo embed'];
         $attachment = DB::find('attachment', ['id' => $this->getAttachmentId()]);
+        $thumbnail  = $attachment->getThumbnail('medium');
         if (is_null($attachment) || is_null($attachment->getWidth()) || is_null($attachment->getHeight())) {
             $attr['has_attachment'] = false;
         } else {
             $attr['has_attachment'] = true;
-            $attr['width']          = $attachment->getWidth();
-            $attr['height']         = $attachment->getHeight();
+            $attr['width']          = $thumbnail->getWidth();
+            $attr['height']         = $thumbnail->getHeight();
         }
         return $attr;
     }

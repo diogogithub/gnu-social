@@ -65,6 +65,8 @@ class AttachmentThumbnail extends Entity
     private ?string $mimetype;
     private int $size = self::SIZE_SMALL;
     private string $filename;
+    private int $width;
+    private int $height;
     private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
@@ -120,6 +122,28 @@ class AttachmentThumbnail extends Entity
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
+    }
+
+    public function getWidth(): int
+    {
+        return $this->width;
+    }
+
+    public function setWidth(int $width): self
+    {
+        $this->width = $width;
+        return $this;
+    }
+
+    public function getHeight(): int
+    {
+        return $this->height;
+    }
+
+    public function setHeight(int $height): self
+    {
+        $this->height = $height;
+        return $this;
     }
 
     // @codeCoverageIgnoreEnd
@@ -199,6 +223,8 @@ class AttachmentThumbnail extends Entity
                     $filename = "{$predicted_width}x{$predicted_height}{$ext}-" . $attachment->getFilehash();
                     $thumbnail->setFilename($filename);
                     $thumbnail->setMimetype($mimetype);
+                    $thumbnail->setWidth($predicted_width);
+                    $thumbnail->setHeight($predicted_height);
                     DB::persist($thumbnail);
                     DB::flush();
                     $temp->move(Common::config('thumbnail', 'dir'), $filename);
@@ -326,6 +352,8 @@ class AttachmentThumbnail extends Entity
                 'mimetype'      => ['type' => 'varchar',   'length' => 129,  'description' => 'resource mime type 64+1+64, images hardly will show up with long mimetypes, this is probably safe considering rfc6838#section-4.2'],
                 'size'          => ['type' => 'int', 'not null' => true, 'default' => 0, 'description' => '0 = small; 1 = medium; 2 = big'],
                 'filename'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thumbnail filename'],
+                'width'         => ['type' => 'int', 'not null' => true,       'description' => 'width in pixels, if it can be described as such and data is available'],
+                'height'        => ['type' => 'int', 'not null' => true,       'description' => 'height in pixels, if it can be described as such and data is available'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['attachment_id', 'size'],

@@ -3,7 +3,7 @@
         {% if attributes['has_attachment'] != false %}
             {% set thumbnail_parameters = {
                 'id': embed.getAttachmentId(),
-                'size': 'small'
+                'size': 'medium'
             } %}
             <img alt="{{embed.getTitle() | escape}}" class="{{attributes['class']}}"
                  width="{{attributes['width']}}" height="{{attributes['height']}}"

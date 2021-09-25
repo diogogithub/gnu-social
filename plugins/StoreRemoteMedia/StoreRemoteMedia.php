@@ -178,7 +178,7 @@ class StoreRemoteMedia extends Plugin
             if (!$this->getStoreOriginal()) {
                 $thumbnail = AttachmentThumbnail::getOrCreate(
                     attachment: $attachment,
-                    size: 'small',
+                    size: 'medium',
                     crop: $this->getSmartCrop()
                 );
                 $attachment->deleteStorage();

@@ -118,8 +118,7 @@ class Embed extends Plugin
      */
     public function onAddRoute(RouteLoader $m): bool
     {
-        $m->connect('oembed', 'main/oembed', Controller\Embed::class);
-        $m->connect('embed', 'main/embed', Controller\Embed::class);
+        $m->connect('oembed', 'main/oembed', Controller\OEmbed::class);
         return Event::next;
     }
 
@@ -141,7 +140,7 @@ class Embed extends Plugin
                     'link' => [
                         'rel'   => 'alternate',
                         'type'  => "application/{$format}+oembed",
-                        'href'  => Router::url('embed', ['format' => $format, 'url' => $url]),
+                        'href'  => Router::url('oembed', ['format' => $format, 'url' => $url]),
                         'title' => 'oEmbed',
                     ], ];
             }
