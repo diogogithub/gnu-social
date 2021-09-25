@@ -21,7 +21,4 @@ and (min-width: 1281px) {
     #panel-right-icon {
         display: none;
     }
-    .panel-right > * {
-        margin-right: 11vw;
-    }
 }

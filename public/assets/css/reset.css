@@ -79,32 +79,34 @@ html {
     font-size: var(--small-size);
 }
 
-h1,h2,h3,h4,h5,h6 {
+h1, h2, h3, h4, h5, h6 {
     all: unset;
     display: block;
+    font-family: var(--display-font);
 }
 
 h1 {
     font-size: var(--main-size);
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 16.2px;
 }
 
 h2 {
     font-size: var(--medium-size);
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 13px;
 }
 
 h3 {
-    font-size: var(--medium-size);
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-h4, h5 {
     font-size: var(--small-size);
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+h4, h5 {
+    font-size: var(--small-size);
+    font-weight: 400;
+    margin-bottom: 6.1px;
 }
 
 p {
@@ -172,7 +174,6 @@ input:not([type=button], [type=color], [type=checkbox], [type=radio]) {
     cursor: auto !important;
 }
 
-/*noinspection CssInvalidPseudoSelector*/
 *|*::-moz-button-content {
     all: unset;
 }
@@ -215,4 +216,182 @@ input + label {
 
     border: unset;
     margin: 3px;
+}
+
+/* BUTTONS AND INPUT SHENANIGANS */
+label, button {
+    font-family: var(--display-font);
+    font-weight: bold !important;
+}
+
+select,
+button,
+textarea,
+input {
+    font-size: inherit !important;
+    color: var(--white);
+
+    padding: 2px 8px;
+    border: 2px solid var(--bg2);
+    border-radius: var(--unit-size);
+    background-color: var(--translucent);
+}
+
+select,
+textarea {
+    padding: 4px;
+}
+
+button {
+    background: var(--bg-button);
+    padding: 4px 12px;
+    margin-left: auto;
+}
+
+select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+
+    background-repeat: no-repeat;
+    background-size: 16px;
+    background-position: center right 5px;
+
+    color: var(--white) !important;
+    border: 2px solid var(--bg2);
+    border-radius: var(--unit-size);
+}
+
+input[type=radio] {
+    border: solid 0.25em var(--bg2) !important;
+    background-color: var(--bg1) !important;
+}
+
+input[type=checkbox] {
+    all: unset;
+
+    display: inline-block;
+    width: var(--medium-size);
+    height: var(--medium-size);
+    vertical-align: middle;
+
+    background-color: var(--bg2) !important;
+    background-size: cover;
+    margin-right: 2px;
+
+    -webkit-mask-image: url("../icons/check-off.svg") !important;
+    -o-mask-image: url("../icons/check-off.svg") !important;
+    -moz-mask-image: url("../icons/check-off.svg") !important;
+    mask-image: url("../icons/check-off.svg") !important;
+}
+
+input[type=color] {
+    border: unset;
+    padding: 2px;
+    width: 100%;
+    height: 3rem;
+}
+
+/* DISABLED STATE TEXT COLOR */
+:is(:disabled, :disabled:active)::file-selector-button,
+button:is(:disabled, :disabled:active),
+input:is([type=reset], [type=button], [type=submit]):is(:disabled, :disabled:active),
+select:is(:disabled, :disabled:active) > button {
+    color: var(--white) !important;
+}
+
+/* HOVER AND FOCUS */
+textarea:hover,
+textarea:focus,
+button:hover,
+button:focus,
+input:hover,
+input:focus,
+select:hover,
+select:focus {
+    color: var(--white) !important;
+    -webkit-box-shadow: inset 0px 0px 0px 2px var(--bg3) !important;
+    -moz-box-shadow: inset 0px 0px 0px 2px var(--bg3) !important;
+    box-shadow: inset 0px 0px 0px 2px var(--bg3) !important;
+}
+
+/* checkbox and radio */
+input[type=radio]:hover,
+input[type=radio]:focus,
+input[type=checkbox]:hover,
+input[type=checkbox]:focus {
+    color: var(--white) !important;
+    background-color: var(--bg3) !important;
+}
+
+input[type=radio]:checked {
+    background-color: var(--white) !important;
+}
+
+input[type=checkbox]:checked {
+    background-color: var(--bg3) !important;
+    -webkit-mask-image: url("../icons/check-on.svg") !important;
+    -o-mask-image: url("../icons/check-on.svg") !important;
+    -moz-mask-image: url("../icons/check-on.svg") !important;
+    mask-image: url("../icons/check-on.svg") !important;
+}
+
+/* file selector */
+input[type=file] {
+    font-family: var(--main-font) !important;
+    font-weight: normal !important;
+    padding: unset !important;
+
+    background: var(--bg-button);
+    border: 2px solid var(--bg2);
+    border-radius: var(--unit-size);
+}
+
+/* button part of file selector */
+::file-selector-button {
+    font-family: var(--main-font) !important;
+    font-weight: bold !important;
+    color: var(--white) !important;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    100% {
+        opacity: unset;
+        transform: none;
+    }
+}
+
+@keyframes fadeOut {
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    0% {
+        opacity: unset;
+        transform: none;
+    }
+}
+
+@keyframes highlight {
+    0% {
+        box-shadow: initial;
+        border-radius: var(--unit-size);
+    }
+
+    50% {
+        border-radius: var(--unit-size);
+        box-shadow: inset 0 20px 40px var(--white);
+        transition: box-shadow 0.3s ease-in-out;
+    }
+
+    100% {
+        box-shadow: initial;
+        border-radius: var(--unit-size);
+    }
 }

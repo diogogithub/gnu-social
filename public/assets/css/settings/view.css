@@ -7,15 +7,10 @@
     border: solid 2px var(--bg2);
 }
 
-.main-nav h1 {
-    margin-top: var(--unit-size);
-    margin-bottom: var(--unit-size);
-}
-
 .main-nav hr {
     all: unset;
     display: block;
-    height: 2px;
+    height: 1px;
     background-image: linear-gradient(to right, var(--bg2), transparent 90%);
     margin-top: var(--unit-size);
     margin-bottom: var(--unit-size);
