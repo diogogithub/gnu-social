@@ -25,6 +25,8 @@ use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Util\Common;
+use App\Util\Exception\DuplicateFoundException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
@@ -83,13 +85,18 @@ class ProfileColor extends Plugin
      * @param $res
      * @return bool
      */
-    public function onAppendCardProfile($vars, &$res): bool
+    public function onAppendCardProfile(&$res): bool
     {
-        $actor     = $vars['actor'];
+        $actor = Common::actor();
         if ($actor !== null) {
             $actor_id = $actor->getId();
 
-            $color = DB::find('profile_color', ['actor_id' => $actor_id]);
+            try {
+                $color = DB::findOneBy('profile_color', ['actor_id' => $actor_id]);
+            } catch (NotFoundException $e) {
+                return Event::next;
+            }
+
             if ($color !== null) {
                 $res[] = Formatting::twigRenderFile('/profileColor/profileColorView.html.twig', ['profile_color' => $color, 'actor' => $actor_id]);
             }

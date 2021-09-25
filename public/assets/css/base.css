@@ -659,6 +659,13 @@ input[type=checkbox] {
     mask-image: url("../icons/check-off.svg") !important;
 }
 
+input[type=color] {
+    border: unset;
+    padding: 2px;
+    width: 100%;
+    height: 3rem;
+}
+
 /* DISABLED STATE TEXT COLOR */
 :is(:disabled, :disabled:active)::file-selector-button,
 button:is(:disabled, :disabled:active),

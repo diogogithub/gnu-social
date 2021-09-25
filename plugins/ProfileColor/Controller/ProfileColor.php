@@ -23,6 +23,8 @@ namespace Plugin\ProfileColor\Controller;
 
 use App\Core\DB\DB;
 use App\Core\Form;
+use App\Util\Exception\DuplicateFoundException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use function App\Core\I18n\_m;
 use App\Util\Common;
@@ -56,14 +58,15 @@ class ProfileColor
      */
     public static function profileColorSettings(Request $request)
     {
-        $user       = Common::user();
-        $actor_id   = $user->getId();
-        $pcolor     = DB::findOneBy('profile_color', ['actor_id' => $actor_id]);
+        $actor       = Common::actor();
+        $actor_id   = $actor->getId();
+
+        $current_profile_color = DB::find('profile_color', ['actor_id' => $actor_id]);
 
         $form = Form::create([
             ['color',   ColorType::class, [
                 'html5' => true,
-                'data' => "#000000",
+                'data' => $current_profile_color ? $current_profile_color->getColor() : "#000000",
                 'label' => _m('Profile Color'),
                 'help' => _m('Choose your Profile Color')]
             ],
@@ -75,14 +78,14 @@ class ProfileColor
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            if ($pcolor !== null) {
-                DB::remove($pcolor);
+            if ($current_profile_color !== null) {
+                DB::remove($current_profile_color);
                 DB::flush();
             }
 
             $data = $form->getData();
-            $pcolor = Entity\ProfileColor::create(['actor_id' => $actor_id, 'color' => $data['color']]);
-            DB::persist($pcolor);
+            $current_profile_color  = Entity\ProfileColor::create(['actor_id' => $actor_id, 'color' => $data['color']]);
+            DB::persist($current_profile_color);
             DB::flush();
 
             throw new RedirectException();
