@@ -1,3 +1,8 @@
+{% block stylesheets %}
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/right/view.css') }}">
+{% endblock stylesheets %}
+
+{% block rightpanel %}
 <div class="panel panel-right">
     <input type="checkbox" id="panel-right-toggle" aria-hidden="true" tabindex="-1">
     <label id="panel-right-icon" for="panel-right-toggle" aria-hidden="true" tabindex="-1">{{ icon('notes', 'icon icon-right') | raw }}</label>
@@ -51,3 +56,4 @@
 
     </aside>
 </div>
+{% endblock rightpanel %}

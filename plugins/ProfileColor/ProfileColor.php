@@ -25,6 +25,7 @@ use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Util\Common;
+use App\Util\Formatting;
 use Plugin\ProfileColor\Controller as C;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -65,39 +66,26 @@ class ProfileColor extends Plugin
         return Event::next;
     }
 
-    /**
-     * Populate twig vars
-     *
-     * @param array $vars
-     *
-     * @return bool hook value; true means continue processing, false means stop.
-     *
-     * public function onStartTwigPopulateVars(array &$vars): bool
-     * {
-     * /*$vars['profile_tabs'][] = [
-     * 'title' => 'Color',
-     * 'desc'                         => 'Change your profile color.',
-     * 'path'                        => 'profilecolor/profilecolor.html.twig',
-     * ];
-     * if (Common::user() != null) {
-     * $color = DB::find('profile_color', ['actor_id' => Common::user()->getId()]);
-     * if ($color != null) {
-     * $vars['profile_extras'][] = ['name' => 'profilecolor', 'vars' => ['color' => $color->getColor()]];
-     * }
-     * }
-     * return Event::next;
-     * }*/
 
     /**
-     * Output our dedicated stylesheet
+     * Renders profileColorView, which changes the background color of that profile.
      *
-     * @param array $styles stylesheets path
-     *
-     * @return bool hook value; true means continue processing, false means stop.
+     * @param $vars
+     * @param $res
+     * @return bool
      */
-    public function onStartShowStyles(array &$styles): bool
+    public function onAppendCardProfile(&$res): bool
     {
-        $styles[] = 'profilecolor/profilecolor.css';
+        $user     = Common::user();
+        if ($user !== null) {
+            $actor_id = $user->getId();
+
+            $color = DB::find('profile_color', ['actor_id' => $actor_id]);
+            if ($color !== null) {
+                $res[] = Formatting::twigRenderFile('/profileColor/profileColorView.html.twig', ['profile' => $color]);
+            }
+        }
+
         return Event::next;
     }
 }

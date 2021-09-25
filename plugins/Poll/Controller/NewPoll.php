@@ -101,6 +101,6 @@ class NewPoll
             }
         }
 
-        return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
+        return ['_template' => 'poll/newpoll.html.twig', 'form' => $form->createView()];
     }
 }

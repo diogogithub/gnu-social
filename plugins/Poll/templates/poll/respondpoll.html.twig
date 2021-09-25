@@ -1,0 +1,18 @@
+{% extends 'stdgrid.html.twig' %}
+
+{% block title %}Poll{% endblock %}
+
+{% block body %}
+    <div class="content">
+        <div class="poll">
+            <p class="poll-question">Q. {{ question }}</p>
+            {% block form %}
+                <div class='form-single'>
+                    {{ form(form) }}
+                </div>
+            {% endblock form %}
+        </div>
+    </div>
+{% endblock body %}
+
+{% block javascripts %}{% endblock %}

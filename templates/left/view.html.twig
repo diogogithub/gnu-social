@@ -1,3 +1,8 @@
+{% block stylesheets %}
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/left/view.css') }}">
+{% endblock stylesheets %}
+
+{% block leftpanel %}
 <div class="panel panel-left">
     <input type="checkbox" id="panel-left-toggle" aria-hidden="true" tabindex="-1">
     <label id="panel-left-icon" for="panel-left-toggle" aria-hidden="true" tabindex="-1">{{ icon('menu', 'icon icon-left') | raw }}</label>
@@ -18,3 +23,4 @@
         {{ block("footer", "cards/navigation/view.html.twig") }}
     </aside>
 </div>
+{% endblock leftpanel %}

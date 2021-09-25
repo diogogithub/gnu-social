@@ -92,6 +92,6 @@ class AnswerPoll
             }
         }
 
-        return ['_template' => 'Poll/respondpoll.html.twig', 'question' => $question, 'form' => $form->createView()];
+        return ['_template' => 'poll/respondpoll.html.twig', 'question' => $question, 'form' => $form->createView()];
     }
 }

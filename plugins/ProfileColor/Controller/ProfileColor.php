@@ -60,7 +60,7 @@ class ProfileColor
         $pcolor   = DB::find('profile_color', ['actor_id' => $actor_id]);
         $color    = '#000000';
         if ($pcolor != null) {
-            $color = $pcolor->getColor();
+            $color = $pcolor;
         }
 
         $form = Form::create([
@@ -73,17 +73,17 @@ class ProfileColor
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            if ($pcolor != null) {
+            if ($pcolor !== null) {
                 DB::remove($pcolor);
                 DB::flush();
             }
 
-            $pcolor = Entity\ProfileColor::create(['actor_id' => $actor_id, 'color' => $data['color']]);
+            $pcolor = Entity\ProfileColor::create(['actor_id' => $actor_id, 'profile_color' => $data['color']]);
             DB::persist($pcolor);
             DB::flush();
             throw new RedirectException();
         }
 
-        return ['_template' => 'profilecolor/profilecolor.html.twig', 'form' => $form->createView()];
+        return ['_template' => 'profileColor/profileColorSettings.html.twig', 'form' => $form->createView()];
     }
 }

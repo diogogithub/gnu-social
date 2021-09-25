@@ -1,12 +1,15 @@
 {% extends '/base.html.twig' %}
+
 {% block stylesheets %}
     {{ parent() }}
-    {% include '/sidepanel/left/left_stylesheets.html.twig' %}
-    {% include '/sidepanel/right/right_stylesheets.html.twig' %}
+    {{ block("stylesheets", "/left/view.html.twig") }}
+    {{ block("stylesheets", "/right/view.html.twig") }}
 {% endblock %}
+
 {% block leftpanel %}
-    {% include '/sidepanel/left/left.html.twig' %}
+    {% include '/left/view.html.twig' %}
 {% endblock %}
+
 {% block rightpanel %}
-    {% include '/sidepanel/right/right.html.twig' %}
+    {% include '/right/view.html.twig' %}
 {% endblock %}

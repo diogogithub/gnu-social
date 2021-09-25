@@ -34,6 +34,10 @@
                 {{ '(No tags)' | trans }}
             {% endif %}
         </nav>
+
+        {% for block in handle_event('AppendCardProfile') %}
+            {{ block | raw }}
+        {% endfor %}
     </section>
 
     <hr>
