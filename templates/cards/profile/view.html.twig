@@ -35,7 +35,7 @@
             {% endif %}
         </nav>
 
-        {% for block in handle_event('AppendCardProfile') %}
+        {% for block in handle_event('AppendCardProfile', {'actor': actor}) %}
             {{ block | raw }}
         {% endfor %}
     </section>

@@ -85,9 +85,9 @@ class ProfileColor extends Plugin
      * @param $res
      * @return bool
      */
-    public function onAppendCardProfile(&$res): bool
+    public function onAppendCardProfile($vars, &$res): bool
     {
-        $actor = Common::actor();
+        $actor = $vars['actor'];
         if ($actor !== null) {
             $actor_id = $actor->getId();
 
