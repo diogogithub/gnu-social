@@ -605,7 +605,6 @@ hr {
 .profile *[class*="profile-info-"] {
     flex: 1;
     mix-blend-mode: difference;
-    filter: invert(1);
 }
 
 .profile-info {
