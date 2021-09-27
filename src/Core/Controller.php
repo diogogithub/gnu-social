@@ -51,8 +51,9 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  * @method int int(string $param)
  * @method bool bool(string $param)
  * @method string string(string $param)
+ * @method mixed handle(Request $request, mixed ...$extra)
  */
-class Controller extends AbstractController implements EventSubscriberInterface
+abstract class Controller extends AbstractController implements EventSubscriberInterface
 {
     private array $vars         = [];
     protected ?Request $request = null;
@@ -70,13 +71,13 @@ class Controller extends AbstractController implements EventSubscriberInterface
     public function __invoke(Request $request)
     {
         $this->request = $request;
-        $class         = get_called_class();
+        $class         = static::class;
         $method        = 'on' . ucfirst(strtolower($request->getMethod()));
-        $attributes    = array_diff_key($request->attributes->get('_route_params'), array_flip(['_format', '_fragment', '_locale', 'template', 'accept']));
+        $attributes    = array_diff_key($request->attributes->get('_route_params'), array_flip(['_format', '_fragment', '_locale', 'template', 'accept', 'is_system_path']));
         if (method_exists($class, $method)) {
-            return $class::$method($request, ...$attributes);
+            return $this->{$method}($request, ...$attributes);
         } else {
-            return $class::handle($request, ...$attributes);
+            return $this->handle($request, ...$attributes);
         }
     }
 
