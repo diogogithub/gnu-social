@@ -30,6 +30,9 @@ use App\Entity\Note;
 use App\Entity\NoteTag;
 use App\Util\Formatting;
 use App\Util\HTML;
+use Doctrine\Common\Collections\ExpressionBuilder;
+use Doctrine\ORM\Query\Expr;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Component responsible for extracting tags from posted notes, as well as normalizing them
@@ -85,5 +88,20 @@ class Tag extends Component
     public static function canonicalTag(string $tag): string
     {
         return substr(Formatting::slugify($tag), 0, self::MAX_TAG_LENGTH);
+    }
+
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, &$expr)
+    {
+        if (preg_match(self::TAG_REGEX, $term)) {
+            $expr = $eb->eq('note_tag.tag', $term);
+            return Event::stop;
+        } else {
+            return Event::next;
+        }
+    }
+
+    public function onSeachQueryAddJoins(QueryBuilder &$qb)
+    {
+        $qb->join('App\Entity\NoteTag', 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
     }
 }

@@ -1,0 +1,7 @@
+{% for res in results %}
+  {% if res is instanceof('App\\Entity\\Note') %}
+    {% include 'note/view.html.twig' with {'note': res} %}
+  {% else %}
+    {{ dump(res) }}
+  {% endif %}
+{% endfor %}

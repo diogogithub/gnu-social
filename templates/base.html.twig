@@ -77,6 +77,13 @@
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }} </h1>
         </a>
 
+        <div>
+          {% set extra = handle_event('AddHeaderElements', request) %}
+          {% for el in extra %}
+            {{ form(el) }}
+          {% endfor %}
+        </div>
+
         {% if app.user %}
             {{ block("rightpanel", "stdgrid.html.twig") }}
         {% endif %}
