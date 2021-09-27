@@ -167,14 +167,14 @@ class AttachmentThumbnail extends Entity
 
     /**
      * @param Attachment $attachment
-     * @param ?string    $size
+     * @param ?string    $size       'small'|'medium'|'big'
      * @param bool       $crop
      *
      * @throws ClientException
      * @throws NotFoundException
      * @throws ServerException
      *
-     * @return mixed
+     * @return ?self
      */
     public static function getOrCreate(Attachment $attachment, ?string $size = null, bool $crop = false): ?self
     {

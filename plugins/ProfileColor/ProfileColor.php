@@ -24,8 +24,6 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
-use App\Util\Common;
-use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
@@ -60,12 +58,14 @@ class ProfileColor extends Plugin
 
     /**
      * @param Request $request
-     * @param $tabs
-     * @return bool
+     * @param array   $tabs
+     *
      * @throws RedirectException
      * @throws ServerException
+     *
+     * @return bool
      */
-    public function onPopulateProfileSettingsTabs(Request $request, &$tabs)
+    public function onPopulateProfileSettingsTabs(Request $request, array &$tabs): bool
     {
         // TODO avatar template shouldn't be on settings folder
         $tabs[] = [
@@ -77,15 +77,15 @@ class ProfileColor extends Plugin
         return Event::next;
     }
 
-
     /**
      * Renders profileColorView, which changes the background color of that profile.
      *
-     * @param $vars
-     * @param $res
+     * @param array $vars
+     * @param array $res
+     *
      * @return bool
      */
-    public function onAppendCardProfile($vars, &$res): bool
+    public function onAppendCardProfile(array $vars, array &$res): bool
     {
         $actor = $vars['actor'];
         if ($actor !== null) {
