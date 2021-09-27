@@ -32,6 +32,7 @@ namespace App\Twig;
 
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use Twig\TwigTest;
 
 class Extension extends AbstractExtension
 {
@@ -39,6 +40,13 @@ class Extension extends AbstractExtension
     {
         return [
             // new TwigFilter('foo', [GSRuntime::class, 'foo']),
+        ];
+    }
+
+    public function getTests()
+    {
+        return [
+            new TwigTest('instanceof', [Runtime::class, 'isInstanceOf']),
         ];
     }
 
