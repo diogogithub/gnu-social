@@ -12,14 +12,14 @@
     </title>
 
     {% block stylesheets %}
-        <link rel="preload" href="{{ asset('assets/css/reset.css') }}" as="style" type="text/css">
-        <link rel="stylesheet" href="{{ asset('assets/css/reset.css') }}">
+        <link rel="preload" href="{{ asset('assets/default_theme/css/reset.css') }}" as="style" type="text/css">
+        <link rel="stylesheet" href="{{ asset('assets/default_theme/css/reset.css') }}">
 
-        <link rel="preload" href="{{ asset('assets/css/base.css') }}" as="style" type="text/css">
-        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}">
+        <link rel="preload" href="{{ asset('assets/default_theme/css/core/base.css') }}" as="style" type="text/css">
+        <link rel="stylesheet" href="{{ asset('assets/default_theme/css/core/base.css') }}">
 
         {% for stylesheet in show_stylesheets() %}
-            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/' ~ stylesheet) }}">
+            <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/' ~ stylesheet) }}">
         {% endfor %}
     {% endblock %}
 
@@ -33,8 +33,8 @@
 
 <body class="bg">
 
-<aside id="accessibility-menu">
-    <h2 id="accessibility-menu-title" tabindex="0">{{ 'Accessibility menu.' | trans }}</h2>
+<aside class="accessibility-menu">
+    <h2 class="accessibility-menu-title" tabindex="0">{{ 'Accessibility menu.' | trans }}</h2>
     <p tabindex="0">{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</p>
     <p tabindex="0">{{ 'Provided the following keyboard shortcut, the link is targeted.' | trans }}</p>
     <br>
@@ -67,22 +67,20 @@
 </aside>
 
 {% block header %}
-    <header id='header' role="banner">
+    <header>
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
-        <a role="navigation" id="anchor-main-page" class="anchor-hidden"
-           title="{{ 'Press tab to access selected region!' | trans }}"></a>
-        <a class="accessibility-target" id='instance' href="{{ path('main_public') }}" tabindex="0"
-           title="{{ 'This instance\'s name. Access public timeline.' | trans }}">
+        <a id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access instance\'s main page.' | trans }}"></a>
+        <a class="accessibility-target header-instance" href="{{ path('main_public') }}" tabindex="0" title="{{ 'This instance\'s name. Access public timeline.' | trans }}">
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }} </h1>
         </a>
 
-        <div>
+        <span>
           {% set extra = handle_event('AddHeaderElements', request) %}
           {% for el in extra %}
             {{ form(el) }}
           {% endfor %}
-        </div>
+        </span>
 
         {% if app.user %}
             {{ block("rightpanel", "stdgrid.html.twig") }}
@@ -90,9 +88,8 @@
     </header>
 {% endblock header %}
 
-<div class="container">
-    <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden"
-       title="{{ 'Press tab to access selected region!' | trans }}"></a>
+<div class="content-wrapper">
+    <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden" title="{{ 'Press tab to access main content.' | trans }}"></a>
     <div class='content accessibility-target'>
         {% block nav %}{% endblock %}
         {% block body %}{% endblock %}

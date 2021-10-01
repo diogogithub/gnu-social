@@ -1,0 +1,120 @@
+/* SECTIONS */
+.section-widget {
+    display: flex;
+    flex-direction: column;
+
+    background-color: var(--translucent);
+    border-radius: var(--unit-size);
+    border: solid 2px var(--bg2);
+    margin-bottom: var(--medium-size);
+
+    box-shadow: var(--shadow);
+    color: var(--white);
+}
+
+.section-widget hr {
+    margin-bottom: var(--unit-size);
+}
+
+.section-widget-padded {
+    padding: var(--unit-size);
+}
+
+.section-title {
+    font-size: var(--medium-size);
+    font-weight: 700;
+    margin: 0;
+}
+
+.section-widget-button-like {
+    border: 2px solid var(--bg2);
+    border-radius: var(--unit-size);
+    background: var(--bg-button);
+    padding: 6px 10px;
+    margin-top: 6px;
+
+    cursor: pointer;
+    float: right;
+    align-self: end;
+
+    font-family: var(--main-font);
+    font-weight: 700;
+}
+
+.section-title-details {
+    font-size: var(--medium-size);
+    font-weight: 700;
+
+    border-radius: var(--unit-size);
+    padding: 6px 10px 6px 10px;
+
+    background-color: var(--translucent);
+    box-shadow: var(--shadow);
+}
+
+.section-title-details[open] svg {
+    transform: rotate(180deg);
+    animation: var(--fade-out)
+}
+
+/* SECTION DETAILS CLOSED */
+.section-title-details:not([open]) svg {
+    transform: initial;
+    animation: var(--fade-in);
+}
+
+.section-title-summary {
+    display: flex;
+    justify-content: space-between;
+}
+
+.section-form {
+    display: flex;
+    flex-direction: column;
+    padding: var(--unit-size);
+}
+
+.section-form-legend {
+    margin-top: unset;
+    margin-bottom: 10px;
+
+    font-weight: bold;
+    font-size: var(--main-size);
+}
+
+.form-group {
+    all: unset;
+
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 6px;
+}
+
+.form-group textarea {
+    height: 7rem;
+    max-height: 100%;
+}
+
+.help-block {
+    margin-bottom: 6px;
+}
+
+.help-text {
+    font-style: italic;
+    font-size: var(--small-size);
+    margin-bottom: 6px;
+}
+
+.help-block > .list-unstyled,
+.alert,
+.alert-danger {
+    display: inline-block;
+
+    border: solid 2px #FF6347;
+    background-color: #FF634733;
+    border-radius: var(--unit-size);
+
+    padding: 2px 6px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
