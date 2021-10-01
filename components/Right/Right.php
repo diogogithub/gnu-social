@@ -19,8 +19,21 @@
 
 namespace Component\Right;
 
+use App\Core\Event;
 use App\Core\Modules\Component;
 
 class Right extends Component
 {
+    /**
+     * Output our dedicated stylesheet
+     *
+     * @param array $styles stylesheets path
+     *
+     * @return bool hook value; true means continue processing, false means stop.
+     */
+    public function onEndShowStyles(array &$styles): bool
+    {
+        $styles[] = 'components/Right/assets/css/right.css';
+        return Event::next;
+    }
 }

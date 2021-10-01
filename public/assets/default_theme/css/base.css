@@ -1,11 +1,10 @@
-@import url("../widgets/buttons.css");
-@import url("../widgets/sections.css");
+@import url("widgets/buttons.css");
+@import url("widgets/sections.css");
+@import url("widgets/feeds.css");
+@import url("widgets/settings.css");
 
-@import url("../../fonts/poppins/poppins.css");
-@import url("../../fonts/opensans/opensans.css");
-
-@import url("feed.css");
-@import url("settings.css");
+@import url("../fonts/poppins/poppins.css");
+@import url("../fonts/opensans/opensans.css");
 
 :root {
     /* FONTS */
@@ -46,7 +45,7 @@
 
     .bg {
         background-color: var(--bg1);
-        background-image: url("../../images/background_dark.png");
+        background-image: url("../images/background_dark.png");
     }
 
     body:after {
@@ -64,7 +63,7 @@
     }
 
     select {
-        background-image: url("../../images/select_drop_dark.png") !important;
+        background-image: url("../images/select_drop_dark.png") !important;
     }
 }
 
@@ -85,11 +84,11 @@
 
     .bg {
         background-color: var(--bg1);
-        background-image: url(../../images/background_light.png);
+        background-image: url(../images/background_light.png);
     }
 
     select {
-        background-image: url("../../images/select_drop_light.png") !important;
+        background-image: url("../images/select_drop_light.png") !important;
     }
 }
 
@@ -324,14 +323,57 @@ and (max-width: 1280px) {
         #panel-left-toggle:checked ~ .panel-content,
         #panel-right-toggle:checked ~ .panel-content,
         a[id|="anchor"]:target ~ .panel-content {
-            background-image: url(../../images/background_dark.png);
+            background-image: url(../images/background_dark.png);
         }
     }
     @media (prefers-color-scheme: light) {
         #panel-left-toggle:checked ~ .panel-content,
         #panel-right-toggle:checked ~ .panel-content,
         a[id|="anchor"]:target ~ .panel-content {
-            background-image: url(../../images/background_light.png);
+            background-image: url(../images/background_light.png);
         }
+    }
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    100% {
+        opacity: unset;
+        transform: none;
+    }
+}
+
+@keyframes fadeOut {
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    0% {
+        opacity: unset;
+        transform: none;
+    }
+}
+
+@keyframes highlight {
+    0% {
+        box-shadow: initial;
+        border-radius: var(--unit-size);
+    }
+
+    50% {
+        border-radius: var(--unit-size);
+        box-shadow: inset 0 20px 40px var(--white);
+        transition: box-shadow 0.3s ease-in-out;
+    }
+
+    100% {
+        box-shadow: initial;
+        border-radius: var(--unit-size);
     }
 }

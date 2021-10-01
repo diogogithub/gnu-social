@@ -85,8 +85,8 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
     public function getShowStylesheets()
     {
         $styles = [];
-        Event::handle('ShowStyles', [&$styles]);
-        return implode("\n", $styles);
+        Event::handle('EndShowStyles', [&$styles]);
+        return $styles;
     }
 
     /**

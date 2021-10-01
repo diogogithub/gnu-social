@@ -19,8 +19,21 @@
 
 namespace Component\Left;
 
+use App\Core\Event;
 use App\Core\Modules\Component;
 
 class Left extends Component
 {
+    /**
+     * Output our dedicated stylesheet
+     *
+     * @param array $styles stylesheets path
+     *
+     * @return bool hook value; true means continue processing, false means stop.
+     */
+    public function onEndShowStyles(array &$styles): bool
+    {
+        $styles[] = 'components/Left/assets/css/left.css';
+        return Event::next;
+    }
 }

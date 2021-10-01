@@ -94,7 +94,7 @@ class Cover extends Plugin
      */
     public function onStartShowStyles(array &$styles): bool
     {
-        $styles[] = 'cover/cover.css';
+        $styles[] = 'assets/css/cover.css';
         return Event::next;
     }
 }

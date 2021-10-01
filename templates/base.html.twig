@@ -15,11 +15,11 @@
         <link rel="preload" href="{{ asset('assets/default_theme/css/reset.css') }}" as="style" type="text/css">
         <link rel="stylesheet" href="{{ asset('assets/default_theme/css/reset.css') }}">
 
-        <link rel="preload" href="{{ asset('assets/default_theme/css/core/base.css') }}" as="style" type="text/css">
-        <link rel="stylesheet" href="{{ asset('assets/default_theme/css/core/base.css') }}">
+        <link rel="preload" href="{{ asset('assets/default_theme/css/base.css') }}" as="style" type="text/css">
+        <link rel="stylesheet" href="{{ asset('assets/default_theme/css/base.css') }}">
 
         {% for stylesheet in show_stylesheets() %}
-            <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/' ~ stylesheet) }}">
+            <link rel='stylesheet' type='text/css' href="{{ asset(stylesheet) }}">
         {% endfor %}
     {% endblock %}
 
