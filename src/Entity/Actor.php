@@ -220,24 +220,17 @@ class Actor extends Entity
         return Avatar::getAvatarUrl($this->getId(), $size);
     }
 
-    public static function getFromId(int $id): ?self
+    public static function getById(int $id): ?self
     {
         return Cache::get('actor-id-' . $id, function () use ($id) {
             return DB::find('actor', ['id' => $id]);
         });
     }
 
-    public static function getFromNickname(string $nickname): ?self
+    public static function getNicknameById(int $id): string
     {
-        return Cache::get('actor-nick-' . $nickname, function () use ($nickname) {
-            return DB::findOneBy('actor', ['nickname' => $nickname]);
-        });
-    }
-
-    public static function getNicknameFromId(int $id): string
-    {
-        return Cache::get('actor-nick-id-' . $id, function () use ($id) {
-            return self::getFromId($id)->getNickname();
+        return Cache::get('actor-nickname-id-' . $id, function () use ($id) {
+            return self::getById($id)->getNickname();
         });
     }
 

@@ -268,7 +268,7 @@ class Group extends Entity
 
     public function getActor(): Actor
     {
-        return Actor::getFromId($this->getId());
+        return Actor::getById($this->getId());
     }
 
     public static function getFromNickname(string $nickname, ?Actor $actor = null): ?self

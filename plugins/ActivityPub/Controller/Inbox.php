@@ -26,10 +26,10 @@ use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Util\Exception\ClientException;
 use Plugin\ActivityPub\ActivityPub;
-use Plugin\ActivityStreamsTwo\Util\Model\AS2ToEntity\AS2ToEntity;
-use Plugin\ActivityStreamsTwo\Util\Response\TypeResponse;
-use Plugin\ActivityStreamsTwo\Util\Type;
-use Plugin\ActivityStreamsTwo\Util\Type\Util;
+use Plugin\ActivityPub\Util\Model\AS2ToEntity\AS2ToEntity;
+use Plugin\ActivityPub\Util\Response\TypeResponse;
+use Plugin\ActivityPub\Util\Type;
+use Plugin\ActivityPub\Util\Type\Util;
 
 class Inbox extends Controller
 {
@@ -51,7 +51,7 @@ class Inbox extends Controller
             true
         );
 
-        // Check current actor can post
+        // TODO: Check if Actor can post
 
         // Get content
         $payload = Util::decodeJson(
@@ -60,12 +60,12 @@ class Inbox extends Controller
 
         // Cast as an ActivityStreams type
         $type = Type::create($payload);
-        dd(AS2ToEntity::translate(activity: $type->toArray()['object'], source: 'ActivityPub'));
 
-        // $http_signature = new HttpSignature($this->server);
-        // if ($http_signature->verify($request)) {
-        //     return new Response('', 201);
-        // }
+        // TODO: Check if Actor has authority over payload
+
+        // Store Activity
+        dd(AS2ToEntity::store(activity: $type->toArray(), source: 'ActivityPub'));
+        DB::flush();
 
         return new TypeResponse($type, status: 202);
     }

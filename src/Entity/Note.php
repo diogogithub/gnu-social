@@ -53,6 +53,7 @@ class Note extends Entity
     private ?int $conversation;
     private ?int $repeat_of;
     private int $scope = VisibilityScope::PUBLIC;
+    private string $url;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -185,6 +186,17 @@ class Note extends Entity
         return $this->scope;
     }
 
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+
     public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
@@ -212,12 +224,12 @@ class Note extends Entity
 
     public function getActor(): Actor
     {
-        return Actor::getFromId($this->actor_id);
+        return Actor::getById($this->actor_id);
     }
 
     public function getActorNickname(): string
     {
-        return Actor::getNicknameFromId($this->actor_id);
+        return Actor::getNicknameById($this->actor_id);
     }
 
     public function getActorAvatarUrl(string $size = 'full'): string
@@ -322,6 +334,7 @@ class Note extends Entity
                 'conversation' => ['type' => 'int',       'foreign key' => true, 'target' => 'Conversation.id', 'multiplicity' => 'one to one', 'description' => 'the local conversation id'],
                 'repeat_of'    => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'note this is a repeat of'],
                 'scope'        => ['type' => 'int',       'not null' => true, 'default' => VisibilityScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = followers; 16 = messages; null = default'],
+                'url'          => ['type' => 'text',      'description' => 'Permalink to Note'],
                 'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
