@@ -67,6 +67,8 @@
 </aside>
 
 {% block header %}
+    {% set extra_header_forms = handle_event('AddExtraHeaderForms', request) %}
+
     <header>
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
@@ -75,12 +77,14 @@
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }} </h1>
         </a>
 
-        <span>
-          {% set extra = handle_event('AddHeaderElements', request) %}
-          {% for el in extra %}
-            {{ form(el) }}
-          {% endfor %}
-        </span>
+        <details class="header-extra-forms">
+            <summary>
+              {{ icon('kebab', 'icon icon-details-open') | raw }}
+            </summary>
+            {% for extra_form in extra_header_forms %}
+                {{ form(extra_form) }}
+            {% endfor %}
+        </details>
 
         {% if app.user %}
             {{ block("rightpanel", "stdgrid.html.twig") }}

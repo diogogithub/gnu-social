@@ -38,7 +38,7 @@
                 {% if note.getAttachments() is not empty %}
                     <section class="section-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
                         {% for attachment in note.getAttachments() %}
-                            {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
+                            {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
                         {% endfor %}
                     </section>
                 {% endif %}

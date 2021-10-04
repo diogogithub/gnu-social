@@ -85,7 +85,7 @@ class Attachment extends Controller
             $attachment = DB::findOneBy('attachment', ['id' => $id]);
             return $this->attachment($id, function ($res) use ($id, $attachment) {
                 return [
-                    '_template'        => 'attachments/show.html.twig',
+                    '_template'        => '/cards/attachments/show.html.twig',
                     'download'         => Router::url('attachment_download', ['id' => $id]),
                     'attachment'       => $attachment,
                     'right_panel_vars' => ['attachment_id' => $id],

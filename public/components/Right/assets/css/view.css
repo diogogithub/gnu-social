@@ -12,6 +12,7 @@
     border: 2px solid var(--white);
 }
 #panel-right-icon {
+    margin-left: var(--unit-size);
     cursor: pointer !important;
     border: 2px solid transparent;
 }

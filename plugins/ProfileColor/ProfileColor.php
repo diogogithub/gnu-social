@@ -38,6 +38,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @category ProfileColor
  *
  * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @author    Eliseu Amaro  <mail@eliseuama.ro>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */

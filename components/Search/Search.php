@@ -28,6 +28,7 @@ use App\Util\Exception\RedirectException;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 class Search extends Component
 {
@@ -39,11 +40,21 @@ class Search extends Component
     /**
      * Add the search form to the site header
      */
-    public function onAddHeaderElements(Request $request, array &$elements)
+    public function onAddExtraHeaderForms(Request $request, array &$elements)
     {
         $form = Form::create([
-            ['query', TextType::class, []],
-            [$form_name = 'submit_search', SubmitType::class, []],
+            ['query', TextType::class, [
+                'attr' => ['placeholder' => _m('Search tags...')]
+            ]],
+            [$form_name = 'submit_search', SubmitType::class,
+                [
+                    'label' => _m('Submit'),
+                    'attr'  => [
+                        //'class' => 'button-container search-button-container',
+                        'title' => _m('Query notes for specific tags.'),
+                    ],
+                ],
+            ],
         ]);
 
         if ('POST' === $request->getMethod() && $request->request->has($form_name)) {
@@ -55,6 +66,19 @@ class Search extends Component
         }
 
         $elements[] = $form->createView();
+        return Event::next;
+    }
+
+    /**
+     * Output our dedicated stylesheet
+     *
+     * @param array $styles stylesheets path
+     *
+     * @return bool hook value; true means continue processing, false means stop.
+     */
+    public function onEndShowStyles(array &$styles): bool
+    {
+        $styles[] = 'components/Search/assets/css/view.css';
         return Event::next;
     }
 }

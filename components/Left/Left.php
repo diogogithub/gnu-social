@@ -33,7 +33,7 @@ class Left extends Component
      */
     public function onEndShowStyles(array &$styles): bool
     {
-        $styles[] = 'components/Left/assets/css/left.css';
+        $styles[] = 'components/Left/assets/css/view.css';
         return Event::next;
     }
 }

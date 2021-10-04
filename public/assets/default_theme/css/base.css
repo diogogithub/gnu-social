@@ -1,7 +1,7 @@
 @import url("widgets/buttons.css");
 @import url("widgets/sections.css");
-@import url("widgets/feeds.css");
-@import url("widgets/settings.css");
+@import url("pages/feeds.css");
+@import url("pages/settings.css");
 
 @import url("../fonts/poppins/poppins.css");
 @import url("../fonts/opensans/opensans.css");
@@ -155,6 +155,7 @@ header {
 
     height: 3rem;
     display: flex;
+    justify-content: center;
     position: fixed;
     top: 0;
     background-color: var(--bg1);
@@ -169,13 +170,31 @@ header {
 .header-instance {
     display: flex;
     align-items: center;
-
+    align-self: center;
     margin-left: auto;
-    margin-right: auto;
 }
 
 .header-instance > * {
     margin: unset;
+}
+
+.header-extra-forms {
+    justify-self: flex-end;
+    margin-left: auto;
+}
+
+.header-extra-forms[open] > *:not(summary) {
+    z-index: 2;
+    width: 19vw;
+    background-color: var(--bg1);
+    padding: var(--unit-size);
+    border-radius: 0 0 var(--unit-size) var(--unit-size);
+    box-shadow: var(--shadow);
+
+    font-size: var(--small-size);
+    position: absolute;
+    top: 100%;
+    right: 0;
 }
 
 /* CONTAINS ALL ELEMENTS BESIDES HEADER */
@@ -301,6 +320,10 @@ and (max-width: 1280px) {
 
     .content {
         max-width: 100%;
+    }
+
+    .header-extra-forms[open] > *:not(summary) {
+        width: 100%;
     }
 
     #panel-left-toggle:not(:checked) ~ .panel-content,

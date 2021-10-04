@@ -47,6 +47,6 @@ class Note extends Controller
      */
     public function NoteShow(Request $request, int $id)
     {
-        return $this->note($id, fn ($note) => ['_template' => 'note/view.html.twig', 'note' => $note]);
+        return $this->note($id, fn ($note) => ['_template' => '/cards/note/view.html.twig', 'note' => $note]);
     }
 }

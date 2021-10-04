@@ -4,6 +4,6 @@
     </div>
 
     {% for note in related_notes %}
-        {% include '/note/view.html.twig' with {'note' : note, 'hide_attachments': true, 'have_user': have_user} only %}
+        {% include '/cards/note/view.html.twig' with {'note' : note, 'hide_attachments': true, 'have_user': have_user} only %}
     {% endfor %}
 </section>

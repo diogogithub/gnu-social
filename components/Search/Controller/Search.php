@@ -42,7 +42,7 @@ class Search extends Controller
         $results = $query->execute();
 
         return [
-            '_template' => 'search_results.html.twig',
+            '_template' => 'search/show.html.twig',
             'results'   => $results,
         ];
     }
