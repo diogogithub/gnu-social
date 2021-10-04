@@ -143,6 +143,14 @@
     mask-image: url("../../icons/repeat.svg") !important;
 }
 
+.delete-button-container {
+    -webkit-mask-image: url("../../icons/delete.svg") !important;
+    -o-mask-image: url("../../icons/delete.svg") !important;
+    -moz-mask-image: url("../../icons/delete.svg") !important;
+    mask-image: url("../../icons/delete.svg") !important;
+    background: #FF634766 !important;
+}
+
 .note-actions-unset {
     background: var(--bg2) !important;
 }
