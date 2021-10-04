@@ -36,7 +36,7 @@
     flex-direction: column;
     padding: var(--unit-size);
     border: unset;
-    width: max-content;
+    width: 100%;
 }
 
 .h-entry .embed[class*="p-"] {
