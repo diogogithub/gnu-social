@@ -7,10 +7,7 @@
     position: absolute;
     top: -100%;
 }
-#panel-right-toggle:focus + * {
-    border-radius: 4px;
-    border: 2px solid var(--white);
-}
+
 #panel-right-icon {
     margin-left: var(--unit-size);
     cursor: pointer !important;

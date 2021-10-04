@@ -7,10 +7,7 @@
     position: absolute;
     top: -100%;
 }
-#panel-left-toggle:focus + * {
-    border-radius: 4px;
-    border: 2px solid var(--white);
-}
+
 #panel-left-icon {
     cursor: pointer !important;
     border: 2px solid transparent;
