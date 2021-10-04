@@ -148,7 +148,7 @@ hr {all: unset;display: block;height: 1px;background: var(--bg2);}
 }
 
 /* HEADER AND INSTANCE NAME */
-header {
+#header {
     z-index: 1;
     font-family: var(--display-font);
     font-size: var(--main-size);

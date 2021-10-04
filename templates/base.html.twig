@@ -69,7 +69,7 @@
 {% block header %}
     {% set extra_header_forms = handle_event('AddExtraHeaderForms', request) %}
 
-    <header>
+    <header id="header">
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
         <a id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access instance\'s main page.' | trans }}"></a>

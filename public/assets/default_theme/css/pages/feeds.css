@@ -34,7 +34,7 @@
 .h-entry .embed {
     display: flex;
     flex-direction: column;
-    padding: var(--smaller-size);
+    padding: var(--unit-size);
     border: unset;
     width: max-content;
 }
