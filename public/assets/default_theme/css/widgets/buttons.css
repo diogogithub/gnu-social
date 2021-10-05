@@ -2,12 +2,18 @@ input {
     all: unset;
 }
 input + label {
+    -webkit-align-self: center;
+    -ms-flex-item-align: center;
+    -ms-grid-row-align: center;
     align-self: center;
 }
 button {
     cursor: pointer !important;
     float: right !important;
-    align-self: end !important
+    -webkit-align-self: end !important;
+    -ms-flex-item-align: end !important;
+    -ms-grid-row-align: end !important;
+    align-self: end !important;
 }
 *|*::-moz-button-content {
     all: unset !important;
@@ -25,6 +31,8 @@ input[type=radio]:not(:hover, :focus) {
     opacity: 75%;
 }
 input[type=radio] {
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
     border-radius: 50% !important;
     margin: 3px 3px 0 5px !important;
 }
@@ -32,69 +40,108 @@ input[type=file] {
     all: unset;
     display: block;
     width: 100%;
-    border-radius: 0.6rem !important
+    -webkit-border-radius: 0.6rem !important;
+    -moz-border-radius: 0.6rem !important;
+    border-radius: 0.6rem !important;
+}
+::-webkit-file-upload-button {
+    cursor: pointer;
+    background-color: unset;
+    border: unset;
+    margin: 3px;
 }
 ::file-selector-button {
     cursor: pointer;
     background-color: unset;
     border: unset;
-    margin: 3px
+    margin: 3px;
 }
-label,
-button {
-    font-family: 'Poppins', sans-serif;
-    font-weight: bold !important
+::file-selector-button {
+    cursor: pointer;
+    background-color: unset;
+    border: unset;
+    margin: 3px;
 }
-select,
 button,
-textarea,
-input:not([type=radio], [type=checkbox]) {
+label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: bold !important;
+    color: currentColor;
+}
+button,
+input,
+select,
+textarea {
+    display: -webkit-inline-box !important;
+    display: -webkit-inline-flex !important;
+    display: -ms-inline-flexbox !important;
+    display: -moz-inline-box !important;
     display: inline-flex !important;
     overflow: hidden;
     font-size: inherit !important;
     padding: 6px 8px !important;
-    border-radius: 0.6rem
+    -webkit-border-radius: 0.6rem;
+    -moz-border-radius: 0.6rem;
+    border-radius: 0.6rem;
 }
 select {
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
     cursor: pointer;
     background-repeat: no-repeat;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px;
+    -o-background-size: 16px;
     background-size: 16px;
     background-position: center right 5px;
-    border-radius: 0.6rem
+    -webkit-border-radius: 0.6rem;
+    -moz-border-radius: 0.6rem;
+    border-radius: 0.6rem;
 }
 input[type=radio] {
-    border: solid 0.25em !important
+    border: solid 0.25em !important;
 }
 input[type=checkbox] {
     vertical-align: middle;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
     background-size: cover;
     margin-right: 2px;
     -webkit-mask-image: url("../../icons/check-off.svg") !important;
     -o-mask-image: url("../../icons/check-off.svg") !important;
     -moz-mask-image: url("../../icons/check-off.svg") !important;
-    mask-image: url("../../icons/check-off.svg") !important
+    mask-image: url("../../icons/check-off.svg") !important;
 }
 input[type=color] {
     border: unset;
     padding: 2px;
     width: 100%;
-    height: 3rem
+    height: 3rem;
 }
 input[type=checkbox]:checked {
     -webkit-mask-image: url("../../icons/check-on.svg") !important;
     -o-mask-image: url("../../icons/check-on.svg") !important;
     -moz-mask-image: url("../../icons/check-on.svg") !important;
-    mask-image: url("../../icons/check-on.svg") !important
+    mask-image: url("../../icons/check-on.svg") !important;
 }
 input[type=file] {
     font-family: 'Open Sans', sans-serif !important;
     font-weight: normal !important;
     padding: unset !important;
-    border-radius: 0.6rem
+    -webkit-border-radius: 0.6rem;
+    -moz-border-radius: 0.6rem;
+    border-radius: 0.6rem;
+}
+::-webkit-file-upload-button {
+    font-family: 'Open Sans', sans-serif !important;
+    font-weight: bold !important;
 }
 ::file-selector-button {
     font-family: 'Open Sans', sans-serif !important;
-    font-weight: bold !important
+    font-weight: bold !important;
+}
+::file-selector-button {
+    font-family: 'Open Sans', sans-serif !important;
+    font-weight: bold !important;
 }

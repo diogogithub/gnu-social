@@ -2,6 +2,12 @@
 
 {% block title %}{% if page_title is defined %}{{ page_title | trans }}{% endif %}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="preload" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" as="style" type="text/css">
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}">
+{% endblock stylesheets %}
+
 {% block body %}
     {# Backwards compatibility with hAtom 0.1 #}
     <main class="timeline" tabindex="0" role="feed">
