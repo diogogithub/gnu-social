@@ -31,7 +31,7 @@ class AttachmentShowRelated extends Plugin
 {
     public function onAppendRightPanelBlock($vars, &$res): bool
     {
-        if ($vars['path'] == 'attachment_show') {
+        if ($vars['path'] === 'attachment_show') {
             $related_notes = DB::dql('select n from attachment_to_note an ' .
         'join note n with n.id = an.note_id ' .
         'where an.attachment_id = :attachment_id', ['attachment_id' => $vars['vars']['attachment_id']]);
@@ -40,6 +40,21 @@ class AttachmentShowRelated extends Plugin
         'where an.attachment_id = :attachment_id', ['attachment_id' => $vars['vars']['attachment_id']]);
             $res[] = Formatting::twigRenderFile('attachmentShowRelated/attachmentRelatedNotes.html.twig', ['related_notes' => $related_notes, 'have_user' => Common::user() !== null]);
             $res[] = Formatting::twigRenderFile('attachmentShowRelated/attachmentRelatedTags.html.twig', ['related_tags' => $related_tags]);
+        }
+        return Event::next;
+    }
+
+    /**
+     * Output our dedicated stylesheet
+     *
+     * @param array $styles stylesheets path
+     *
+     * @return bool hook value; true means continue processing, false means stop.
+     */
+    public function onEndShowStyles(array &$styles, string $path): bool
+    {
+        if ($path === 'attachment_show') {
+            $styles[] = '/assets/default_theme/css/pages/feeds.css';
         }
         return Event::next;
     }

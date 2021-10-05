@@ -15,7 +15,7 @@
         <link rel="preload" href="{{ asset('assets/default_theme/css/base.css') }}" as="style" type="text/css">
         <link rel="stylesheet" href="{{ asset('assets/default_theme/css/base.css') }}">
 
-        {% for stylesheet in show_stylesheets() %}
+        {% for stylesheet in show_stylesheets(app.request.get('_route')) %}
             <link rel='stylesheet' type='text/css' href="{{ asset(stylesheet) }}">
         {% endfor %}
     {% endblock %}

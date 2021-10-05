@@ -82,10 +82,10 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
      * @return array|mixed
      * @codeCoverageIgnore
      */
-    public function getShowStylesheets()
+    public function getShowStylesheets($route)
     {
         $styles = [];
-        Event::handle('EndShowStyles', [&$styles]);
+        Event::handle('EndShowStyles', [&$styles, $route]);
         return $styles;
     }
 

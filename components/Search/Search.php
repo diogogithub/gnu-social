@@ -76,7 +76,7 @@ class Search extends Component
      *
      * @return bool hook value; true means continue processing, false means stop.
      */
-    public function onEndShowStyles(array &$styles): bool
+    public function onEndShowStyles(array &$styles, string $route): bool
     {
         $styles[] = 'components/Search/assets/css/view.css';
         return Event::next;
