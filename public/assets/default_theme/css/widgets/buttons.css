@@ -1,80 +1,65 @@
-/* BUTTONS AND FILEPICKER */
 button {
     cursor: pointer !important;
     float: right !important;
-    align-self: end !important;
+    align-self: end !important
 }
-
 input {
-    cursor: text !important;
+    cursor: text !important
 }
-
 button,
 input {
     all: unset;
-    padding: 5px 10px;
+    padding: 5px 10px
 }
-
 button,
 select,
 input:not([type=text]) {
-    cursor: pointer !important;
+    cursor: pointer !important
 }
-
-input:not([type=button], [type=color], [type=checkbox], [type=radio]) {
-    cursor: auto !important;
+input:not([type=button],
+[type=color],
+[type=checkbox],
+[type=radio]) {
+    cursor: auto !important
 }
-
 *|*::-moz-button-content {
-    all: unset;
+    all: unset
 }
-
 input[type=checkbox] {
     display: inline-flex;
     width: 1em;
-    height: 1em;
+    height: 1em
 }
-
 input[type=radio] {
     all: unset;
     cursor: pointer !important;
-
     display: inline-block;
     width: 1em;
     height: 1em;
     border-radius: 50%;
-    margin: 3px 3px 0 5px;
+    margin: 3px 3px 0 5px
 }
-
-/* file selector */
 input[type=file] {
     all: unset;
     display: block;
     width: 100%;
-    border-radius: var(--unit-size) !important;
+    border-radius: 0.6rem !important
 }
-
-input + label {
+input+label {
     all: unset;
-    align-self: center;
+    align-self: center
 }
-
-/* button part of file selector */
 ::file-selector-button {
     cursor: pointer;
-
     background-color: unset;
-
     border: unset;
-    margin: 3px;
+    margin: 3px
 }
-
-/* BUTTONS AND INPUT SHENANIGANS */
-label, button {
-    font-family: var(--display-font);
-    font-weight: bold !important;
+label,
+button {
+    font-family: 'Poppins', sans-serif;
+    font-weight: bold !important
 }
-
 select,
 button,
 textarea,
@@ -82,123 +67,56 @@ input {
     display: inline-block;
     overflow: hidden;
     font-size: inherit !important;
-    color: var(--white);
-
     padding: 6px 8px;
-    border: 2px solid var(--bg2);
-    border-radius: var(--unit-size);
-    background-color: var(--translucent);
-    box-shadow: var(--shadow);
+    border-radius: 0.6rem
 }
-
 button {
-    background: var(--bg-button);
     padding: 4px 12px;
-    margin-left: auto;
+    margin-left: auto
 }
-
 select {
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-
     background-repeat: no-repeat;
     background-size: 16px;
     background-position: center right 5px;
-
-    color: var(--white) !important;
-    border: 2px solid var(--bg2);
-    border-radius: var(--unit-size);
+    border-radius: 0.6rem
 }
-
 input[type=radio] {
-    border: solid 0.25em var(--bg2) !important;
-    background-color: var(--bg1) !important;
+    border: solid 0.25em !important
 }
-
 input[type=checkbox] {
     all: unset;
-
     display: inline-block;
-    width: var(--medium-size);
-    height: var(--medium-size);
+    width: 1.3rem;
+    height: 1.3rem;
     vertical-align: middle;
-
-    background-color: var(--bg2) !important;
     background-size: cover;
     margin-right: 2px;
-
     -webkit-mask-image: url("../../icons/check-off.svg") !important;
     -o-mask-image: url("../../icons/check-off.svg") !important;
     -moz-mask-image: url("../../icons/check-off.svg") !important;
-    mask-image: url("../../icons/check-off.svg") !important;
+    mask-image: url("../../icons/check-off.svg") !important
 }
-
 input[type=color] {
     border: unset;
     padding: 2px;
     width: 100%;
-    height: 3rem;
+    height: 3rem
 }
-
-/* DISABLED STATE TEXT COLOR */
-:is(:disabled, :disabled:active)::file-selector-button,
-button:is(:disabled, :disabled:active),
-input:is([type=reset], [type=button], [type=submit]):is(:disabled, :disabled:active),
-select:is(:disabled, :disabled:active) > button {
-    color: var(--white) !important;
-}
-
-/* HOVER AND FOCUS */
-textarea:hover,
-textarea:focus,
-button:hover,
-button:focus,
-input:hover,
-input:focus,
-select:hover,
-select:focus {
-    color: var(--white) !important;
-    -webkit-box-shadow: inset 0px 0px 0px 2px var(--bg3) !important;
-    -moz-box-shadow: inset 0px 0px 0px 2px var(--bg3) !important;
-    box-shadow: inset 0px 0px 0px 2px var(--bg3) !important;
-}
-
-/* checkbox and radio */
-input[type=radio]:hover,
-input[type=radio]:focus,
-input[type=checkbox]:hover,
-input[type=checkbox]:focus {
-    color: var(--white) !important;
-    background-color: var(--bg3) !important;
-}
-
-input[type=radio]:checked {
-    background-color: var(--white) !important;
-}
-
 input[type=checkbox]:checked {
-    background-color: var(--bg3) !important;
     -webkit-mask-image: url("../../icons/check-on.svg") !important;
     -o-mask-image: url("../../icons/check-on.svg") !important;
     -moz-mask-image: url("../../icons/check-on.svg") !important;
-    mask-image: url("../../icons/check-on.svg") !important;
+    mask-image: url("../../icons/check-on.svg") !important
 }
-
-/* file selector */
 input[type=file] {
-    font-family: var(--main-font) !important;
+    font-family: 'Open Sans', sans-serif !important;
     font-weight: normal !important;
     padding: unset !important;
-
-    background: var(--bg-button);
-    border: 2px solid var(--bg2);
-    border-radius: var(--unit-size);
-    box-shadow: var(--shadow);
+    border-radius: 0.6rem
 }
-
-/* button part of file selector */
 ::file-selector-button {
-    font-family: var(--main-font) !important;
-    font-weight: bold !important;
-    color: var(--white) !important;
+    font-family: 'Open Sans', sans-serif !important;
+    font-weight: bold !important
 }

@@ -12,9 +12,6 @@
     </title>
 
     {% block stylesheets %}
-        <link rel="preload" href="{{ asset('assets/default_theme/css/reset.css') }}" as="style" type="text/css">
-        <link rel="stylesheet" href="{{ asset('assets/default_theme/css/reset.css') }}">
-
         <link rel="preload" href="{{ asset('assets/default_theme/css/base.css') }}" as="style" type="text/css">
         <link rel="stylesheet" href="{{ asset('assets/default_theme/css/base.css') }}">
 
@@ -31,9 +28,9 @@
     {% endfor %}
 </head>
 
-<body class="bg">
+<body class="bg set-background-color-1">
 
-<aside class="accessibility-menu">
+<aside class="accessibility-menu set-background-color-1">
     <h2 class="accessibility-menu-title" tabindex="0">{{ 'Accessibility menu.' | trans }}</h2>
     <p tabindex="0">{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</p>
     <p tabindex="0">{{ 'Provided the following keyboard shortcut, the link is targeted.' | trans }}</p>
@@ -69,7 +66,7 @@
 {% block header %}
     {% set extra_header_forms = handle_event('AddExtraHeaderForms', request) %}
 
-    <header id="header">
+    <header id="header" class="set-background-color-1">
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
         <a id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access instance\'s main page.' | trans }}"></a>
@@ -81,9 +78,11 @@
             <summary>
               {{ icon('kebab', 'icon icon-details-open') | raw }}
             </summary>
-            {% for extra_form in extra_header_forms %}
-                {{ form(extra_form) }}
-            {% endfor %}
+            <div class="header-extra-forms-open">
+                {% for extra_form in extra_header_forms %}
+                    {{ form(extra_form) }}
+                {% endfor %}
+            </div>
         </details>
 
         {% if app.user %}

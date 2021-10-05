@@ -1,23 +1,9 @@
 {% extends '/stdgrid.html.twig' %}
 
-{% block meta %}
-    {{ parent() }}
-    <link href="{{ asset('assets/icons/arrow-down.svg.twig') }}" rel="icon"/>
-{% endblock %}
-
 {% block title %}{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/view.css') }}">
-{% endblock %}
-
-{% block header %}
-    {{ parent() }}
-{% endblock %}
-
 {% block body %}
-    <nav class='main-nav'>
+    <nav class='section-settings'>
         <h2>Settings</h2>
         <ul>
             <li>
@@ -28,7 +14,7 @@
                 </summary>
 
                 <section>
-                    <nav class='set-nav'>
+                    <nav class='section-settings-nav'>
                         <ul>
                             <li>
                             <details class="section-title-settings">

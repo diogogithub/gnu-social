@@ -1,37 +1,33 @@
-.main-nav {
-    background-color: var(--translucent);
-    margin-bottom: var(--unit-size);
-    border-radius: var(--unit-size);
-    padding: var(--unit-size);
+.section-settings {
+    margin-bottom: 0.6rem;
+    border-radius: 0.6rem;
+    padding: 0.6rem;
     box-sizing: border-box;
-    border: solid 2px var(--bg2);
 }
 
-.main-nav hr {
+.section-settings hr {
     all: unset;
     display: block;
     height: 1px;
-    background-image: linear-gradient(to right, var(--bg2), transparent 90%);
-    margin-top: var(--unit-size);
-    margin-bottom: var(--unit-size);
+    background-image: linear-gradient(to right, currentColor, transparent 90%);
+    margin-top: 0.6rem;
+    margin-bottom: 0.6rem;
 }
 
-.main-nav ul {
-    background-color: var(--translucent);
-    border: 2px solid var(--bg2);
-    border-radius: var(--unit-size);
-    padding: var(--unit-size);
+.section-settings ul {
+    border-radius: 0.6rem;
+    padding: 0.6rem;
     box-sizing: border-box;
 }
 
-.main-nav ul li {
-    border-radius: var(--unit-size);
+.section-settings ul li {
+    border-radius: 0.6rem;
 }
 
 .form {
     display: flex;
-    border-radius: var(--unit-size);
-    padding: var(--unit-size);
+    border-radius: 0.6rem;
+    padding: 0.6rem;
     box-sizing: border-box;
 }
 
@@ -39,8 +35,8 @@
     all: unset;
     display: flex;
     width: 2px;
-    background-image: linear-gradient(to bottom, var(--bg2), transparent 90%);
-    margin-right: var(--unit-size);
+    background-image: linear-gradient(to bottom, currentColor, transparent 90%);
+    margin-right: 0.6rem;
 }
 
 .form form {
@@ -50,7 +46,7 @@
 .form #save {
     display: flex;
     flex-direction: column;
-    padding: var(--unit-size);
+    padding: 0.6rem;
     box-sizing: border-box;
 }
 
@@ -60,7 +56,7 @@
 
 .form #save div label {
     display: inline-block;
-    font-family: var(--display-font);
+    font-family: 'Poppins', sans-serif;
 }
 
 .form #save div input,
@@ -68,12 +64,9 @@
     display: inline-block;
     position: relative;
 
-    color: var(--white);
-    border-radius: var(--unit-size);
-    padding: var(--unit-size);
+    border-radius: 0.6rem;
+    padding: 0.6rem;
     box-sizing: border-box;
-    border: 2px solid var(--bg2);
-    background-color: var(--translucent);
 }
 
 .form #save div textarea {
@@ -88,16 +81,12 @@
     text-align: end;
 }
 
-.icon-details-open {
-    fill: var(--white);
-}
-
 .section-title-settings section {
-    margin-top: var(--unit-size);
+    margin-top: 0.6rem;
 }
 
 .section-title-settings summary {
-    padding: var(--unit-size) var(--small-size);
+    padding: 0.6rem 1rem;
 }
 .section-title-settings summary h3:first-letter,
 .section-title-settings summary em:first-letter {
@@ -106,13 +95,13 @@
 
 .section-title-settings summary:focus .icon-details-open,
 .section-title-settings summary:hover .icon-details-open {
-    transition: var(--cubic-transition);
+    transition: all 200ms cubic-bezier(0, 0.55, 0.45, 1);
 }
 
 /* SECTION DETAILS OPENED */
 .section-title-settings[open] svg {
     transform: rotate(180deg);
-    animation: var(--fade-out)
+    animation: fadeOut 200ms cubic-bezier(0, 0.55, 0.45, 1)
 }
 
 .section-title-settings[open] .set-nav li:last-of-type {
@@ -122,5 +111,5 @@
 /* SECTION DETAILS CLOSED */
 .section-title-settings:not([open]) svg {
     transform: initial;
-    animation: var(--fade-in);
+    animation: fadeIn 200ms cubic-bezier(0, 0.55, 0.45, 1);
 }
