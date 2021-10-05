@@ -39,8 +39,8 @@ class ProfileColor extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private string $color;
-    private string $background;
+    private ?string $color;
+    private ?string $background;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -61,7 +61,7 @@ class ProfileColor extends Entity
         return $this;
     }
 
-    public function getColor(): string
+    public function getColor(): ?string
     {
         return $this->color;
     }
@@ -72,7 +72,7 @@ class ProfileColor extends Entity
         return $this;
     }
 
-    public function getBackground(): string
+    public function getBackground(): ?string
     {
         return $this->background;
     }
@@ -107,8 +107,8 @@ class ProfileColor extends Entity
             'name'   => 'profile_color',
             'fields' => [
                 'actor_id'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
-                'background'    => ['type' => 'text',      'not null' => true, 'description' => 'color hex code'],
-                'color'         => ['type' => 'text',      'not null' => true, 'description' => 'color hex code'],
+                'background'    => ['type' => 'text',      'description' => 'color hex code'],
+                'color'         => ['type' => 'text',      'description' => 'color hex code'],
                 'created'       => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
