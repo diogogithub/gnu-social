@@ -6,10 +6,6 @@
 }
 
 .section-settings hr {
-    all: unset;
-    display: block;
-    height: 1px;
-    background-image: linear-gradient(to right, currentColor, transparent 90%);
     margin-top: 0.6rem;
     margin-bottom: 0.6rem;
 }
@@ -29,14 +25,6 @@
     border-radius: 0.6rem;
     padding: 0.6rem;
     box-sizing: border-box;
-}
-
-.form .separator {
-    all: unset;
-    display: flex;
-    width: 2px;
-    background-image: linear-gradient(to bottom, currentColor, transparent 90%);
-    margin-right: 0.6rem;
 }
 
 .form form {
