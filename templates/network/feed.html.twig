@@ -4,8 +4,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="preload" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" as="style" type="text/css">
-    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
 {% endblock stylesheets %}
 
 {% block body %}
