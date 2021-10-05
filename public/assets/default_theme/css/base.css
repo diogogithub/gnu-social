@@ -62,6 +62,7 @@ details>summary::-webkit-details-marker {
 }
 body,
 html {
+    all: unset;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-attachment: fixed;
@@ -211,6 +212,7 @@ url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVE
     .button-container:focus,
     .button-container:hover,
     .set-background-color-accent,
+    input[type=checkbox],
     input[type=checkbox]:focus,
     input[type=checkbox]:hover,
     input[type=radio]:focus,
@@ -218,16 +220,15 @@ url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVE
         background-color: #8081BA !important
     }
     .note-actions-set,
-    .set-background-color-foreground,
-    input[type=radio]:checked {
+    .set-background-color-foreground {
         background-color: #FFF !important
     }
     *,
     .set-foreground-color,
     ::file-selector-button,
     input[type=file] {
-        color: #FFF !important;
-        fill: #FFF !important
+        color: #FFF;
+        fill: #FFF
     }
     .accessibility-menu,
     .set-border-accent {
@@ -239,8 +240,7 @@ url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVE
     .section-widget,
     .set-border-soft,
     button,
-    input,
-    input[type=radio],
+    input:not([type=checkbox], [type=radio]),
     select,
     textarea,
     .section-settings,
@@ -314,7 +314,7 @@ url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVE
     input,
     select,
     textarea {
-        background-color: #eceff488
+        background-color: #eceff488 !important;
     }
     .set-background-color-gradient,
     button:not(.button-container),
@@ -344,15 +344,16 @@ url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVE
     }
     .note-actions-set,
     .set-background-color-foreground,
-    input[type=radio]:checked {
+    input[type=radio]:checked,
+    input[type=checkbox]:checked {
         background-color: #2e3440 !important
     }
     *,
     .set-foreground-color,
     ::file-selector-button,
     input[type=file] {
-        color: #2e3440 !important;
-        fill: #2e3440 !important
+        color: #2e3440;
+        fill: #2e3440
     }
     .accessibility-menu,
     .set-border-accent {
@@ -547,6 +548,9 @@ hr {
     height: calc(100% - 3rem);
     padding: 0.6rem;
     overflow-y: auto
+}
+#panel-right-icon {
+    margin-left: 12px !important;
 }
 @media only screen and (min-width: 1281px) {
     .content {

@@ -10,8 +10,8 @@
 }
 .profile *[class*="profile-info-"] {
     flex: 1;
-    mix-blend-mode: difference
 }
+
 .profile-info {
     display: flex;
     flex-wrap: wrap;

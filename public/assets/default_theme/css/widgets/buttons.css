@@ -1,53 +1,38 @@
+input {
+    all: unset;
+}
+input + label {
+    align-self: center;
+}
 button {
     cursor: pointer !important;
     float: right !important;
     align-self: end !important
 }
-input {
-    cursor: text !important
-}
-button,
-input {
-    all: unset;
-    padding: 5px 10px
-}
-button,
-select,
-input:not([type=text]) {
-    cursor: pointer !important
-}
-input:not([type=button],
-[type=color],
-[type=checkbox],
-[type=radio]) {
-    cursor: auto !important
-}
 *|*::-moz-button-content {
-    all: unset
+    all: unset !important;
 }
-input[type=checkbox] {
-    display: inline-flex;
-    width: 1em;
-    height: 1em
-}
+input[type=checkbox],
 input[type=radio] {
     all: unset;
-    cursor: pointer !important;
     display: inline-block;
-    width: 1em;
-    height: 1em;
-    border-radius: 50%;
-    margin: 3px 3px 0 5px
+    cursor: pointer !important;
+    width: 1em !important;
+    height: 1em !important;
+}
+input[type=checkbox]:not(:hover, :focus),
+input[type=radio]:not(:hover, :focus) {
+    opacity: 75%;
+}
+input[type=radio] {
+    border-radius: 50% !important;
+    margin: 3px 3px 0 5px !important;
 }
 input[type=file] {
     all: unset;
     display: block;
     width: 100%;
     border-radius: 0.6rem !important
-}
-input+label {
-    all: unset;
-    align-self: center
 }
 ::file-selector-button {
     cursor: pointer;
@@ -63,20 +48,17 @@ button {
 select,
 button,
 textarea,
-input {
-    display: inline-block;
+input:not([type=radio], [type=checkbox]) {
+    display: inline-flex !important;
     overflow: hidden;
     font-size: inherit !important;
-    padding: 6px 8px;
+    padding: 6px 8px !important;
     border-radius: 0.6rem
-}
-button {
-    padding: 4px 12px;
-    margin-left: auto
 }
 select {
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
+    cursor: pointer;
     background-repeat: no-repeat;
     background-size: 16px;
     background-position: center right 5px;
@@ -86,10 +68,6 @@ input[type=radio] {
     border: solid 0.25em !important
 }
 input[type=checkbox] {
-    all: unset;
-    display: inline-block;
-    width: 1.3rem;
-    height: 1.3rem;
     vertical-align: middle;
     background-size: cover;
     margin-right: 2px;

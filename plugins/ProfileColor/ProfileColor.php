@@ -93,13 +93,15 @@ class ProfileColor extends Plugin
             $actor_id = $actor->getId();
 
             try {
-                $color = DB::findOneBy('profile_color', ['actor_id' => $actor_id]);
+                $profile_color_tab = DB::findOneBy('profile_color', ['actor_id' => $actor_id]);
             } catch (NotFoundException $e) {
                 return Event::next;
             }
 
+            $color = DB::findBy('profile_color', ['actor_id'=>$actor_id])[0];
             if ($color !== null) {
-                $res[] = Formatting::twigRenderFile('/profileColor/profileColorView.html.twig', ['profile_color' => $color, 'actor' => $actor_id]);
+                $color = $color->getColor();
+                $res[] = Formatting::twigRenderFile('/profileColor/profileColorView.html.twig', ['profile_color' => $profile_color_tab, 'actor' => $actor_id]);
             }
         }
 

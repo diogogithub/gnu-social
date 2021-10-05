@@ -1,7 +1,10 @@
 {% block stylesheets %}
     <style>
         #profile-{{ actor }} {
-            background: {{ profile_color.color }} !important;
+            background: {{ profile_color.background }} !important;
+        }
+        #profile-{{ actor }} * {
+            color: {{ profile_color.color }} !important;
         }
     </style>
 {% endblock stylesheets %}

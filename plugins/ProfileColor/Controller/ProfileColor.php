@@ -64,11 +64,17 @@ class ProfileColor
         $current_profile_color = DB::find('profile_color', ['actor_id' => $actor_id]);
 
         $form = Form::create([
-            ['color',   ColorType::class, [
+            ['background_color',   ColorType::class, [
+                'html5' => true,
+                'data' => $current_profile_color ? $current_profile_color->getBackground() : "#000000",
+                'label' => _m('Profile background color'),
+                'help' => _m('Choose your Profile background color')]
+            ],
+            ['foreground_color',   ColorType::class, [
                 'html5' => true,
                 'data' => $current_profile_color ? $current_profile_color->getColor() : "#000000",
-                'label' => _m('Profile Color'),
-                'help' => _m('Choose your Profile Color')]
+                'label' => _m('Profile foreground color'),
+                'help' => _m('Choose your Profile foreground color')]
             ],
             ['hidden', HiddenType::class, []],
             ['save_profile_color',   SubmitType::class, ['label' => _m('Submit')]],
@@ -84,7 +90,7 @@ class ProfileColor
             }
 
             $data = $form->getData();
-            $current_profile_color  = Entity\ProfileColor::create(['actor_id' => $actor_id, 'color' => $data['color']]);
+            $current_profile_color  = Entity\ProfileColor::create(['actor_id' => $actor_id, 'color' => $data['foreground_color'], 'background' => $data['background_color']]);
             DB::persist($current_profile_color);
             DB::flush();
 
