@@ -226,8 +226,8 @@ url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVE
     .set-foreground-color,
     ::file-selector-button,
     input[type=file] {
-        color: #FFF;
-        fill: #FFF
+        color: #FFF !important;
+        fill: #FFF !important
     }
     .accessibility-menu,
     .set-border-accent {
