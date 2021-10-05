@@ -108,10 +108,10 @@
         fill: #FFF;
     }
 
-    *,
-    .set-foreground-color,
-    ::file-selector-button,
-    input[type=file] {
+    body,
+    input,
+    textarea,
+    select {
         color: #FFF;
         fill: #FFF;
     }
@@ -275,14 +275,14 @@
         fill: #2e3440;
     }
 
-    *,
-    .set-foreground-color,
-    ::file-selector-button,
-    input[type=file] {
+    body,
+    input,
+    textarea,
+    select {
         color: #2e3440;
         fill: #2e3440;
     }
-
+    
     .accessibility-menu,
     .set-border-accent {
         border: 2px solid #2e3440;
