@@ -23,8 +23,8 @@ input[type=radio] {
     all: unset;
     display: inline-block;
     cursor: pointer !important;
-    width: 1em !important;
-    height: 1em !important;
+    width: 1rem !important;
+    height: 1rem !important;
 }
 input[type=checkbox]:not(:hover, :focus),
 input[type=radio]:not(:hover, :focus) {
@@ -102,11 +102,10 @@ input[type=radio] {
     border: solid 0.25em !important;
 }
 input[type=checkbox] {
-    vertical-align: middle;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
+    -webkit-background-size: 100%;
+    -moz-background-size: 100%;
+    -o-background-size: 100%;
+    background-size: 100%;
     margin-right: 2px;
     -webkit-mask-image: url("../../icons/check-off.svg") !important;
     -o-mask-image: url("../../icons/check-off.svg") !important;
@@ -144,4 +143,9 @@ input[type=file] {
 ::file-selector-button {
     font-family: 'Open Sans', sans-serif !important;
     font-weight: bold !important;
+}
+
+input[type=checkbox],
+input[type=radio] {
+    border: unset !important;
 }

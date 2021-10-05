@@ -81,13 +81,11 @@
     all: unset
 }
 .button-container {
-    all: unset;
     border: none !important;
-    background-repeat: no-repeat !important;
-    width: 1em !important;
-    height: 1em !important;
+    border-radius: unset !important;
     margin-left: 0.6rem;
-    text-indent: -9999em
+    width: 1rem;
+    height: 1rem;
 }
 .button-container:hover,
 .button-container:focus {

@@ -17,6 +17,7 @@
         box-shadow: inset 0 0 0 2px #8081BA;
     }
     #header,
+    .accessibility-menu,
     .header-extra-forms-open,
     .section-title-details,
     .set-background-color-hard,
@@ -128,7 +129,7 @@
     .section-widget,
     .set-border-soft,
     button,
-    input:not([type=checkbox], [type=radio]),
+    input,
     select,
     textarea {
         border: 2px solid #46465E !important;
@@ -181,6 +182,7 @@
         box-shadow: inset 0 0 0 2px #2e3440;
     }
     #header,
+    .accessibility-menu,
     .header-extra-forms-open,
     .section-title-details,
     .set-background-color-hard,
@@ -297,7 +299,6 @@
     .set-border-soft,
     button,
     input,
-    input[type=radio],
     select,
     textarea {
         border: 2px solid #4c566a66 !important;
