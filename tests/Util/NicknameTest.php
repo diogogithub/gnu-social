@@ -22,7 +22,7 @@ namespace App\Tests\Util;
 use App\Util\Common;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameInvalidException;
-use App\Util\Exception\NicknameReservedException;
+use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NicknameTooShortException;
@@ -53,7 +53,7 @@ class NicknameTest extends GNUsocialTestCase
         static::assertThrows(NicknameTooShortException::class, fn () => Nickname::normalize('foo', check_already_used: false));
         static::assertThrows(NicknameEmptyException::class,    fn () => Nickname::normalize('', check_already_used: false));
         // static::assertThrows(NicknameInvalidException::class,  fn () => Nickname::normalize('FóóBár', check_already_used: false));
-        static::assertThrows(NicknameReservedException::class, fn () => Nickname::normalize('this_nickname_is_reserved', check_already_used: false));
+        static::assertThrows(NicknameNotAllowedException::class, fn () => Nickname::normalize('this_nickname_is_reserved', check_already_used: false));
 
         static::bootKernel();
         static::assertSame('foobar', Nickname::normalize('foobar', check_already_used: true));
@@ -79,13 +79,13 @@ class NicknameTest extends GNUsocialTestCase
         static::assertTrue($cb instanceof ContainerBagInterface);
         $cb->method('get')->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
         Common::setupConfig($cb);
-        static::assertTrue(Nickname::isReserved('this_nickname_is_reserved'));
-        static::assertFalse(Nickname::isReserved('this_nickname_is_not_reserved'));
+        static::assertTrue(Nickname::isBlacklisted('this_nickname_is_reserved'));
+        static::assertFalse(Nickname::isBlacklisted('this_nickname_is_not_reserved'));
 
         $conf = ['nickname' => ['min_length' => 4, 'reserved' => []]];
         $cb   = $this->createMock(ContainerBagInterface::class);
         $cb->method('get')->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
         Common::setupConfig($cb);
-        static::assertFalse(Nickname::isReserved('this_nickname_is_reserved'));
+        static::assertFalse(Nickname::isBlacklisted('this_nickname_is_reserved'));
     }
 }

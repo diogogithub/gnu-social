@@ -89,7 +89,7 @@
         Settings
     </a>
 
-    <a title='{{ 'Logout from your account.' | trans }}' href='{{ path('logout') }}'>
+    <a title='{{ 'Logout from your account.' | trans }}' href='{{ path('security_logout') }}'>
         Logout
     </a>
 </nav>
@@ -100,11 +100,11 @@
         <h2 class="section-title">Account</h2>
         <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
 
-            <a title='{{ 'Login with your existing account.' | trans }}' href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>
+            <a title='{{ 'Login with your existing account.' | trans }}' href="{{ path('security_login') }}" class='hover-effect {{ active('login') }}'>
                 Login
             </a>
 
-            <a title='{{ 'Register a new account!' | trans }}' href="{{ path('register') }}">
+            <a title='{{ 'Register a new account!' | trans }}' href="{{ path('security_register') }}">
                 Register
             </a>
 

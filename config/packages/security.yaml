@@ -1,10 +1,17 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        users:
+        local_user:
+            chain:
+                providers: [local_user_by_nickname, local_user_by_email]
+        local_user_by_nickname:
             entity:
                 class: 'App\Entity\LocalUser'
                 property: 'nickname'
+        local_user_by_email:
+            entity:
+                class: 'App\Entity\LocalUser'
+                property: 'email'
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -12,12 +19,12 @@ security:
         main:
             anonymous: true
             lazy: true
-            provider: users
+            provider: local_user
             guard:
                 authenticators:
                     - App\Security\Authenticator
             logout:
-                path: logout
+                path: security_logout
                 # where to redirect after logout
                 target: main_all
 

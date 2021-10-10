@@ -20,6 +20,8 @@
 namespace App\Security;
 
 use App\Core\DB\DB;
+use App\Util\Exception\NoSuchActorException;
+use App\Util\Exception\NotFoundException;
 use function App\Core\I18n\_m;
 use App\Entity\LocalUser;
 use App\Entity\User;
@@ -52,7 +54,7 @@ class Authenticator extends AbstractFormLoginAuthenticator
 {
     use TargetPathTrait;
 
-    public const LOGIN_ROUTE = 'login';
+    public const LOGIN_ROUTE = 'security_login';
 
     private $urlGenerator;
     private $csrfTokenManager;
@@ -70,17 +72,11 @@ class Authenticator extends AbstractFormLoginAuthenticator
 
     public function getCredentials(Request $request)
     {
-        $credentials = [
-            'nickname'   => $request->request->get('nickname'),
+        return [
+            'nickname_or_email'   => $request->request->get('nickname_or_email'),
             'password'   => $request->request->get('password'),
             'csrf_token' => $request->request->get('_csrf_token'),
         ];
-        $request->getSession()->set(
-            Security::LAST_USERNAME,
-            $credentials['nickname']
-        );
-
-        return $credentials;
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
@@ -90,12 +86,17 @@ class Authenticator extends AbstractFormLoginAuthenticator
             throw new InvalidCsrfTokenException();
         }
 
-        // $nick = Nickname::normalize($credentials['nickname']);
-        $nick = $credentials['nickname'];
-        $user = null;
         try {
-            $user = DB::findOneBy('local_user', ['or' => ['nickname' => $nick, 'outgoing_email' => $nick]]);
-        } catch (Exception $e) {
+            if (filter_var($credentials['nickname_or_email'], FILTER_VALIDATE_EMAIL) !== false) {
+                $user = LocalUser::getByEmail($credentials['nickname_or_email']);
+            } else {
+                $user = LocalUser::getWithPK(['nickname' => Nickname::normalize($credentials['nickname_or_email'], check_already_used: false)]);
+            }
+            if ($user === null) {
+                throw new NoSuchActorException('No such local user.');
+            }
+            $credentials['nickname'] = $user->getNickname();
+        } catch (Exception) {
             throw new CustomUserMessageAuthenticationException(
                 _m('Invalid login credentials.'));
         }
@@ -118,6 +119,10 @@ class Authenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        $request->getSession()->set(
+            Security::LAST_USERNAME,
+            $token->getUser()->getNickname()
+        );
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }

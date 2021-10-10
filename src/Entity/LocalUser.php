@@ -308,9 +308,9 @@ class LocalUser extends Entity implements UserInterface
      *
      * @return self Returns self if nickname or email found
      */
-    public static function findByNicknameOrEmail(string $nickname, string $email): ?self
+    public static function getByEmail(string $email): ?self
     {
-        $users = DB::findBy('local_user', ['or' => ['nickname' => $nickname, 'outgoing_email' => $email, 'incoming_email' => $email]]);
+        $users = DB::findBy('local_user', ['or' => ['outgoing_email' => $email, 'incoming_email' => $email]]);
         switch (count($users)) {
         case 0:
             return null;

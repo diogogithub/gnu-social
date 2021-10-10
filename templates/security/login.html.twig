@@ -37,11 +37,11 @@
 
                 {% else %}
 
-                    {# TODO: Login can be done with email, so the id's and stuff should reflect that, along with using the translation facilities #}
+                    {# TODO: Login can be done with email, so the element id's should reflect that #}
                     <div class="form-group">
                         <label class="section-form-label" for="inputNickname">{{ "Nickname or Email" | trans }}</label>
-                        <input type="text" value="{{ last_login_id }}" name="nickname" id="inputNickname" class="form-control" required autofocus>
-                        <p class="help-text">{{ "Your nickname." | trans }}</p>
+                        <input type="text" value="{{ last_login_id }}" name="nickname_or_email" id="inputNickname" class="form-control" required autofocus>
+                        <p class="help-text">{{ "Your nickname or email address." | trans }}</p>
                     </div>
                     <div class="form-group">
                         <label class="section-form-label" for="inputPassword">{{ "Password" | trans }}</label>

@@ -25,13 +25,13 @@ use App\Entity\LocalUser;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\NicknameInvalidException;
-use App\Util\Exception\NicknameReservedException;
+use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NicknameTooShortException;
 use App\Util\Exception\NotImplementedException;
 use Functional as F;
-use Normalizer;
+use InvalidArgumentException;
 
 /**
  * Nickname validation
@@ -45,9 +45,8 @@ use Normalizer;
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @author    Nym Coy <nymcoy@gmail.com>
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
- * @auuthor   Daniel Supernault <danielsupernault@gmail.com>
- * @auuthor   Diogo Cordeiro <diogo@fc.up.pt>
- *
+ * @author    Daniel Supernault <danielsupernault@gmail.com>
+ * @author    Diogo Cordeiro <mail@diogo.site>
  * @author    Hugo Sales <hugo@hsal.es>
  * @copyright 2018-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -92,6 +91,11 @@ class Nickname
     const WEBFINGER_FMT = '(?:\w+[\w\-\_\.]*)?\w+\@' . URL_REGEX_DOMAIN_NAME;
 
     /**
+     * Maximum number of characters in a canonical-form nickname. Changes must validate regexs
+     */
+    const MAX_LEN = 64;
+
+    /**
      * Regex fragment for checking a canonical nickname.
      *
      * Any non-matching string is not a valid canonical/normalized nickname.
@@ -104,12 +108,7 @@ class Nickname
      *
      * This, INPUT_FMT and DISPLAY_FMT should not be enclosed in []s.
      */
-    const CANONICAL_FMT = '[0-9a-z]{1,64}';
-
-    /**
-     * Maximum number of characters in a canonical-form nickname. Changes must validate regexs
-     */
-    const MAX_LEN = 64;
+    const CANONICAL_FMT = '[0-9a-z]{1,' . self::MAX_LEN . '}';
 
     /**
      * Regex with non-capturing group that matches whitespace and some
@@ -121,72 +120,78 @@ class Nickname
      */
     const BEFORE_MENTIONS = '(?:^|[\s\.\,\:\;\[\(]+)';
 
-    const CHECK_LOCAL_USER  = 1;
+    const CHECK_LOCAL_USER = 1;
     const CHECK_LOCAL_GROUP = 2;
 
     /**
      * Check if a nickname is valid or throw exceptions if it's not.
      * Can optionally check if the nickname is currently in use
+     * @param string $nickname
+     * @param bool $check_already_used
+     * @param int $which
+     * @param bool $check_is_allowed
+     * @return bool
+     * @throws NicknameEmptyException
+     * @throws NicknameNotAllowedException
+     * @throws NicknameTakenException
+     * @throws NicknameTooLongException
      */
-    public static function validate(string $nickname, bool $check_already_used = false, int $which = self::CHECK_LOCAL_USER)
+    public static function validate(string $nickname, bool $check_already_used = false, int $which = self::CHECK_LOCAL_USER, bool $check_is_allowed = true): bool
     {
-        $nickname = trim($nickname);
-        $length   = mb_strlen($nickname);
+        $length = mb_strlen($nickname);
 
         if ($length < 1) {
             throw new NicknameEmptyException();
-        } elseif ($length < Common::config('nickname', 'min_length')) {
-            // dd($nickname, $length, Common::config('nickname', 'min_length'));
-            throw new NicknameTooShortException();
         } else {
             if ($length > self::MAX_LEN) {
                 throw new NicknameTooLongException();
-            } elseif (self::isReserved($nickname) || Common::isSystemPath($nickname)) {
-                throw new NicknameReservedException();
+            } elseif ($check_is_allowed && self::isBlacklisted($nickname)) {
+                throw new NicknameNotAllowedException();
             } elseif ($check_already_used) {
                 switch ($which) {
-                case self::CHECK_LOCAL_USER:
-                    $lu = LocalUser::findByNicknameOrEmail($nickname, email: '');
-                    if ($lu !== null) {
-                        throw new NicknameTakenException($lu->getActor());
-                    }
-                    break;
+                    case self::CHECK_LOCAL_USER:
+                        $lu = LocalUser::getWithPK(['nickname' => $nickname]);
+                        if ($lu !== null) {
+                            throw new NicknameTakenException($lu->getActor());
+                        }
+                        break;
                     // @codeCoverageIgnoreStart
-                case self::CHECK_LOCAL_GROUP:
-                    throw new NotImplementedException();
-                    break;
-                default:
-                    throw new \InvalidArgumentException();
+                    case self::CHECK_LOCAL_GROUP:
+                        throw new NotImplementedException();
+                        break;
+                    default:
+                        throw new InvalidArgumentException();
                     // @codeCoverageIgnoreEnd
                 }
             }
         }
 
-        return $nickname;
+        return true;
     }
 
     /**
-     * Normalize an input $nickname, and normalize it to its canonical form.
+     * Normalize input $nickname to its canonical form and validates it.
      * The canonical form will be returned, or an exception thrown if invalid.
      *
-     * @throws NicknameException         (base class)
+     * @param string $nickname
+     * @param bool $check_already_used
+     * @param bool $check_is_allowed
+     * @return string
      * @throws NicknameEmptyException
      * @throws NicknameInvalidException
+     * @throws NicknameNotAllowedException
      * @throws NicknameTakenException
      * @throws NicknameTooLongException
-     * @throws NicknameTooShortException
      */
-    public static function normalize(string $nickname, bool $check_already_used = true, bool $checking_reserved = false): string
+    public static function normalize(string $nickname, bool $check_already_used = true, bool $check_is_allowed = true): string
     {
-        if (!$checking_reserved) {
-            $nickname = self::validate($nickname, $check_already_used);
-        }
-
         $nickname = trim($nickname);
         $nickname = str_replace('_', '', $nickname);
         $nickname = mb_strtolower($nickname);
-        $nickname = Normalizer::normalize($nickname, Normalizer::FORM_C);
-        if (!self::isCanonical($nickname) && !filter_var($nickname, FILTER_VALIDATE_EMAIL)) {
+        // We could do UTF-8 normalization (å to a, etc.) with something like Normalizer::normalize($nickname, Normalizer::FORM_C)
+        // We won't as it could confuse tremendously the user, he must know what is valid and should fix his own input
+
+        if (!self::validate($nickname, $check_already_used, $check_is_allowed) || !self::isCanonical($nickname)) {
             throw new NicknameInvalidException();
         }
 
@@ -201,11 +206,11 @@ class Nickname
      *
      * @return bool True if nickname is valid. False if invalid (or taken if $check_already_used == true).
      */
-    public static function isValid(string $nickname, bool $check_already_used = true): bool
+    public static function isValid(string $nickname, bool $check_already_used = true, bool $check_is_allowed = true): bool
     {
         try {
-            self::normalize($nickname, $check_already_used);
-        } catch (NicknameException $e) {
+            self::normalize($nickname, $check_already_used, $check_is_allowed);
+        } catch (NicknameException) {
             return false;
         }
 
@@ -214,6 +219,8 @@ class Nickname
 
     /**
      * Is the given string a valid canonical nickname form?
+     * @param string $nickname
+     * @return bool
      */
     public static function isCanonical(string $nickname): bool
     {
@@ -222,15 +229,22 @@ class Nickname
 
     /**
      * Is the given string in our nickname blacklist?
+     * @param string $nickname
+     * @return bool
+     * @throws NicknameEmptyException
+     * @throws NicknameInvalidException
+     * @throws NicknameNotAllowedException
+     * @throws NicknameTakenException
+     * @throws NicknameTooLongException
      */
-    public static function isReserved(string $nickname): bool
+    public static function isBlacklisted(string $nickname): bool
     {
-        $reserved = Common::config('nickname', 'reserved');
+        $reserved = Common::config('nickname', 'blacklist');
         if (empty($reserved)) {
             return false;
         }
         return in_array($nickname, array_merge($reserved, F\map($reserved, function ($n) {
-            return self::normalize($n, check_already_used: false, checking_reserved: true);
+            return self::normalize($n, check_already_used: false, check_is_allowed: true);
         })));
     }
 }

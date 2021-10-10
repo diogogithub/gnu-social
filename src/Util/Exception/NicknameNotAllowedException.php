@@ -41,11 +41,11 @@ namespace App\Util\Exception;
 
 use function App\Core\I18n\_m;
 
-class NicknameReservedException extends NicknameException
+class NicknameNotAllowedException extends NicknameException
 {
     protected function defaultMessage(): string
     {
         // TRANS: Validation error in form for registration, profile and group settings, etc.
-        return _m('Nickname is reserved.');
+        return _m('This nickname is not allowed.');
     }
 }

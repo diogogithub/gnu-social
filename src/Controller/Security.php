@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
+use App\Util\Exception\NicknameInvalidException;
+use LogicException;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\VisibilityScope;
@@ -18,11 +20,9 @@ use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\EmailTakenException;
 use App\Util\Exception\NicknameEmptyException;
-use App\Util\Exception\NicknameReservedException;
+use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
-use App\Util\Exception\NicknameTooShortException;
-use App\Util\Exception\NotImplementedException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use App\Util\Nickname;
@@ -57,7 +57,7 @@ class Security extends Controller
             '_template'     => 'security/login.html.twig',
             'last_login_id' => $last_login_id,
             'error'         => $error,
-            'notes_fn'      => fn ()      => Note::getAllNotes(VisibilityScope::$instance_scope),
+            'notes_fn'      => fn () => Note::getAllNotes(VisibilityScope::$instance_scope),
         ];
     }
 
@@ -66,7 +66,7 @@ class Security extends Controller
      */
     public function logout()
     {
-        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        throw new LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
     /**
@@ -74,25 +74,24 @@ class Security extends Controller
      * Register a user, making sure the nickname is not reserved and
      * possibly sending a confirmation email
      *
-     * @param Request                   $request
+     * @param Request $request
      * @param GuardAuthenticatorHandler $guard_handler
-     * @param Authenticator             $authenticator
+     * @param Authenticator $authenticator
      *
+     * @return null|array|Response
      * @throws EmailTakenException
      * @throws NicknameTakenException
      * @throws ServerException
      * @throws DuplicateFoundException
      * @throws NicknameEmptyException
-     * @throws NicknameReservedException
+     * @throws NicknameNotAllowedException
      * @throws NicknameTooLongException
-     * @throws NicknameTooShortException
-     * @throws NotImplementedException
+     * @throws NicknameInvalidException
      *
-     * @return null|array|Response
      */
-    public function register(Request $request,
+    public function register(Request                   $request,
                              GuardAuthenticatorHandler $guard_handler,
-                             Authenticator $authenticator)
+                             Authenticator             $authenticator)
     {
         $form = Form::create([
             ['nickname', TextType::class, [
@@ -101,8 +100,8 @@ class Security extends Controller
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a nickname')]),
                     new Length([
-                        'min'        => Common::config('nickname', 'min_length'),
-                        'minMessage' => _m(['Your nickname must be at least # characters long'], ['count' => Common::config('nickname', 'min_length')]),
+                        'min'        => 1,
+                        'minMessage' => _m(['Your nickname must be at least # characters long'], ['count' => 1]),
                         'max'        => Nickname::MAX_LEN,
                         'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]), ]),
                 ],
@@ -128,29 +127,16 @@ class Security extends Controller
             $data             = $form->getData();
             $data['password'] = $form->get('password')->getData();
 
-            // This will throw the appropriate errors, result ignored
-            $user = LocalUser::findByNicknameOrEmail($data['nickname'], $data['email']);
-            if ($user !== null) {
+            // TODO: ensure there's no user with this email registered already
 
-                // If we do find something, there's a duplicate
-                if ($user->getNickname() === $data['nickname']) {
-                    // Register page feedback on nickname already in use
-                    $this->addFlash('verify_nickname_error', _m('Nickname is already in use on this server.'));
-                    throw new NicknameTakenException;
-                } else {
-                    // Register page feedback on email already in use
-                    $this->addFlash('verify_email_error', _m('Email is already taken.'));
-                    throw new EmailTakenException;
-                }
-            }
-
-            $valid_nickname = Nickname::validate($data['nickname'], check_already_used: false);
+            // Already used is checked below
+            $sanitized_nickname = Nickname::normalize($data['nickname'], check_already_used: false);
 
             try {
                 // This already checks if the nickname is being used
-                $actor = Actor::create(['nickname' => $valid_nickname]);
+                $actor = Actor::create(['nickname' => $sanitized_nickname]);
                 $user  = LocalUser::create([
-                    'nickname'       => $valid_nickname,
+                    'nickname'       => $sanitized_nickname,
                     'outgoing_email' => $data['email'],
                     'incoming_email' => $data['email'],
                     'password'       => LocalUser::hashPassword($data['password']),
@@ -166,7 +152,7 @@ class Security extends Controller
             } catch (UniqueConstraintViolationException $e) {
                 // _something_ was duplicated, but since we already check if nickname is in use, we can't tell what went wrong
                 $e = 'An error occurred while trying to register';
-                Log::critical($e . " with nickname: '{$valid_nickname}' and email '{$data['email']}'");
+                Log::critical($e . " with nickname: '{$sanitized_nickname}' and email '{$data['email']}'");
                 throw new ServerException(_m($e));
             }
             // @codeCoverageIgnoreEnd

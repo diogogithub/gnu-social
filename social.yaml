@@ -149,7 +149,7 @@ parameters:
       image: "/theme/licenses/cc_by_4.0.png"
 
     nickname:
-      reserved:
+      blacklisted:
         - doc
         - main
         - avatar
@@ -157,7 +157,6 @@ parameters:
         - settings
         - admin
       featured: []
-      min_length: 4
 
     password:
       min_length: 6
