@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -41,7 +43,7 @@ class NicknameTest extends GNUsocialTestCase
         $cb   = $this->createMock(ContainerBagInterface::class);
         static::assertTrue($cb instanceof ContainerBagInterface);
         $cb->method('get')
-           ->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
+            ->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
         Common::setupConfig($cb);
 
         static::assertThrows(NicknameTooLongException::class, fn () => Nickname::normalize(str_repeat('longstring-', 128), check_already_used: false));
@@ -51,7 +53,7 @@ class NicknameTest extends GNUsocialTestCase
         // static::assertSame('foobar', Nickname::normalize('foo_bar', check_already_used: false));
         // static::assertSame('foobar', Nickname::normalize('FooBar', check_already_used: false));
         static::assertThrows(NicknameTooShortException::class, fn () => Nickname::normalize('foo', check_already_used: false));
-        static::assertThrows(NicknameEmptyException::class,    fn () => Nickname::normalize('', check_already_used: false));
+        static::assertThrows(NicknameEmptyException::class, fn () => Nickname::normalize('', check_already_used: false));
         // static::assertThrows(NicknameInvalidException::class,  fn () => Nickname::normalize('FóóBár', check_already_used: false));
         static::assertThrows(NicknameNotAllowedException::class, fn () => Nickname::normalize('this_nickname_is_reserved', check_already_used: false));
 

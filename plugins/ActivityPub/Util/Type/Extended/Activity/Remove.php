@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,8 +27,5 @@ use Plugin\ActivityPub\Util\Type\Core\Activity;
  */
 class Remove extends Activity
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Remove';
 }

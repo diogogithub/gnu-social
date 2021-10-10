@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -100,15 +102,9 @@ class StoreRemoteMedia extends Plugin
     }
 
     /**
-     * @param Link $link
-     * @param Note $note
-     *
+     * @throws DuplicateFoundException
      * @throws ServerException
      * @throws TemporaryFileException
-     * @throws DuplicateFoundException
-     *
-     * @return bool
-     *
      */
     public function onNewLinkFromNote(Link $link, Note $note): bool
     {
@@ -125,11 +121,13 @@ class StoreRemoteMedia extends Plugin
 
         // Have we handled it already?
         /** @var AttachmentToLink */
-        $attachment_to_link = DB::find('attachment_to_link',
-            ['link_id' => $link->getId()]);
+        $attachment_to_link = DB::find(
+            'attachment_to_link',
+            ['link_id' => $link->getId()],
+        );
 
         // If it was handled already
-        if (!is_null($attachment_to_link)) {
+        if (!\is_null($attachment_to_link)) {
             // Relate the note with the existing attachment
             DB::persist(AttachmentToNote::create([
                 'attachment_id' => $attachment_to_link->getAttachmentId(),
@@ -179,7 +177,7 @@ class StoreRemoteMedia extends Plugin
                 $thumbnail = AttachmentThumbnail::getOrCreate(
                     attachment: $attachment,
                     size: 'medium',
-                    crop: $this->getSmartCrop()
+                    crop: $this->getSmartCrop(),
                 );
                 $attachment->deleteStorage();
             }
@@ -189,8 +187,6 @@ class StoreRemoteMedia extends Plugin
     }
 
     /**
-     * @param string $url
-     *
      * @return bool true if allowed by the lists, false otherwise
      */
     private function allowedLink(string $url): bool
@@ -200,7 +196,7 @@ class StoreRemoteMedia extends Plugin
 
         if ($this->check_whitelist) {
             $passed_whitelist = false; // don't trust be default
-            $host             = parse_url($url, PHP_URL_HOST);
+            $host             = parse_url($url, \PHP_URL_HOST);
             foreach ($this->domain_whitelist as $regex => $provider) {
                 if (preg_match("/{$regex}/", $host)) {
                     $passed_whitelist = true; // we trust this source
@@ -210,7 +206,7 @@ class StoreRemoteMedia extends Plugin
 
         if ($this->check_blacklist) {
             // assume it passed by default
-            $host = parse_url($url, PHP_URL_HOST);
+            $host = parse_url($url, \PHP_URL_HOST);
             foreach ($this->domain_blacklist as $regex => $provider) {
                 if (preg_match("/{$regex}/", $host)) {
                     $passed_blacklist = false; // we blocked this source
@@ -232,12 +228,11 @@ class StoreRemoteMedia extends Plugin
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = [
-            'name'        => 'StoreRemoteMedia',
-            'version'     => $this->version(),
-            'author'      => 'Mikael Nordfeldth, Diogo Peralta Cordeiro',
-            'homepage'    => GNUSOCIAL_PROJECT_URL,
-            'description' => // TRANS: Plugin description.
-                _m('Plugin for downloading remotely attached files to local server.'),
+            'name'     => 'StoreRemoteMedia',
+            'version'  => $this->version(),
+            'author'   => 'Mikael Nordfeldth, Diogo Peralta Cordeiro',
+            'homepage' => GNUSOCIAL_PROJECT_URL,
+            'description', // TRANS: Plugin description. => _m('Plugin for downloading remotely attached files to local server.'),
         ];
         return Event::next;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -38,12 +40,6 @@ abstract class NoteHandlerPlugin extends Plugin
      *
      * @codeCoverageIgnore
      *
-     * @param Request  $request
-     * @param Form     $form
-     * @param Note     $note
-     * @param string   $form_name
-     * @param callable $handle
-     *
      * @throws InvalidFormException
      * @throws NoSuchNoteException
      *
@@ -62,9 +58,9 @@ abstract class NoteHandlerPlugin extends Plugin
                     $user = Common::user();
                     if (!$note->isVisibleTo($user)) {
                         // ^ Ensure user isn't trying to trip us up
-                        Log::warning('Suspicious activity: user ' . $user->getNickname() .
-                                   ' tried to interact with note ' . $note->getId() .
-                                   ', but they shouldn\'t have access to it');
+                        Log::warning('Suspicious activity: user ' . $user->getNickname()
+                                   . ' tried to interact with note ' . $note->getId()
+                                   . ', but they shouldn\'t have access to it', );
                         throw new NoSuchNoteException();
                     } else {
                         if ($form->isValid()) {

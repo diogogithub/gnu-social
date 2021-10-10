@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -40,14 +42,12 @@ class Search extends Controller
         $actor_qb->select('actor')->from('App\Entity\Actor', 'actor');
         Event::handle('SeachQueryAddJoins', [&$note_qb, &$actor_qb]);
         $notes = $actors = [];
-        if (!is_null($note_criteria)) {
+        if (!\is_null($note_criteria)) {
             $note_qb->addCriteria($note_criteria);
             $notes = $note_qb->getQuery()->execute();
-        } else {
-            if (!is_null($actor_criteria)) {
-                $actor_qb->addCriteria($actor_criteria);
-                $actors = $actor_qb->getQuery()->execute();
-            }
+        } elseif (!\is_null($actor_criteria)) {
+            $actor_qb->addCriteria($actor_criteria);
+            $actors = $actor_qb->getQuery()->execute();
         }
 
         return [

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -22,6 +24,7 @@ namespace App\Tests\Util;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use App\Util\TemporaryFile;
+use Exception;
 use InvalidArgumentException;
 use Jchook\AssertThrows\AssertThrows;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -172,7 +175,7 @@ class FormattingTest extends WebTestCase
 
     public function testToString()
     {
-        static::assertThrows(\Exception::class, function () { return Formatting::toString('foo', ''); });
+        static::assertThrows(Exception::class, fn () => Formatting::toString('foo', ''));
         static::assertSame('', Formatting::toString(''));
         static::assertSame('foo', Formatting::toString('foo'));
         static::assertSame('42', Formatting::toString(42));
@@ -182,7 +185,7 @@ class FormattingTest extends WebTestCase
 
     public function testToArray()
     {
-        static::assertThrows(\Exception::class, function () { return Formatting::toArray('foo', $a, ''); });
+        static::assertThrows(Exception::class, fn () => Formatting::toArray('foo', $a, ''));
 
         static::assertTrue(Formatting::toArray('', $a));
         static::assertSame([], $a);

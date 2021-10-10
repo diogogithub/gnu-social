@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -29,7 +31,7 @@ class TreeNotes extends Plugin
      */
     public function onFormatNoteList(array $notes_in, ?array &$notes_out)
     {
-        $roots     = array_filter($notes_in, function (Note $note) { return $note->getReplyTo() == null; });
+        $roots     = array_filter($notes_in, fn (Note $note) => $note->getReplyTo() == null);
         $notes_out = $this->build_tree($roots, $notes_in);
     }
 
@@ -44,7 +46,7 @@ class TreeNotes extends Plugin
 
     private function build_subtree(Note $parent, array $notes)
     {
-        $children = array_filter($notes, function (Note $n) use ($parent) { return $parent->getId() == $n->getReplyTo(); });
+        $children = array_filter($notes, fn (Note $n) => $parent->getId() == $n->getReplyTo());
         return ['note' => $parent, 'replies' => $this->build_tree($children, $notes)];
     }
 }

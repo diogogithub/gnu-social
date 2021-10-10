@@ -1,23 +1,22 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Plugin\ActivityPub\Util\Model\EntityToType;
 
 use App\Core\Event;
 use App\Core\Router\Router;
 use App\Entity\Note;
 use DateTimeInterface;
+use Exception;
 use Plugin\ActivityPub\Util\Type;
 
 class NoteToType
 {
     /**
-     * @param Note $note
-     *
-     * @throws \Exception
-     *
-     * @return Type
+     * @throws Exception
      */
-    public static function translate(Note $note)
+    public static function translate(Note $note): Type
     {
         $attributedTo = null;
         Event::handle('FreeNetworkGenerateLocalActorUri', ['source' => 'ActivityPub', 'actor_id' => $note->getActorId(), 'actor_uri' => &$attributedTo]);

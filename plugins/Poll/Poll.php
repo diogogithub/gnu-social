@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -53,9 +55,7 @@ class Poll extends NoteHandlerPlugin
     /**
      * Map URLs to actions
      *
-     * @param RouteLoader $r
-     *
-     * @return bool hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop
      */
     public function onAddRoute(RouteLoader $r): bool
     {
@@ -66,8 +66,6 @@ class Poll extends NoteHandlerPlugin
 
     /**
      * Populate twig vars
-     *
-     * @param array $vars
      *
      * @return bool hook value; true means continue processing, false means stop.
      *
@@ -84,7 +82,7 @@ class Poll extends NoteHandlerPlugin
      *
      * @param array $styles stylesheets path
      *
-     * @return bool hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop
      */
     public function onStartShowStyles(array &$styles): bool
     {
@@ -95,18 +93,16 @@ class Poll extends NoteHandlerPlugin
     /**
      * Output our note content to the timeline
      *
-     * @param Request $request
-     * @param Note    $note
-     * @param array   $otherContent content
+     * @param array $otherContent content
      *
+     * @throws \App\Util\Exception\NoLoggedInUser user not logged in
      * @throws InvalidFormException               invalid forms
      * @throws RedirectException
      * @throws ServerException                    User already responded to poll
-     * @throws \App\Util\Exception\NoLoggedInUser user not logged in
      *
-     * @return bool hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop
      */
-    public function onShowNoteContent(Request $request, Note $note, array &$otherContent)
+    public function onShowNoteContent(Request $request, Note $note, array &$otherContent): bool
     {
         $responses = null;
         $formView  = null;
@@ -119,7 +115,7 @@ class Poll extends NoteHandlerPlugin
         if (Common::isLoggedIn() && !Entity\PollResponse::exits($poll->getId(), Common::ensureLoggedIn()->getId())) {
             $opts    = $poll->getOptionsArr();
             $options = [];
-            for ($i = 1; $i <= count($opts); ++$i) {
+            for ($i = 1; $i <= \count($opts); ++$i) {
                 $options[$opts[$i - 1]] = $i;
             }
             $formOptions = [

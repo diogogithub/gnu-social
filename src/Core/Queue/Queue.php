@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -44,10 +46,6 @@ abstract class Queue
     /**
      * Enqueue a $message in a configured transport, to be handled by the $queue handler
      *
-     * @param mixed  $message
-     * @param string $queue
-     * @param bool   $high
-     * @param array  $stamps
      * @codeCoverageIgnore
      */
     public static function enqueue($message, string $queue, bool $high = false, array $stamps = [])

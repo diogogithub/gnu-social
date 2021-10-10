@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -63,10 +65,10 @@ class NetworkTest extends GNUsocialTestCase
         });
     }
 
-    private function testRoute(string $route, callable $visibility, array $extra_args = [], callable $setup_login = null)
+    private function testRoute(string $route, callable $visibility, array $extra_args = [], ?callable $setup_login = null)
     {
         parent::bootKernel();
-        if (!is_null($setup_login)) {
+        if (!\is_null($setup_login)) {
             $setup_login();
         }
         $req       = $this->createMock(Request::class);
@@ -78,11 +80,11 @@ class NetworkTest extends GNUsocialTestCase
         $result = $network->{$route}($req, ...$extra_args);
         static::assertSame($result['_template'], 'network/public.html.twig');
         foreach ($result['notes'] as $n) {
-            static::assertTrue(is_array($n['replies']));
+            static::assertIsArray($n['replies']);
         }
         $notes = Common::flattenNoteArray($result['notes']);
         foreach ($notes as $n) {
-            static::assertTrue(get_class($n) == Note::class);
+            static::assertTrue(\get_class($n) == Note::class);
             $vis = VisibilityScope::create($n->getScope());
             static::assertTrue($visibility($vis));
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -23,12 +25,13 @@ namespace App\Tests\Core;
 
 use App\Core\Cache;
 use App\Util\Common;
+use ReflectionClass;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class CacheTest extends KernelTestCase
 {
-    private function doTest(array $adapters, $result_pool, $throws = null, $recompute = INF)
+    private function doTest(array $adapters, $result_pool, $throws = null, $recompute = \INF)
     {
         static::bootKernel();
 
@@ -37,7 +40,7 @@ class CacheTest extends KernelTestCase
         $cb   = $this->createMock(ContainerBagInterface::class);
         static::assertTrue($cb instanceof ContainerBagInterface);
         $cb->method('get')
-           ->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
+            ->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
         Common::setupConfig($cb);
 
         if ($throws != null) {
@@ -46,7 +49,7 @@ class CacheTest extends KernelTestCase
 
         Cache::setupCache();
 
-        $reflector = new \ReflectionClass('App\Core\Cache');
+        $reflector = new ReflectionClass('App\Core\Cache');
         $pools     = $reflector->getStaticPropertyValue('pools');
         foreach ($result_pool as $name => $type) {
             static::assertInstanceOf($type, $pools[$name]);
@@ -87,19 +90,19 @@ class CacheTest extends KernelTestCase
         // Need a connection to run the tests
         self::doTest(['default' => 'redis://redis'], ['default' => \Symfony\Component\Cache\Adapter\RedisAdapter::class]);
 
-        static::assertSame('value', Cache::get('test', function ($i) { return 'value'; }));
+        static::assertSame('value', Cache::get('test', fn ($i) => 'value'));
         Cache::set('test', 'other_value');
-        static::assertSame('other_value', Cache::get('test', function ($i) { return 'value'; }));
+        static::assertSame('other_value', Cache::get('test', fn ($i) => 'value'));
         static::assertTrue(Cache::delete('test'));
     }
 
-    private function _testRedis($recompute = INF)
+    private function _testRedis($recompute = \INF)
     {
         self::doTest(['default' => 'redis://redis'], ['default' => \Symfony\Component\Cache\Adapter\RedisAdapter::class], throws: null, recompute: $recompute);
 
         // Redis supports lists directly, uses different implementation
         $key = 'test' . time();
-        static::assertSame(['foo', 'bar'], Cache::getList($key, function ($i) { return ['foo', 'bar']; }));
+        static::assertSame(['foo', 'bar'], Cache::getList($key, fn ($i) => ['foo', 'bar']));
         Cache::pushList($key, 'quux');
         static::assertSame(['foo', 'bar', 'quux'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }));
         Cache::pushList($key, 'foobar', pool: 'default', max_count: 2);

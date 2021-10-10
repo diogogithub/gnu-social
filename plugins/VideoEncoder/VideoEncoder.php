@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -47,20 +49,11 @@ use SplFileInfo;
 
 class VideoEncoder extends Plugin
 {
-    /**
-     * @return string
-     */
     public function version(): string
     {
         return '1.0.0';
     }
 
-    /**
-     * @param array  $event_map
-     * @param string $mimetype
-     *
-     * @return bool
-     */
     public function onFileMetaAvailable(array &$event_map, string $mimetype): bool
     {
         if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
@@ -71,12 +64,6 @@ class VideoEncoder extends Plugin
         return Event::next;
     }
 
-    /**
-     * @param array  $event_map
-     * @param string $mimetype
-     *
-     * @return bool
-     */
     public function onFileSanitizerAvailable(array &$event_map, string $mimetype): bool
     {
         if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
@@ -87,12 +74,6 @@ class VideoEncoder extends Plugin
         return Event::next;
     }
 
-    /**
-     * @param array  $event_map
-     * @param string $mimetype
-     *
-     * @return bool
-     */
     public function onFileResizerAvailable(array &$event_map, string $mimetype): bool
     {
         if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
@@ -106,7 +87,6 @@ class VideoEncoder extends Plugin
     /**
      * Adds width and height metadata to gifs
      *
-     * @param SplFileInfo $file
      * @param null|string $mimetype in/out
      * @param null|int    $width    out
      * @param null|int    $height   out
@@ -128,8 +108,8 @@ class VideoEncoder extends Plugin
         ]);
 
         $metadata = $ffprobe->streams($file->getRealPath()) // extracts streams informations
-        ->videos()                      // filters video streams
-        ->first();                       // returns the first video stream
+            ->videos()                      // filters video streams
+            ->first();                       // returns the first video stream
         $width  = $metadata->get('width');
         $height = $metadata->get('height');
 
@@ -141,17 +121,7 @@ class VideoEncoder extends Plugin
     /**
      * Resizes GIF files.
      *
-     * @param string             $source
-     * @param null|TemporaryFile $destination
-     * @param int                $width
-     * @param int                $height
-     * @param bool               $smart_crop
-     * @param null|string        $mimetype
-     *
      * @throws TemporaryFileException
-     *
-     * @return bool
-     *
      */
     public function resizeVideoPath(string $source, ?TemporaryFile &$destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype): bool
     {
@@ -168,19 +138,16 @@ class VideoEncoder extends Plugin
 
     /**
      * Generates the view for attachments of type Video
-     *
-     * @param array $vars
-     * @param array $res
-     *
-     * @return bool
      */
     public function onViewAttachment(array $vars, array &$res): bool
     {
-        $res[] = Formatting::twigRenderFile('videoEncoder/videoEncoderView.html.twig',
+        $res[] = Formatting::twigRenderFile(
+            'videoEncoder/videoEncoderView.html.twig',
             [
                 'attachment' => $vars['attachment'],
                 'note'       => $vars['note'],
-            ]);
+            ],
+        );
         return Event::stop;
     }
 
@@ -188,12 +155,8 @@ class VideoEncoder extends Plugin
      * Animated GIF test, courtesy of frank at huddler dot com et al:
      * http://php.net/manual/en/function.imagecreatefromgif.php#104473
      * Modified so avoid landing inside of a header (and thus not matching our regexp).
-     *
-     * @param string $filepath
-     *
-     * @return bool
      */
-    public function isAnimatedGif(string $filepath)
+    public function isAnimatedGif(string $filepath): bool
     {
         if (!($fh = @fopen($filepath, 'rb'))) {
             return false;
@@ -215,7 +178,7 @@ class VideoEncoder extends Plugin
             // rewind in case we ended up in the middle of the header, but avoid
             // infinite loop (i.e. don't rewind if we're already in the end).
             if (!feof($fh) && ftell($fh) >= 9) {
-                fseek($fh, -9, SEEK_CUR);
+                fseek($fh, -9, \SEEK_CUR);
             }
         }
 
@@ -229,16 +192,7 @@ class VideoEncoder extends Plugin
      * @see http://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
      * @see https://github.com/PHP-FFMpeg/PHP-FFMpeg/pull/592
      *
-     * @param string             $source
-     * @param null|TemporaryFile $destination
-     * @param int                $width
-     * @param int                $height
-     * @param bool               $smart_crop
-     * @param null|string        $mimetype
-     *
      * @throws TemporaryFileException
-     *
-     * @return bool
      */
     public function resizeImageFileAnimatedGif(string $source, ?TemporaryFile &$destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype): bool
     {
@@ -251,7 +205,7 @@ class VideoEncoder extends Plugin
 
         // FFmpeg can't edit existing files in place,
         // generate temporary output file to avoid that
-        $destination = $destination ?? new TemporaryFile(['prefix' => 'video']);
+        $destination ??= new TemporaryFile(['prefix' => 'video']);
 
         // Generate palette file. FFmpeg explicitly needs to be told the
         // extension for PNG files outputs
@@ -315,11 +269,6 @@ class VideoEncoder extends Plugin
      * Courtesy of tomas at slax dot org:
      *
      * @see https://www.php.net/manual/en/function.tempnam.php#98232
-     *
-     * @param string $dir
-     * @param string $suffix
-     *
-     * @return string
      */
     private function tempnam_sfx(string $dir, string $suffix): string
     {
@@ -333,11 +282,7 @@ class VideoEncoder extends Plugin
     }
 
     /**
-     * @param array $versions
-     *
      * @throws ServerException
-     *
-     * @return bool
      */
     public function onPluginVersion(array &$versions): bool
     {
@@ -345,8 +290,7 @@ class VideoEncoder extends Plugin
             'version'         => self::version(),
             'author'          => 'Bruno Casteleiro, Diogo Peralta Cordeiro',
             'homepage'        => 'https://notabug.org/diogo/gnu-social/src/nightly/plugins/FFmpeg',
-            'rawdescription'  => // TRANS: Plugin description.
-                _m('Use PHP-FFMpeg for some more video support.'),
+            'rawdescription', // TRANS: Plugin description. => _m('Use PHP-FFMpeg for some more video support.'),
         ];
         return Event::next;
     }

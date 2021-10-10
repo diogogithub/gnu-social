@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -38,31 +40,25 @@ class ActorArrayTransformer extends ArrayTransformer
 {
     /**
      * Transforms array of Actors into string of nicknames
-     *
-     * @param array $a
-     *
-     * @return string
      */
-    public function transform($a)
+    public function transform(array $a): string
     {
-        return parent::transform(array_map(
-            function ($actor) { return $actor->getNickname(); },
-            $a)
+        return parent::transform(
+            array_map(
+                fn ($actor) => $actor->getNickname(),
+                $a,
+            ),
         );
     }
 
     /**
      * Transforms string of nicknames into Actors
-     *
-     * @param string $s
-     *
-     * @return array
      */
-    public function reverseTransform($s)
+    public function reverseTransform(string $s): array
     {
         return array_map(
-            function ($nickmame) { return Actor::getFromNickname($nickmame); },
-            parent::reverseTransform($s)
+            fn ($nickmame) => Actor::getFromNickname($nickmame),
+            parent::reverseTransform($s),
         );
     }
 }

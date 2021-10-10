@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -26,12 +28,9 @@ class HeightValidator implements ValidatorInterface
     /**
      * Validate height value
      *
-     * @param mixed $value
      * @param mixed $container An object
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {

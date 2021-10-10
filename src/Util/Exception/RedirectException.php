@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -37,7 +39,7 @@ class RedirectException extends Exception
     public function __construct(string $route_id = '', array $params = [], string $message = '', int $code = 302, ?string $url = null, bool $allow_open_redirect = false, ?Exception $previous_exception = null)
     {
         if (!empty($route_id) || !empty($url)) {
-            $url = $url ?? Router::url($route_id, $params, Router::ABSOLUTE_PATH); // Absolute path doesn't include host
+            $url ??= Router::url($route_id, $params, Router::ABSOLUTE_PATH); // Absolute path doesn't include host
             if (!$allow_open_redirect) {
                 if (Router::isAbsolute($url)) {
                     Log::warning("A RedirectException that shouldn't allow open redirects attempted to redirect to {$url}");

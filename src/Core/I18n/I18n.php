@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -53,8 +55,8 @@ $LC_CATEGORIES = [
     'LC_ALL',
 ];
 foreach ($LC_CATEGORIES as $key => $name) {
-    if (!defined($name)) {
-        define($name, $key);
+    if (!\defined($name)) {
+        \define($name, $key);
     }
 }
 
@@ -71,11 +73,7 @@ abstract class I18n
      * Looks for which plugin we've been called from to get the gettext domain;
      * if not in a plugin subdirectory, we'll use the default 'core+intl-icu'.
      *
-     * @param string $path
-     *
      * @throws ServerException
-     *
-     * @return string
      */
     public static function _mdomain(string $path): string
     {
@@ -104,15 +102,18 @@ abstract class I18n
      *
      * @return string language code for best language match, false otherwise
      */
-    public static function clientPreferredLanguage(string $http_accept_lang_header): string | bool
+    public static function clientPreferredLanguage(string $http_accept_lang_header): string|bool
     {
         $client_langs  = [];
         $all_languages = self::getAllLanguages();
 
-        preg_match_all('"(((\S\S)-?(\S\S)?)(;q=([0-9.]+))?)\s*(,\s*|$)"',
-                       mb_strtolower($http_accept_lang_header), $http_langs);
+        preg_match_all(
+            '"(((\S\S)-?(\S\S)?)(;q=([0-9.]+))?)\s*(,\s*|$)"',
+            mb_strtolower($http_accept_lang_header),
+            $http_langs,
+        );
 
-        for ($i = 0; $i < count($http_langs); ++$i) {
+        for ($i = 0; $i < \count($http_langs); ++$i) {
             if (!empty($http_langs[2][$i])) {
                 // if no q default to 1.0
                 $client_langs[$http_langs[2][$i]] = ($http_langs[6][$i] ? (float) $http_langs[6][$i] : 1.0 - ($i * 0.01));
@@ -136,7 +137,7 @@ abstract class I18n
     /**
      * returns a simple code -> name mapping for languages
      *
-     * @return array map of available languages by code to language name.
+     * @return array map of available languages by code to language name
      */
     public static function getNiceLanguageList(): array
     {
@@ -253,11 +254,11 @@ abstract class I18n
     public static function formatICU(array $messages, array $params): string
     {
         $res = '';
-        foreach (array_slice($params, 0, 1, true) as $var => $type) {
-            if (is_int($type)) {
+        foreach (\array_slice($params, 0, 1, true) as $var => $type) {
+            if (\is_int($type)) {
                 $pref = '=';
                 $op   = 'plural';
-            } elseif (is_string($type)) {
+            } elseif (\is_string($type)) {
                 $pref = '';
                 $op   = 'select';
             } else {
@@ -266,7 +267,7 @@ abstract class I18n
 
             $res = "{$var}, {$op}, ";
             $i   = 0;
-            $cnt = count($messages) - 1;
+            $cnt = \count($messages) - 1;
             foreach ($messages as $val => $m) {
                 if ($i !== $cnt) {
                     $res .= "{$pref}{$val}";
@@ -274,9 +275,9 @@ abstract class I18n
                     $res .= 'other';
                 }
 
-                if (is_array($m)) {
-                    $res .= ' {' . self::formatICU($m, array_slice($params, 1, null, true)) . '} ';
-                } elseif (is_string($m)) {
+                if (\is_array($m)) {
+                    $res .= ' {' . self::formatICU($m, \array_slice($params, 1, null, true)) . '} ';
+                } elseif (\is_string($m)) {
                     $res .= " {{$m}} ";
                 } else {
                     throw new InvalidArgumentException('Invalid message array');
@@ -307,8 +308,6 @@ abstract class I18n
  *
  * @throws ServerException
  *
- * @return string
- *
  * @todo add parameters
  */
 function _m(...$args): string
@@ -316,26 +315,26 @@ function _m(...$args): string
     // Get the file where this function was called from, reducing the
     // memory and performance impact by not returning the arguments,
     // and only 2 frames (this and previous)
-    $domain = I18n::_mdomain(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0]['file']);
-    switch (count($args)) {
+    $domain = I18n::_mdomain(debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0]['file']);
+    switch (\count($args)) {
     case 1:
         // Empty parameters, simple message
         return I18n::$translator->trans($args[0], [], $domain);
     case 3:
         // @codeCoverageIgnoreStart
-        if (is_int($args[2])) {
-            throw new InvalidArgumentException('Calling `_m()` with a number for pluralization is deprecated, ' .
-                                                'use an explicit parameter');
+        if (\is_int($args[2])) {
+            throw new InvalidArgumentException('Calling `_m()` with a number for pluralization is deprecated, '
+                                                . 'use an explicit parameter', );
         }
         // @codeCoverageIgnoreEnd
         // Falthrough
         // no break
         case 2:
-            if (is_array($args[0])) {
+            if (\is_array($args[0])) {
                 $args[0] = I18n::formatICU($args[0], $args[1]);
             }
 
-            if (is_string($args[0])) {
+            if (\is_string($args[0])) {
                 $msg    = $args[0];
                 $params = $args[1] ?? [];
                 return I18n::$translator->trans($msg, $params, $domain);

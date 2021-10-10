@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -63,7 +65,7 @@ class Kernel extends BaseKernel
 
     public function getProjectDir(): string
     {
-        return dirname(__DIR__);
+        return \dirname(__DIR__);
     }
 
     /**

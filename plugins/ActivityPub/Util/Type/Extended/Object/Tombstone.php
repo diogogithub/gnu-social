@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,17 +27,12 @@ use Plugin\ActivityPub\Util\Type\Core\ObjectType;
  */
 class Tombstone extends ObjectType
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Tombstone';
 
     /**
      * The type of the object that was deleted.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-formertype
-     *
-     * @var null|string
      */
     protected ?string $formerType;
 

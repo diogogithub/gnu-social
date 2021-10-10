@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Component\Tag\Controller;
 
 use App\Core\Cache;
@@ -19,7 +21,7 @@ class Tag extends Controller
             query: 'select n from note n join note_tag nt with n.id = nt.note_id where nt.canonical = :canon order by nt.created DESC, nt.note_id DESC',
             query_args: ['canon' => $canonical],
             actor: $user,
-            page: $page
+            page: $page,
         );
 
         return [

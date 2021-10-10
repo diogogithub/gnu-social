@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -66,13 +68,9 @@ class UserPanel extends AbstractController
     /**
      * Return main settings page forms
      *
-     * @param Request $request
-     *
      * @throws Exception
-     *
-     * @return array
      */
-    public function all_settings(Request $request)
+    public function all_settings(Request $request): array
     {
         $account_form             = $this->account($request);
         $personal_form            = $this->personal_info($request);
@@ -106,9 +104,7 @@ class UserPanel extends AbstractController
         $extra_step = function ($data, $extra_args) use ($user) {
             $user->setNickname($data['nickname']);
         };
-        $form = Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
-
-        return $form;
+        return Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
     }
 
     /**
@@ -132,7 +128,7 @@ class UserPanel extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            if (!is_null($data['old_password'])) {
+            if (!\is_null($data['old_password'])) {
                 $data['password'] = $form->get('password')->getData();
                 if (!($user->changePassword($data['old_password'], $data['password']))) {
                     throw new AuthenticationException(_m('The provided password is incorrect'));
@@ -166,7 +162,7 @@ class UserPanel extends AbstractController
         foreach ($columns as $name => $col) {
             $type     = $col->getType();
             $val      = $type->convertToPHPValue($col->getDefault(), $platform);
-            $type_str = lcfirst(substr((string) $type, 1));
+            $type_str = lcfirst(mb_substr((string) $type, 1));
             $label    = str_replace('_', ' ', ucfirst($name));
 
             $labels = [
@@ -223,14 +219,14 @@ class UserPanel extends AbstractController
                 try {
                     [$ent, $is_update] = UserNotificationPrefs::createOrUpdate(
                         array_merge(['user_id' => $user->getId(), 'transport' => $transport_name], $data),
-                        find_by_keys: ['user_id', 'transport']
+                        find_by_keys: ['user_id', 'transport'],
                     );
                     if (!$is_update) {
                         DB::persist($ent);
                     }
                     DB::flush();
                     // @codeCoverageIgnoreStart
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Somehow, the exception doesn't bubble up in phpunit
                     dd($data, $e);
                     // @codeCoverageIgnoreEnd
@@ -238,9 +234,7 @@ class UserPanel extends AbstractController
             }
         }
 
-        $tabbed_forms = F\map($tabbed_forms, function ($f) {
-            return $f->createView();
-        });
+        $tabbed_forms = F\map($tabbed_forms, fn ($f) => $f->createView());
         return $tabbed_forms;
     }
 }

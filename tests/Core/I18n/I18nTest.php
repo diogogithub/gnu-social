@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -21,6 +23,7 @@ namespace App\Tests\Core\I18n;
 
 use function App\Core\I18n\_m;
 use App\Core\I18n\I18n;
+use InvalidArgumentException;
 use Jchook\AssertThrows\AssertThrows;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -45,21 +48,21 @@ class I18nTest extends KernelTestCase
         I18n::setTranslator($translator);
 
         $apples = [1 => '1 apple', '# apples'];
-        static::assertSame('-42 apples',  _m($apples, ['count' => -42]));
-        static::assertSame('0 apples',    _m($apples, ['count' => 0]));
-        static::assertSame('1 apple',     _m($apples, ['count' => 1]));
-        static::assertSame('2 apples',    _m($apples, ['count' => 2]));
-        static::assertSame('42 apples',   _m($apples, ['count' => 42]));
+        static::assertSame('-42 apples', _m($apples, ['count' => -42]));
+        static::assertSame('0 apples', _m($apples, ['count' => 0]));
+        static::assertSame('1 apple', _m($apples, ['count' => 1]));
+        static::assertSame('2 apples', _m($apples, ['count' => 2]));
+        static::assertSame('42 apples', _m($apples, ['count' => 42]));
 
         $apples = [0 => 'no apples', 1 => '1 apple', '# apples'];
         static::assertSame('no apples', _m($apples, ['count' => 0]));
-        static::assertSame('1 apple',   _m($apples, ['count' => 1]));
-        static::assertSame('2 apples',  _m($apples, ['count' => 2]));
+        static::assertSame('1 apple', _m($apples, ['count' => 1]));
+        static::assertSame('2 apples', _m($apples, ['count' => 2]));
         static::assertSame('42 apples', _m($apples, ['count' => 42]));
 
         $pronouns = ['she' => 'her apple', 'he' => 'his apple', 'they' => 'their apple'];
-        static::assertSame('her apple',   _m($pronouns, ['pronoun' => 'she']));
-        static::assertSame('his apple',   _m($pronouns, ['pronoun' => 'he']));
+        static::assertSame('her apple', _m($pronouns, ['pronoun' => 'she']));
+        static::assertSame('his apple', _m($pronouns, ['pronoun' => 'he']));
         static::assertSame('their apple', _m($pronouns, ['pronoun' => 'they']));
         static::assertSame('their apple', _m($pronouns, ['pronoun' => 'unkown'])); // a bit odd, not sure if we want this
 
@@ -71,10 +74,10 @@ class I18nTest extends KernelTestCase
             'he'  => [1 => 'his apple', 'his # apples'],
         ];
 
-        static::assertSame('her apple',     _m($complex, ['pronoun' => 'she', 'count' => 1]));
-        static::assertSame('his apple',     _m($complex, ['pronoun' => 'he',  'count' => 1]));
-        static::assertSame('her 2 apples',  _m($complex, ['pronoun' => 'she', 'count' => 2]));
-        static::assertSame('his 2 apples',  _m($complex, ['pronoun' => 'he',  'count' => 2]));
+        static::assertSame('her apple', _m($complex, ['pronoun' => 'she', 'count' => 1]));
+        static::assertSame('his apple', _m($complex, ['pronoun' => 'he',  'count' => 1]));
+        static::assertSame('her 2 apples', _m($complex, ['pronoun' => 'she', 'count' => 2]));
+        static::assertSame('his 2 apples', _m($complex, ['pronoun' => 'he',  'count' => 2]));
         static::assertSame('her 42 apples', _m($complex, ['pronoun' => 'she', 'count' => 42]));
 
         $complex = [
@@ -83,24 +86,24 @@ class I18nTest extends KernelTestCase
             'their' => [1 => 'their apple', 'their # apples'],
         ];
 
-        static::assertSame('her apple',      _m($complex, ['pronoun' => 'she',  'count' => 1]));
-        static::assertSame('his apple',      _m($complex, ['pronoun' => 'he',   'count' => 1]));
-        static::assertSame('her 2 apples',   _m($complex, ['pronoun' => 'she',  'count' => 2]));
-        static::assertSame('his 2 apples',   _m($complex, ['pronoun' => 'he',   'count' => 2]));
-        static::assertSame('her 42 apples',  _m($complex, ['pronoun' => 'she',  'count' => 42]));
-        static::assertSame('their apple',    _m($complex, ['pronoun' => 'they', 'count' => 1]));
+        static::assertSame('her apple', _m($complex, ['pronoun' => 'she',  'count' => 1]));
+        static::assertSame('his apple', _m($complex, ['pronoun' => 'he',   'count' => 1]));
+        static::assertSame('her 2 apples', _m($complex, ['pronoun' => 'she',  'count' => 2]));
+        static::assertSame('his 2 apples', _m($complex, ['pronoun' => 'he',   'count' => 2]));
+        static::assertSame('her 42 apples', _m($complex, ['pronoun' => 'she',  'count' => 42]));
+        static::assertSame('their apple', _m($complex, ['pronoun' => 'they', 'count' => 1]));
         static::assertSame('their 3 apples', _m($complex, ['pronoun' => 'they', 'count' => 3]));
 
-        static::assertThrows(\InvalidArgumentException::class, fn () => _m($apples, ['count' => []]));
-        static::assertThrows(\InvalidArgumentException::class, fn () => _m([1], ['foo' => 'bar']));
+        static::assertThrows(InvalidArgumentException::class, fn () => _m($apples, ['count' => []]));
+        static::assertThrows(InvalidArgumentException::class, fn () => _m([1], ['foo' => 'bar']));
     }
 
     public function testIsRTL()
     {
         static::assertFalse(I18n::isRTL('af'));
         static::assertTrue(I18n::isRTL('ar'));
-        static::assertThrows(\InvalidArgumentException::class, fn () => I18n::isRTL(''));
-        static::assertThrows(\InvalidArgumentException::class, fn () => I18n::isRTL('not a language'));
+        static::assertThrows(InvalidArgumentException::class, fn () => I18n::isRTL(''));
+        static::assertThrows(InvalidArgumentException::class, fn () => I18n::isRTL('not a language'));
     }
 
     public function testGetNiceList()

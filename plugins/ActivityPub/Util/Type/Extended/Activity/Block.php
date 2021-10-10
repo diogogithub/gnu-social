@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -24,8 +26,5 @@ namespace Plugin\ActivityPub\Util\Type\Extended\Activity;
  */
 class Block extends Ignore
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Block';
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -38,9 +40,9 @@ class Inbox extends Controller
      */
     public function handle(?int $gsactor_id = null)
     {
-        if (!is_null($gsactor_id)) {
+        if (!\is_null($gsactor_id)) {
             $user = DB::find('local_user', ['id' => $gsactor_id]);
-            if (is_null($user)) {
+            if (\is_null($user)) {
                 throw new ClientException(_m('No such actor.'), 404);
             }
         }
@@ -48,14 +50,14 @@ class Inbox extends Controller
         // Check accept header
         ActivityPub::validateAcceptHeader(
             $this->request->headers->get('accept'),
-            true
+            true,
         );
 
         // TODO: Check if Actor can post
 
         // Get content
         $payload = Util::decodeJson(
-            (string) $this->request->getContent()
+            (string) $this->request->getContent(),
         );
 
         // Cast as an ActivityStreams type

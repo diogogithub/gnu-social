@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -109,26 +111,27 @@ class GNUsocial implements EventSubscriberInterface
     /**
      * Symfony dependency injection gives us access to these services
      */
-    public function __construct(LoggerInterface $logger,
-                                TranslatorInterface $trans,
-                                EntityManagerInterface $em,
-                                RouterInterface $router,
-                                UrlGeneratorInterface $url_gen,
-                                FormFactoryInterface $ff,
-                                MessageBusInterface $mb,
-                                EventDispatcherInterface $ed,
-                                SessionInterface $sess,
-                                SSecurity $sec,
-                                ModuleManager $mm,
-                                HttpClientInterface $cl,
-                                SanitizerInterface $san,
-                                ContainerBagInterface $conf,
-                                Environment $twig,
-                                RequestStack $request_stack,
-                                MailerInterface $mailer,
-                                VerifyEmailHelperInterface $email_verify_helper,
-                                ResetPasswordHelperInterface $reset_helper)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        TranslatorInterface $trans,
+        EntityManagerInterface $em,
+        RouterInterface $router,
+        UrlGeneratorInterface $url_gen,
+        FormFactoryInterface $ff,
+        MessageBusInterface $mb,
+        EventDispatcherInterface $ed,
+        SessionInterface $sess,
+        SSecurity $sec,
+        ModuleManager $mm,
+        HttpClientInterface $cl,
+        SanitizerInterface $san,
+        ContainerBagInterface $conf,
+        Environment $twig,
+        RequestStack $request_stack,
+        MailerInterface $mailer,
+        VerifyEmailHelperInterface $email_verify_helper,
+        ResetPasswordHelperInterface $reset_helper,
+    ) {
         $this->logger                = $logger;
         $this->translator            = $trans;
         $this->entity_manager        = $em;
@@ -161,7 +164,7 @@ class GNUsocial implements EventSubscriberInterface
     {
         if (!$this->initialized) {
             Common::setupConfig($this->config);
-            if (!is_null($this->request)) {
+            if (!\is_null($this->request)) {
                 Common::setRequest($this->request);
             }
             Log::setLogger($this->logger);
@@ -189,10 +192,6 @@ class GNUsocial implements EventSubscriberInterface
     /**
      * Event very early on in the Symfony HTTP lifecycle, but after everything is registered
      * where we get access to the event dispatcher
-     *
-     * @param RequestEvent $event
-     *
-     * @return RequestEvent
      */
     public function onKernelRequest(RequestEvent $event): RequestEvent
     {
@@ -211,11 +210,7 @@ class GNUsocial implements EventSubscriberInterface
     /**
      * Event after everything is initialized when using the `bin/console` command
      *
-     * @param ConsoleCommandEvent $event
-     *
      * @throws ConfigurationException
-     *
-     * @return ConsoleCommandEvent
      */
     public function onCommand(ConsoleCommandEvent $event): ConsoleCommandEvent
     {
@@ -251,7 +246,7 @@ class GNUsocial implements EventSubscriberInterface
 
         // Merge parameter $from with values already set in $to
         $merge_config = function ($from, $to = null) use ($container, $locals) {
-            $to      = $to ?? $from;
+            $to ??= $from;
             $wrapper = $container->hasParameter($to) ? $container->getParameter($to) : [];
             $content = [$from => $container->getParameter($from)];
             $container->getParameterBag()->remove($from);
@@ -261,7 +256,7 @@ class GNUsocial implements EventSubscriberInterface
         };
 
         // Override and merge any of the previous settings from the locals
-        if (is_array($locals)) {
+        if (\is_array($locals)) {
             $merge_config('gnusocial');
             foreach ($parameters as $mod => $type) {
                 $merge_config($mod, $type);
@@ -272,7 +267,6 @@ class GNUsocial implements EventSubscriberInterface
     /**
      * Tell Symfony which events we want to listen to, which Symfony detects and auto-wires
      * due to this implementing the `EventSubscriberInterface`
-     *
      */
     public static function getSubscribedEvents(): array
     {

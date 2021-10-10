@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -38,7 +40,7 @@ use App\Util\Nickname;
 
 abstract class Subscribers
 {
-    const LOAD_ORDER = 31;
+    public const LOAD_ORDER = 31;
     public static function load(RouteLoader $r): void
     {
         $r->connect(id: 'actor_subscribers_id', uri_path: '/actor/{id<\d+>}/subscribers', target: [C\Subscribers::class, 'SubscribersByActorId']);

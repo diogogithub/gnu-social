@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -37,6 +39,7 @@ use App\Entity\Group;
 use App\Entity\Note;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\ServerException;
+use Exception;
 use Functional as F;
 use InvalidArgumentException;
 
@@ -60,10 +63,6 @@ abstract class Formatting
 
     /**
      * Normalize path by converting \ to /
-     *
-     * @param string $path
-     *
-     * @return string
      */
     public static function normalizePath(string $path): string
     {
@@ -72,22 +71,18 @@ abstract class Formatting
 
     /**
      * Get plugin name from it's path, or null if not a plugin
-     *
-     * @param string $path
-     *
-     * @return null|string
      */
     public static function moduleFromPath(string $path): ?string
     {
         foreach (['/plugins/', '/components/'] as $mod_p) {
-            $module = strpos($path, $mod_p);
+            $module = mb_strpos($path, $mod_p);
             if ($module === false) {
                 continue;
             }
-            $cut  = $module + strlen($mod_p);
-            $cut2 = strpos($path, '/', $cut);
+            $cut  = $module + mb_strlen($mod_p);
+            $cut2 = mb_strpos($path, '/', $cut);
             if ($cut2) {
-                $final = substr($path, $cut, $cut2 - $cut);
+                $final = mb_substr($path, $cut, $cut2 - $cut);
             } else {
                 // We might be running directly from the plugins dir?
                 // If so, there's no place to store locale info.
@@ -105,13 +100,11 @@ abstract class Formatting
      *
      * @param array|string $haystack if array, check that all strings start with $needle (see below)
      * @param array|string $needle   if array, check that one of the $needles is found
-     *
-     * @return bool
      */
     public static function startsWith(array|string $haystack, array|string $needle): bool
     {
-        if (is_string($haystack)) {
-            return F\some(is_array($needle) ? $needle : [$needle], fn ($n) => str_starts_with($haystack, $n));
+        if (\is_string($haystack)) {
+            return F\some(\is_array($needle) ? $needle : [$needle], fn ($n) => str_starts_with($haystack, $n));
         } else {
             return F\every($haystack, fn ($haystack) => self::startsWith($haystack, $needle));
         }
@@ -121,13 +114,11 @@ abstract class Formatting
      *
      * @param array|string $haystack if array, check that all strings end with $needle (see below)
      * @param array|string $needle   if array, check that one of the $needles is found
-     *
-     * @return bool
      */
     public static function endsWith(array|string $haystack, array|string $needle): bool
     {
-        if (is_string($haystack)) {
-            return F\some(is_array($needle) ? $needle : [$needle], fn ($n) => str_ends_with($haystack, $n));
+        if (\is_string($haystack)) {
+            return F\some(\is_array($needle) ? $needle : [$needle], fn ($n) => str_ends_with($haystack, $n));
         } else {
             return F\every($haystack, fn ($haystack) => self::endsWith($haystack, $needle));
         }
@@ -138,7 +129,7 @@ abstract class Formatting
      */
     public static function removePrefix(string $haystack, string $needle)
     {
-        return self::startsWith($haystack, $needle) ? substr($haystack, strlen($needle)) : $haystack;
+        return self::startsWith($haystack, $needle) ? mb_substr($haystack, mb_strlen($needle)) : $haystack;
     }
 
     /**
@@ -146,12 +137,12 @@ abstract class Formatting
      */
     public static function removeSuffix(string $haystack, string $needle)
     {
-        return self::endsWith($haystack, $needle) && !empty($needle) ? substr($haystack, 0, -strlen($needle)) : $haystack;
+        return self::endsWith($haystack, $needle) && !empty($needle) ? mb_substr($haystack, 0, -mb_strlen($needle)) : $haystack;
     }
 
     public static function camelCaseToSnakeCase(string $str): string
     {
-        return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $str));
+        return mb_strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $str));
     }
 
     public static function snakeCaseToCamelCase(string $str): string
@@ -165,43 +156,39 @@ abstract class Formatting
      * @param array|string $in
      * @param int          $level How many levels of indentation
      * @param int          $count How many spaces per indentation
-     *
-     * @return string
      */
     public static function indent($in, int $level = 1, int $count = 2): string
     {
-        if (is_string($in)) {
+        if (\is_string($in)) {
             return self::indent(explode("\n", $in), $level, $count);
-        } elseif (is_array($in)) {
+        } elseif (\is_array($in)) {
             $indent = str_repeat(' ', $count * $level);
-            return implode("\n", F\map(F\select($in,
-                F\ary(function ($s) {
-                    return $s != '';
-                }, 1)),
-                function ($val) use ($indent) {
-                    return F\concat($indent . $val);
-                }));
+            return implode("\n", F\map(
+                F\select(
+                    $in,
+                    F\ary(fn ($s) => $s != '', 1),
+                ),
+                fn ($val) => F\concat($indent . $val),
+            ));
         }
         throw new InvalidArgumentException('Formatting::indent\'s first parameter must be either an array or a string. Input was: ' . $in);
     }
 
-    const SPLIT_BY_SPACE = ' ';
-    const JOIN_BY_SPACE  = ' ';
-    const SPLIT_BY_COMMA = ', ';
-    const JOIN_BY_COMMA  = ', ';
-    const SPLIT_BY_BOTH  = '/[, ]/';
+    public const SPLIT_BY_SPACE = ' ';
+    public const JOIN_BY_SPACE  = ' ';
+    public const SPLIT_BY_COMMA = ', ';
+    public const JOIN_BY_COMMA  = ', ';
+    public const SPLIT_BY_BOTH  = '/[, ]/';
 
     /**
      * Convert scalars, objects implementing __toString or arrays to strings
-     *
-     * @param mixed $value
      */
     public static function toString($value, string $join_type = self::JOIN_BY_COMMA): string
     {
-        if (!in_array($join_type, [static::JOIN_BY_SPACE, static::JOIN_BY_COMMA])) {
-            throw new \Exception('Formatting::toString received invalid join option');
+        if (!\in_array($join_type, [static::JOIN_BY_SPACE, static::JOIN_BY_COMMA])) {
+            throw new Exception('Formatting::toString received invalid join option');
         } else {
-            if (!is_array($value)) {
+            if (!\is_array($value)) {
                 return (string) $value;
             } else {
                 return implode($join_type, $value);
@@ -211,13 +198,11 @@ abstract class Formatting
 
     /**
      * Convert a user supplied string to array and return whether the conversion was successfull
-     *
-     * @param mixed $output
      */
     public static function toArray(string $input, &$output, string $split_type = self::SPLIT_BY_COMMA): bool
     {
-        if (!in_array($split_type, [static::SPLIT_BY_SPACE, static::SPLIT_BY_COMMA, static::SPLIT_BY_BOTH])) {
-            throw new \Exception('Formatting::toArray received invalid split option');
+        if (!\in_array($split_type, [static::SPLIT_BY_SPACE, static::SPLIT_BY_COMMA, static::SPLIT_BY_BOTH])) {
+            throw new Exception('Formatting::toArray received invalid split option');
         }
         if ($input == '') {
             $output = [];
@@ -227,7 +212,7 @@ abstract class Formatting
         if (preg_match('/^ *\[?([^,]+(, ?[^,]+)*)\]? *$/', $input, $matches)) {
             switch ($split_type) {
             case self::SPLIT_BY_BOTH:
-                $arr = preg_split($split_type, $matches[1], 0, PREG_SPLIT_NO_EMPTY);
+                $arr = preg_split($split_type, $matches[1], 0, \PREG_SPLIT_NO_EMPTY);
                 break;
             case self::SPLIT_BY_COMMA:
                 $arr = preg_split('/, ?/', $matches[1]);
@@ -250,14 +235,12 @@ abstract class Formatting
         $text = self::quoteAndRemoveControlCodes($text);
 
         // Split \n\n into paragraphs, process each paragrah and merge
-        $text = implode("\n", F\map(explode("\n\n", $text), function (string $paragraph) {
+        return implode("\n", F\map(explode("\n\n", $text), function (string $paragraph) {
             $paragraph = nl2br($paragraph, use_xhtml: false);
             Event::handle('RenderContent', [&$paragraph]);
 
             return HTML::html(['p' => [$paragraph]], options: ['raw' => true, 'indent' => false]);
         }));
-
-        return $text;
     }
 
     /**
@@ -268,7 +251,7 @@ abstract class Formatting
     public static function quoteAndRemoveControlCodes(string $text): string
     {
         // Quote special chars
-        $text = htmlspecialchars($text, flags: ENT_QUOTES | ENT_SUBSTITUTE, double_encode: false);
+        $text = htmlspecialchars($text, flags: \ENT_QUOTES | \ENT_SUBSTITUTE, double_encode: false);
         // Normalize newlines to strictly \n and remove ASCII control codes
         return preg_replace(['/[\x{0}-\x{8}\x{b}-\x{c}\x{e}-\x{19}\x{200b}-\x{200f}\x{202a}-\x{202e}]/u', '/\R/u'], ['', "\n"], $text);
     }
@@ -279,21 +262,20 @@ abstract class Formatting
     public static function slugify(string $str, int $length = 64): string
     {
         // php-intl is highly recommended...
-        if (!function_exists('transliterator_transliterate')) {
+        if (!\function_exists('transliterator_transliterate')) {
             $str = preg_replace('/[^\pL\pN]/u', '', $str);
-            $str = mb_convert_case($str, MB_CASE_LOWER, 'UTF-8');
-            $str = substr($str, 0, $length);
-            return $str;
+            $str = mb_convert_case($str, \MB_CASE_LOWER, 'UTF-8');
+            return mb_substr($str, 0, $length);
         }
-        $str = transliterator_transliterate('Any-Latin;' .                  // any charset to latin compatible
-                                            'NFD;' .                        // decompose
-                                            '[:Nonspacing Mark:] Remove;' . // remove nonspacing marks (accents etc.)
-                                            'NFC;' .                        // composite again
-                                            '[:Punctuation:] Remove;' .     // remove punctuation (.,¿? etc.)
-                                            'Lower();' .                    // turn into lowercase
-                                            'Latin-ASCII;',                 // get ASCII equivalents (ð to d for example)
-                                            $str);
-        return substr(preg_replace('/[^\pL\pN]/u', '', $str), 0, $length);
+        $str = transliterator_transliterate('Any-Latin;'                  // any charset to latin compatible
+                                            . 'NFD;'                        // decompose
+                                            . '[:Nonspacing Mark:] Remove;' // remove nonspacing marks (accents etc.)
+                                            . 'NFC;'                        // composite again
+                                            . '[:Punctuation:] Remove;'     // remove punctuation (.,¿? etc.)
+                                            . 'Lower();'                    // turn into lowercase
+                                            . 'Latin-ASCII;',                 // get ASCII equivalents (ð to d for example)
+                                            $str, );
+        return mb_substr(preg_replace('/[^\pL\pN]/u', '', $str), 0, $length);
     }
 
     /**
@@ -304,14 +286,10 @@ abstract class Formatting
      * Note the return data format is internal, to be used for building links and
      * such. Should not be used directly; rather, call common_linkify_mentions().
      *
-     * @param string $text
-     * @param Actor  $actor  the Actor that is sending the current text
-     * @param Note   $parent the Note this text is in reply to, if any
-     *
-     * @return array
-     *
+     * @param Actor $actor  the Actor that is sending the current text
+     * @param Note  $parent the Note this text is in reply to, if any
      */
-    public static function findMentions(string $text, Actor $actor, Note $parent = null)
+    public static function findMentions(string $text, Actor $actor, ?Note $parent = null): array
     {
         $mentions = [];
         if (Event::handle('StartFindMentions', [$actor, $text, &$mentions])) {
@@ -440,7 +418,6 @@ abstract class Formatting
      * Does the actual regex pulls to find @-mentions in text.
      * Should generally not be called directly; for use in common_find_mentions.
      *
-     * @param string $text
      * @param string $preMention Character(s) that signals a mention ('@', '!'...)
      *
      * @return array of PCRE match arrays
@@ -452,7 +429,7 @@ abstract class Formatting
             '/^T (' . Nickname::DISPLAY_FMT . ') /',
             $text,
             $tmatches,
-            PREG_OFFSET_CAPTURE
+            \PREG_OFFSET_CAPTURE,
         );
 
         $atmatches = [];
@@ -461,11 +438,10 @@ abstract class Formatting
             '/' . Nickname::BEFORE_MENTIONS . preg_quote($preMention, '/') . '(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/',
             $text,
             $atmatches,
-            PREG_OFFSET_CAPTURE
+            \PREG_OFFSET_CAPTURE,
         );
 
-        $matches = array_merge($tmatches[1], $atmatches[1]);
-        return $matches;
+        return array_merge($tmatches[1], $atmatches[1]);
     }
 
     /**
@@ -480,7 +456,7 @@ abstract class Formatting
      *
      * @return string partially-rendered HTML
      */
-    public static function linkifyMentions($text, Actor $author, ?Note $parent = null)
+    public static function linkifyMentions(string $text, Actor $author, ?Note $parent = null): string
     {
         $mentions = self::findMentions($text, $author, $parent);
 

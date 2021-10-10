@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -45,12 +47,12 @@ class FormTest extends GNUsocialTestCase
             ['array_trans', TextareaType::class, ['data' => ['foo', 'bar'], 'transformer' => ArrayTransformer::class]],
             ['testpost',    SubmitType::class,   ['label' => 'Post']],
         ]);
-        static::assertSame(get_class($form), 'Symfony\\Component\\Form\\Form');
+        static::assertSame(\get_class($form), 'Symfony\\Component\\Form\\Form');
         foreach ($form as $name => $f) {
             if ($name == 'testpost') {
-                static::assertSame(get_class($f), 'Symfony\Component\Form\SubmitButton');
+                static::assertSame(\get_class($f), 'Symfony\Component\Form\SubmitButton');
             } else {
-                static::assertSame(get_class($f), 'Symfony\Component\Form\Form');
+                static::assertSame(\get_class($f), 'Symfony\Component\Form\Form');
             }
 
             $config       = $f->getConfig();
@@ -62,7 +64,7 @@ class FormTest extends GNUsocialTestCase
             foreach ($form_array as [$array_name, $array_class, $options]) {
                 if ($name === $array_name) {
                     $found = true;
-                    static::assertSame(get_class($form_class), $array_class);
+                    static::assertSame(\get_class($form_class), $array_class);
                     foreach (['label', 'attr', 'data'] as $field) {
                         if (isset($options[$field])) {
                             static::assertSame($form_options[$field], $options[$field]);
@@ -73,7 +75,7 @@ class FormTest extends GNUsocialTestCase
             }
             static::assertTrue($found);
 
-            static::assertSame(get_class($f->getParent()), 'Symfony\\Component\\Form\\Form');
+            static::assertSame(\get_class($f->getParent()), 'Symfony\\Component\\Form\\Form');
         }
         static::assertTrue(Form::isRequired($form_array, 'content'));
     }

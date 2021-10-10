@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -24,9 +26,6 @@ namespace Plugin\ActivityPub\Util\Type\Core;
  */
 abstract class AbstractActivity extends ObjectType
 {
-    /**
-     * @var string
-     */
     public string $id;
 
     /**

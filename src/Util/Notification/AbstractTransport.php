@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -31,6 +33,7 @@
 namespace App\Util\Notification;
 
 use function App\Core\I18n\_m;
+use InvalidArgumentException;
 
 /**
  * @codeCoverageIgnore
@@ -73,7 +76,7 @@ abstract class AbstractTransport
         case Notification::DM:
             return _m('Send me alerts of new direct messages through {name}', ['{name}' => $this->getName()]);
         default:
-            throw new \InvalidArgumentException('Given an invalid Notification constant value');
+            throw new InvalidArgumentException('Given an invalid Notification constant value');
         }
     }
 
@@ -98,7 +101,7 @@ abstract class AbstractTransport
         case Notification::DM:
             return _m('Notify of new DMs');
         default:
-            throw new \InvalidArgumentException('Given an invalid Notification constant value');
+            throw new InvalidArgumentException('Given an invalid Notification constant value');
         }
     }
 }

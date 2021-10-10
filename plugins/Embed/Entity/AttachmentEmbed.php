@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -57,7 +59,7 @@ class AttachmentEmbed extends Entity
     private ?string $author_name;
     private ?string $author_url;
     private ?string $thumbnail_url;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setLinkId(int $link_id): self
     {
@@ -70,17 +72,11 @@ class AttachmentEmbed extends Entity
         return $this->link_id;
     }
 
-    /**
-     * @return int
-     */
     public function getAttachmentId(): int
     {
         return $this->attachment_id;
     }
 
-    /**
-     * @param int $attachment_id
-     */
     public function setAttachmentId(int $attachment_id): void
     {
         $this->attachment_id = $attachment_id;
@@ -187,7 +183,7 @@ class AttachmentEmbed extends Entity
         $attr       = ['class' => 'u-photo embed'];
         $attachment = DB::find('attachment', ['id' => $this->getAttachmentId()]);
         $thumbnail  = $attachment->getThumbnail('medium');
-        if (is_null($attachment) || is_null($attachment->getWidth()) || is_null($attachment->getHeight())) {
+        if (\is_null($attachment) || \is_null($attachment->getWidth()) || \is_null($attachment->getHeight())) {
             $attr['has_attachment'] = false;
         } else {
             $attr['has_attachment'] = true;

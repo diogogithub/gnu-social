@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -26,12 +28,9 @@ class HrefValidator implements ValidatorInterface
     /**
      * Validate href value
      *
-     * @param mixed $value
      * @param mixed $container An object
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -39,7 +38,7 @@ class HrefValidator implements ValidatorInterface
         Util::subclassOf(
             $container,
             [Link::class, ObjectType::class],
-            true
+            true,
         );
 
         // Must be a valid URL or a valid magnet link

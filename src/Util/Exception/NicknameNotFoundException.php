@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Util\Exception;
 
-use App\Util\Exception\NicknameException;
-
-class NicknameNotFoundException extends NicknameException {
+class NicknameNotFoundException extends NicknameException
+{
     // TODO: everything
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -31,14 +33,9 @@ class ObjectType extends AbstractObject
      * The object's unique global identifier
      *
      * @see https://www.w3.org/TR/activitypub/#obj-id
-     *
-     * @var string
      */
     public string $id;
 
-    /**
-     * @var string
-     */
     protected string $type = 'Object';
 
     /**
@@ -99,8 +96,6 @@ class ObjectType extends AbstractObject
      * values.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-content
-     *
-     * @var null|string
      */
     protected ?string $content;
 
@@ -127,8 +122,6 @@ class ObjectType extends AbstractObject
      * values.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-content
-     *
-     * @var null|array
      */
     protected ?array $contentMap;
 
@@ -159,15 +152,11 @@ class ObjectType extends AbstractObject
      * is expected to conclude.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-endtime
-     *
-     * @var null|string
      */
     protected ?string $endTime;
 
     /**
      * The entity (e.g. an application) that generated the object.
-     *
-     * @var null|string
      */
     protected ?string $generator;
 
@@ -408,8 +397,6 @@ class ObjectType extends AbstractObject
      * text/html content.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-mediatype
-     *
-     * @var null|string
      */
     protected ?string $mediaType;
 
@@ -422,8 +409,6 @@ class ObjectType extends AbstractObject
      * represented as "PT5S").
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-duration
-     *
-     * @var null|string
      */
     protected ?string $duration;
 
@@ -433,8 +418,6 @@ class ObjectType extends AbstractObject
      * future editing by clients.
      *
      * @see https://www.w3.org/TR/activitypub/#source-property
-     *
-     * @var ObjectType
      */
     protected ObjectType $source;
 }

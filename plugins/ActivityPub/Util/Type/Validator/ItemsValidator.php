@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -26,12 +28,9 @@ class ItemsValidator extends ValidatorTools
     /**
      * Validate items value
      *
-     * @param mixed $value
      * @param mixed $container A Collection type
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -39,39 +38,39 @@ class ItemsValidator extends ValidatorTools
         Util::subclassOf(
             $container,
             [Collection::class],
-            true
+            true,
         );
 
         // URL type
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return Util::validateUrl($value);
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             // Empty array
-            if (!count($value)) {
+            if (!\count($value)) {
                 return true;
             }
             $value = Util::arrayToType($value);
         }
 
         // Link type
-        if (is_object($value)) {
+        if (\is_object($value)) {
             return Util::subclassOf($value, Link::class, true);
         }
 
         // A Collection
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             return false;
         }
 
-        if (!count($value)) {
+        if (!\count($value)) {
             return false;
         }
 
         return $this->validateObjectCollection(
             $value,
-            $this->getCollectionItemsValidator()
+            $this->getCollectionItemsValidator(),
         );
     }
 }

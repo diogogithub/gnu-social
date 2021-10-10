@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -43,9 +45,7 @@ class Cover extends Plugin
     /**
      * Map URLs to actions
      *
-     * @param RouteLoader $r
-     *
-     * @return bool hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop
      */
     public function onAddRoute(RouteLoader $r): bool
     {
@@ -68,8 +68,6 @@ class Cover extends Plugin
     /**
      * Populate twig vars
      *
-     * @param array $vars
-     *
      * @return bool hook value; true means continue processing, false means stop.
      *
      * public function onStartTwigPopulateVars(array &$vars): bool
@@ -90,7 +88,7 @@ class Cover extends Plugin
      *
      * @param array $styles stylesheets path
      *
-     * @return bool hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop
      */
     public function onStartShowStyles(array &$styles): bool
     {

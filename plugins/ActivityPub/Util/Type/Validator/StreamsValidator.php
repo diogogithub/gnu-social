@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,9 @@ class StreamsValidator implements ValidatorInterface
     /**
      * Validate streams value
      *
-     * @param mixed $value
      * @param mixed $container An object
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -39,6 +38,6 @@ class StreamsValidator implements ValidatorInterface
 
         // Must be an array
         // @todo Better validation should be done
-        return is_array($value);
+        return \is_array($value);
     }
 }

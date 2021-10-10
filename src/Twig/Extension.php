@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -55,7 +57,7 @@ class Extension extends AbstractExtension
      *
      * @return array|TwigFunction[]
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             /** Twig function to output the 'active' class if the current route matches the given route */

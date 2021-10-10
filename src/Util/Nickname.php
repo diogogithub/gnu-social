@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -65,7 +67,7 @@ class Nickname
      *
      * @fixme would prefer to define in reference to the other constants
      */
-    const INPUT_FMT = '(?:[0-9]+|[0-9a-zA-Z_]{1,64})';
+    public const INPUT_FMT = '(?:[0-9]+|[0-9a-zA-Z_]{1,64})';
 
     /**
      * Regex fragment for acceptable user-formatted variant of a nickname.
@@ -80,7 +82,7 @@ class Nickname
      *
      * This, INPUT_FMT and CANONICAL_FMT should not be enclosed in []s.
      */
-    const DISPLAY_FMT = '[0-9a-zA-Z_]{1,64}';
+    public const DISPLAY_FMT = '[0-9a-zA-Z_]{1,64}';
 
     /**
      * Simplified regex fragment for acceptable full WebFinger ID of a user
@@ -88,7 +90,7 @@ class Nickname
      * We could probably use an email regex here, but mainly we are interested
      * in matching it in our URLs, like https://social.example/user@example.com
      */
-    const WEBFINGER_FMT = '(?:\w+[\w\-\_\.]*)?\w+\@' . URL_REGEX_DOMAIN_NAME;
+    public const WEBFINGER_FMT = '(?:\w+[\w\-\_\.]*)?\w+\@' . URL_REGEX_DOMAIN_NAME;
 
     /**
      * Maximum number of characters in a canonical-form nickname. Changes must validate regexs
@@ -118,10 +120,10 @@ class Nickname
      * FIXME: Make this so you can have multiple whitespace but not multiple
      * parenthesis or something. '(((@n_n@)))' might as well be a smiley.
      */
-    const BEFORE_MENTIONS = '(?:^|[\s\.\,\:\;\[\(]+)';
+    public const BEFORE_MENTIONS = '(?:^|[\s\.\,\:\;\[\(]+)';
 
-    const CHECK_LOCAL_USER = 1;
-    const CHECK_LOCAL_GROUP = 2;
+    public const CHECK_LOCAL_USER  = 1;
+    public const CHECK_LOCAL_GROUP = 2;
 
     /**
      * Check if a nickname is valid or throw exceptions if it's not.
@@ -156,11 +158,11 @@ class Nickname
                         }
                         break;
                     // @codeCoverageIgnoreStart
-                    case self::CHECK_LOCAL_GROUP:
-                        throw new NotImplementedException();
-                        break;
-                    default:
-                        throw new InvalidArgumentException();
+                case self::CHECK_LOCAL_GROUP:
+                    throw new NotImplementedException();
+                    break;
+                default:
+                    throw new InvalidArgumentException();
                     // @codeCoverageIgnoreEnd
                 }
             }
@@ -173,11 +175,8 @@ class Nickname
      * Normalize input $nickname to its canonical form and validates it.
      * The canonical form will be returned, or an exception thrown if invalid.
      *
-     * @param string $nickname
-     * @param bool $check_already_used
-     * @param bool $check_is_allowed
-     * @return string
      * @throws NicknameEmptyException
+     * @throws NicknameException         (base class)
      * @throws NicknameInvalidException
      * @throws NicknameNotAllowedException
      * @throws NicknameTakenException

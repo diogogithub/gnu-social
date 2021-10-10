@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -80,7 +82,7 @@ class Reply extends NoteHandlerPlugin
                     content_type: 'text/plain',
                     attachments: $data['attachments'],
                     reply_to: $data['reply_to'],
-                    repeat_of: null
+                    repeat_of: null,
                 );
             } else {
                 // JS disabled, redirect

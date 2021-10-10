@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,19 +27,16 @@ class DeletedValidator implements ValidatorInterface
     /**
      * Validate a DELETED attribute value
      *
-     * @param mixed $value
      * @param mixed $container A Tombstone type
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
         // Validate that container is a Tombstone type
         Util::subclassOf($container, Tombstone::class, true);
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             // MUST be a datetime
             if (Util::validateDatetime($value)) {
                 return true;

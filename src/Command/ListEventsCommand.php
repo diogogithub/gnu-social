@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -61,17 +63,18 @@ class ListEventsCommand extends Command
     protected function configure()
     {
         $this->setDefinition([new InputArgument('pattern', InputArgument::OPTIONAL, 'An event pattern to look for')])
-             ->setDescription('Search for an event')
-             ->setHelp(<<<'EOF'
-The <info>%command.name%</info> command displays GNU social event listeners:
+            ->setDescription('Search for an event')
+            ->setHelp(
+                <<<'EOF'
+                    The <info>%command.name%</info> command displays GNU social event listeners:
 
-  <info>php %command.full_name%</info>
+                      <info>php %command.full_name%</info>
 
-To get specific listeners for an event, specify its name:
+                    To get specific listeners for an event, specify its name:
 
-  <info>php %command.full_name% kernel.request</info>
-EOF
-             );
+                      <info>php %command.full_name% kernel.request</info>
+                    EOF,
+            );
     }
 
     /**
@@ -81,10 +84,10 @@ EOF
     {
         $patterm   = $input->getArgument('pattern') ?? 'GNUsocial.*';
         $listeners = $this->dispatcher->getListeners();
-        $listeners = F\select($listeners,
-                              function ($_, $key, $__) use ($patterm) {
-                                  return preg_match('/' . $patterm . '/', $key);
-                              });
+        $listeners = F\select(
+            $listeners,
+            fn ($_, $key, $__) => preg_match('/' . $patterm . '/', $key),
+        );
 
         ksort($listeners);
         foreach ($listeners as $event => $listener) {
@@ -93,7 +96,7 @@ EOF
             foreach ($listener as $c) {
                 $r = new ReflectionFunction($c);
                 $m = $r->getStaticVariables()['handler'];
-                $output->writeln("\t" . get_class($m[0]) . '::' . $m[1]);
+                $output->writeln("\t" . \get_class($m[0]) . '::' . $m[1]);
             }
             $output->writeln('');
         }

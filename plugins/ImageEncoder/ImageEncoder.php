@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -53,12 +55,6 @@ class ImageEncoder extends Plugin
         return '3.0.0';
     }
 
-    /**
-     * @param array  $event_map
-     * @param string $mimetype
-     *
-     * @return bool
-     */
     public function onFileMetaAvailable(array &$event_map, string $mimetype): bool
     {
         if (GSFile::mimetypeMajor($mimetype) !== 'image') {
@@ -68,12 +64,6 @@ class ImageEncoder extends Plugin
         return Event::next;
     }
 
-    /**
-     * @param array  $event_map
-     * @param string $mimetype
-     *
-     * @return bool
-     */
     public function onFileSanitizerAvailable(array &$event_map, string $mimetype): bool
     {
         if (GSFile::mimetypeMajor($mimetype) !== 'image') {
@@ -83,12 +73,6 @@ class ImageEncoder extends Plugin
         return Event::next;
     }
 
-    /**
-     * @param array  $event_map
-     * @param string $mimetype
-     *
-     * @return bool
-     */
     public function onFileResizerAvailable(array &$event_map, string $mimetype): bool
     {
         if (GSFile::mimetypeMajor($mimetype) !== 'image') {
@@ -127,18 +111,16 @@ class ImageEncoder extends Plugin
      * Re-encodes the image ensuring it is valid.
      * Also ensures that the image is not greater than the max width and height configured.
      *
-     * @param SplFileInfo $file
      * @param null|string $mimetype in/out
      * @param null|int    $width    out
      * @param null|int    $height   out
      *
+     * @throws ClientException        When vips doesn't understand the given mimetype
      * @throws ServerException
      * @throws TemporaryFileException
      * @throws Vips\Exception
-     * @throws ClientException        When vips doesn't understand the given mimetype
      *
      * @return bool true if sanitized
-     *
      */
     public function fileSanitize(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
     {
@@ -156,7 +138,7 @@ class ImageEncoder extends Plugin
                 title: $file->getFilename(),
                 mimetype: $original_mimetype,
                 ext: $extension,
-                force: false
+                force: false,
             ) ?? $extension;
 
             // TemporaryFile handles deleting the file if some error occurs
@@ -172,10 +154,12 @@ class ImageEncoder extends Plugin
             }
             $width  = $image->width;
             $height = $image->height;
-            $image  = $image->crop(left: 0,
-                                   top: 0,
-                                   width: $width,
-                                   height: $height);
+            $image  = $image->crop(
+                left: 0,
+                top: 0,
+                width: $width,
+                height: $height,
+            );
             $image->writeToFile($temp->getRealPath());
 
             // Replace original file with the sanitized one
@@ -190,22 +174,19 @@ class ImageEncoder extends Plugin
 
     /**
      * Generates the view for attachments of type Image
-     *
-     * @param array $vars
-     * @param array $res
-     *
-     * @return bool
      */
     public function onViewAttachment(array $vars, array &$res): bool
     {
         if ($vars['attachment']->getMimetypeMajor() !== 'image') {
             return Event::next;
         }
-        $res[] = Formatting::twigRenderFile('imageEncoder/imageEncoderView.html.twig',
+        $res[] = Formatting::twigRenderFile(
+            'imageEncoder/imageEncoderView.html.twig',
             [
                 'attachment' => $vars['attachment'],
                 'note'       => $vars['note'],
-            ]);
+            ],
+        );
         return Event::stop;
     }
 
@@ -218,19 +199,8 @@ class ImageEncoder extends Plugin
      * enable the handling of bigger images, which can cause a peak of memory consumption, while
      * encoding
      *
-     * @param string             $source
-     * @param null|TemporaryFile $destination
-     * @param int                $width
-     * @param int                $height
-     * @param bool               $smart_crop
-     * @param null|string        $mimetype
-     *
-     * @throws Vips\Exception
      * @throws TemporaryFileException
-     *
-     * @return bool
-     *
-     *
+     * @throws Vips\Exception
      */
     public function resizeImagePath(string $source, ?TemporaryFile &$destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype): bool
     {
@@ -244,12 +214,12 @@ class ImageEncoder extends Plugin
                     $image = $image->smartcrop($width, $height, [Vips\Interesting::ATTENTION]);
                 }
             } catch (Exception $e) {
-                Log::error(__METHOD__ . ' encountered exception: ' . get_class($e));
+                Log::error(__METHOD__ . ' encountered exception: ' . \get_class($e));
                 // TRANS: Exception thrown when trying to resize an unknown file type.
                 throw new Exception(_m('Unknown file type'));
             }
 
-            if (is_null($destination)) {
+            if (\is_null($destination)) {
                 // IMPORTANT: We have to specify the extension for the temporary file
                 // in order to have a format conversion
                 $ext         = '.' . Common::config('thumbnail', 'extension');
@@ -282,12 +252,11 @@ class ImageEncoder extends Plugin
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = [
-            'name'        => 'ImageEncoder',
-            'version'     => $this->version(),
-            'author'      => 'Hugo Sales, Diogo Peralta Cordeiro',
-            'homepage'    => GNUSOCIAL_PROJECT_URL,
-            'description' => // TRANS: Plugin description.
-                _m('Use VIPS for some additional image support.'),
+            'name'     => 'ImageEncoder',
+            'version'  => $this->version(),
+            'author'   => 'Hugo Sales, Diogo Peralta Cordeiro',
+            'homepage' => GNUSOCIAL_PROJECT_URL,
+            'description', // TRANS: Plugin description. => _m('Use VIPS for some additional image support.'),
         ];
         return Event::next;
     }

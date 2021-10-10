@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -21,8 +23,5 @@ namespace Plugin\ActivityPub\Util\Type\Extended\Object;
  */
 class Video extends Document
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Video';
 }

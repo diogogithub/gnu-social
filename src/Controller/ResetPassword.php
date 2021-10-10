@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Controller;
 
 use App\Core\Controller;
@@ -35,7 +37,7 @@ class ResetPassword extends Controller
     public function requestPasswordReset(Request $request)
     {
         $form = Form::create([
-            ['email', EmailType::class,  ['label' => _m('Email'), 'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ]) ]]],
+            ['email', EmailType::class,  ['label' => _m('Email'), 'constraints' => [new NotBlank(['message' => _m('Please enter an email')])]]],
             ['password_reset_request', SubmitType::class, ['label' => _m('Submit request')]],
         ]);
 
@@ -69,7 +71,7 @@ class ResetPassword extends Controller
     /**
      * Validates and process the reset URL that the user clicked in their email.
      */
-    public function reset(Request $request, string $token = null)
+    public function reset(Request $request, ?string $token = null)
     {
         if ($token) {
             // We store the token in session and remove it from the URL, to avoid the URL being

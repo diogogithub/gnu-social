@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Plugin\ActivityPub\Util\Response;
 
 use App\Entity\Actor;
@@ -9,13 +11,9 @@ use Plugin\ActivityPub\Util\Model\EntityToType\GSActorToType;
 abstract class ActorResponse
 {
     /**
-     * @param Actor $gsactor
-     * @param int   $status  The response status code
+     * @param int $status The response status code
      *
      *@throws Exception
-     *
-     * @return TypeResponse
-     *
      */
     public static function handle(Actor $gsactor, int $status = 200): TypeResponse
     {

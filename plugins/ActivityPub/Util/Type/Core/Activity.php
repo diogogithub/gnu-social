@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -23,9 +25,6 @@ namespace Plugin\ActivityPub\Util\Type\Core;
  */
 class Activity extends AbstractActivity
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Activity';
 
     /**

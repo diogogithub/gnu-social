@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -32,6 +34,7 @@ namespace App\Util;
 
 use App\Core\GNUsocial;
 use Functional as F;
+use ReflectionClass;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class GNUsocialTestCase extends WebTestCase
@@ -46,8 +49,8 @@ class GNUsocialTestCase extends WebTestCase
         $kernel    = parent::bootKernel($options);
         $container = self::$kernel->getContainer()->get('test.service_container');
         $services  = F\map(
-            (new \ReflectionClass(GNUsocial::class))->getMethod('__construct')->getParameters(),
-            function ($p) use ($container) { return $container->get((string) $p->getType()); }
+            (new ReflectionClass(GNUsocial::class))->getMethod('__construct')->getParameters(),
+            fn ($p) => $container->get((string) $p->getType()),
         );
         self::$social = new GNUsocial(...$services);
         return $kernel;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -27,6 +29,7 @@ use App\Entity\Note;
 use App\Util\GNUsocialTestCase;
 use App\Util\TemporaryFile;
 use Jchook\AssertThrows\AssertThrows;
+use SplFileInfo;
 use Symfony\Component\HttpFoundation\File\File;
 
 class AttachmentTest extends GNUsocialTestCase
@@ -42,13 +45,13 @@ class AttachmentTest extends GNUsocialTestCase
         $attachment = GSFile::storeFileAsAttachment($file);
         $path       = $attachment->getPath();
         $hash       = $attachment->getFilehash();
-        static::assertTrue(file_exists($attachment->getPath()));
+        static::assertFileExists($attachment->getPath());
         static::assertSame(1, $attachment->getLives());
-        static::assertTrue(file_exists($path));
+        static::assertFileExists($path);
 
         // Delete the backed storage of the attachment
         static::assertTrue($attachment->deleteStorage());
-        static::assertFalse(file_exists($path));
+        static::assertFileNotExists($path);
         static::assertNull($attachment->getPath());
         DB::persist($attachment);
         DB::flush();
@@ -58,17 +61,17 @@ class AttachmentTest extends GNUsocialTestCase
         $repeated_attachment = GSFile::storeFileAsAttachment($file);
         $path                = $attachment->getPath();
         static::assertSame(2, $repeated_attachment->getLives());
-        static::assertTrue(file_exists($path));
+        static::assertFileExists($path);
 
         // Garbage collect the attachment
         $attachment->kill();
-        static::assertTrue(file_exists($path));
+        static::assertFileExists($path);
         static::assertSame(1, $repeated_attachment->getLives());
 
         // Garbage collect the second attachment, which should delete everything
         $repeated_attachment->kill();
         static::assertSame(0, $repeated_attachment->getLives());
-        static::assertFalse(file_exists($path));
+        static::assertFileNotExists($path);
         static::assertSame([], DB::findBy('attachment', ['filehash' => $hash]));
     }
 
@@ -86,7 +89,7 @@ class AttachmentTest extends GNUsocialTestCase
             $file = new File($temp_file->getRealPath());
             GSFile::storeFileAsAttachment($file);
             static::assertNotNull($attachment->getFilename());
-            static::assertTrue(file_exists($attachment->getPath()));
+            static::assertFileExists($attachment->getPath());
         };
 
         $test('deleteStorage');
@@ -119,7 +122,7 @@ class AttachmentTest extends GNUsocialTestCase
 
     public function testMimetype()
     {
-        $file = new \SplFileInfo(INSTALLDIR . '/tests/sample-uploads/image.jpg');
+        $file = new SplFileInfo(INSTALLDIR . '/tests/sample-uploads/image.jpg');
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);

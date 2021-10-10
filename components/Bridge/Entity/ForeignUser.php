@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -43,8 +45,8 @@ class ForeignUser
     private int $service;
     private string $uri;
     private ?string $nickname;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

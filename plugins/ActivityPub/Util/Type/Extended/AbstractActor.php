@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -49,8 +51,6 @@ abstract class AbstractActor extends ObjectType
      * actor is following.
      *
      * @see https://www.w3.org/TR/activitypub/#following
-     *
-     * @var string
      */
     protected string $following;
 
@@ -59,8 +59,6 @@ abstract class AbstractActor extends ObjectType
      * follow this actor.
      *
      * @see https://www.w3.org/TR/activitypub/#followers
-     *
-     * @var string
      */
     protected string $followers;
 
@@ -69,8 +67,6 @@ abstract class AbstractActor extends ObjectType
      * liked.
      *
      * @see https://www.w3.org/TR/activitypub/#liked
-     *
-     * @var string
      */
     protected string $liked;
 
@@ -78,8 +74,6 @@ abstract class AbstractActor extends ObjectType
      * A list of supplementary Collections which may be of interest.
      *
      * @see https://www.w3.org/TR/activitypub/#streams-property
-     *
-     * @var array
      */
     protected array $streams = [];
 
@@ -88,8 +82,6 @@ abstract class AbstractActor extends ObjectType
      * uniqueness guarantees.
      *
      * @see https://www.w3.org/TR/activitypub/#preferredUsername
-     *
-     * @var null|string
      */
     protected ?string $preferredUsername;
 
@@ -101,8 +93,6 @@ abstract class AbstractActor extends ObjectType
      * document with these properties.
      *
      * @see https://www.w3.org/TR/activitypub/#endpoints
-     *
-     * @var null|array|string
      */
     protected string|array|null $endpoints;
 
@@ -119,8 +109,6 @@ abstract class AbstractActor extends ObjectType
      * ]
      *
      * @see https://www.w3.org/wiki/SocialCG/ActivityPub/Authentication_Authorization#Signing_requests_using_HTTP_Signatures
-     *
-     * @var null|array|string
      */
     protected string|array|null $publicKey;
 }

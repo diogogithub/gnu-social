@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,9 @@ class ClosedValidator implements ValidatorInterface
     /**
      * Validate an CLOSED attribute value
      *
-     * @param mixed $value
      * @param mixed $container A Question type
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -38,11 +37,11 @@ class ClosedValidator implements ValidatorInterface
         Util::subclassOf($container, Question::class, true);
 
         // Can be a boolean
-        if (is_bool($value)) {
+        if (\is_bool($value)) {
             return true;
         }
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             // Can be a datetime
             if (Util::validateDatetime($value)) {
                 return true;
@@ -54,12 +53,12 @@ class ClosedValidator implements ValidatorInterface
             }
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Util::arrayToType($value);
         }
 
         // An Object or a Link
-        if (is_object($value)) {
+        if (\is_object($value)) {
             return Util::validateLink($value)
                 || Util::validateObject($value);
         }

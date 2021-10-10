@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -45,7 +47,7 @@ class CommonTest extends GNUsocialTestCase
         $cb   = $this->createMock(ContainerBagInterface::class);
         static::assertTrue($cb instanceof ContainerBagInterface);
         $cb->method('get')
-           ->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
+            ->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
         Common::setupConfig($cb);
 
         if ($exists = file_exists(INSTALLDIR . '/social.local.yaml')) {
@@ -130,11 +132,17 @@ class CommonTest extends GNUsocialTestCase
         static::assertSame([], Common::arrayDiffRecursive(['foo' => []], ['foo' => 'bar']));
         static::assertSame([], Common::arrayDiffRecursive(['foo' => ['bar']], ['foo' => ['bar']]));
         static::assertSame(['foo' => [1 => 'quux']], Common::arrayDiffRecursive(['foo' => ['bar', 'quux']], ['foo' => ['bar']]));
-        static::assertSame([], Common::arrayDiffRecursive(['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']],
-                                                              ['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']]));
-        static::assertSame(['hydrogen' => ['helium' => ['lithium']]],
-                             Common::arrayDiffRecursive(['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']],
-                                                          ['hydrogen' => ['helium' => ['beryllium'], 'boron' => 'carbon']]));
+        static::assertSame([], Common::arrayDiffRecursive(
+            ['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']],
+            ['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']],
+        ));
+        static::assertSame(
+            ['hydrogen' => ['helium' => ['lithium']]],
+            Common::arrayDiffRecursive(
+                ['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']],
+                ['hydrogen' => ['helium' => ['beryllium'], 'boron' => 'carbon']],
+            ),
+        );
     }
 
     public function testArrayRemoveKeys()
@@ -145,16 +153,16 @@ class CommonTest extends GNUsocialTestCase
 
     public function testSizeStrToInt()
     {
-        static::assertSame(pow(1024, 0),     Common::sizeStrToInt('1'));
-        static::assertSame(pow(1024, 1),     Common::sizeStrToInt('1K'));
-        static::assertSame(pow(1024, 2),     Common::sizeStrToInt('1M'));
-        static::assertSame(3 * pow(1024, 2), Common::sizeStrToInt(''));
-        static::assertSame(pow(1024, 3),     Common::sizeStrToInt('1G'));
-        static::assertSame(pow(1024, 4),     Common::sizeStrToInt('1T'));
-        static::assertSame(pow(1024, 5),     Common::sizeStrToInt('1P'));
-        static::assertSame(128,              Common::sizeStrToInt('128'));
-        static::assertSame(128 * 1024,       Common::sizeStrToInt('128K'));
-        static::assertSame(128 * 1024,       Common::sizeStrToInt('128.5K'));
+        static::assertSame(1024 ** 0, Common::sizeStrToInt('1'));
+        static::assertSame(1024 ** 1, Common::sizeStrToInt('1K'));
+        static::assertSame(1024 ** 2, Common::sizeStrToInt('1M'));
+        static::assertSame(3 * 1024 ** 2, Common::sizeStrToInt(''));
+        static::assertSame(1024 ** 3, Common::sizeStrToInt('1G'));
+        static::assertSame(1024 ** 4, Common::sizeStrToInt('1T'));
+        static::assertSame(1024 ** 5, Common::sizeStrToInt('1P'));
+        static::assertSame(128, Common::sizeStrToInt('128'));
+        static::assertSame(128 * 1024, Common::sizeStrToInt('128K'));
+        static::assertSame(128 * 1024, Common::sizeStrToInt('128.5K'));
     }
 
     public function testGetPreferredPhpUploadLimit()

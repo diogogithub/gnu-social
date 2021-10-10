@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,7 @@ class InReplyToValidator implements ValidatorInterface
     /**
      * Validate inReplyTo value
      *
-     * @param mixed $value
-     * @param mixed $container
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -38,25 +35,25 @@ class InReplyToValidator implements ValidatorInterface
         Util::subclassOf(
             $container,
             ObjectType::class,
-            true
+            true,
         );
 
         // null
-        if (is_null($value)) {
+        if (\is_null($value)) {
             return true;
         }
 
         // URL
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return Util::validateUrl($value);
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Util::arrayToType($value);
         }
 
         // Link or Object
-        if (is_object($value)) {
+        if (\is_object($value)) {
             return Util::validateLink($value)
                 || Util::isObjectType($value);
         }

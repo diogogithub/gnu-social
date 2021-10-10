@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -35,8 +37,8 @@ class EventTest extends GNUsocialTestCase
         static::assertSame(Event::stop, Event::handle('foo-bar2'));
 
         static::assertTrue(Event::hasHandler('foo-bar'));
-        static::assertTrue(Event::hasHandler('foo-bar', plugin: get_class()));
+        static::assertTrue(Event::hasHandler('foo-bar', plugin: \get_class()));
         static::assertFalse(Event::hasHandler('foo-bar', plugin: 'Plugin\\SomePlugin'));
-        static::assertTrue(count(Event::getHandlers('foo-bar')) === 1);
+        static::assertTrue(\count(Event::getHandlers('foo-bar')) === 1);
     }
 }

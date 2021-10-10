@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -43,13 +45,13 @@ use Doctrine\ORM\QueryBuilder;
  */
 class Tag extends Component
 {
-    const MAX_TAG_LENGTH = 64;
-    const TAG_REGEX      = '/(^|\\s)(#[\\pL\\pN_\\-\\.]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
-    const TAG_SLUG_REGEX = '[A-Za-z0-9]{1,64}';
+    public const MAX_TAG_LENGTH = 64;
+    public const TAG_REGEX      = '/(^|\\s)(#[\\pL\\pN_\\-\\.]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
+    public const TAG_SLUG_REGEX = '[A-Za-z0-9]{1,64}';
 
     public function onAddRoute($r): bool
     {
-        $r->connect('tag', '/tag/{tag<' . self::TAG_SLUG_REGEX . '>}' , [Controller\Tag::class, 'tag']);
+        $r->connect('tag', '/tag/{tag<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'tag']);
         return Event::next;
     }
 
@@ -60,7 +62,7 @@ class Tag extends Component
     {
         $matched_tags   = [];
         $processed_tags = false;
-        preg_match_all(self::TAG_REGEX, $content, $matched_tags, PREG_SET_ORDER);
+        preg_match_all(self::TAG_REGEX, $content, $matched_tags, \PREG_SET_ORDER);
         foreach ($matched_tags as $match) {
             $tag           = $match[2];
             $canonical_tag = self::canonicalTag($tag);
@@ -87,16 +89,13 @@ class Tag extends Component
 
     public static function canonicalTag(string $tag): string
     {
-        return substr(Formatting::slugify($tag), 0, self::MAX_TAG_LENGTH);
+        return mb_substr(Formatting::slugify($tag), 0, self::MAX_TAG_LENGTH);
     }
 
     /**
      * Populate $note_expr with an expression to match a tag, if the term looks like a tag
      *
      * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
-     *
-     * @param mixed $note_expr
-     * @param mixed $actor_expr
      */
     public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, &$note_expr, &$actor_expr)
     {

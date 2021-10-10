@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -23,23 +25,20 @@ class AttachmentValidator extends ValidatorTools
     /**
      * Validate an attachment value
      *
-     * @param mixed $value
      * @param mixed $container An Object type
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
-        if (is_array($value) && !count($value)) {
+        if (\is_array($value) && !\count($value)) {
             return true;
         }
 
         return $this->validateListOrObject(
             $value,
             $container,
-            $this->getAttachmentValidator()
+            $this->getAttachmentValidator(),
         );
     }
 }

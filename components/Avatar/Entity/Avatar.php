@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -75,17 +77,11 @@ class Avatar extends Entity
         return $this->attachment_id;
     }
 
-    /**
-     * @return null|string
-     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    /**
-     * @param null|string $title
-     */
     public function setTitle(?string $title): void
     {
         $this->title = $title;
@@ -121,14 +117,12 @@ class Avatar extends Entity
     public function getUrl(string $size = 'full', int $type = Router::ABSOLUTE_PATH): string
     {
         $actor_id = $this->getActorId();
-        return Cache::get("avatar-url-{$actor_id}-{$size}-{$type}", function () use ($actor_id, $size, $type) {
-            return Router::url('avatar_actor', ['actor_id' => $actor_id, 'size' => $size], $type);
-        });
+        return Cache::get("avatar-url-{$actor_id}-{$size}-{$type}", fn () => Router::url('avatar_actor', ['actor_id' => $actor_id, 'size' => $size], $type));
     }
 
     public function getAttachment(): Attachment
     {
-        $this->attachment = $this->attachment ?? DB::findOneBy('attachment', ['id' => $this->attachment_id]);
+        $this->attachment ??= DB::findOneBy('attachment', ['id' => $this->attachment_id]);
         return $this->attachment;
     }
 
@@ -144,8 +138,6 @@ class Avatar extends Entity
 
     /**
      * Delete this avatar and kill corresponding attachment
-     *
-     * @return bool
      */
     public function delete(): bool
     {

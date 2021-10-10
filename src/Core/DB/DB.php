@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -144,7 +146,7 @@ class DB
             if ($op == 'or' || $op == 'and') {
                 $method = "{$op}X";
                 $expr   = self::buildExpression($eb, $exp);
-                if (is_array($expr)) {
+                if (\is_array($expr)) {
                     $expressions[] = $eb->{$method}(...$expr);
                 } else {
                     $expressions[] = $eb->{$method}($expr);
@@ -152,7 +154,7 @@ class DB
             } elseif ($op == 'is_null') {
                 $expressions[] = $eb->isNull($exp);
             } else {
-                if (in_array($op, self::$find_by_ops)) {
+                if (\in_array($op, self::$find_by_ops)) {
                     foreach ($exp as $field => $value) {
                         $expressions[] = $eb->{$op}($field, $value);
                     }
@@ -174,7 +176,7 @@ class DB
      */
     public static function findBy(string $table, array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
     {
-        $criteria = array_change_key_case($criteria, CASE_LOWER);
+        $criteria = array_change_key_case($criteria, \CASE_LOWER);
         $ops      = array_intersect(array_keys($criteria), self::$find_by_ops);
         /** @var EntityRepository */
         $repo = self::getRepository($table);
@@ -193,7 +195,7 @@ class DB
     public static function findOneBy(string $table, array $criteria, ?array $orderBy = null, ?int $offset = null)
     {
         $res = self::findBy($table, $criteria, $orderBy, 2, $offset); // Use limit 2 to check for consistency
-        switch (count($res)) {
+        switch (\count($res)) {
         case 0:
             throw new NotFoundException("No value in table {$table} matches the requested criteria");
         case 1:
@@ -213,15 +215,15 @@ class DB
     /**
      * Insert all given objects with the generated ID of the first one
      */
-    public static function persistWithSameId(object $owner, object | array $others, ?callable $extra = null)
+    public static function persistWithSameId(object $owner, object|array $others, ?callable $extra = null)
     {
         $conn     = self::getConnection();
-        $metadata = self::getClassMetadata(get_class($owner));
+        $metadata = self::getClassMetadata(\get_class($owner));
         $seqName  = $metadata->getSequenceName($conn->getDatabasePlatform());
         self::persist($owner);
         $id = $conn->lastInsertId($seqName);
-        F\map(is_array($others) ? $others : [$others], function ($o) use ($id) { $o->setId($id); self::persist($o); });
-        if (!is_null($extra)) {
+        F\map(\is_array($others) ? $others : [$others], function ($o) use ($id) { $o->setId($id); self::persist($o); });
+        if (!\is_null($extra)) {
             $extra($id);
         }
         self::flush();
@@ -248,8 +250,8 @@ class DB
      */
     public static function filterTableName(string $method, array $args): mixed
     {
-        if (in_array($method, self::METHODS_ACCEPTING_TABLE_NAME)
-            && is_string($args[0]) && array_key_exists($args[0], self::$table_map)) {
+        if (\in_array($method, self::METHODS_ACCEPTING_TABLE_NAME)
+            && \is_string($args[0]) && \array_key_exists($args[0], self::$table_map)) {
             return self::$table_map[$args[0]];
         } else {
             return $args[0];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Plugin\ActivityPub\Util\Model\AS2ToEntity;
 
 use App\Core\Event;
@@ -7,13 +9,12 @@ use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Formatting;
 use DateTime;
+use Exception;
 
 abstract class AS2ToGSActor
 {
     /**
-     * @param array $args
-     *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return Note
      */

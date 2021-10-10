@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -27,7 +29,6 @@ use Doctrine\Common\Collections\Criteria;
 
 abstract class Parser
 {
-
     /**
      * Merge $parts into $criteria_arr
      */
@@ -74,21 +75,17 @@ abstract class Parser
 
             foreach (['&', '|', ' '] as $delimiter) {
                 if ($input[$index] === $delimiter || $end = ($index === $lenght - 1)) {
-                    $term     = substr($input, $left, $end ? null : $right - $left);
+                    $term     = mb_substr($input, $left, $end ? null : $right - $left);
                     $note_res = $actor_res = null;
                     $ret      = Event::handle('SearchCreateExpression', [$eb, $term, &$note_res, &$actor_res]);
-                    if ((is_null($note_res) && is_null($actor_res)) || $ret == Event::next) {
+                    if ((\is_null($note_res) && \is_null($actor_res)) || $ret == Event::next) {
                         throw new ServerException("No one claimed responsibility for a match term: {$term}");
+                    } elseif (!\is_null($note_res)) {
+                        $note_parts[] = $note_res;
+                    } elseif (!\is_null($actor_res)) {
+                        $actor_parts[] = $actor_res;
                     } else {
-                        if (!is_null($note_res)) {
-                            $note_parts[] = $note_res;
-                        } else {
-                            if (!is_null($actor_res)) {
-                                $actor_parts[] = $actor_res;
-                            } else {
-                                throw new ServerException('Unexpected state in Search parser');
-                            }
-                        }
+                        throw new ServerException('Unexpected state in Search parser');
                     }
 
                     $right = $left = $index + 1;

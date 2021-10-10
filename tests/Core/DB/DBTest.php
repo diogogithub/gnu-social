@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -35,7 +37,7 @@ class DBTest extends GNUsocialTestCase
     {
         static::bootKernel();
         $actor = DB::dql('select a from actor a where a.nickname = :nickname', ['nickname' => 'taken_user']);
-        static::assertTrue(is_array($actor));
+        static::assertIsArray($actor);
         static::assertTrue($actor[0] instanceof Actor);
     }
 
@@ -43,7 +45,7 @@ class DBTest extends GNUsocialTestCase
     {
         static::bootKernel();
         $actor = DB::sql('select {select} from actor a where a.nickname = :nickname', ['a' => 'App\Entity\Actor'], ['nickname' => 'taken_user']);
-        static::assertTrue(is_array($actor));
+        static::assertIsArray($actor);
         static::assertTrue($actor[0] instanceof Actor);
     }
 
@@ -51,11 +53,11 @@ class DBTest extends GNUsocialTestCase
     {
         static::bootKernel();
         $actor = DB::findBy('actor', ['nickname' => 'taken_user']);
-        static::assertTrue(is_array($actor));
+        static::assertIsArray($actor);
         static::assertTrue($actor[0] instanceof Actor);
 
         $actor = DB::findBy('actor', ['and' => ['is_null' => 'bio', 'or' => ['nickname' => 'user does not exist', 'gte' => ['id' => 0]]]]);
-        static::assertTrue(is_array($actor));
+        static::assertIsArray($actor);
         static::assertTrue($actor[0] instanceof Actor);
     }
 

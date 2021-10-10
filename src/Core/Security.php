@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -31,6 +33,7 @@
 namespace App\Core;
 
 use App\Entity\LocalUser;
+use BadMethodCallException;
 use HtmlSanitizer\SanitizerInterface;
 use Symfony\Component\Security\Core\Security as SymfonySecurity;
 
@@ -63,7 +66,7 @@ abstract class Security
             if (method_exists(self::$sanitizer, $name)) {
                 return self::$sanitizer->{$name}(...$args);
             } else {
-                throw new \BadMethodCallException("Method Security::{$name} doesn't exist");
+                throw new BadMethodCallException("Method Security::{$name} doesn't exist");
             }
         }
     }

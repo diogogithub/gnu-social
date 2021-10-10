@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,19 +27,14 @@ class DurationValidator implements ValidatorInterface
     /**
      * Validate an DURATION attribute value
      *
-     * @param mixed $value
-     * @param mixed $container
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
         // Validate that container has an ObjectType type
         Util::subclassOf($container, ObjectType::class, true);
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             // MUST be an XML 8601 Duration formatted string
             return Util::isDuration($value, true);
         }

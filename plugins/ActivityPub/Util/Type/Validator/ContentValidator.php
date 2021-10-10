@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -21,19 +23,10 @@ class ContentValidator implements ValidatorInterface
 {
     /**
      * Validate a content attribute value
-     *
-     * @param mixed $value
-     * @param mixed $container
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
         // Must be a string or null
-        if (is_null($value) || is_string($value)) {
-            return true;
-        }
-
-        return false;
+        return (bool) (\is_null($value) || \is_string($value));
     }
 }

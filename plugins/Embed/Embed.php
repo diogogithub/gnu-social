@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -110,11 +112,9 @@ class Embed extends Plugin
      * This code executes when GNU social creates the page routing, and we hook
      * on this event to add our action handler for Embed.
      *
-     * @param RouteLoader $m the router that was initialized.
+     * @param RouteLoader $m the router that was initialized
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function onAddRoute(RouteLoader $m): bool
     {
@@ -134,7 +134,7 @@ class Embed extends Plugin
             default      => null,
         };
 
-        if (is_null($url)) {
+        if (\is_null($url)) {
             foreach (['xml', 'json'] as $format) {
                 $result[] = [
                     'link' => [
@@ -150,18 +150,15 @@ class Embed extends Plugin
 
     /**
      * Show this attachment enhanced with the corresponding Embed data, if available
-     *
-     * @param array $vars
-     * @param array $res
-     *
-     * @return bool
      */
     public function onViewLink(array $vars, array &$res): bool
     {
         $link = $vars['link'];
         try {
-            $embed = Cache::get('attachment-embed-' . $link->getId(),
-                fn () => DB::findOneBy('attachment_embed', ['link_id' => $link->getId()]));
+            $embed = Cache::get(
+                'attachment-embed-' . $link->getId(),
+                fn () => DB::findOneBy('attachment_embed', ['link_id' => $link->getId()]),
+            );
         } catch (DuplicateFoundException $e) {
             Log::warning($e);
             return Event::next;
@@ -172,8 +169,10 @@ class Embed extends Plugin
 
         $attributes = $embed->getImageHTMLAttributes();
 
-        $res[] = Formatting::twigRenderFile('embed/embedView.html.twig',
-            ['embed' => $embed, 'attributes' => $attributes, 'link' => $link]);
+        $res[] = Formatting::twigRenderFile(
+            'embed/embedView.html.twig',
+            ['embed' => $embed, 'attributes' => $attributes, 'link' => $link],
+        );
 
         return Event::stop;
     }
@@ -181,14 +180,7 @@ class Embed extends Plugin
     /**
      * Save embedding information for an Attachment, if applicable.
      *
-     * @param Link $link
-     * @param Note $note
-     *
      * @throws DuplicateFoundException
-     *
-     * @return bool
-     *
-     *
      */
     public function onNewLinkFromNote(Link $link, Note $note): bool
     {
@@ -200,19 +192,19 @@ class Embed extends Plugin
 
         // Ignore if already handled
         $attachment_embed = DB::find('attachment_embed', ['link_id' => $link->getId()]);
-        if (!is_null($attachment_embed)) {
+        if (!\is_null($attachment_embed)) {
             return Event::next;
         }
 
         // If an attachment already exist, do not create an Embed for it. Some other plugin must have done things
         $attachment_to_link = DB::find('attachment_to_link', ['link_id' => $link->getId()]);
-        if (!is_null($attachment_to_link)) {
+        if (!\is_null($attachment_to_link)) {
             $attachment_id = $attachment_to_link->getAttachmentId();
             try {
                 $attachment = DB::findOneBy('attachment', ['id' => $attachment_id]);
                 $attachment->livesIncrementAndGet();
                 return Event::next;
-            } catch (DuplicateFoundException | NotFoundException $e) {
+            } catch (DuplicateFoundException|NotFoundException $e) {
                 Log::error($e);
             }
         }
@@ -247,8 +239,6 @@ class Embed extends Plugin
     }
 
     /**
-     * @param string $url
-     *
      * @return bool true if allowed by the lists, false otherwise
      */
     private function allowedLink(string $url): bool
@@ -258,7 +248,7 @@ class Embed extends Plugin
 
         if ($this->check_whitelist) {
             $passed_whitelist = false; // don't trust be default
-            $host             = parse_url($url, PHP_URL_HOST);
+            $host             = parse_url($url, \PHP_URL_HOST);
             foreach ($this->domain_whitelist as $regex => $provider) {
                 if (preg_match("/{$regex}/", $host)) {
                     $passed_whitelist = true; // we trust this source
@@ -268,7 +258,7 @@ class Embed extends Plugin
 
         if ($this->check_blacklist) {
             // assume it passed by default
-            $host = parse_url($url, PHP_URL_HOST);
+            $host = parse_url($url, \PHP_URL_HOST);
             foreach ($this->domain_blacklist as $regex => $provider) {
                 if (preg_match("/{$regex}/", $host)) {
                     $passed_blacklist = false; // we blocked this source
@@ -286,10 +276,6 @@ class Embed extends Plugin
      * know they exist but autodiscovery data isn't available.
      *
      * Throws exceptions on failure.
-     *
-     * @param string $url
-     *
-     * @return array
      */
     private function getEmbedLibMetadata(string $url): array
     {
@@ -305,7 +291,7 @@ class Embed extends Plugin
         $root_url                  = "{$root_url['scheme']}://{$root_url['host']}";
         $metadata['provider_url']  = (string) ($info->providerUrl != '' ? $info->providerUrl : $root_url);
 
-        if (!is_null($info->image)) {
+        if (!\is_null($info->image)) {
             $thumbnail_url = (string) $info->image;
         } else {
             $thumbnail_url = (string) $info->favicon;
@@ -318,10 +304,6 @@ class Embed extends Plugin
 
     /**
      * Normalize fetched info.
-     *
-     * @param array $metadata
-     *
-     * @return array
      */
     private static function normalizeEmbedLibMetadata(array $metadata): array
     {
@@ -350,8 +332,6 @@ class Embed extends Plugin
      * - downloads the thumbnail, returns a string if successful.
      *
      * @param string $url URL to the remote thumbnail
-     *
-     * @return null|bool|string
      */
     private function downloadThumbnail(string $url): bool|string|null
     {
@@ -370,7 +350,7 @@ class Embed extends Plugin
         // Validate if the URL really does point to a remote image
         $head    = HTTPClient::head($url);
         $headers = $head->getHeaders();
-        $headers = array_change_key_case($headers, CASE_LOWER);
+        $headers = array_change_key_case($headers, \CASE_LOWER);
         if (empty($headers['content-type']) || GSFile::mimetypeMajor($headers['content-type'][0]) !== 'image') {
             Log::debug("URL ({$url}) doesn't point to an image (content-type: " . (!empty($headers['content-type'][0]) ? $headers['content-type'][0] : 'not available') . ') in Embed->downloadThumbnail.');
             return null;
@@ -409,17 +389,15 @@ class Embed extends Plugin
      * @throws ServerException
      *
      * @return bool true hook value
-     *
      */
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = [
-            'name'        => 'Embed',
-            'version'     => $this->version(),
-            'author'      => 'Mikael Nordfeldth, Hugo Sales, Diogo Peralta Cordeiro',
-            'homepage'    => GNUSOCIAL_PROJECT_URL,
-            'description' => // TRANS: Plugin description.
-                _m('Plugin for using and representing oEmbed, OpenGraph and other data.'),
+            'name'     => 'Embed',
+            'version'  => $this->version(),
+            'author'   => 'Mikael Nordfeldth, Hugo Sales, Diogo Peralta Cordeiro',
+            'homepage' => GNUSOCIAL_PROJECT_URL,
+            'description', // TRANS: Plugin description. => _m('Plugin for using and representing oEmbed, OpenGraph and other data.'),
         ];
         return Event::next;
     }

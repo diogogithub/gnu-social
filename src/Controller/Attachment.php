@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -66,7 +68,7 @@ class Attachment extends Controller
         if (empty($res)) {
             throw new ClientException(_m('No such attachment'), 404);
         } else {
-            if (!array_key_exists('filepath', $res)) {
+            if (!\array_key_exists('filepath', $res)) {
                 // @codeCoverageIgnoreStart
                 throw new ServerException('This attachment is not stored locally.');
             // @codeCoverageIgnoreEnd
@@ -101,36 +103,39 @@ class Attachment extends Controller
      */
     public function attachment_view(Request $request, int $id)
     {
-        return $this->attachment($id, fn (array $res) => GSFile::sendFile(
-                                     $res['filepath'], $res['mimetype'],
-                                     GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'],
-                                     HeaderUtils::DISPOSITION_INLINE
-                                 )
+        return $this->attachment(
+            $id,
+            fn (array $res) => GSFile::sendFile(
+                $res['filepath'],
+                $res['mimetype'],
+                GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'],
+                HeaderUtils::DISPOSITION_INLINE,
+            ),
         );
     }
 
     public function attachment_download(Request $request, int $id)
     {
-        return $this->attachment($id, fn (array $res) => GSFile::sendFile(
-                                     $res['filepath'], $res['mimetype'],
-                                     GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'],
-                                     HeaderUtils::DISPOSITION_ATTACHMENT
-                                 )
+        return $this->attachment(
+            $id,
+            fn (array $res) => GSFile::sendFile(
+                $res['filepath'],
+                $res['mimetype'],
+                GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'],
+                HeaderUtils::DISPOSITION_ATTACHMENT,
+            ),
         );
     }
 
     /**
      * Controller to produce a thumbnail for a given attachment id
      *
-     * @param Request $request
-     * @param int     $id      Attachment ID
+     * @param int $id Attachment ID
      *
+     * @throws \App\Util\Exception\DuplicateFoundException
      * @throws ClientException
      * @throws NotFoundException
      * @throws ServerException
-     * @throws \App\Util\Exception\DuplicateFoundException
-     *
-     * @return Response
      */
     public function attachment_thumbnail(Request $request, int $id, string $size = 'small'): Response
     {
@@ -139,7 +144,7 @@ class Attachment extends Controller
         $crop = Common::config('thumbnail', 'smart_crop');
 
         $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, size: $size, crop: $crop);
-        if (is_null($thumbnail)) {
+        if (\is_null($thumbnail)) {
             throw new ClientException(_m('Can not generate thumbnail for attachment with id={id}', ['id' => $attachment->getId()]));
         }
 

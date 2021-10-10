@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -41,8 +43,8 @@ class ProfileColor extends Entity
     private int $actor_id;
     private ?string $color;
     private ?string $background;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setActorId(int $actor_id): self
     {
@@ -106,11 +108,11 @@ class ProfileColor extends Entity
         return [
             'name'   => 'profile_color',
             'fields' => [
-                'actor_id'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
-                'background'    => ['type' => 'text',      'description' => 'color hex code'],
-                'color'         => ['type' => 'text',      'description' => 'color hex code'],
-                'created'       => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
-                'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
+                'actor_id'   => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
+                'background' => ['type' => 'text',      'description' => 'color hex code'],
+                'color'      => ['type' => 'text',      'description' => 'color hex code'],
+                'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
             'primary key' => ['actor_id'],
         ];

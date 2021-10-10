@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -43,8 +45,8 @@ class Cover extends Entity
     // @codeCoverageIgnoreStart
     private int $actor_id;
     private int $attachment_id;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setActorId(int $actor_id): self
     {
@@ -97,8 +99,6 @@ class Cover extends Entity
 
     /**
      * get cover attachment
-     *
-     * @return Attachment
      */
     public function getAttachment(): Attachment
     {
@@ -108,8 +108,6 @@ class Cover extends Entity
 
     /**
      * get cover attachment path
-     *
-     * @return string
      */
     public function getAttachmentPath(): string
     {
@@ -118,10 +116,6 @@ class Cover extends Entity
 
     /**
      * Delete this cover and the corresponding attachment and thumbnails, which this owns
-     *
-     * @param bool $flush
-     * @param bool $delete_attachments_now
-     * @param bool $cascading
      *
      * @return array attachments deleted (if delete_attachments_now is true)
      */

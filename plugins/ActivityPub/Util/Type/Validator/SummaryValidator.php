@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,7 @@ class SummaryValidator implements ValidatorInterface
     /**
      * Validate a summary attribute value
      *
-     * @param mixed $value
-     * @param mixed $container
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -38,6 +35,6 @@ class SummaryValidator implements ValidatorInterface
         Util::subclassOf($container, ObjectType::class, true);
 
         // Must be a string
-        return is_null($value) || is_string($value);
+        return \is_null($value) || \is_string($value);
     }
 }

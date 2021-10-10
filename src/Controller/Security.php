@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Controller;
 
 use App\Core\Controller;
@@ -70,7 +72,6 @@ class Security extends Controller
     }
 
     /**
-     *
      * Register a user, making sure the nickname is not reserved and
      * possibly sending a confirmation email
      *
@@ -83,6 +84,7 @@ class Security extends Controller
      * @throws NicknameTakenException
      * @throws ServerException
      * @throws DuplicateFoundException
+     * @throws EmailTakenException
      * @throws NicknameEmptyException
      * @throws NicknameNotAllowedException
      * @throws NicknameTooLongException
@@ -112,7 +114,7 @@ class Security extends Controller
             ['email', EmailType::class, [
                 'label'           => _m('Email'),
                 'help'            => _m('Desired email for this account (e.g., john@provider.com)'),
-                'constraints'     => [ new NotBlank(['message' => _m('Please enter an email') ])],
+                'constraints'     => [new NotBlank(['message' => _m('Please enter an email')])],
                 'block_name'      => 'email',
                 'label_attr'      => ['class' => 'section-form-label'],
                 'invalid_message' => _m('Email not valid. Please provide a valid email.'),
@@ -145,7 +147,7 @@ class Security extends Controller
                     $actor,
                     $user,
                     // Self follow
-                    fn (int $id) => DB::persist(Follow::create(['follower' => $id, 'followed' => $id]))
+                    fn (int $id) => DB::persist(Follow::create(['follower' => $id, 'followed' => $id])),
                 );
                 DB::flush();
                 // @codeCoverageIgnoreStart
@@ -170,7 +172,7 @@ class Security extends Controller
                 $user,
                 $request,
                 $authenticator,
-                'main' // firewall name in security.yaml
+                'main', // firewall name in security.yaml
             );
         }
 

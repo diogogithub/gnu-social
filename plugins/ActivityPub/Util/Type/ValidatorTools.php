@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -29,17 +31,14 @@ abstract class ValidatorTools implements ValidatorInterface
      * Validate a map attribute value.
      *
      * @param string $type      An attribute name
-     * @param mixed  $map
      * @param object $container A valid container
      *
      * @throws Exception
-     *
-     * @return bool
      */
     protected function validateMap(string $type, mixed $map, object $container): bool
     {
         // A map
-        if (!is_array($map)) {
+        if (!\is_array($map)) {
             return false;
         }
 
@@ -57,13 +56,10 @@ abstract class ValidatorTools implements ValidatorInterface
     /**
      * Validate an attribute value
      *
-     * @param mixed    $value
      * @param mixed    $container An object
      * @param callable $callback  A dedicated validator
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validateListOrObject(mixed $value, mixed $container, callable $callback): bool
     {
@@ -71,25 +67,25 @@ abstract class ValidatorTools implements ValidatorInterface
 
         // Not supported: Can be a JSON string
         // Must be a value like a URL, a text
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return $callback($value);
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             // Can be empty
-            if (!count($value)) {
+            if (!\count($value)) {
                 return true;
             }
 
             // A collection
-            if (is_int(key($value))) {
+            if (\is_int(key($value))) {
                 return $this->validateObjectCollection($value, $callback);
             }
 
             $value = Util::arrayToType($value);
         }
 
-        if (!is_object($value)) {
+        if (!\is_object($value)) {
             return false;
         }
 
@@ -99,10 +95,7 @@ abstract class ValidatorTools implements ValidatorInterface
     /**
      * Validate a list of Collection
      *
-     * @param array    $collection
-     * @param callable $callback   A dedicated validator
-     *
-     * @return bool
+     * @param callable $callback A dedicated validator
      */
     protected function validateObjectCollection(array $collection, callable $callback): bool
     {
@@ -120,20 +113,16 @@ abstract class ValidatorTools implements ValidatorInterface
     /**
      * Validate that a value is a string
      *
-     * @param string $value
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     protected function validateString(string $value): bool
     {
-        if (!is_string($value) || strlen($value) < 1) {
+        if (!\is_string($value) || $value === '') {
             throw new Exception(
                 sprintf(
                     'Value must be a non-empty string. Given: "%s"',
-                    print_r($value, true)
-                )
+                    print_r($value, true),
+                ),
             );
         }
 
@@ -150,15 +139,15 @@ abstract class ValidatorTools implements ValidatorInterface
         return
             /** The implementation lambda */
             static function ($item): bool {
-                if (is_string($item)) {
+                if (\is_string($item)) {
                     return Util::validateUrl($item);
                 }
 
-                if (is_array($item)) {
+                if (\is_array($item)) {
                     $item = Util::arrayToType($item);
                 }
 
-                if (is_object($item)) {
+                if (\is_object($item)) {
                     Util::hasProperties($item, ['type'], true);
 
                     // Validate Link type
@@ -169,7 +158,7 @@ abstract class ValidatorTools implements ValidatorInterface
                     // Validate Object type
                     Util::hasProperties($item, ['name'], true);
 
-                    return is_string($item->name);
+                    return \is_string($item->name);
                 }
 
                 return false;
@@ -186,20 +175,16 @@ abstract class ValidatorTools implements ValidatorInterface
         return
             /** The implementation lambda */
             static function ($item): bool {
-                if (is_array($item)) {
+                if (\is_array($item)) {
                     $item = Util::arrayToType($item);
                 }
 
-                if (is_object($item)
+                if (\is_object($item)
                 && Util::isLinkOrUrlObject($item)) {
                     return true;
                 }
 
-                if (Util::validateUrl($item)) {
-                    return true;
-                }
-
-                return false;
+                return (bool) (Util::validateUrl($item));
             };
     }
 
@@ -214,11 +199,11 @@ abstract class ValidatorTools implements ValidatorInterface
         return
             /** The implementation lambda */
             static function ($item): bool {
-                if (is_array($item)) {
+                if (\is_array($item)) {
                     $item = Util::arrayToType($item);
                 }
 
-                if (is_object($item)) {
+                if (\is_object($item)) {
                     if (Util::isLinkOrUrlObject($item)) {
                         return true;
                     }
@@ -226,11 +211,7 @@ abstract class ValidatorTools implements ValidatorInterface
                     return $item instanceof ObjectType;
                 }
 
-                if (Util::validateUrl($item)) {
-                    return true;
-                }
-
-                return false;
+                return (bool) (Util::validateUrl($item));
             };
     }
 
@@ -242,11 +223,11 @@ abstract class ValidatorTools implements ValidatorInterface
         return
             /** The implementation lambda */
             static function ($item): bool {
-                if (is_array($item)) {
+                if (\is_array($item)) {
                     $item = Util::arrayToType($item);
                 }
 
-                if (!is_object($item)) {
+                if (!\is_object($item)) {
                     return false;
                 }
 
@@ -265,15 +246,15 @@ abstract class ValidatorTools implements ValidatorInterface
         return
             /** The implementation lambda */
             static function ($item): bool {
-                if (is_string($item)) {
+                if (\is_string($item)) {
                     return Util::validateUrl($item);
                 }
 
-                if (is_array($item)) {
+                if (\is_array($item)) {
                     $item = Util::arrayToType($item);
                 }
 
-                if (!is_object($item)) {
+                if (!\is_object($item)) {
                     return false;
                 }
 
@@ -289,20 +270,20 @@ abstract class ValidatorTools implements ValidatorInterface
         return
             /** The implementation lambda */
             static function ($item): bool {
-                if (is_string($item)) {
+                if (\is_string($item)) {
                     return Util::validateUrl($item);
                 }
 
-                if (is_array($item)) {
+                if (\is_array($item)) {
                     $item = Util::arrayToType($item);
                 }
 
-                if (!is_object($item)) {
+                if (!\is_object($item)) {
                     return false;
                 }
                 // id must be filled
                 if ($item instanceof AbstractActor) {
-                    return !is_null($item->id);
+                    return !\is_null($item->id);
                 }
 
                 return Util::validateLink($item);

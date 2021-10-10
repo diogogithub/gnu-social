@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -63,7 +65,11 @@ class Repeat extends NoteHandlerPlugin
 
         // Handle form
         $ret = self::noteActionHandle(
-            $request, $form_repeat, $note, "repeat-{$note->getId()}", function ($note, $data, $user) {
+            $request,
+            $form_repeat,
+            $note,
+            "repeat-{$note->getId()}",
+            function ($note, $data, $user) {
                 if ($data["repeat-{$note->getId()}"] === '0') {
                     DB::persist(Note::create([
                         'actor_id'  => $user->getId(),
@@ -80,7 +86,8 @@ class Repeat extends NoteHandlerPlugin
                 throw new RedirectException();
 
                 return Event::stop;
-            });
+            },
+        );
 
         if ($ret !== null) {
             return $ret;

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -48,8 +50,6 @@ class OEmbed extends Controller
 {
     /**
      * Handle OEmbed server requests
-     *
-     * @param Request $request
      */
     protected function handle(Request $request)
     {
@@ -213,7 +213,9 @@ class OEmbed extends Controller
         // }
     }
 
-    /** Placeholder */
+    /**
+     * Placeholder
+     */
     public function init_document($type)
     {
         throw new NotImplementedException;
@@ -238,7 +240,9 @@ class OEmbed extends Controller
         // }
     }
 
-    /** Placeholder */
+    /**
+     * Placeholder
+     */
     public function end_document($type)
     {
         throw new NotImplementedException;
@@ -267,7 +271,7 @@ class OEmbed extends Controller
      *
      * @return bool is read only action?
      */
-    public function isReadOnly($args)
+    public function isReadOnly(array $args): bool
     {
         return true;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,7 @@ class EndpointsValidator implements ValidatorInterface
     /**
      * Validate ENDPOINTS value
      *
-     * @param mixed $value
-     * @param mixed $container
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -43,7 +40,7 @@ class EndpointsValidator implements ValidatorInterface
         }
 
         // A map
-        return is_array($value) && $this->validateObject($value);
+        return \is_array($value) && $this->validateObject($value);
     }
 
     /**

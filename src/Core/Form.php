@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -83,20 +85,21 @@ abstract class Form
     /**
      * Create a form with the given associative array $form as fields
      */
-    public static function create(array $form,
-                                  ?object $target = null,
-                                  array $extra_data = [],
-                                  string $type = 'Symfony\Component\Form\Extension\Core\Type\FormType',
-                                  array $form_options = []): SymfFormInterface
-    {
+    public static function create(
+        array $form,
+        ?object $target = null,
+        array $extra_data = [],
+        string $type = 'Symfony\Component\Form\Extension\Core\Type\FormType',
+        array $form_options = [],
+    ): SymfFormInterface {
         $name = $form[array_key_last($form)][0];
         $fb   = self::$form_factory->createNamedBuilder($name, $type, data: null, options: array_merge($form_options, ['translation_domain' => false]));
         foreach ($form as [$key, $class, $options]) {
-            if ($class == SubmitType::class && in_array($key, ['save', 'publish', 'post'])) {
+            if ($class == SubmitType::class && \in_array($key, ['save', 'publish', 'post'])) {
                 Log::critical($m = "It's generally a bad idea to use {$key} as a form name, because it can conflict with other forms in the same page");
                 throw new ServerException($m);
             }
-            if ($target != null && empty($options['data']) && (strstr($key, 'password') == false) && $class != SubmitType::class) {
+            if ($target != null && empty($options['data']) && (mb_strstr($key, 'password') == false) && $class != SubmitType::class) {
                 if (isset($extra_data[$key])) {
                     // @codeCoverageIgnoreStart
                     $options['data'] = $extra_data[$key];
@@ -135,7 +138,7 @@ abstract class Form
      * Handle the full life cycle of a form. Creates it with @see
      * self::create and inserts the submitted values into the database
      */
-    public static function handle(array $form_definition, Request $request, ?object $target, array $extra_args = [], ?callable $extra_step = null, array $create_args = [], SymfForm $testing_only_form = null)
+    public static function handle(array $form_definition, Request $request, ?object $target, array $extra_args = [], ?callable $extra_step = null, array $create_args = [], ?SymfForm $testing_only_form = null)
     {
         $form = $testing_only_form ?? self::create($form_definition, $target, ...$create_args);
 

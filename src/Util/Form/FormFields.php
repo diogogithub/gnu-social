@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Util\Form;
 
 use function App\Core\I18n\_m;
@@ -24,7 +26,7 @@ abstract class FormFields
                     'constraints' => [
                         new NotBlank(['message' => _m('Please enter a password')]),
                         new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
-                            'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'],  ['count' => Common::config('password', 'max_length')]), ]),
+                            'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'], ['count' => Common::config('password', 'max_length')]), ]),
                     ],
                     'help' => _m('Write a password with at least {min_length} characters, and a maximum of {max_length}.', ['min_length' => Common::config('password', 'min_length'), 'max_length' => Common::config('password', 'max_length')]),
                 ],
@@ -55,7 +57,7 @@ abstract class FormFields
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a password')]),
                     new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
-                        'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'],  ['count' => Common::config('password', 'max_length')]), ]),
+                        'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'], ['count' => Common::config('password', 'max_length')]), ]),
                 ], ],
         ];
     }

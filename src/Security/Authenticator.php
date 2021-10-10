@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -98,17 +100,14 @@ class Authenticator extends AbstractFormLoginAuthenticator
             $credentials['nickname'] = $user->getNickname();
         } catch (Exception) {
             throw new CustomUserMessageAuthenticationException(
-                _m('Invalid login credentials.'));
+                _m('Invalid login credentials.'),
+            );
         }
 
         return $user;
     }
 
-    /**
-     * @param LocalUser $user
-     * @param mixed     $credentials
-     */
-    public function checkCredentials($credentials, $user)
+    public function checkCredentials($credentials, LocalUser $user)
     {
         if (!$user->checkPassword($credentials['password'])) {
             throw new CustomUserMessageAuthenticationException(_m('Invalid login credentials.'));

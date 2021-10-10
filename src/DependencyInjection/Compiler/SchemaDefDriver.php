@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -33,6 +35,7 @@ namespace App\DependencyInjection\Compiler;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver;
+use Exception;
 use Functional as F;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -51,9 +54,10 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $container->findDefinition('doctrine.orm.default_metadata_driver')
-                  ->addMethodCall('addDriver',
-                                  [new Reference('app.schemadef_driver'), 'App\\Entity']
-                  );
+            ->addMethodCall(
+                'addDriver',
+                [new Reference('app.schemadef_driver'), 'App\\Entity'],
+            );
     }
 
     /**
@@ -87,11 +91,8 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
 
     /**
      * Fill in the database $metadata for $class_name
-     *
-     * @param string            $class_name
-     * @param ClassMetadataInfo $metadata
      */
-    public function loadMetadataForClass($class_name, $metadata)
+    public function loadMetadataForClass(string $class_name, ClassMetadataInfo $metadata)
     {
         $schema = $class_name::schemaDef();
 
@@ -105,7 +106,7 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
         foreach ($schema['fields'] as $name => $opts) {
             $unique = null;
             foreach ($schema['unique keys'] ?? [] as $key => $uniq_arr) {
-                if (in_array($name, $uniq_arr)) {
+                if (\in_array($name, $uniq_arr)) {
                     $unique = $key;
                     break;
                 }
@@ -116,7 +117,7 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
                 // TODO: Get foreign keys working
                 foreach (['target', 'multiplicity'] as $f) {
                     if (!isset($opts[$f])) {
-                        throw new \Exception("{$class_name}.{$name} doesn't have the required field `{$f}`");
+                        throw new Exception("{$class_name}.{$name} doesn't have the required field `{$f}`");
                     }
                 }
 
@@ -132,7 +133,7 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
                         'name'                 => $name,
                         'referencedColumnName' => $target_field,
                     ]],
-                    'id'     => in_array($name, $schema['primary key']),
+                    'id'     => \in_array($name, $schema['primary key']),
                     'unique' => $unique,
                 ];
 
@@ -151,7 +152,7 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
                     $metadata->mapManyToMany($map);
                     break;
                 default:
-                    throw new \Exception("Invalid multiplicity specified: '${opts['multiplicity']}' in class: {$class_name}");
+                    throw new Exception("Invalid multiplicity specified: '${opts['multiplicity']}' in class: {$class_name}");
                 }
                 // @codeCoverageIgnoreEnd
             } else {
@@ -163,7 +164,7 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
 
                 $field = [
                     // boolean, optional
-                    'id' => in_array($name, $schema['primary key']),
+                    'id' => \in_array($name, $schema['primary key']),
                     // string
                     'fieldName' => $name,
                     // string
@@ -207,22 +208,14 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
      * Override StaticPHPDriver's method,
      * we care about classes that have the method `schemaDef`,
      * instead of `loadMetadata`.
-     *
-     * @param string $class_name
-     *
-     * @return bool
      */
-    public function isTransient($class_name)
+    public function isTransient(string $class_name): bool
     {
         return !method_exists($class_name, 'schemaDef');
     }
 
     /**
      * Convert [$key => $val] to ['name' => $key, 'columns' => $val]
-     *
-     * @param array $arr
-     *
-     * @return array
      */
     private static function kv_to_name_col(array $arr): array
     {

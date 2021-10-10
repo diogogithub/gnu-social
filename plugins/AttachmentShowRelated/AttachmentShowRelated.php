@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -32,12 +34,12 @@ class AttachmentShowRelated extends Plugin
     public function onAppendRightPanelBlock($vars, &$res): bool
     {
         if ($vars['path'] === 'attachment_show') {
-            $related_notes = DB::dql('select n from attachment_to_note an ' .
-        'join note n with n.id = an.note_id ' .
-        'where an.attachment_id = :attachment_id', ['attachment_id' => $vars['vars']['attachment_id']]);
-            $related_tags = DB::dql('select distinct t.tag ' .
-        'from attachment_to_note an join note_tag t with an.note_id = t.note_id ' .
-        'where an.attachment_id = :attachment_id', ['attachment_id' => $vars['vars']['attachment_id']]);
+            $related_notes = DB::dql('select n from attachment_to_note an '
+        . 'join note n with n.id = an.note_id '
+        . 'where an.attachment_id = :attachment_id', ['attachment_id' => $vars['vars']['attachment_id']], );
+            $related_tags = DB::dql('select distinct t.tag '
+        . 'from attachment_to_note an join note_tag t with an.note_id = t.note_id '
+        . 'where an.attachment_id = :attachment_id', ['attachment_id' => $vars['vars']['attachment_id']], );
             $res[] = Formatting::twigRenderFile('attachmentShowRelated/attachmentRelatedNotes.html.twig', ['related_notes' => $related_notes, 'have_user' => Common::user() !== null]);
             $res[] = Formatting::twigRenderFile('attachmentShowRelated/attachmentRelatedTags.html.twig', ['related_tags' => $related_tags]);
         }
@@ -49,7 +51,7 @@ class AttachmentShowRelated extends Plugin
      *
      * @param array $styles stylesheets path
      *
-     * @return bool hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop
      */
     public function onEndShowStyles(array &$styles, string $path): bool
     {

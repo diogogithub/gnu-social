@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -21,6 +23,7 @@ namespace App\Tests\Entity;
 
 use App\Entity\Link;
 use App\Util\GNUsocialTestCase;
+use InvalidArgumentException;
 use Jchook\AssertThrows\AssertThrows;
 
 class LinkTest extends GNUsocialTestCase
@@ -29,10 +32,10 @@ class LinkTest extends GNUsocialTestCase
 
     public function testGetOrCreate()
     {
-        static::assertThrows(\InvalidArgumentException::class, fn () => Link::getOrCreate('not a url'));
+        static::assertThrows(InvalidArgumentException::class, fn () => Link::getOrCreate('not a url'));
         $link = Link::getOrCreate('https://gnu.org');
         static::assertNotNull($link->getUrl());
 
-        static::assertThrows(\InvalidArgumentException::class, fn () => Link::getOrCreate('https://' . $_ENV['SOCIAL_DOMAIN']));
+        static::assertThrows(InvalidArgumentException::class, fn () => Link::getOrCreate('https://' . $_ENV['SOCIAL_DOMAIN']));
     }
 }

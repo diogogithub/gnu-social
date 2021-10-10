@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -26,14 +28,8 @@ use Plugin\ActivityPub\Util\Type\AbstractObject;
  */
 class Link extends AbstractObject
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Link';
 
-    /**
-     * @var string
-     */
     protected string $id;
 
     /**
@@ -59,8 +55,6 @@ class Link extends AbstractObject
      * The target resource pointed to by a Link.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-href
-     *
-     * @var null|string
      */
     protected ?string $href;
 
@@ -69,8 +63,6 @@ class Link extends AbstractObject
      * Value MUST be a BCP47 Language-Tag.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-hreflang
-     *
-     * @var null|string
      */
     protected ?string $hreflang;
 
@@ -78,8 +70,6 @@ class Link extends AbstractObject
      * The MIME media type of the referenced resource.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-mediatype
-     *
-     * @var null|string
      */
     protected ?string $mediaType;
 
@@ -89,8 +79,6 @@ class Link extends AbstractObject
      * and RFC5988 "link relation" definitions.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-rel
-     *
-     * @var null|array|string
      */
     protected string|array|null $rel;
 

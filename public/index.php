@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of GNU social - https://www.gnu.org/software/social
  *
@@ -34,7 +36,7 @@ use App\Kernel;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 
-require dirname(__DIR__) . '/config/bootstrap.php';
+require \dirname(__DIR__) . '/config/bootstrap.php';
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
@@ -46,8 +48,9 @@ if ($_SERVER['APP_DEBUG']) {
 // the standard Forwarded header or X-Forwarded-* headers.
 // Therefore, if the user configures trusted proxy IPs, we trust these headers.
 if ($trustedProxies = $_ENV['TRUSTED_PROXIES'] ?? $_SERVER['TRUSTED_PROXIES'] ?? false) {
-    Request::setTrustedProxies(explode(',', $trustedProxies),
-        Request::HEADER_FORWARDED | Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO
+    Request::setTrustedProxies(
+        explode(',', $trustedProxies),
+        Request::HEADER_FORWARDED | Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO,
     );
 }
 

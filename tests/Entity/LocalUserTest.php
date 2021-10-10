@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -21,6 +23,7 @@ namespace App\Tests\Entity;
 
 use App\Entity\LocalUser;
 use App\Util\GNUsocialTestCase;
+use Exception;
 use Jchook\AssertThrows\AssertThrows;
 
 class LocalUserTest extends GNUsocialTestCase
@@ -30,10 +33,10 @@ class LocalUserTest extends GNUsocialTestCase
     public function testAlgoNameToConstant()
     {
         $if_exists = function ($name, $constant) {
-            if (defined($constant)) {
-                static::assertSame(constant($constant), LocalUser::algoNameToConstant($name));
+            if (\defined($constant)) {
+                static::assertSame(\constant($constant), LocalUser::algoNameToConstant($name));
             } else {
-                static::assertThrows(\Exception::class, fn () => LocalUser::algoNameToConstant($name));
+                static::assertThrows(Exception::class, fn () => LocalUser::algoNameToConstant($name));
             }
         };
         $if_exists('bcrypt', 'PASSWORD_BCRYPT');

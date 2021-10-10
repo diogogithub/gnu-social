@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -21,6 +23,7 @@ namespace App\Util;
 
 use App\Core\Log;
 use App\Util\Exception\ServerException;
+use ReflectionClass;
 
 abstract class Bitmap
 {
@@ -41,7 +44,7 @@ abstract class Bitmap
             $vals = [];
         }
 
-        $consts      = (new \ReflectionClass($class))->getConstants();
+        $consts      = (new ReflectionClass($class))->getConstants();
         $have_prefix = false;
         if (isset($consts['PREFIX'])) {
             $have_prefix = true;
@@ -51,7 +54,7 @@ abstract class Bitmap
         foreach ($consts as $c => $v) {
             $b = ($r & $v) !== 0;
             if ($instance) {
-                $c         = strtolower($c);
+                $c         = mb_strtolower($c);
                 $obj->{$c} = $b;
             }
             if ($b) {

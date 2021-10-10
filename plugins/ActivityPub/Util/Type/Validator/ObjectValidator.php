@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -26,12 +28,7 @@ class ObjectValidator implements ValidatorInterface
     /**
      * Validate an object value
      *
-     * @param mixed $value
-     * @param mixed $container
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -39,37 +36,37 @@ class ObjectValidator implements ValidatorInterface
         Util::subclassOf(
             $container,
             [Activity::class],
-            true
+            true,
         );
 
         // URL
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return Util::validateUrl($value)
                 || Util::validateOstatusTag($value);
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Util::arrayToType($value);
         }
 
         // Link or Object
-        if (is_object($value)) {
+        if (\is_object($value)) {
             return Util::validateLink($value)
                 || Util::isObjectType($value);
         }
 
         // Collection
-        if (is_array($value)) {
+        if (\is_array($value)) {
             foreach ($value as $item) {
-                if (is_string($item) && Util::validateUrl($item)) {
+                if (\is_string($item) && Util::validateUrl($item)) {
                     continue;
                 }
 
-                if (is_array($item)) {
+                if (\is_array($item)) {
                     $item = Util::arrayToType($item);
                 }
 
-                if (is_object($item)
+                if (\is_object($item)
                     && Util::subclassOf($item, [ObjectType::class], true)) {
                     continue;
                 }
@@ -77,7 +74,7 @@ class ObjectValidator implements ValidatorInterface
                 return false;
             }
 
-            return count($value) > 0;
+            return \count($value) > 0;
         }
 
         return false;

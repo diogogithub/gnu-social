@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -22,10 +24,7 @@ class AccuracyValidator implements ValidatorInterface
     /**
      * Validate an ACCURACY attribute value
      *
-     * @param mixed $value
      * @param mixed $container An object
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {

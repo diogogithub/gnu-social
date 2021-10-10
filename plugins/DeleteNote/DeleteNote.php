@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -55,13 +57,13 @@ class DeleteNote extends NoteHandlerPlugin
         if (($user = Common::user()) === null) {
             return Event::next;
         }
-        $user_id = $user->getId();
+        $user_id       = $user->getId();
         $note_actor_id = $note->getActor()->getId();
         if ($user_id !== $note_actor_id) {
             return Event::next;
         }
 
-        $note_id = $note->getId();
+        $note_id     = $note->getId();
         $form_delete = Form::create([
             ['submit_delete', SubmitType::class,
                 [
@@ -78,7 +80,11 @@ class DeleteNote extends NoteHandlerPlugin
 
         // Handle form
         $ret = self::noteActionHandle(
-            $request, $form_delete, $note, "delete-{$note_id}", function ($note, $note_id) {
+            $request,
+            $form_delete,
+            $note,
+            "delete-{$note_id}",
+            function ($note, $note_id) {
                 DB::remove(DB::findOneBy('note', ['id' => $note_id]));
                 DB::flush();
 
@@ -86,7 +92,8 @@ class DeleteNote extends NoteHandlerPlugin
                 throw new RedirectException();
 
                 return Event::stop;
-            });
+            },
+        );
 
         if ($ret !== null) {
             return $ret;

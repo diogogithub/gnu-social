@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -29,11 +31,9 @@ class Directory
     /**
      * actors stream
      *
-     * @param Request $request
-     *
      * @return array template
      */
-    public function actors(Request $request)
+    public function actors(Request $request): array
     {
         return ['_template' => 'directory/actors.html.twig', 'actors' => DB::dql('select g from App\Entity\Actor g order by g.nickname ASC')];
     }
@@ -41,11 +41,9 @@ class Directory
     /**
      * groups stream
      *
-     * @param Request $request
-     *
      * @return array template
      */
-    public function groups(Request $request)
+    public function groups(Request $request): array
     {
         return ['_template' => 'directory/groups.html.twig', 'groups' => DB::dql('select g from App\Entity\Group g order by g.nickname ASC')];
     }

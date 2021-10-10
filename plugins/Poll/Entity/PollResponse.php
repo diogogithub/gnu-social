@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -44,8 +46,8 @@ class PollResponse extends Entity
     private int $poll_id;
     private ?int $actor_id;
     private ?int $selection;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -132,7 +134,7 @@ class PollResponse extends Entity
      *
      * @return array schema definition
      */
-    public static function schemaDef()
+    public static function schemaDef(): array
     {
         return [
             'name'        => 'pollresponse',
@@ -166,16 +168,15 @@ class PollResponse extends Entity
     /**
      * Checks if a user already responded to the poll
      *
-     * @param int $pollId
      * @param int $actorId user
-     *
-     * @return bool
      */
     public static function exits(int $pollId, int $actorId): bool
     {
-        $res = DB::dql('select pr from App\Entity\PollResponse pr
+        $res = DB::dql(
+            'select pr from App\Entity\PollResponse pr
                    where pr.poll_id = :pollId and pr.actor_id = :actorId',
-                ['pollId' => $pollId, 'actorId' => $actorId]);
-        return count($res) != 0;
+            ['pollId' => $pollId, 'actorId' => $actorId],
+        );
+        return \count($res) != 0;
     }
 }

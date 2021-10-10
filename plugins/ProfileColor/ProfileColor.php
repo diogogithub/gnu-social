@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -47,9 +49,7 @@ class ProfileColor extends Plugin
     /**
      * Map URLs to actions
      *
-     * @param RouteLoader $r
-     *
-     * @return bool hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop
      */
     public function onAddRoute(RouteLoader $r): bool
     {
@@ -58,13 +58,8 @@ class ProfileColor extends Plugin
     }
 
     /**
-     * @param Request $request
-     * @param array   $tabs
-     *
      * @throws RedirectException
      * @throws ServerException
-     *
-     * @return bool
      */
     public function onPopulateProfileSettingsTabs(Request $request, array &$tabs): bool
     {
@@ -80,11 +75,6 @@ class ProfileColor extends Plugin
 
     /**
      * Renders profileColorView, which changes the background color of that profile.
-     *
-     * @param array $vars
-     * @param array $res
-     *
-     * @return bool
      */
     public function onAppendCardProfile(array $vars, array &$res): bool
     {
@@ -98,7 +88,7 @@ class ProfileColor extends Plugin
                 return Event::next;
             }
 
-            $color = DB::findBy('profile_color', ['actor_id'=>$actor_id])[0];
+            $color = DB::findBy('profile_color', ['actor_id' => $actor_id])[0];
             if ($color !== null) {
                 $color = $color->getColor();
                 $res[] = Formatting::twigRenderFile('/profileColor/profileColorView.html.twig', ['profile_color' => $profile_color_tab, 'actor' => $actor_id]);

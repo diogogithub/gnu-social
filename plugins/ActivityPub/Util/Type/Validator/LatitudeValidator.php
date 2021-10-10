@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,9 @@ class LatitudeValidator implements ValidatorInterface
     /**
      * Validate a latitude attribute value
      *
-     * @param mixed $value
      * @param mixed $container An object
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {

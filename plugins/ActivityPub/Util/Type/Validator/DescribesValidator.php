@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -26,19 +28,16 @@ class DescribesValidator implements ValidatorInterface
     /**
      * Validate an DESCRIBES attribute value
      *
-     * @param mixed $value
      * @param mixed $container A Profile type
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
         // Validate that container is a Tombstone type
         Util::subclassOf($container, Profile::class, true);
 
-        if (is_object($value)) {
+        if (\is_object($value)) {
             // MUST be an Object
             return Util::subclassOf($value, ObjectType::class, true);
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -42,22 +44,20 @@ abstract class Type
      * @param array<string,mixed>        $attributes
      *
      * @throws Exception
-     *
-     * @return mixed
      */
-    public static function create($type, array $attributes = [])
+    public static function create($type, array $attributes = []): mixed
     {
-        if (!is_string($type) && !is_array($type)) {
+        if (!\is_string($type) && !\is_array($type)) {
             throw new Exception(
                 'Type parameter must be a string or an array. Given='
-                . gettype($type)
+                . \gettype($type),
             );
         }
 
-        if (is_array($type)) {
+        if (\is_array($type)) {
             if (!isset($type['type'])) {
                 throw new Exception(
-                    "Type parameter must have a 'type' key"
+                    "Type parameter must have a 'type' key",
                 );
             }
 
@@ -65,17 +65,17 @@ abstract class Type
         }
 
         try {
-            $class = is_array($type)
+            $class = \is_array($type)
                 ? TypeResolver::getClass($type['type'])
                 : TypeResolver::getClass($type);
         } catch (Exception $exception) {
-            $message = json_encode($attributes, JSON_PRETTY_PRINT);
+            $message = json_encode($attributes, \JSON_PRETTY_PRINT);
             throw new Exception(
-                $exception->getMessage() . "\n{$message}"
+                $exception->getMessage() . "\n{$message}",
             );
         }
 
-        if (is_string($class)) {
+        if (\is_string($class)) {
             $class = new $class();
         }
 
@@ -97,8 +97,8 @@ abstract class Type
     {
         $data = json_decode($json, true);
 
-        if (json_last_error() === JSON_ERROR_NONE
-            && is_array($data)
+        if (json_last_error() === \JSON_ERROR_NONE
+            && \is_array($data)
         ) {
             return self::create($data);
         }
@@ -106,8 +106,8 @@ abstract class Type
         throw new Exception(
             sprintf(
                 "An error occurred during the JSON decoding.\n '%s'",
-                $json
-            )
+                $json,
+            ),
         );
     }
 
@@ -115,7 +115,7 @@ abstract class Type
      * Add a custom validator for an attribute.
      * It checks that it implements Validator\Interface
      *
-     * @param string $name  An attribute name to validate.
+     * @param string $name  an attribute name to validate
      * @param string $class A validator class name
      */
     public static function addValidator(string $name, string $class): void

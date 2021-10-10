@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -32,19 +34,15 @@ abstract class Validator
      * Validate an attribute value for given attribute name and
      * container object.
      *
-     * @param string $name
-     * @param mixed  $value
-     * @param mixed  $container An object
+     * @param mixed $container An object
      *
      * @throws Exception if $container is not an object
-     *
-     * @return bool
      */
     public static function validate(string $name, mixed $value, mixed $container): bool
     {
-        if (!is_object($container)) {
+        if (!\is_object($container)) {
             throw new Exception(
-                'Given container is not an object'
+                'Given container is not an object',
             );
         }
 
@@ -52,14 +50,14 @@ abstract class Validator
         if (isset(self::$validators[$name])) {
             return self::$validators[$name]->validate(
                 $value,
-                $container
+                $container,
             );
         }
 
         // Try to load a default validator
         $validatorName = sprintf(
             '\Plugin\ActivityPub\Util\Type\Validator\%sValidator',
-            ucfirst($name)
+            ucfirst($name),
         );
 
         if (class_exists($validatorName)) {
@@ -75,7 +73,7 @@ abstract class Validator
      * Add a new validator in the pool.
      * It checks that it implements Validator\Interface
      *
-     * @param string        $name  An attribute name to validate.
+     * @param string        $name  an attribute name to validate
      * @param object|string $class A validator class name
      *
      * @throws Exception if validator class does not implement
@@ -89,9 +87,9 @@ abstract class Validator
             throw new Exception(
                 sprintf(
                     'Validator "%s" MUST implement "%s" interface',
-                    get_class($validator),
-                    ValidatorInterface::class
-                )
+                    \get_class($validator),
+                    ValidatorInterface::class,
+                ),
             );
         }
 

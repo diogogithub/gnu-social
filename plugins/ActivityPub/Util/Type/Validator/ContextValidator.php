@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -24,12 +26,7 @@ class ContextValidator implements ValidatorInterface
     /**
      * Validate a context attribute value
      *
-     * @param mixed $value
-     * @param mixed $container
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -38,12 +35,12 @@ class ContextValidator implements ValidatorInterface
             return true;
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Util::arrayToType($value);
         }
 
         // Link or Object
-        if (is_object($value)) {
+        if (\is_object($value)) {
             return Util::validateLink($value)
                 || Util::validateObject($value);
         }

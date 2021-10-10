@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -37,11 +39,9 @@ final class EmbedTest extends TestCase
     /**
      * Run tests
      *
-     * @param string $url
-     * @param string $expectedType
      * @dataProvider sources
      */
-    public function testEmbed($url, $expectedType)
+    public function testEmbed(string $url, string $expectedType)
     {
         // try {
         //     $data = EmbedHelper::getObject($url);

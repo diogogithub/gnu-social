@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -45,8 +47,8 @@ class Poll extends Entity
     private int $note_id;
     private ?string $question;
     private ?string $options;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -180,15 +182,10 @@ class Poll extends Entity
      * Is this a valid selection index?
      *
      * @param int $selection (1-based)
-     *
-     * @return bool
      */
     public function isValidSelection(int $selection): bool
     {
-        if ($selection < 1 || $selection > count($this->getOptionsArr())) {
-            return false;
-        }
-        return true;
+        return !($selection < 1 || $selection > \count($this->getOptionsArr()));
     }
 
     /**
@@ -200,10 +197,12 @@ class Poll extends Entity
     {
         $responses = [];
         $options   = $this->getOptionsArr();
-        for ($i = 0; $i < count($options); ++$i) {
-            $responses[$options[$i]] = DB::dql('select count(pr) from App\Entity\PollResponse pr ' .
-                    'where pr.poll_id = :id and pr.selection = :selection',
-                ['id' => $this->id, 'selection' => $i + 1])[0][1];
+        for ($i = 0; $i < \count($options); ++$i) {
+            $responses[$options[$i]] = DB::dql(
+                'select count(pr) from App\Entity\PollResponse pr '
+                    . 'where pr.poll_id = :id and pr.selection = :selection',
+                ['id' => $this->id, 'selection' => $i + 1],
+            )[0][1];
         }
 
         return $responses;

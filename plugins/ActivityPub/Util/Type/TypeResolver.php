@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -21,8 +23,6 @@ abstract class TypeResolver
 {
     /**
      * A list of core types
-     *
-     * @var array
      */
     protected static array $coreTypes = [
         'Activity', 'Collection', 'CollectionPage',
@@ -33,8 +33,6 @@ abstract class TypeResolver
 
     /**
      * A list of actor types
-     *
-     * @var array
      */
     protected static array $actorTypes = [
         'Application', 'Group', 'Organization', 'Person', 'Service',
@@ -42,8 +40,6 @@ abstract class TypeResolver
 
     /**
      * A list of activity types
-     *
-     * @var array
      */
     protected static array $activityTypes = [
         'Accept', 'Add', 'Announce', 'Block',
@@ -54,8 +50,6 @@ abstract class TypeResolver
 
     /**
      * A list of object types
-     *
-     * @var array
      */
     protected static array $objectTypes = [
         'Article', 'Audio', 'Document', 'Event', 'Image',
@@ -65,8 +59,6 @@ abstract class TypeResolver
 
     /**
      * Get namespaced class for a given short type
-     *
-     * @param string $type
      *
      * @throws Exception
      *
@@ -82,21 +74,21 @@ abstract class TypeResolver
         }
 
         switch ($type) {
-            case in_array($type, self::$coreTypes):
+            case \in_array($type, self::$coreTypes):
                 $ns .= '\Core';
                 break;
-            case in_array($type, self::$activityTypes):
+            case \in_array($type, self::$activityTypes):
                 $ns .= '\Extended\Activity';
                 break;
-            case in_array($type, self::$actorTypes):
+            case \in_array($type, self::$actorTypes):
                 $ns .= '\Extended\Actor';
                 break;
-            case in_array($type, self::$objectTypes):
+            case \in_array($type, self::$objectTypes):
                 $ns .= '\Extended\Object';
                 break;
             default:
                 throw new Exception(
-                    "Undefined scope for type '{$type}'"
+                    "Undefined scope for type '{$type}'",
                 );
         }
 
@@ -106,44 +98,37 @@ abstract class TypeResolver
     /**
      * Validate an object pool type with type attribute
      *
-     * @param object $item
      * @param string $poolname An expected pool name
-     *
-     * @return bool
      */
     public static function isScope(object $item, string $poolname = 'all'): bool
     {
-        if (!is_object($item)
+        if (!\is_object($item)
             || !isset($item->type)
-            || !is_string($item->type)
+            || !\is_string($item->type)
         ) {
             return false;
         }
 
-        return match (strtolower($poolname)) {
+        return match (mb_strtolower($poolname)) {
             'all'   => self::exists($item->type),
-            'actor' => in_array($item->type, self::$actorTypes),
+            'actor' => \in_array($item->type, self::$actorTypes),
             default => false,
         };
     }
 
     /**
      * Verify that a type exists
-     *
-     * @param string $name
-     *
-     * @return bool
      */
     public static function exists(string $name): bool
     {
-        return in_array(
+        return \in_array(
             $name,
             array_merge(
                 self::$coreTypes,
                 self::$activityTypes,
                 self::$actorTypes,
-                self::$objectTypes
-            )
+                self::$objectTypes,
+            ),
         );
     }
 }

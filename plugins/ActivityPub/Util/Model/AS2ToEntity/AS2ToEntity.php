@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Plugin\ActivityPub\Util\Model\AS2ToEntity;
 
 use App\Core\DB\DB;
@@ -29,12 +31,7 @@ abstract class AS2ToEntity
     }
 
     /**
-     * @param array       $activity
-     * @param null|string $source
-     *
      * @throws ClientException
-     *
-     * @return array
      */
     public static function store(array $activity, ?string $source = null): array
     {
@@ -58,7 +55,7 @@ abstract class AS2ToEntity
 
         $obj = null;
         switch ($activity['object']['type']) {
-            case'Note':
+            case 'Note':
                 $obj = AS2ToNote::translate($activity['object'], $source);
                 break;
             default:

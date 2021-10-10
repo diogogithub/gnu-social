@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,9 @@ class IconValidator implements ValidatorInterface
     /**
      * Validate icon item
      *
-     * @param mixed $value
      * @param mixed $container An object
      *
      * @throws Exception
-     *
-     * @return bool
      *
      * @todo Implement size checks
      * @todo Support Image objects and Link objects
@@ -40,21 +39,21 @@ class IconValidator implements ValidatorInterface
         // Validate that container is a ObjectType
         Util::subclassOf($container, ObjectType::class, true);
 
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return Util::validateUrl($value);
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = Util::arrayToType($value);
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             foreach ($value as $item) {
-                if (is_array($item)) {
+                if (\is_array($item)) {
                     $item = Util::arrayToType($item);
                 }
 
-                if (is_string($item) && Util::validateUrl($item)) {
+                if (\is_string($item) && Util::validateUrl($item)) {
                     continue;
                 }
 
@@ -73,11 +72,7 @@ class IconValidator implements ValidatorInterface
     /**
      * Validate an object format
      *
-     * @param object $item
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     protected function validateObject(object $item): bool
     {

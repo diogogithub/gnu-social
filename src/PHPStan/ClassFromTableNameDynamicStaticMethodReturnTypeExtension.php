@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\PHPStan;
 
 use App\Core\DB\DB;
@@ -25,7 +27,7 @@ class ClassFromTableNameDynamicStaticMethodReturnTypeExtension implements Dynami
 
     public function isStaticMethodSupported(MethodReflection $methodReflection): bool
     {
-        return in_array($methodReflection->getName(), DB::METHODS_ACCEPTING_TABLE_NAME);
+        return \in_array($methodReflection->getName(), DB::METHODS_ACCEPTING_TABLE_NAME);
     }
 
     /**
@@ -37,9 +39,9 @@ class ClassFromTableNameDynamicStaticMethodReturnTypeExtension implements Dynami
     public function getTypeFromStaticMethodCall(
         MethodReflection $methodReflection,
         StaticCall $staticCall,
-        Scope $scope
+        Scope $scope,
     ): \PHPStan\Type\Type {
-        if (isset($_ENV['PHPSTAN_BOOT_KERNEL']) && count($staticCall->args) >= 1 && ($arg = $staticCall->args[0]->value) instanceof String_) {
+        if (isset($_ENV['PHPSTAN_BOOT_KERNEL']) && \count($staticCall->args) >= 1 && ($arg = $staticCall->args[0]->value) instanceof String_) {
             // If called with the first argument as a string, it's a table name
             return $scope->resolveTypeByName(new Name(DB::filterTableName($staticCall->name, [$arg->value])));
         } else {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -23,9 +25,6 @@ use Plugin\ActivityPub\Util\Type\Core\ObjectType;
  */
 class Place extends ObjectType
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Place';
 
     /**
@@ -34,8 +33,6 @@ class Place extends ObjectType
      * e.g. "94.0" means "94.0% accurate".
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-accuracy
-     *
-     * @var null|float
      */
     protected ?float $accuracy;
 
@@ -46,8 +43,6 @@ class Place extends ObjectType
      * indicating meters.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-altitude
-     *
-     * @var null|float
      */
     protected ?float $altitude;
 
@@ -55,8 +50,6 @@ class Place extends ObjectType
      * The latitude of a place.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-latitude
-     *
-     * @var null|float|int
      */
     protected int|null|float $latitude;
 
@@ -64,8 +57,6 @@ class Place extends ObjectType
      * The longitude of a place.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-longitude
-     *
-     * @var null|float|int
      */
     protected int|null|float $longitude;
 
@@ -76,8 +67,6 @@ class Place extends ObjectType
      * indicating "meters".
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-radius
-     *
-     * @var null|float|int
      */
     protected int|null|float $radius;
 
@@ -89,8 +78,6 @@ class Place extends ObjectType
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-units
      *
      * "cm" | " feet" | " inches" | " km" | " m" | " miles" | xsd:anyURI
-     *
-     * @var string
      */
     protected string $units;
 }

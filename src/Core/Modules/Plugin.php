@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Core\Modules;
 
 use App\Core\Event;
@@ -12,7 +14,7 @@ use function App\Core\I18n\_m;
  */
 abstract class Plugin extends Module
 {
-    const MODULE_TYPE = 'plugin';
+    public const MODULE_TYPE = 'plugin';
 
     public function version(): string
     {

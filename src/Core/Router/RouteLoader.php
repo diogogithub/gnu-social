@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -48,8 +50,6 @@ class RouteLoader extends Loader
      *
      * Must conform to symfony's interface, but the $resource is unused
      * and $type must not be null
-     *
-     * @param mixed $resource
      */
     public function load($resource, ?string $type = null): RouteCollection
     {
@@ -60,7 +60,7 @@ class RouteLoader extends Loader
         foreach ($route_files as $file) {
             require_once $file;
             $ns = '\\App\\Routes\\' . basename($file, '.php');
-            if (defined("{$ns}::LOAD_ORDER")) {
+            if (\defined("{$ns}::LOAD_ORDER")) {
                 $to_load[$ns::LOAD_ORDER] = $ns;
             } else {
                 $to_load[] = $ns;
@@ -78,7 +78,7 @@ class RouteLoader extends Loader
         // This requires a copy, sadly, as it doesn't seem to be possible to modify the collection in-place
         // However, this is fine since this gets cached
         $it = $this->rc->getIterator();
-        $it->uasort(fn (Route $left, Route $right) => count($left->getDefaults()['accept']) <=> count($right->getDefaults()['accept']));
+        $it->uasort(fn (Route $left, Route $right) => \count($left->getDefaults()['accept']) <=> \count($right->getDefaults()['accept']));
         $this->rc = new RouteCollection();
         foreach ($it as $id => $route) {
             $this->rc->add($id, $route);
@@ -100,7 +100,8 @@ class RouteLoader extends Loader
      */
     public function connect(string $id, string $uri_path, $target, ?array $options = [], ?array $param_reqs = [])
     {
-        $this->rc->add($id,
+        $this->rc->add(
+            $id,
             new Route(
                 // path -- URI path
                 path: $uri_path,
@@ -108,7 +109,7 @@ class RouteLoader extends Loader
                 // and special configuration options
                 defaults: array_merge(
                     [
-                        '_controller'    => is_array($target) ? $target : [$target, '__invoke'],
+                        '_controller'    => \is_array($target) ? $target : [$target, '__invoke'],
                         '_format'        => $options['format'] ?? 'html',
                         '_fragment'      => $options['fragment'] ?? '',
                         '_locale'        => $options['locale'] ?? 'en',
@@ -116,7 +117,7 @@ class RouteLoader extends Loader
                         'accept'         => $options['accept'] ?? [],
                         'is_system_path' => $options['is_system_path'] ?? true,
                     ],
-                    $options['defaults'] ?? []
+                    $options['defaults'] ?? [],
                 ),
                 // requirements = [] -- param => regex
                 requirements: $param_reqs,
@@ -133,8 +134,8 @@ class RouteLoader extends Loader
                 methods: $options['http-methods'] ?? $options['methods'] ?? [],
                 // condition = ''    -- Symfony condition expression,
                 // see https://symfony.com/doc/current/routing.html#matching-expressions
-                condition: isset($options['accept']) ? "request.headers.get('Accept') in " . json_encode($options['accept']) : ($options['condition'] ?? '')
-            )
+                condition: isset($options['accept']) ? "request.headers.get('Accept') in " . json_encode($options['accept']) : ($options['condition'] ?? ''),
+            ),
         );
     }
 
@@ -143,7 +144,6 @@ class RouteLoader extends Loader
      * Passed the arguments from the `RoutingConfigurator::import` call from
      * `config/routes.php`
      *
-     * @param mixed $resource
      * @codeCoverageIgnore
      */
     public function supports($resource, ?string $type = null): bool

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Plugin\ActivityPub\Util\Model\EntityToType;
 
 use App\Core\Event;
@@ -14,14 +16,9 @@ use Plugin\ActivityPub\Util\Type;
 class GSActorToType
 {
     /**
-     * @param Actor $gsactor
-     *
      *@throws Exception
-     *
-     * @return Type
-     *
      */
-    public static function translate(Actor $gsactor)
+    public static function translate(Actor $gsactor): Type
     {
         $uri = null;
         Event::handle('FreeNetworkGenerateLocalActorUri', ['source' => 'ActivityPub', 'actor_id' => $gsactor->getId(), 'actor_uri' => &$attributedTo]);

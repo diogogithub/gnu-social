@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -66,9 +68,9 @@ abstract class Common
         return self::$request->attributes->get('_route');
     }
 
-    public static function isRoute(string | array $routes)
+    public static function isRoute(string|array $routes)
     {
-        return in_array(self::route(), is_array($routes) ? $routes : [$routes]);
+        return \in_array(self::route(), \is_array($routes) ? $routes : [$routes]);
     }
 
     /**
@@ -94,8 +96,6 @@ abstract class Common
 
     /**
      * Set sysadmin's configuration preferences for GNU social
-     *
-     * @param mixed $value
      */
     public static function setConfig(string $section, string $setting, $value): void
     {
@@ -152,7 +152,7 @@ abstract class Common
      */
     public static function isLoggedIn(): bool
     {
-        return  self::user() != null;
+        return self::user() != null;
     }
 
     /**
@@ -172,18 +172,15 @@ abstract class Common
 
     /**
      * A recursive `array_diff`, while PHP itself doesn't provide one
-     *
-     * @param mixed $array1
-     * @param mixed $array2
      */
     public static function arrayDiffRecursive($array1, $array2): array
     {
         $diff = [];
         foreach ($array1 as $key => $value) {
-            if (array_key_exists($key, $array2)) {
-                if (is_array($value)) {
+            if (\array_key_exists($key, $array2)) {
+                if (\is_array($value)) {
                     $recursive_diff = static::arrayDiffRecursive($value, $array2[$key]);
-                    if (count($recursive_diff)) {
+                    if (\count($recursive_diff)) {
                         $diff[$key] = $recursive_diff;
                     }
                 } else {
@@ -203,7 +200,7 @@ abstract class Common
      */
     public static function arrayRemoveKeys(array $from, array $keys, bool $strict = false)
     {
-        return F\filter($from, function ($_, $key) use ($keys, $strict) { return !in_array($key, $keys, $strict); });
+        return F\filter($from, fn ($_, $key) => !\in_array($key, $keys, $strict));
     }
 
     /**
@@ -222,9 +219,9 @@ abstract class Common
             $size = '3M';
         }
 
-        $suffix = substr($size, -1);
-        $size   = (int) substr($size, 0, -1);
-        switch (strtoupper($suffix)) {
+        $suffix = mb_substr($size, -1);
+        $size   = (int) mb_substr($size, 0, -1);
+        switch (mb_strtoupper($suffix)) {
         case 'P':
             $size *= 1024;
             // no break
@@ -250,15 +247,13 @@ abstract class Common
 
     /**
      * Uses `size_str_to_int()` to find the smallest value for uploads in php.ini
-     *
-     * @return int
      */
     public static function getPreferredPhpUploadLimit(): int
     {
         return min(
             self::sizeStrToInt(ini_get('post_max_size')),
             self::sizeStrToInt(ini_get('upload_max_filesize')),
-            self::sizeStrToInt(ini_get('memory_limit'))
+            self::sizeStrToInt(ini_get('memory_limit')),
         );
     }
 
@@ -267,7 +262,7 @@ abstract class Common
      *
      * @return float|int clamped value
      */
-    public static function clamp(int | float $value, int | float $min, int | float $max): int | float
+    public static function clamp(int|float $value, int|float $min, int|float $max): int|float
     {
         return min(max($value, $min), $max);
     }
@@ -283,8 +278,8 @@ abstract class Common
 
         // (if false, we use '?' in 'https?' to say the 's' is optional)
         $regex = $ensure_secure ? '/^https$/' : '/^https?$/';
-        return filter_var($url, FILTER_VALIDATE_URL)
-            && preg_match($regex, parse_url($url, PHP_URL_SCHEME));
+        return filter_var($url, \FILTER_VALIDATE_URL)
+            && preg_match($regex, parse_url($url, \PHP_URL_SCHEME));
     }
 
     /**

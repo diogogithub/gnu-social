@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -28,11 +30,12 @@
 namespace App\Util;
 
 use Functional as F;
+use InvalidArgumentException;
 
 abstract class HTML
 {
-    const ALLOWED_TAGS         = ['p', 'br', 'a', 'span'];
-    const FORBIDDEN_ATTRIBUTES = [
+    public const ALLOWED_TAGS         = ['p', 'br', 'a', 'span'];
+    public const FORBIDDEN_ATTRIBUTES = [
         'onerror', 'form', 'onforminput', 'onbeforescriptexecute', 'formaction', 'onfocus', 'onload',
         'data', 'event', 'autofocus', 'onactivate', 'onanimationstart', 'onwebkittransitionend', 'onblur', 'poster',
         'onratechange', 'ontoggle', 'onscroll', 'actiontype', 'dirname', 'srcdoc',
@@ -51,7 +54,7 @@ abstract class HTML
      */
     private static function attr_tag(string $tag, mixed $attrs, mixed $content = '', array $options = []): array
     {
-        $html = '<' . $tag . (is_string($attrs) ? ($attrs ? ' ' : '') . $attrs : self::attr($attrs, $options));
+        $html = '<' . $tag . (\is_string($attrs) ? ($attrs ? ' ' : '') . $attrs : self::attr($attrs, $options));
         if ($options['empty'] ?? false) {
             $html .= '/>';
         } else {
@@ -67,44 +70,41 @@ abstract class HTML
 
     /**
      * Attribute with given optional value
-     *
-     * @param array $attrs
-     * @param array $options=[] ['forbidden_attributes' => string[]]
-     *
-     * @return string
      */
     private static function attr(array $attrs, array $options = []): string
     {
-        return ' ' . implode(' ',
-                             F\map($attrs,
+        return ' ' . implode(
+            ' ',
+            F\map(
+                $attrs,
                                    /**
                                     * Convert an attr ($key), $val pair to an HTML attribute, but validate to exclude some vectors of injection
                                     */
                                    function (string $val, string $key, array $_): string {
-                                       if (in_array($key, array_merge($options['forbidden_attributes'] ?? [], self::FORBIDDEN_ATTRIBUTES))
+                                       if (\in_array($key, array_merge($options['forbidden_attributes'] ?? [], self::FORBIDDEN_ATTRIBUTES))
                                            || str_starts_with($val, 'javascript:')) {
-                                           throw new \InvalidArgumentException("HTML::html: Attribute {$key} is not allowed");
+                                           throw new InvalidArgumentException("HTML::html: Attribute {$key} is not allowed");
                                        }
                                        if (!($options['raw'] ?? false)) {
-                                           $val = htmlspecialchars($val, flags: ENT_QUOTES | ENT_SUBSTITUTE, double_encode: false);
+                                           $val = htmlspecialchars($val, flags: \ENT_QUOTES | \ENT_SUBSTITUTE, double_encode: false);
                                        }
                                        return "{$key}=\"{$val}\"";
-                                   }));
+                                   },
+            ),
+        );
     }
 
     /**
      * @param array|string $html    The input to convert to HTML
      * @param array        $options = [] ['allowed_tags' => string[], 'forbidden_attributes' => string[], 'raw' => bool, 'indent' => bool]
-     *
-     * @return string
      */
     public static function html(string|array $html, array $options = [], int $indent = 1): string
     {
-        if (is_string($html)) {
+        if (\is_string($html)) {
             if ($options['raw'] ?? false) {
                 return $html;
             } else {
-                return htmlspecialchars($html, flags: ENT_QUOTES | ENT_SUBSTITUTE, double_encode: false);
+                return htmlspecialchars($html, flags: \ENT_QUOTES | \ENT_SUBSTITUTE, double_encode: false);
             }
         } else {
             $out = '';
@@ -116,8 +116,8 @@ abstract class HTML
                     $is_tag = preg_match('/[A-Za-z][A-Za-z0-9]*/', $tag);
                     $inner  = self::html($contents, $options, $indent + 1);
                     if ($is_tag) {
-                        if (!in_array($tag, array_merge($options['allowed_tags'] ?? [], self::ALLOWED_TAGS))) {
-                            throw new \InvalidArgumentException("HTML::html: Tag {$tag} is not allowed");
+                        if (!\in_array($tag, array_merge($options['allowed_tags'] ?? [], self::ALLOWED_TAGS))) {
+                            throw new InvalidArgumentException("HTML::html: Tag {$tag} is not allowed");
                         }
                         if (!empty($inner)) {
                             $inner = ($options['indent'] ?? true) ? ("\n" . Formatting::indent($inner, $indent) . "\n") : $inner;

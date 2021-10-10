@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -48,18 +50,17 @@ class AnswerPoll
     /**
      * Handle poll response
      *
-     * @param Request $request
-     * @param string  $id      poll id
+     * @param string $id poll id
      *
+     * @throws \App\Util\Exception\NoLoggedInUser User is not logged in
      * @throws InvalidFormException               invalid form
      * @throws NotFoundException                  poll does not exist
      * @throws RedirectException
      * @throws ServerException                    User already responded to poll
-     * @throws \App\Util\Exception\NoLoggedInUser User is not logged in
      *
      * @return array template
      */
-    public function answerPoll(Request $request, string $id)
+    public function answerPoll(Request $request, string $id): array
     {
         $user = Common::ensureLoggedIn();
 

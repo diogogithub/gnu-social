@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -63,8 +65,10 @@ class Posting extends Component
 
         $actor_id = $user->getId();
         $to_tags  = [];
-        $tags     = Cache::get("actor-circle-{$actor_id}",
-                               fn () => DB::dql('select c.tag from App\Entity\ActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]));
+        $tags     = Cache::get(
+            "actor-circle-{$actor_id}",
+            fn () => DB::dql('select c.tag from App\Entity\ActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]),
+        );
         foreach ($tags as $t) {
             $t           = $t['tag'];
             $to_tags[$t] = $t;
@@ -87,7 +91,7 @@ class Posting extends Component
             ['content',     TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)]]],
             ['attachments', FileType::class,     ['label' => _m('Attachments:'), 'data' => null, 'multiple' => true, 'required' => false]],
         ];
-        if (count($available_content_types) > 1) {
+        if (\count($available_content_types) > 1) {
             $form_params[] = ['content_type', ChoiceType::class,
                 [
                     'label'   => _m('Text format:'), 'multiple' => false, 'expanded' => false,
@@ -121,13 +125,6 @@ class Posting extends Component
      * $actor_id, possibly as a reply to note $reply_to and with flag
      * $is_local. Sanitizes $content and $attachments
      *
-     * @param Actor     $actor
-     * @param string    $content
-     * @param string    $content_type
-     * @param array     $attachments
-     * @param null|Note $reply_to
-     * @param null|Note $repeat_of
-     *
      * @throws ClientException
      * @throws ServerException
      */
@@ -149,8 +146,8 @@ class Posting extends Component
             $filesize      = $f->getSize();
             $max_file_size = Common::config('attachments', 'file_quota');
             if ($max_file_size < $filesize) {
-                throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. ' .
-                    'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize]));
+                throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. '
+                    . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize], ));
             }
             Event::handle('EnforceUserFileQuota', [$filesize, $actor->getId()]);
             $processed_attachments[] = [GSFile::storeFileAsAttachment($f), $f->getClientOriginalName()];
@@ -193,11 +190,6 @@ class Posting extends Component
      * Get a unique representation of a file on disk
      *
      * This can be used in the future to deduplicate images by visual content
-     *
-     * @param string      $filename
-     * @param null|string $out_hash
-     *
-     * @return bool
      */
     public function onHashFile(string $filename, ?string &$out_hash): bool
     {
@@ -207,10 +199,6 @@ class Posting extends Component
 
     /**
      * Fill the list with allowed sizes for an attachment, to prevent potential DoS'ing by requesting thousands of different thumbnail sizes
-     *
-     * @param null|array $sizes
-     *
-     * @return bool
      */
     public function onGetAllowedThumbnailSizes(?array &$sizes): bool
     {

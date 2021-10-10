@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -22,6 +24,8 @@ namespace App\Util;
 use function App\Core\I18n\_m;
 use App\Util\Exception\ServerException;
 use App\Util\Exception\TemporaryFileException;
+use LogicException;
+use SplFileInfo;
 use Symfony\Component\Mime\MimeTypes;
 
 /**
@@ -35,7 +39,7 @@ use Symfony\Component\Mime\MimeTypes;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class TemporaryFile extends \SplFileInfo
+class TemporaryFile extends SplFileInfo
 {
     // Cannot type annotate currently. `resource` is the expected type, but it's not a builtin type
     protected $resource;
@@ -83,15 +87,15 @@ class TemporaryFile extends \SplFileInfo
      *
      * @see https://php.net/manual/en/function.fwrite.php
      *
-     * @param string $data The string that is to be written.
+     * @param string $data the string that is to be written
      *
      * @throws ServerException when the resource is null
      *
      * @return false|int the number of bytes written, false on error
      */
-    public function write(string $data): int | false
+    public function write(string $data): int|false
     {
-        if (!is_null($this->resource)) {
+        if (!\is_null($this->resource)) {
             return fwrite($this->resource, $data);
         } else {
             // @codeCoverageIgnoreStart
@@ -103,12 +107,12 @@ class TemporaryFile extends \SplFileInfo
     /**
      * Closes the file descriptor if opened.
      *
-     * @return bool true on success or false on failure.
+     * @return bool true on success or false on failure
      */
     protected function close(): bool
     {
         $ret = true;
-        if (!is_null($this->resource) && $this->resource !== false) {
+        if (!\is_null($this->resource) && $this->resource !== false) {
             $ret = fclose($this->resource);
         }
         if ($ret) {
@@ -119,8 +123,6 @@ class TemporaryFile extends \SplFileInfo
 
     /**
      * Closes the file descriptor and removes the temporary file.
-     *
-     * @return void
      */
     protected function cleanup(): void
     {
@@ -153,8 +155,6 @@ class TemporaryFile extends \SplFileInfo
      * @param int    $filemode  New file permissions (in octal mode)
      *
      * @throws TemporaryFileException
-     *
-     * @return void
      */
     public function move(string $directory, string $filename, int $dirmode = 0755, int $filemode = 0644): void
     {
@@ -170,7 +170,7 @@ class TemporaryFile extends \SplFileInfo
             // @codeCoverageIgnoreEnd
         }
 
-        $destpath = rtrim($directory, '/\\') . DIRECTORY_SEPARATOR . $this->getName($filename);
+        $destpath = rtrim($directory, '/\\') . \DIRECTORY_SEPARATOR . $this->getName($filename);
 
         $this->commit($destpath, $dirmode, $filemode);
     }
@@ -184,8 +184,6 @@ class TemporaryFile extends \SplFileInfo
      * @param int    $filemode New file permissions (in octal mode)
      *
      * @throws TemporaryFileException
-     *
-     * @return void
      */
     public function commit(string $destpath, int $dirmode = 0755, int $filemode = 0644): void
     {
@@ -232,11 +230,11 @@ class TemporaryFile extends \SplFileInfo
      *
      * @see MimeTypes
      */
-    public function getMimeType()
+    public function getMimeType(): ?string
     {
         // @codeCoverageIgnoreStart
         if (!class_exists(MimeTypes::class)) {
-            throw new \LogicException('You cannot guess the mime type as the Mime component is not installed. Try running "composer require symfony/mime".');
+            throw new LogicException('You cannot guess the mime type as the Mime component is not installed. Try running "composer require symfony/mime".');
         }
         // @codeCoverageIgnoreEnd
 
@@ -246,15 +244,11 @@ class TemporaryFile extends \SplFileInfo
     /**
      * This function is a copy of Symfony\Component\HttpFoundation\File\File->getName()
      * Returns locale independent base name of the given path.
-     *
-     * @return string
      */
-    protected function getName(string $name)
+    protected function getName(string $name): string
     {
         $originalName = str_replace('\\', '/', $name);
-        $pos          = strrpos($originalName, '/');
-        $originalName = false === $pos ? $originalName : substr($originalName, $pos + 1);
-
-        return $originalName;
+        $pos          = mb_strrpos($originalName, '/');
+        return false === $pos ? $originalName : mb_substr($originalName, $pos + 1);
     }
 }

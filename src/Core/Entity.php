@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,23 +26,26 @@ namespace App\Core;
 use App\Core\DB\DB;
 use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;
+use BadMethodCallException;
 use DateTime;
+use Exception;
+use InvalidArgumentException;
 
 /**
  * Base class to all entities, with some utilities
  */
 abstract class Entity
 {
-    public function __call(string $name , array $arguments): mixed
+    public function __call(string $name, array $arguments): mixed
     {
         if (Formatting::startsWith($name, 'has')) {
             $prop = Formatting::camelCaseToSnakeCase(Formatting::removePrefix($name, 'has'));
             // https://wiki.php.net/rfc/closure_apply#proposal
-            $private_property_accessor = function ($prop) { return isset($this->{$prop}); };
-            $private_property_accessor = $private_property_accessor->bindTo($this, get_called_class());
+            $private_property_accessor = fn ($prop) => isset($this->{$prop});
+            $private_property_accessor = $private_property_accessor->bindTo($this, \get_called_class());
             return $private_property_accessor($prop);
         }
-        throw new \BadMethodCallException('Non existent method ' . get_called_class() . "::{$name} called with arguments: " . print_r($arguments, true));
+        throw new BadMethodCallException('Non existent method ' . \get_called_class() . "::{$name} called with arguments: " . print_r($arguments, true));
     }
 
     /**
@@ -67,7 +72,7 @@ abstract class Entity
                 $obj->{$set}($val);
             } else {
                 Log::error($m = "Property {$class}::{$prop} doesn't exist");
-                throw new \InvalidArgumentException($m);
+                throw new InvalidArgumentException($m);
             }
         }
         return $obj;
@@ -78,16 +83,16 @@ abstract class Entity
      *
      * @return array [$obj, $is_update]
      */
-    public static function createOrUpdate(array $args, array $find_by_keys = [])
+    public static function createOrUpdate(array $args, array $find_by_keys = []): array
     {
-        $table   = DB::getTableForClass(get_called_class());
+        $table   = DB::getTableForClass(\get_called_class());
         $find_by = $find_by_keys == [] ? $args : array_intersect_key($args, array_flip($find_by_keys));
         try {
             $obj = DB::findOneBy($table, $find_by);
         } catch (NotFoundException) {
             $obj = null;
             // @codeCoverageIgnoreStart
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::unexpected_exception($e);
             // @codeCoverageIgnoreEnd
         }
@@ -112,12 +117,12 @@ abstract class Entity
      */
     public static function getWithPK(mixed $values): ?self
     {
-        $values  = is_array($values) ? $values : [$values];
-        $class   = get_called_class();
+        $values  = \is_array($values) ? $values : [$values];
+        $class   = \get_called_class();
         $keys    = DB::getPKForClass($class);
         $find_by = [];
         foreach ($values as $k => $v) {
-            if (is_string($k)) {
+            if (\is_string($k)) {
                 $find_by[$k] = $v;
             } else {
                 $find_by[$keys[$k]] = $v;

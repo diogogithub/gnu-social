@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -53,14 +55,12 @@ class Cover
      * Display and handle the cover edit page, where a user can add or
      * edit their cover image
      *
-     * @param Request $request
-     *
      * @throws ClientException Invalid form
      * @throws ServerException Invalid file type
      *
      * @return array template
      */
-    public static function coverSettings(Request $request)
+    public static function coverSettings(Request $request): array
     {
         $user     = Common::user();
         $actor_id = $user->getId();
@@ -93,7 +93,7 @@ class Cover
                 throw new ClientException('Invalid form');
             }
 
-            if (explode('/',$sfile->getMimeType())[0] != 'image') {
+            if (explode('/', $sfile->getMimeType())[0] != 'image') {
                 throw new ServerException('Invalid file type');
             }
             $file     = GSFile::storeFileAsAttachment($sfile);
@@ -141,7 +141,7 @@ class Cover
      *
      * @return mixed cover file
      */
-    public function cover()
+    public function cover(): mixed
     {
         // $cover = DB::find('cover', ['actor_id' => Common::user()->getId()]);
         // if ($cover == null) {

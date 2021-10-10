@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -34,12 +36,10 @@ abstract class Util
     /**
      * Transform an array into an ActivityStreams type
      *
-     * @param array $item
-     *
      * @throws Exception
      *
-     * @return AbstractObject|array An ActivityStreams
-     *                              type or given array if type key is not defined.
+     * @return AbstractObject|array an ActivityStreams
+     *                              type or given array if type key is not defined
      */
     public static function arrayToType(array $item): AbstractObject|array
     {
@@ -54,27 +54,19 @@ abstract class Util
 
     /**
      * Validate an URL
-     *
-     * @param mixed $value
-     *
-     * @return bool
      */
     public static function validateUrl(mixed $value): bool
     {
-        return is_string($value)
-            && filter_var($value, FILTER_VALIDATE_URL) !== false
-            && in_array(
-                parse_url($value, PHP_URL_SCHEME),
-                ['http', 'https', 'magnet']
+        return \is_string($value)
+            && filter_var($value, \FILTER_VALIDATE_URL) !== false
+            && \in_array(
+                parse_url($value, \PHP_URL_SCHEME),
+                ['http', 'https', 'magnet'],
             );
     }
 
     /**
      * Validate a magnet link
-     *
-     * @param mixed $value
-     *
-     * @return bool
      *
      * @see  https://en.wikipedia.org/wiki/Magnet_URI_scheme
      *
@@ -82,29 +74,24 @@ abstract class Util
      */
     public static function validateMagnet(mixed $value): bool
     {
-        return is_string($value)
-            && strlen($value) < 262144
+        return \is_string($value)
+            && mb_strlen($value) < 262144
             && preg_match(
                 '#^magnet:\?xs=(https?)://.*$#iu',
-                urldecode($value)
-
+                urldecode($value),
             );
     }
 
     /**
      * Validate an OStatus tag string
-     *
-     * @param mixed $value
-     *
-     * @return bool
      */
     public static function validateOstatusTag(mixed $value): bool
     {
-        return is_string($value)
-            && strlen($value) < 262144
+        return \is_string($value)
+            && mb_strlen($value) < 262144
             && preg_match(
                 '#^tag:([\w\-\.]+),([\d]{4}-[\d]{2}-[\d]{2}):([\w])+Id=([\d]+):objectType=([\w]+)#iu',
-                $value
+                $value,
             );
     }
 
@@ -112,36 +99,24 @@ abstract class Util
      * Validate a rel attribute value.
      *
      * @see https://tools.ietf.org/html/rfc5988
-     *
-     * @param string $value
-     *
-     * @return bool
      */
     public static function validateRel(string $value): bool
     {
-        return is_string($value)
+        return \is_string($value)
             && preg_match("/^[^\\s\r\n\\,]+\\z/i", $value);
     }
 
     /**
      * Validate a non negative integer.
-     *
-     * @param int $value
-     *
-     * @return bool
      */
     public static function validateNonNegativeInteger(int $value): bool
     {
-        return is_int($value)
+        return \is_int($value)
             && $value >= 0;
     }
 
     /**
      * Validate a non negative number.
-     *
-     * @param float|int $value
-     *
-     * @return bool
      */
     public static function validateNonNegativeNumber(float|int $value): bool
     {
@@ -151,15 +126,11 @@ abstract class Util
 
     /**
      * Validate units format.
-     *
-     * @param string $value
-     *
-     * @return bool
      */
     public static function validateUnits(string $value): bool
     {
-        if (is_string($value)) {
-            if (in_array($value, self::$units)
+        if (\is_string($value)) {
+            if (\in_array($value, self::$units)
                 || self::validateUrl($value)
             ) {
                 return true;
@@ -172,16 +143,12 @@ abstract class Util
     /**
      * Validate an Object type
      *
-     * @param object $item
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public static function validateObject(object $item): bool
     {
         return self::hasProperties($item, ['type'])
-            && is_string($item->type)
+            && \is_string($item->type)
             && $item->type === 'Object';
     }
 
@@ -194,9 +161,9 @@ abstract class Util
     {
         $json = json_decode($value, true);
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if (json_last_error() !== \JSON_ERROR_NONE) {
             throw new Exception(
-                'JSON decoding failed for string: ' . $value
+                'JSON decoding failed for string: ' . $value,
             );
         }
 
@@ -206,19 +173,15 @@ abstract class Util
     /**
      * Checks that all properties exist for a stdClass
      *
-     * @param object $item
-     * @param array  $properties
-     * @param bool   $strict     If true throws an \Exception,
-     *                           otherwise, returns false
+     * @param bool $strict If true throws an \Exception,
+     *                     otherwise, returns false
      *
      * @throws Exception if a property is not set
-     *
-     * @return bool
      */
     public static function hasProperties(
         object $item,
         array $properties,
-        bool $strict = false
+        bool $strict = false,
     ): bool {
         foreach ($properties as $property) {
             if (!property_exists($item, $property)) {
@@ -227,8 +190,8 @@ abstract class Util
                         sprintf(
                             'Attribute "%s" MUST be set for item: %s',
                             $property,
-                            print_r($item, true)
-                        )
+                            print_r($item, true),
+                        ),
                     );
                 }
 
@@ -242,11 +205,7 @@ abstract class Util
     /**
      * Validate a reference with a Link or an Object with a URL
      *
-     * @param object $item
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public static function isLinkOrUrlObject(object $item): bool
     {
@@ -266,19 +225,15 @@ abstract class Util
     /**
      * Validate a reference as Link
      *
-     * @param array|object $item
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public static function validateLink(object|array $item): bool
     {
-        if (is_array($item)) {
+        if (\is_array($item)) {
             $item = (object) $item;
         }
 
-        if (!is_object($item)) {
+        if (!\is_object($item)) {
             return false;
         }
 
@@ -298,15 +253,13 @@ abstract class Util
 
     /**
      * Validate a datetime
-     *
-     * @param mixed $value
      */
     public static function validateDatetime($value): bool
     {
-        if (!is_string($value)
+        if (!\is_string($value)
             || !preg_match(
                 '/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(.*)$/',
-                $value
+                $value,
             )
         ) {
             return false;
@@ -323,22 +276,18 @@ abstract class Util
     /**
      * Check that container class is a subclass of a given class
      *
-     * @param object       $container
-     * @param array|string $classes
-     * @param bool         $strict    If true, throws an exception
+     * @param bool $strict If true, throws an exception
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public static function subclassOf(object $container, array|string $classes, bool $strict = false): bool
     {
-        if (!is_array($classes)) {
+        if (!\is_array($classes)) {
             $classes = [$classes];
         }
 
         foreach ($classes as $class) {
-            if (get_class($container) === $class
+            if (\get_class($container) === $class
                 || is_subclass_of($container, $class)
             ) {
                 return true;
@@ -349,9 +298,9 @@ abstract class Util
             throw new Exception(
                 sprintf(
                     'Class "%s" MUST be a subclass of "%s"',
-                    get_class($container),
-                    implode(', ', $classes)
-                )
+                    \get_class($container),
+                    implode(', ', $classes),
+                ),
             );
         }
 
@@ -362,12 +311,6 @@ abstract class Util
      * Checks that a numeric value is part of a range.
      * If a minimal value is null, value has to be inferior to max value
      * If a maximum value is null, value has to be superior to min value
-     *
-     * @param float|int      $value
-     * @param null|float|int $min
-     * @param null|float|int $max
-     *
-     * @return bool
      */
     public static function between(float|int $value, float|int|null $min, float|int|null $max): bool
     {
@@ -376,10 +319,10 @@ abstract class Util
         }
 
         return match (true) {
-            is_null($min) && is_null($max) => false,
-            is_null($min)                  => $value <= $max,
-            is_null($max)                  => $value >= $min,
-            default                        => $value >= $min
+            \is_null($min) && \is_null($max) => false,
+            \is_null($min)                   => $value <= $max,
+            \is_null($max)                   => $value >= $min,
+            default                          => $value >= $min
                 && $value <= $max,
         };
     }
@@ -387,12 +330,9 @@ abstract class Util
     /**
      * Check that a given string is a valid XML Schema xsd:duration
      *
-     * @param string $duration
-     * @param bool   $strict   If true, throws an exception
+     * @param bool $strict If true, throws an exception
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public static function isDuration(string $duration, bool $strict = false): bool
     {
@@ -404,8 +344,8 @@ abstract class Util
                 throw new Exception(
                     sprintf(
                         'Duration "%s" MUST respect xsd:duration',
-                        $duration
-                    )
+                        $duration,
+                    ),
                 );
             }
         }
@@ -415,10 +355,6 @@ abstract class Util
 
     /**
      * Checks that it's an object type
-     *
-     * @param object $item
-     *
-     * @return bool
      */
     public static function isObjectType(object $item): bool
     {
@@ -427,10 +363,6 @@ abstract class Util
 
     /**
      * Checks that it's an actor type
-     *
-     * @param object $item
-     *
-     * @return bool
      */
     public static function isActorType(object $item): bool
     {
@@ -440,84 +372,62 @@ abstract class Util
     /**
      * Validate an object type with type attribute
      *
-     * @param object $item
      * @param string $type An expected type
-     *
-     * @return bool
      */
     public static function isType(object $item, string $type): bool
     {
         // Validate that container is a certain type
-        if (!is_object($item)) {
+        if (!\is_object($item)) {
             return false;
         }
 
-        if (property_exists($item, 'type')
-            && is_string($item->type)
+        return (bool) (
+            property_exists($item, 'type')
+            && \is_string($item->type)
             && $item->type === $type
-        ) {
-            return true;
-        }
-
-        return false;
+        );
     }
 
     /**
      * Validate a BCP 47 language value
-     *
-     * @param string $value
-     *
-     * @return bool
      */
     public static function validateBcp47(string $value): bool
     {
-        return is_string($value)
+        return \is_string($value)
             && preg_match(
                 '/^(((en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE)|(art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang))|((([A-Za-z]{2,3}(-([A-Za-z]{3}(-[A-Za-z]{3}){0,2}))?)|[A-Za-z]{4}|[A-Za-z]{5,8})(-([A-Za-z]{4}))?(-([A-Za-z]{2}|[0-9]{3}))?(-([A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(-([0-9A-WY-Za-wy-z](-[A-Za-z0-9]{2,8})+))*(-(x(-[A-Za-z0-9]{1,8})+))?)|(x(-[A-Za-z0-9]{1,8})+))$/',
-                $value
+                $value,
             );
     }
 
     /**
      * Validate a plain text value
-     *
-     * @param string $value
-     *
-     * @return bool
      */
     public static function validatePlainText(string $value): bool
     {
-        return is_string($value)
+        return \is_string($value)
             && preg_match(
                 '/^([^<]+)$/',
-                $value
+                $value,
             );
     }
 
     /**
      * Validate mediaType format
-     *
-     * @param string $value
-     *
-     * @return bool
      */
     public static function validateMediaType(string $value): bool
     {
-        return is_string($value)
+        return \is_string($value)
             && preg_match(
                 '#^(([\w]+[\w\-]+[\w+])/(([\w]+[\w\-\.\+]+[\w]+)|(\*));?)+$#',
-                $value
+                $value,
             );
     }
 
     /**
      * Validate a Collection type
      *
-     * @param object $item
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public static function validateCollection(object $item): bool
     {
@@ -525,14 +435,14 @@ abstract class Util
             return false;
         }
 
-        if (!is_object($item)) {
+        if (!\is_object($item)) {
             $item = (object) $item;
         }
 
         self::hasProperties(
             $item,
             [/*totalItems', 'current', 'first', 'last', */ 'items'],
-            true
+            true,
         );
 
         return true;
@@ -541,11 +451,7 @@ abstract class Util
     /**
      * Validate a CollectionPage type
      *
-     * @param object $item
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public static function validateCollectionPage(object $item): bool
     {
@@ -558,7 +464,7 @@ abstract class Util
         self::hasProperties(
             $item,
             ['partOf'/*, 'next', 'prev'*/],
-            true
+            true,
         );
 
         return true;

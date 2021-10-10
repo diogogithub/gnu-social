@@ -17,34 +17,34 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-define('INSTALLDIR', dirname(__DIR__));
-define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
+\define('INSTALLDIR', \dirname(__DIR__));
+\define('PUBLICDIR', INSTALLDIR . \DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'y';
-$longoptions = array('yes');
+$longoptions  = ['yes'];
 
-$helptext = <<<END_OF_HELP
-clean_file_table.php [options]
-Deletes all local files where the filename cannot be found in the filesystem.
+$helptext = <<<'END_OF_HELP'
+    clean_file_table.php [options]
+    Deletes all local files where the filename cannot be found in the filesystem.
 
-  -y --yes      do not wait for confirmation
+      -y --yes      do not wait for confirmation
 
-Will print '.' for each file, except for deleted ones which are marked as 'x'.
+    Will print '.' for each file, except for deleted ones which are marked as 'x'.
 
-END_OF_HELP;
+    END_OF_HELP;
 
-require_once INSTALLDIR.'/scripts/commandline.inc';
+require_once INSTALLDIR . '/scripts/commandline.inc';
 
 if (!have_option('y', 'yes')) {
-    print "About to delete local file entries where the file cannot be found. Are you sure? [y/N] ";
-    $response = fgets(STDIN);
-    if (strtolower(trim($response)) != 'y') {
-        print "Aborting.\n";
+    echo 'About to delete local file entries where the file cannot be found. Are you sure? [y/N] ';
+    $response = fgets(\STDIN);
+    if (mb_strtolower(trim($response)) != 'y') {
+        echo "Aborting.\n";
         exit(0);
     }
 }
 
-print "Deleting";
+echo 'Deleting';
 $file = new File();
 // Select local files
 $file->whereAdd('filename IS NOT NULL');
@@ -53,11 +53,11 @@ if ($file->find()) {
     while ($file->fetch()) {
         try {
             $file->getPath();
-            print '.';
+            echo '.';
         } catch (FileNotFoundException $e) {
             $file->delete();
-            print 'x';
+            echo 'x';
         }
     }
 }
-print "\nDONE.\n";
+echo "\nDONE.\n";

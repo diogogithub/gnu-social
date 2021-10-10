@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,9 @@ class AnyOfValidator extends ValidatorTools
     /**
      * Validate an ANYOF attribute value
      *
-     * @param mixed $value
      * @param mixed $container An object
      *
      * @throws Exception
-     *
-     * @return bool
      *
      * @todo Choices can contain Indirect references.
      *      This validation should validate this kind of usage.
@@ -41,17 +40,17 @@ class AnyOfValidator extends ValidatorTools
         Util::subclassOf($container, Question::class, true);
 
         // A collection
-        if (!is_array($value)) {
+        if (!\is_array($value)) {
             return false;
         }
 
-        if (!count($value)) {
+        if (!\count($value)) {
             return false;
         }
 
         return $this->validateObjectCollection(
             $value,
-            $this->getQuestionAnswerValidator()
+            $this->getQuestionAnswerValidator(),
         );
     }
 }

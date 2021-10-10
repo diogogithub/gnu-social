@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -52,22 +54,17 @@ class FileQuota extends Plugin
      * quotas. Handles per file, per user and per user-month quotas.
      * Throws on quota violations
      *
-     * @param int $filesize
-     * @param int $user_id
-     *
      * @throws ClientException
      * @throws ServerException
-     *
-     * @return bool
      */
     public function onEnforceUserFileQuota(int $filesize, int $user_id): bool
     {
-        $query = <<<END
-select sum(at.size) as total
-    from attachment at
-        join actor_to_attachment ua with at.id = ua.attachment_id
-    where ua.actor_id = :actor_id and at.size is not null
-END;
+        $query = <<<'END'
+            select sum(at.size) as total
+                from attachment at
+                    join actor_to_attachment ua with at.id = ua.attachment_id
+                where ua.actor_id = :actor_id and at.size is not null
+            END;
 
         $max_user_quota = Common::config('attachments', 'user_quota');
         if ($max_user_quota !== false) { // If not disabled
@@ -110,12 +107,11 @@ END;
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = [
-            'name'        => 'FileQuota',
-            'version'     => $this->version(),
-            'author'      => 'Hugo Sales',
-            'homepage'    => GNUSOCIAL_PROJECT_URL,
-            'description' => // TRANS: Plugin description.
-                _m('Plugin to manage user quotas.'),
+            'name'     => 'FileQuota',
+            'version'  => $this->version(),
+            'author'   => 'Hugo Sales',
+            'homepage' => GNUSOCIAL_PROJECT_URL,
+            'description', // TRANS: Plugin description. => _m('Plugin to manage user quotas.'),
         ];
         return Event::next;
     }

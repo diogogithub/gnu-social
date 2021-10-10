@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -46,8 +48,8 @@ abstract class HTTPClient
 
     public static function __callStatic(string $name, array $args)
     {
-        if (in_array(strtoupper($name), ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])) {
-            return self::$client->request(strtoupper($name), ...$args);
+        if (\in_array(mb_strtoupper($name), ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])) {
+            return self::$client->request(mb_strtoupper($name), ...$args);
         }
         return self::$client->{$name}(...$args);
     }

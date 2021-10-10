@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -96,7 +98,7 @@ class Avatar extends Controller
                     // Cropped client side
                     $matches = [];
                     if (!empty(preg_match('/data:([^;]*)(;(base64))?,(.*)/', $data['hidden'], $matches))) {
-                        list(, , , $encoding_user, $data_user) = $matches;
+                        [, , , $encoding_user, $data_user] = $matches;
                         if ($encoding_user === 'base64') {
                             $data_user = base64_decode($data_user);
                             $tempfile  = new TemporaryFile(['prefix' => 'gs-avatar']);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -26,15 +28,10 @@ use Plugin\ActivityPub\Util\Type\Core\ObjectType;
  */
 class Profile extends ObjectType
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Profile';
 
     /**
      * Identify the object described by the Profile.
-     *
-     * @var ObjectType
      */
     protected ObjectType $describes;
 }

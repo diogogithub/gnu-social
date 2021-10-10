@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -103,15 +105,9 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
     /**
      * Renders the Svg Icon template and returns it.
      *
-     * @param Environment $twig
-     * @param string      $icon_name
-     * @param string      $icon_css_class
-     *
-     * @return string
-     *
      * @author Ângelo D. Moura <up201303828@fe.up.pt>
      */
-    public function embedSvgIcon(Environment $twig, string $icon_name = '', string $icon_css_class = '')
+    public function embedSvgIcon(Environment $twig, string $icon_name = '', string $icon_css_class = ''): string
     {
         return $twig->render('@public_path/assets/icons/' . $icon_name . '.svg.twig', ['iconClass' => $icon_css_class]);
     }

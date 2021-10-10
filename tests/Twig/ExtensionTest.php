@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -58,7 +60,7 @@ class ExtensionTest extends GNUsocialTestCase
         foreach ($icon_file_names as $icon_file_name) {
             static::assertMatchesRegularExpression('/\.svg\.twig$|\.svg$/', $icon_file_name);
 
-            if (preg_match('/\.svg\.twig$/', $icon_file_name, $matches, PREG_OFFSET_CAPTURE, 0)) {
+            if (preg_match('/\.svg\.twig$/', $icon_file_name, $matches, \PREG_OFFSET_CAPTURE, 0)) {
                 unset($matches);
                 $twig_icon_file_names[] = $icon_file_name;
             }

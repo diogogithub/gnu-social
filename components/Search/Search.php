@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -23,12 +25,12 @@ namespace Component\Search;
 
 use App\Core\Event;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Util\Exception\RedirectException;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
 class Search extends Component
 {
@@ -44,7 +46,7 @@ class Search extends Component
     {
         $form = Form::create([
             ['query', TextType::class, [
-                'attr' => ['placeholder' => _m('Search tags...')]
+                'attr' => ['placeholder' => _m('Search tags...')],
             ]],
             [$form_name = 'submit_search', SubmitType::class,
                 [
@@ -74,7 +76,7 @@ class Search extends Component
      *
      * @param array $styles stylesheets path
      *
-     * @return bool hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop
      */
     public function onEndShowStyles(array &$styles, string $route): bool
     {

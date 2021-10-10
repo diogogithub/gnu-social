@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -34,7 +36,7 @@ class TemporaryFileTest extends WebTestCase
         static::assertNotNull($temp->getResource());
         $filepath = uniqid(sys_get_temp_dir() . '/');
         $temp->commit($filepath);
-        static::assertTrue(file_exists($filepath));
+        static::assertFileExists($filepath);
         @unlink($filepath);
     }
 
@@ -51,6 +53,6 @@ class TemporaryFileTest extends WebTestCase
         $temp = new TemporaryFile();
         @unlink('/tmp/social-test-folder/test');
         $temp->move('/tmp/social-test-folder/', 'test');
-        static::assertTrue(file_exists('/tmp/social-test-folder/test'));
+        static::assertFileExists('/tmp/social-test-folder/test');
     }
 }

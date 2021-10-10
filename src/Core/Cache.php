@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -28,6 +30,7 @@ use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
 use Functional as F;
+use InvalidArgumentException;
 use Redis;
 use RedisCluster;
 use Symfony\Component\Cache\Adapter;
@@ -64,7 +67,7 @@ abstract class Cache
                     // Redis can have multiple servers, but we want to take proper advantage of
                     // redis, not just as a key value store, but using it's datastructures
                     $dsns = explode(';', $dsn);
-                    if (count($dsns) === 1) {
+                    if (\count($dsns) === 1) {
                         $class = Redis::class;
                         $r     = new Redis();
                         $r->pconnect($rest);
@@ -122,7 +125,7 @@ abstract class Cache
                 unset(self::$redis[$pool]);
             }
 
-            if (count($adapters[$pool]) === 1) {
+            if (\count($adapters[$pool]) === 1) {
                 self::$pools[$pool] = array_pop($adapters[$pool]);
             } else {
                 self::$pools[$pool] = new ChainAdapter($adapters[$pool]);
@@ -133,7 +136,7 @@ abstract class Cache
     public static function set(string $key, mixed $value, string $pool = 'default')
     {
         // there's no set method, must be done this way
-        return self::$pools[$pool]->get($key, function ($i) use ($value) { return $value; }, INF);
+        return self::$pools[$pool]->get($key, fn ($i) => $value, \INF);
     }
 
     public static function get(string $key, callable $calculate, string $pool = 'default', float $beta = 1.0)
@@ -153,12 +156,12 @@ abstract class Cache
     public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, ?int $left = null, ?int $right = null, float $beta = 1.0): array
     {
         if (isset(self::$redis[$pool])) {
-            if (!($recompute = $beta === INF || !(self::$redis[$pool]->exists($key)))) {
-                if (is_float($er = Common::config('cache', 'early_recompute'))) {
+            if (!($recompute = $beta === \INF || !(self::$redis[$pool]->exists($key)))) {
+                if (\is_float($er = Common::config('cache', 'early_recompute'))) {
                     $recompute = (mt_rand() / mt_getrandmax() > $er);
                     Log::info('Item "{key}" elected for early recomputation', ['key' => $key]);
                 } else {
-                    if ($recompute = ($idletime = self::$redis[$pool]->object('idletime', $key) ?? false) && ($expiry = self::$redis[$pool]->ttl($key) ?? false) && $expiry <= $idletime / 1000 * $beta * log(random_int(1, PHP_INT_MAX) / PHP_INT_MAX)) {
+                    if ($recompute = ($idletime = self::$redis[$pool]->object('idletime', $key) ?? false) && ($expiry = self::$redis[$pool]->ttl($key) ?? false) && $expiry <= $idletime / 1000 * $beta * log(random_int(1, \PHP_INT_MAX) / \PHP_INT_MAX)) {
                         // @codeCoverageIgnoreStart
                         Log::info('Item "{key}" elected for early recomputation {delta}s before its expiration', [
                             'key'   => $key,
@@ -173,7 +176,7 @@ abstract class Cache
                 $res  = $calculate(null, $save);
                 if ($save) {
                     self::setList($key, $res, $pool, $max_count, $beta);
-                    return array_slice($res, $left ?? 0, $right - ($left ?? 0));
+                    return \array_slice($res, $left ?? 0, $right - ($left ?? 0));
                 }
             }
             return self::$redis[$pool]->lRange($key, $left ?? 0, ($right ?? $max_count ?? 0) - 1);
@@ -181,7 +184,7 @@ abstract class Cache
             return self::get($key, function () use ($calculate, $max_count) {
                 $res = $calculate(null);
                 if ($max_count != -1) {
-                    $res = array_slice($res, 0, $max_count);
+                    $res = \array_slice($res, 0, $max_count);
                 }
                 return $res;
             }, $pool, $beta);
@@ -221,11 +224,11 @@ abstract class Cache
                 ->lTrim($key, -$max_count ?? 0, -1)
                 ->exec();
         } else {
-            $res   = self::get($key, function () { return []; }, $pool, $beta);
+            $res   = self::get($key, fn () => [], $pool, $beta);
             $res[] = $value;
             if ($max_count != null) {
-                $count = count($res);
-                $res   = array_slice($res, $count - $max_count, $count); // Trim the older values
+                $count = \count($res);
+                $res   = \array_slice($res, $count - $max_count, $count); // Trim the older values
             }
             self::set($key, $res, $pool);
         }
@@ -255,30 +258,28 @@ abstract class Cache
      */
     public static function pagedStream(string $key, string $query, array $query_args, LocalUser|Actor|null $actor = null, int $page = 1, ?int $per_page = null, string $pool = 'default', ?int $max_count = null, float $beta = 1.0): array
     {
-        $max_count = $max_count ?? Common::config('cache', 'max_note_count');
+        $max_count ??= Common::config('cache', 'max_note_count');
         if ($per_page > $max_count) {
-            throw new \InvalidArgumentException;
+            throw new InvalidArgumentException;
         }
 
-        if (is_null($per_page)) {
+        if (\is_null($per_page)) {
             $per_page = Common::config('streams', 'notes_per_page');
         }
 
         $filter_scope = fn (Note $n) => $n->isVisibleTo($actor);
 
-        $getter = function (int $offset, int $lenght) use ($query, $query_args) {
-            return DB::dql($query, $query_args, options: ['offset' => $offset, 'limit' => $lenght]);
-        };
+        $getter = fn (int $offset, int $lenght) => DB::dql($query, $query_args, options: ['offset' => $offset, 'limit' => $lenght]);
 
         $requested_left               = $offset               = $per_page * ($page - 1);
         $requested_right              = $requested_left + $per_page;
         [$stored_left, $stored_right] = F\map(
             explode(':', self::get("{$key}-bounds", fn () => "{$requested_left}:{$requested_right}")),
-            fn (string $v) => (int) $v
+            fn (string $v) => (int) $v,
         );
         $lenght = $stored_right - $stored_left;
 
-        if (!is_null($max_count) && $lenght > $max_count) {
+        if (!\is_null($max_count) && $lenght > $max_count) {
             $lenght          = $max_count;
             $requested_right = $requested_left + $max_count;
         }
@@ -293,8 +294,13 @@ abstract class Cache
         return F\filter(
             self::getList(
                 $key,
-                fn () => $getter($requested_left, $lenght), max_count: $max_count, left: $requested_left, right: $requested_right, beta: $beta),
-            $filter_scope
+                fn () => $getter($requested_left, $lenght),
+                max_count: $max_count,
+                left: $requested_left,
+                right: $requested_right,
+                beta: $beta,
+            ),
+            $filter_scope,
         );
     }
 }

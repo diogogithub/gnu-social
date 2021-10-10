@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -21,6 +23,8 @@
 
 namespace App\Util\Exception;
 
+use Exception;
+
 /**
  * Exception wrapper for TemporaryFile errors
  *
@@ -32,6 +36,6 @@ namespace App\Util\Exception;
  * @copyright 2020, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class TemporaryFileException extends \Exception
+class TemporaryFileException extends Exception
 {
 }

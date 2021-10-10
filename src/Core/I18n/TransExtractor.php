@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -36,7 +38,6 @@ namespace App\Core\I18n;
 
 use App\Util\Formatting;
 use ArrayIterator;
-use function count;
 use InvalidArgumentException;
 use Iterator;
 use Symfony\Component\Finder\Finder;
@@ -57,10 +58,8 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
      * The sequence that captures translation messages.
      *
      * @todo add support for all the cases we use
-     *
-     * @var array
      */
-    protected $sequences = [
+    protected array $sequences = [
         // [
         //     '_m',
         //     '(',
@@ -88,24 +87,22 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
     // {{{Code from PhpExtractor
     // See vendor/symfony/translation/Extractor/PhpExtractor.php
     //
-    const MESSAGE_TOKEN          = 300;
-    const METHOD_ARGUMENTS_TOKEN = 1000;
-    const DOMAIN_TOKEN           = 1001;
-    const M_DYNAMIC              = 1002;
+    public const MESSAGE_TOKEN          = 300;
+    public const METHOD_ARGUMENTS_TOKEN = 1000;
+    public const DOMAIN_TOKEN           = 1001;
+    public const M_DYNAMIC              = 1002;
 
     /**
      * Prefix for new found message.
-     *
-     * @var string
      */
-    private $prefix = '';
+    private string $prefix = '';
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function extract($resource, MessageCatalogue $catalog)
     {
-        if (($dir = strstr($resource, '/Core/GNUsocial.php', true)) === false) {
+        if (($dir = mb_strstr($resource, '/Core/GNUsocial.php', true)) === false) {
             return;
         }
 
@@ -118,7 +115,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function setPrefix(string $prefix)
     {
@@ -127,12 +124,8 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
 
     /**
      * Normalizes a token.
-     *
-     * @param mixed $token
-     *
-     * @return null|string
      */
-    protected function normalizeToken($token)
+    protected function normalizeToken($token): ?string
     {
         if (isset($token[1]) && 'b"' !== $token) {
             return $token[1];
@@ -148,14 +141,14 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
     {
         for (; $tokenIterator->valid(); $tokenIterator->next()) {
             $t = $tokenIterator->current();
-            if (T_WHITESPACE !== $t[0]) {
+            if (\T_WHITESPACE !== $t[0]) {
                 break;
             }
         }
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     private function skipMethodArgument(Iterator $tokenIterator)
     {
@@ -180,20 +173,16 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
 
     /**
      * @throws InvalidArgumentException
-     *
-     * @return bool
-     *
-     *
      */
-    protected function canBeExtracted(string $file)
+    protected function canBeExtracted(string $file): bool
     {
         return $this->isFile($file)
-            && 'php' === pathinfo($file, PATHINFO_EXTENSION)
-            && strstr($file, '/src/') !== false;
+            && 'php' === pathinfo($file, \PATHINFO_EXTENSION)
+            && mb_strstr($file, '/src/') !== false;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     protected function extractFromDirectory($directory)
     {
@@ -222,23 +211,23 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
             }
 
             switch ($t[0]) {
-                case T_START_HEREDOC:
+                case \T_START_HEREDOC:
                     $docToken = $t[1];
                     break;
-                case T_ENCAPSED_AND_WHITESPACE:
-                case T_CONSTANT_ENCAPSED_STRING:
+                case \T_ENCAPSED_AND_WHITESPACE:
+                case \T_CONSTANT_ENCAPSED_STRING:
                     if ('' === $docToken) {
                         $message .= PhpStringTokenParser::parse($t[1]);
                     } else {
                         $docPart = $t[1];
                     }
                     break;
-                case T_END_HEREDOC:
+                case \T_END_HEREDOC:
                     $message .= PhpStringTokenParser::parseDocString($docToken, $docPart);
                     $docToken = '';
                     $docPart  = '';
                     break;
-                case T_WHITESPACE:
+                case \T_WHITESPACE:
                     break;
                 default:
                     break 2;
@@ -272,7 +261,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
                     } elseif (self::MESSAGE_TOKEN === $item) {
                         $message = $this->getValue($tokenIterator);
 
-                        if (count($sequence) === ($sequenceKey + 1)) {
+                        if (\count($sequence) === ($sequenceKey + 1)) {
                             break;
                         }
                     } elseif (self::METHOD_ARGUMENTS_TOKEN === $item) {
@@ -302,9 +291,13 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
     /**
      * Store the $message in the message catalogue $mc
      */
-    private function store(MessageCatalogue $mc, string $message,
-                           string $domain, string $filename, ?int $line_no = null)
-    {
+    private function store(
+        MessageCatalogue $mc,
+        string $message,
+        string $domain,
+        string $filename,
+        ?int $line_no = null,
+    ) {
         $mc->set($message, $this->prefix . $message, $domain);
         $metadata              = $mc->getMetadata($message, $domain) ?? [];
         $metadata['sources'][] = Formatting::normalizePath($filename) . (!empty($line_no) ? ":{$line_no}" : '');
@@ -324,7 +317,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
 
         // Find FQCN of $class
         foreach ($classes as $c) {
-            if (strstr($c, $class) !== false) {
+            if (mb_strstr($c, $class) !== false) {
                 $class = $c;
                 break;
             }

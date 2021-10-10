@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -48,100 +50,64 @@ class ActivitypubActor extends Entity
     private int $actor_id;
     private string $inbox_uri;
     private ?string $inbox_shared_uri = null;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
-    /**
-     * @return string
-     */
     public function getUri(): string
     {
         return $this->uri;
     }
 
-    /**
-     * @param string $uri
-     */
     public function setUri(string $uri): void
     {
         $this->uri = $uri;
     }
 
-    /**
-     * @return int
-     */
     public function getActorId(): int
     {
         return $this->actor_id;
     }
 
-    /**
-     * @param int $actor_id
-     */
     public function setActorId(int $actor_id): void
     {
         $this->actor_id = $actor_id;
     }
 
-    /**
-     * @return string
-     */
     public function getInboxUri(): string
     {
         return $this->inbox_uri;
     }
 
-    /**
-     * @param string $inbox_uri
-     */
     public function setInboxUri(string $inbox_uri): void
     {
         $this->inbox_uri = $inbox_uri;
     }
 
-    /**
-     * @return string
-     */
     public function getInboxSharedUri(): string
     {
         return $this->inbox_shared_uri;
     }
 
-    /**
-     * @param string $inbox_shared_uri
-     */
     public function setInboxSharedUri(string $inbox_shared_uri): void
     {
         $this->inbox_shared_uri = $inbox_shared_uri;
     }
 
-    /**
-     * @return DateTimeInterface
-     */
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    /**
-     * @param DateTimeInterface $created
-     */
     public function setCreated(DateTimeInterface $created): void
     {
         $this->created = $created;
     }
 
-    /**
-     * @return DateTimeInterface
-     */
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-    /**
-     * @param DateTimeInterface $modified
-     */
     public function setModified(DateTimeInterface $modified): void
     {
         $this->modified = $modified;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -71,7 +73,7 @@ class AdminPanel extends Controller
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $data = $form->getData();
-            if ($form->isValid() && array_key_exists('setting', $data)) {
+            if ($form->isValid() && \array_key_exists('setting', $data)) {
                 [$section, $setting] = explode(':', $data['setting']);
                 if (!isset($defaults[$section]) && !isset($defaults[$section][$setting])) {
                     // @codeCoverageIgnoreStart
@@ -81,13 +83,13 @@ class AdminPanel extends Controller
 
                 $value = null;
                 foreach ([
-                    'int' => FILTER_VALIDATE_INT,
-                    'bool' => FILTER_VALIDATE_BOOL,
-                    'string' => [fn ($v) => strstr($v, ',') === false, fn ($v) => $v],
-                    'array' => [fn ($v) => strstr($v, ',') !== false, function ($v) { Formatting::toArray($v, $v); return $v; }],
+                    'int' => \FILTER_VALIDATE_INT,
+                    'bool' => \FILTER_VALIDATE_BOOL,
+                    'string' => [fn ($v) => mb_strstr($v, ',') === false, fn ($v) => $v],
+                    'array' => [fn ($v) => mb_strstr($v, ',') !== false, function ($v) { Formatting::toArray($v, $v); return $v; }],
                 ] as $type => $validator) {
-                    if (!is_array($validator)) {
-                        $value = filter_var($data['value'], $validator, FILTER_NULL_ON_FAILURE);
+                    if (!\is_array($validator)) {
+                        $value = filter_var($data['value'], $validator, \FILTER_NULL_ON_FAILURE);
                         if ($value !== null) {
                             break;
                         }
@@ -102,7 +104,7 @@ class AdminPanel extends Controller
                 $default = $defaults[$section][$setting];
 
                 // Sanity check
-                if (gettype($default) === gettype($value)) {
+                if (\gettype($default) === \gettype($value)) {
                     $old_value = Common::config($section, $setting);
                     Common::setConfig($section, $setting, $value);
                     return [

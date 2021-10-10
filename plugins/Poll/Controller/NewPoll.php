@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -53,19 +55,18 @@ class NewPoll
     /**
      * Create poll
      *
-     * @param Request $request
-     * @param int     $num     num of options
+     * @param int $num num of options
      *
+     * @throws \App\Util\Exception\NoLoggedInUser user is not logged in
      * @throws InvalidFormException               invalid form
      * @throws RedirectException
-     * @throws \App\Util\Exception\NoLoggedInUser user is not logged in
      *
      * @return array template
      */
-    public function newPoll(Request $request, int $num)
+    public function newPoll(Request $request, int $num): array
     {
         $user       = Common::ensureLoggedIn();
-        $numOptions = Common::clamp($num,MIN_OPTS,MAX_OPTS);
+        $numOptions = Common::clamp($num, MIN_OPTS, MAX_OPTS);
         $opts[]     = ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'expanded' => true, 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]];
         $opts[]     = ['Question', TextType::class, ['label' => _m(('Question'))]];
 
@@ -91,7 +92,7 @@ class NewPoll
                     Security::sanitize($opt[$i - 1] = $data['Option_' . $i]);
                 }
 
-                $options = implode("\n",$opt);
+                $options = implode("\n", $opt);
                 $poll    = Poll::create(['actor_id' => $user->getId(), 'question' => $question, 'options' => $options, 'note_id' => $note->getId()]);
                 DB::persist($poll);
                 DB::flush();

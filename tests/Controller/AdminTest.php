@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +26,7 @@ namespace App\Tests\Core;
 use App\Util\Common;
 use App\Util\Formatting;
 use App\Util\GNUsocialTestCase;
+use InvalidArgumentException;
 use Jchook\AssertThrows\AssertThrows;
 
 class AdminTest extends GNUsocialTestCase
@@ -54,7 +57,7 @@ class AdminTest extends GNUsocialTestCase
 
     public function testSiteString()
     {
-        $this->test(['attachments', 'dir'], fn () => Common::config('storage', 'dir') . 'foo' . DIRECTORY_SEPARATOR);
+        $this->test(['attachments', 'dir'], fn () => Common::config('storage', 'dir') . 'foo' . \DIRECTORY_SEPARATOR);
     }
 
     public function testSiteInt()
@@ -81,10 +84,12 @@ class AdminTest extends GNUsocialTestCase
     {
         $client = static::createClient();
         $client->request('GET', '/panel');
-        $this->assertThrows(\InvalidArgumentException::class,
-                            fn () => $client->submitForm('Set site setting', [
-                                'save_admin[setting]' => 'invalid:section',
-                                'save_admin[value]'   => 'false',
-                            ]));
+        $this->assertThrows(
+            InvalidArgumentException::class,
+            fn () => $client->submitForm('Set site setting', [
+                'save_admin[setting]' => 'invalid:section',
+                'save_admin[value]'   => 'false',
+            ]),
+        );
     }
 }

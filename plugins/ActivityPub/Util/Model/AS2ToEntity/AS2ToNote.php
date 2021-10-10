@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Plugin\ActivityPub\Util\Model\AS2ToEntity;
 
 use App\Core\Event;
@@ -8,16 +10,12 @@ use App\Entity\Note;
 use App\Util\Formatting;
 use Component\FreeNetwork\Entity\FreenetworkActor;
 use DateTime;
+use Exception;
 
 abstract class AS2ToNote
 {
     /**
-     * @param array $object
-     *
-     *@throws \Exception
-     *
-     * @return Note
-     *
+     *@throws Exception
      */
     public static function translate(array $object, ?string $source = null): Note
     {
@@ -27,7 +25,7 @@ abstract class AS2ToNote
             'created'      => new DateTime($object['published'] ?? 'now'),
             'content'      => $object['content'] ?? null,
             'content_type' => 'text/html',
-            'url'          => array_key_exists('url', $object) ? $object['url'] : $object['id'],
+            'url'          => \array_key_exists('url', $object) ? $object['url'] : $object['id'],
             'actor_id'     => $actor_id,
             'modified'     => new DateTime(),
             'source'       => $source,

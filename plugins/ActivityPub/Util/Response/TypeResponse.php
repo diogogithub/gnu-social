@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Plugin\ActivityPub\Util\Response;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,10 +19,10 @@ class TypeResponse extends JsonResponse
     public function __construct($data = null, int $status = 202)
     {
         parent::__construct(
-            data: !is_null($data) ? $data->toJson() : null,
+            data: !\is_null($data) ? $data->toJson() : null,
             status: $status,
             headers: ['content-type' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'],
-            json: true
+            json: true,
         );
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -53,11 +55,7 @@ class GSFile
     /**
      * Perform file validation (checks and normalization), store the given file if needed and increment lives
      *
-     * @param SymfonyFile|TemporaryFile $file
-     *
      * @throws DuplicateFoundException
-     *
-     * @return Attachment
      */
     public static function storeFileAsAttachment(TemporaryFile|SymfonyFile $file): Attachment
     {
@@ -68,7 +66,7 @@ class GSFile
             // Attachment Exists
             $attachment->livesIncrementAndGet();
             // We had this attachment, but not the file, thus no filename, update meta
-            if (is_null($attachment->getFilename())) {
+            if (\is_null($attachment->getFilename())) {
                 $mimetype               = $attachment->getMimetype();
                 $width                  = $attachment->getWidth();
                 $height                 = $attachment->getHeight();
@@ -152,7 +150,7 @@ class GSFile
                 public: true,
                 // contentDisposition: $disposition,
                 autoEtag: true,
-                autoLastModified: true
+                autoLastModified: true,
             );
             if (Common::config('site', 'x_static_delivery')) {
                 // @codeCoverageIgnoreStart
@@ -170,13 +168,10 @@ class GSFile
     /**
      * Throw a client exception if the cache key $id doesn't contain
      * exactly one entry
-     *
-     * @param mixed $except
-     * @param mixed $id
      */
     public static function error($except, $id, array $res)
     {
-        switch (count($res)) {
+        switch (\count($res)) {
             case 0:
                 throw new $except();
             case 1:
@@ -196,15 +191,21 @@ class GSFile
      */
     public static function getFileInfo(int $id)
     {
-        return self::error(NoSuchFileException::class,
+        return self::error(
+            NoSuchFileException::class,
             $id,
-            Cache::get("file-info-{$id}",
+            Cache::get(
+                "file-info-{$id}",
                 function () use ($id) {
-                    return DB::dql('select at.filename, at.mimetype ' .
-                        'from App\\Entity\\Attachment at ' .
-                        'where at.id = :id',
-                        ['id' => $id]);
-                }));
+                    return DB::dql(
+                        'select at.filename, at.mimetype '
+                        . 'from App\\Entity\\Attachment at '
+                        . 'where at.id = :id',
+                        ['id' => $id],
+                    );
+                },
+            ),
+        );
     }
 
     // ----- Attachment ------
@@ -217,7 +218,7 @@ class GSFile
     public static function getAttachmentFileInfo(int $id): array
     {
         $res = self::getFileInfo($id);
-        if (!is_null($res['filename'])) {
+        if (!\is_null($res['filename'])) {
             $res['filepath'] = Common::config('attachments', 'dir') . $res['filename'];
         }
         return $res;
@@ -263,7 +264,7 @@ class GSFile
      *
      * @return null|string the most appropriate filename or null if we deem it imposible
      */
-    public static function ensureFilenameWithProperExtension(string $title, string $mimetype, ?string $ext = null, bool $force = false): string | null
+    public static function ensureFilenameWithProperExtension(string $title, string $mimetype, ?string $ext = null, bool $force = false): string|null
     {
         $valid_extensions = MimeTypes::getDefault()->getExtensions($mimetype);
 
@@ -272,16 +273,15 @@ class GSFile
         if ($pathinfo['extension'] ?? '' != '') {
             $title_without_extension = $pathinfo['filename'];
             $original_extension      = $pathinfo['extension'];
-            if (empty(MimeTypes::getDefault()->getMimeTypes($original_extension)) || !in_array($original_extension, $valid_extensions)) {
+            if (empty(MimeTypes::getDefault()->getMimeTypes($original_extension)) || !\in_array($original_extension, $valid_extensions)) {
                 unset($title_without_extension, $original_extension);
             }
         }
 
         $fallback = function ($title) use ($ext) {
-            if (!is_null($ext)) {
+            if (!\is_null($ext)) {
                 return ($title) . ".{$ext}";
             }
-            return null;
         };
 
         if ($force) {

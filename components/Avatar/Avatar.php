@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -46,8 +48,6 @@ class Avatar extends Component
     }
 
     /**
-     * @param mixed $tabs
-     *
      * @throws \App\Util\Exception\ClientException
      */
     public function onPopulateProfileSettingsTabs(Request $request, &$tabs): bool
@@ -82,14 +82,20 @@ class Avatar extends Component
     public static function getAvatar(?int $actor_id = null): Entity\Avatar
     {
         $actor_id = $actor_id ?: Common::userId();
-        return GSFile::error(NoAvatarException::class,
+        return GSFile::error(
+            NoAvatarException::class,
             $actor_id,
-            Cache::get("avatar-{$actor_id}",
+            Cache::get(
+                "avatar-{$actor_id}",
                 function () use ($actor_id) {
-                    return DB::dql('select a from Component\Avatar\Entity\Avatar a ' .
-                        'where a.actor_id = :actor_id',
-                        ['actor_id' => $actor_id]);
-                }));
+                    return DB::dql(
+                        'select a from Component\Avatar\Entity\Avatar a '
+                        . 'where a.actor_id = :actor_id',
+                        ['actor_id' => $actor_id],
+                    );
+                },
+            ),
+        );
     }
 
     /**
@@ -112,14 +118,17 @@ class Avatar extends Component
      */
     public static function getAvatarFileInfo(int $actor_id, string $size = 'full'): array
     {
-        $res = Cache::get("avatar-file-info-{$actor_id}-{$size}",
+        $res = Cache::get(
+            "avatar-file-info-{$actor_id}-{$size}",
             function () use ($actor_id) {
-                return DB::dql('select f.id, f.filename, a.title, f.mimetype ' .
-                    'from App\Entity\Attachment f ' .
-                    'join Component\Avatar\Entity\Avatar a with f.id = a.attachment_id ' .
-                    'where a.actor_id = :actor_id',
-                    ['actor_id' => $actor_id]);
-            }
+                return DB::dql(
+                    'select f.id, f.filename, a.title, f.mimetype '
+                    . 'from App\Entity\Attachment f '
+                    . 'join Component\Avatar\Entity\Avatar a with f.id = a.attachment_id '
+                    . 'where a.actor_id = :actor_id',
+                    ['actor_id' => $actor_id],
+                );
+            },
         );
         if ($res === []) { // Avatar not found
             $filepath = INSTALLDIR . '/public/assets/default-avatar.svg';

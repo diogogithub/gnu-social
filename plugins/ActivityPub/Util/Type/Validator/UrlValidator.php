@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -26,12 +28,9 @@ class UrlValidator implements ValidatorInterface
     /**
      * Validate url value
      *
-     * @param mixed $value
      * @param mixed $container A Link
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -39,7 +38,7 @@ class UrlValidator implements ValidatorInterface
         Util::subclassOf($container, ObjectType::class, true);
 
         // Must be a valid URL
-        if (is_array($value) && is_int(key($value))) {
+        if (\is_array($value) && \is_int(key($value))) {
             foreach ($value as $key => $item) {
                 if (!$this->validateUrlOrLink($item)) {
                     return false;
@@ -55,11 +54,7 @@ class UrlValidator implements ValidatorInterface
     /**
      * Validate that a value is a Link or a URL
      *
-     * @param Link|string $value
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     protected function validateUrlOrLink(Link|string $value): bool
     {

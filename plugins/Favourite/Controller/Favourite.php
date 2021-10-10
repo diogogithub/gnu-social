@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -30,20 +32,20 @@ class Favourite
     public function favouritesByActorId(Request $request, int $id)
     {
         $notes = DB::dql(
-            'select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f ' .
-            'where n.id = f.note_id ' .
-            'and f.actor_id = :id ' .
-            'order by f.created DESC',
-            ['id' => $id]
+            'select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f '
+            . 'where n.id = f.note_id '
+            . 'and f.actor_id = :id '
+            . 'order by f.created DESC',
+            ['id' => $id],
         );
 
         $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template'     => 'network/feed.html.twig',
-            'notes'         => $notes_out,
-            'page_title'    => 'Favourites timeline.',
+            '_template'  => 'network/feed.html.twig',
+            'notes'      => $notes_out,
+            'page_title' => 'Favourites timeline.',
         ];
     }
     public function favouritesByActorNickname(Request $request, string $nickname)
@@ -55,29 +57,28 @@ class Favourite
     /**
      *  Reverse favourites stream
      *
-     * @param Request $request
-     *
      * @throws \App\Util\Exception\NoLoggedInUser user not logged in
      *
      * @return array template
      */
-    public function reverseFavouritesByActorId(Request $request, int $id)
+    public function reverseFavouritesByActorId(Request $request, int $id): array
     {
-        $notes = DB::dql('select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f ' .
-                            'where n.id = f.note_id ' .
-                            'and f.actor_id != :id ' .
-                            'and n.actor_id = :id ' .
-                            'order by f.created DESC' ,
-                            ['id' => $id]
+        $notes = DB::dql(
+            'select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f '
+                            . 'where n.id = f.note_id '
+                            . 'and f.actor_id != :id '
+                            . 'and n.actor_id = :id '
+                            . 'order by f.created DESC',
+            ['id' => $id],
         );
 
         $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template' => 'network/feed.html.twig',
-            'notes'     => $notes,
-            'page_title'    => 'Reverse favourites timeline.',
+            '_template'  => 'network/feed.html.twig',
+            'notes'      => $notes,
+            'page_title' => 'Reverse favourites timeline.',
         ];
     }
     public function reverseFavouritesByActorNickname(Request $request, string $nickname)

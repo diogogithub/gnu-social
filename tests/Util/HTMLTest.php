@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -20,6 +22,7 @@
 namespace App\Tests\Util;
 
 use App\Util\HTML;
+use InvalidArgumentException;
 use Jchook\AssertThrows\AssertThrows;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -34,7 +37,7 @@ class HTMLTest extends WebTestCase
         static::assertSame("<a>\n  <p>\n  </p>\n</a>\n", HTML::html(['a' => ['p' => '']]));
         static::assertSame("<a href=\"test\">\n  <p>\n  </p>\n</a>\n", HTML::html(['a' => ['attrs' => ['href' => 'test'], 'p' => '']]));
         static::assertSame("<a>\n  <p>\n    foo\n  </p>\n  <br/>\n</a>\n", HTML::html(['a' => ['p' => 'foo', 'br' => 'empty']]));
-        static::assertThrows(\InvalidArgumentException::class, fn () => HTML::html(1));
+        static::assertThrows(InvalidArgumentException::class, fn () => HTML::html(1));
         static::assertSame("<a href=\"test\">\n  foo\n</a>", implode("\n", HTML::tag('a', ['href' => 'test'], content: 'foo', options: ['empty' => false])));
         static::assertSame('<br/>', implode("\n", HTML::tag('br', attrs: null, content: null, options: ['empty' => true])));
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -32,7 +34,7 @@ namespace App\Util\Exception;
 
 class EmailException extends ClientException
 {
-    public function __construct(string $msg = null, int $code = 400)
+    public function __construct(?string $msg = null, int $code = 400)
     {
         if ($msg === null) {
             $msg = $this->defaultMessage();

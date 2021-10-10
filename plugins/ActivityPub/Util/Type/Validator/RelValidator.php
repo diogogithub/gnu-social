@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,9 @@ class RelValidator implements ValidatorInterface
     /**
      * Validate rel value
      *
-     * @param mixed $value
      * @param mixed $container A Link
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -38,9 +37,9 @@ class RelValidator implements ValidatorInterface
         Util::subclassOf($container, Link::class, true);
 
         // Must be a valid Rel
-        if (is_array($value)) {
+        if (\is_array($value)) {
             foreach ($value as $key => $item) {
-                if (!is_int($key)
+                if (!\is_int($key)
                     || !Util::validateRel($item)) {
                     return false;
                 }

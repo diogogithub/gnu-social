@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -38,7 +40,7 @@ use App\Core\Router\RouteLoader;
 
 abstract class Note
 {
-    const LOAD_ORDER = 40;
+    public const LOAD_ORDER = 40;
     public static function load(RouteLoader $r): void
     {
         $r->connect('note_view', '/object/note/{id<\d+>}', [C\Note::class, 'NoteShow']);

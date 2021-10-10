@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +26,8 @@ namespace App\Tests\Core;
 use App\Core\DB\DB;
 use App\Entity\LocalUser;
 use App\Util\GNUsocialTestCase;
+use BadMethodCallException;
+use InvalidArgumentException;
 use Jchook\AssertThrows\AssertThrows;
 
 class EntityTest extends GNUsocialTestCase
@@ -35,14 +39,14 @@ class EntityTest extends GNUsocialTestCase
         $user = LocalUser::create(['nickname' => 'foo']);
         static::assertTrue($user->hasNickname());
         static::assertFalse($user->hasPassword());
-        static::assertThrows(\BadMethodCallException::class, fn () => $user->nonExistantMethod());
+        static::assertThrows(BadMethodCallException::class, fn () => $user->nonExistantMethod());
     }
 
     public function testCreate()
     {
         $user = LocalUser::create(['nickname' => 'foo']);
         static::assertSame('foo', $user->getNickname());
-        static::assertThrows(\InvalidArgumentException::class, fn () => LocalUser::create(['non_existant_property' => 'bar']));
+        static::assertThrows(InvalidArgumentException::class, fn () => LocalUser::create(['non_existant_property' => 'bar']));
     }
 
     public function testCreateOrUpdate()

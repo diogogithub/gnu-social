@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -50,100 +52,64 @@ class FreenetworkActor extends Entity
     private string $source;
     private int $actor_id;
     private bool $is_local;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
-    /**
-     * @return string
-     */
     public function getActorUri(): string
     {
         return $this->actor_uri;
     }
 
-    /**
-     * @param string $actor_uri
-     */
     public function setActorUri(string $actor_uri): void
     {
         $this->actor_uri = $actor_uri;
     }
 
-    /**
-     * @return string
-     */
     public function getSource(): string
     {
         return $this->source;
     }
 
-    /**
-     * @param string $source
-     */
     public function setSource(string $source): void
     {
         $this->source = $source;
     }
 
-    /**
-     * @return int
-     */
     public function getActorId(): int
     {
         return $this->actor_id;
     }
 
-    /**
-     * @param int $actor_id
-     */
     public function setActorId(int $actor_id): void
     {
         $this->actor_id = $actor_id;
     }
 
-    /**
-     * @return bool
-     */
     public function isIsLocal(): bool
     {
         return $this->is_local;
     }
 
-    /**
-     * @param bool $is_local
-     */
     public function setIsLocal(bool $is_local): void
     {
         $this->is_local = $is_local;
     }
 
-    /**
-     * @return DateTimeInterface
-     */
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    /**
-     * @param DateTimeInterface $created
-     */
     public function setCreated(DateTimeInterface $created): void
     {
         $this->created = $created;
     }
 
-    /**
-     * @return DateTimeInterface
-     */
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-    /**
-     * @param DateTimeInterface $modified
-     */
     public function setModified(DateTimeInterface $modified): void
     {
         $this->modified = $modified;

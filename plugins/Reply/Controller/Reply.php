@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -78,10 +80,10 @@ class Reply extends Controller
                     content_type: 'text/plain', // TODO
                     attachments: $data['attachments'],
                     reply_to: $reply_to,
-                    repeat_of: null
+                    repeat_of: null,
                 );
                 $return = $this->string('return_to');
-                if (!is_null($return)) {
+                if (!\is_null($return)) {
                     // Prevent open redirect
                     if (Router::isAbsolute($return)) {
                         Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$return})");

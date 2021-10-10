@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -30,9 +32,6 @@ use Plugin\ActivityPub\Util\Type\Core\ObjectType;
  */
 class Question extends IntransitiveActivity
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Question';
 
     /**

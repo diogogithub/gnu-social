@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -25,12 +27,7 @@ class SourceValidator implements ValidatorInterface
     /**
      * Validate source value
      *
-     * @param mixed $value
-     * @param mixed $container
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
@@ -38,18 +35,18 @@ class SourceValidator implements ValidatorInterface
         Util::subclassOf(
             $container,
             ObjectType::class,
-            true
+            true,
         );
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $value = (object) $value;
         }
 
-        if (is_object($value)) {
+        if (\is_object($value)) {
             return Util::hasProperties(
                 $value,
                 ['content', 'mediaType'],
-                true
+                true,
             );
         }
 

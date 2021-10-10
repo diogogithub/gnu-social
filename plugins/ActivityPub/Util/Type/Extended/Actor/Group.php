@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -23,8 +25,5 @@ use Plugin\ActivityPub\Util\Type\Extended\AbstractActor;
  */
 class Group extends AbstractActor
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Group';
 }

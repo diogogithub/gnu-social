@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -23,19 +25,16 @@ class AttributedToValidator extends ValidatorTools
     /**
      * Validate an attributedTo value
      *
-     * @param mixed $value
      * @param mixed $container An Object type
      *
      * @throws Exception
-     *
-     * @return bool
      */
     public function validate(mixed $value, mixed $container): bool
     {
         return $this->validateListOrObject(
             $value,
             $container,
-            $this->getCollectionActorsValidator()
+            $this->getCollectionActorsValidator(),
         );
     }
 }

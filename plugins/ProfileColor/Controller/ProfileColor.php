@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -23,12 +25,10 @@ namespace Plugin\ProfileColor\Controller;
 
 use App\Core\DB\DB;
 use App\Core\Form;
-use App\Util\Exception\DuplicateFoundException;
-use App\Util\Exception\NotFoundException;
-use App\Util\Exception\ServerException;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use Plugin\ProfileColor\Entity;
 use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -48,33 +48,31 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProfileColor
 {
-
     /**
      * Change Profile color background
-     * @param Request $request
-     * @return array
+     *
      * @throws RedirectException
      * @throws ServerException
      */
-    public static function profileColorSettings(Request $request)
+    public static function profileColorSettings(Request $request): array
     {
-        $actor       = Common::actor();
-        $actor_id   = $actor->getId();
+        $actor    = Common::actor();
+        $actor_id = $actor->getId();
 
         $current_profile_color = DB::find('profile_color', ['actor_id' => $actor_id]);
 
         $form = Form::create([
             ['background_color',   ColorType::class, [
                 'html5' => true,
-                'data' => $current_profile_color ? $current_profile_color->getBackground() : "#000000",
+                'data'  => $current_profile_color ? $current_profile_color->getBackground() : '#000000',
                 'label' => _m('Profile background color'),
-                'help' => _m('Choose your Profile background color')]
+                'help'  => _m('Choose your Profile background color'), ],
             ],
             ['foreground_color',   ColorType::class, [
                 'html5' => true,
-                'data' => $current_profile_color ? $current_profile_color->getColor() : "#000000",
+                'data'  => $current_profile_color ? $current_profile_color->getColor() : '#000000',
                 'label' => _m('Profile foreground color'),
-                'help' => _m('Choose your Profile foreground color')]
+                'help'  => _m('Choose your Profile foreground color'), ],
             ],
             ['hidden', HiddenType::class, []],
             ['save_profile_color',   SubmitType::class, ['label' => _m('Submit')]],
@@ -83,14 +81,13 @@ class ProfileColor
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             if ($current_profile_color !== null) {
                 DB::remove($current_profile_color);
                 DB::flush();
             }
 
-            $data = $form->getData();
-            $current_profile_color  = Entity\ProfileColor::create(['actor_id' => $actor_id, 'color' => $data['foreground_color'], 'background' => $data['background_color']]);
+            $data                  = $form->getData();
+            $current_profile_color = Entity\ProfileColor::create(['actor_id' => $actor_id, 'color' => $data['foreground_color'], 'background' => $data['background_color']]);
             DB::persist($current_profile_color);
             DB::flush();
 

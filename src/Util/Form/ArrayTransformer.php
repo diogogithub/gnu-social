@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -38,31 +40,21 @@ class ArrayTransformer implements DataTransformerInterface
 {
     // Can't use type annotations, to conform to interface
 
-    /**
-     * @param array $a
-     *
-     * @return string
-     */
-    public function transform($a)
+    public function transform(array $a): string
     {
-        if (!is_array($a)) {
+        if (!\is_array($a)) {
             throw new TransformationFailedException();
         }
         return Formatting::toString($a, Formatting::SPLIT_BY_SPACE);
     }
 
-    /**
-     * @param string $s
-     *
-     * @return array
-     */
-    public function reverseTransform($s)
+    public function reverseTransform(string $s): array
     {
         if (empty($s)) {
             return [];
         }
 
-        if (is_string($s) && Formatting::toArray($s, $arr, Formatting::SPLIT_BY_BOTH)) {
+        if (\is_string($s) && Formatting::toArray($s, $arr, Formatting::SPLIT_BY_BOTH)) {
             return $arr;
         } else {
             throw new TransformationFailedException();

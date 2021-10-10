@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -46,10 +48,10 @@ class ForeignLink
     private int $noticesync  = 1;
     private int $friendsync  = 2;
     private int $profilesync = 1;
-    private ?\DateTimeInterface $last_noticesync;
-    private ?\DateTimeInterface $last_friendsync;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private ?DateTimeInterface $last_noticesync;
+    private ?DateTimeInterface $last_friendsync;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -36,6 +38,7 @@ namespace App\Core;
 use App\Kernel;
 use App\Util\Formatting;
 use AppendIterator;
+use Exception;
 use FilesystemIterator;
 use Functional as F;
 use RecursiveDirectoryIterator;
@@ -47,7 +50,9 @@ use Symfony\Component\DependencyInjection\Reference;
 class ModuleManager
 {
     protected static $loader;
-    /** @codeCoverageIgnore */
+    /**
+     * @codeCoverageIgnore
+     */
     public static function setLoader($l)
     {
         self::$loader = $l;
@@ -61,8 +66,8 @@ class ModuleManager
      */
     public function add(string $fqcn, string $path)
     {
-        [$type, $module] = preg_split('/\\\\/', $fqcn, 0, PREG_SPLIT_NO_EMPTY);
-        self::$loader->addPsr4("\\{$type}\\{$module}\\", dirname($path));
+        [$type, $module] = preg_split('/\\\\/', $fqcn, 0, \PREG_SPLIT_NO_EMPTY);
+        self::$loader->addPsr4("\\{$type}\\{$module}\\", \dirname($path));
         $id                 = Formatting::camelCaseToSnakeCase($type . '.' . $module);
         $obj                = new $fqcn();
         $this->modules[$id] = $obj;
@@ -74,13 +79,16 @@ class ModuleManager
     public function preRegisterEvents()
     {
         foreach ($this->modules as $id => $obj) {
-            F\map(F\select(get_class_methods($obj),
-                           F\ary(F\partial_right('App\Util\Formatting::startsWith', 'on'), 1)),
-                  function (string $m) use ($obj) {
-                      $ev = substr($m, 2);
-                      $this->events[$ev] = $this->events[$ev] ?? [];
-                      $this->events[$ev][] = [$obj, $m];
-                  }
+            F\map(
+                F\select(
+                    get_class_methods($obj),
+                    F\ary(F\partial_right('App\Util\Formatting::startsWith', 'on'), 1),
+                ),
+                function (string $m) use ($obj) {
+                    $ev = mb_substr($m, 2);
+                    $this->events[$ev] ??= [];
+                    $this->events[$ev][] = [$obj, $m];
+                },
             );
         }
     }
@@ -95,27 +103,27 @@ class ModuleManager
         $entity_paths   = [];
         foreach ($module_paths as $path) {
             $type   = ucfirst(preg_replace('%' . INSTALLDIR . '/(component|plugin)s/.*%', '\1', $path));
-            $dir    = dirname($path);
+            $dir    = \dirname($path);
             $module = basename($dir); // component or plugin
             $fqcn   = "\\{$type}\\{$module}\\{$module}";
             $module_manager->add($fqcn, $path);
-            if (!is_null($container) && file_exists($dir = $dir . '/Entity') && is_dir($dir)) {
+            if (!\is_null($container) && file_exists($dir = $dir . '/Entity') && is_dir($dir)) {
                 // Happens at compile time, so it's hard to do integration testing. However,
                 // everything would break if this did :')
                 // @codeCoverageIgnoreStart
                 $entity_paths[] = $dir;
                 $container->findDefinition('doctrine.orm.default_metadata_driver')->addMethodCall(
                     'addDriver',
-                    [new Reference('app.schemadef_driver'), "{$type}\\{$module}\\Entity"]
+                    [new Reference('app.schemadef_driver'), "{$type}\\{$module}\\Entity"],
                 );
                 // @codeCoverageIgnoreEnd
             }
         }
 
-        if (!is_null($container)) {
+        if (!\is_null($container)) {
             // @codeCoverageIgnoreStart
             $container->findDefinition('app.schemadef_driver')
-                      ->addMethodCall('addPaths', ['$paths' => $entity_paths]);
+                ->addMethodCall('addPaths', ['$paths' => $entity_paths]);
             // @codeCoverageIgnoreEnd
         }
 
@@ -126,8 +134,6 @@ class ModuleManager
 
     /**
      * Serialize this class, for dumping into the cache
-     *
-     * @param mixed $state
      */
     public static function __set_state($state)
     {
@@ -145,15 +151,15 @@ class ModuleManager
     {
         if ($_ENV['APP_ENV'] === 'prod' && !file_exists(MODULE_CACHE_FILE)) {
             // @codeCoverageIgnoreStart
-            throw new \Exception('The application needs to be compiled before using in production');
+            throw new Exception('The application needs to be compiled before using in production');
         // @codeCoverageIgnoreEnd
         } else {
             $rdi = new AppendIterator();
             $rdi->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(INSTALLDIR . '/components', FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS)));
-            $rdi->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(INSTALLDIR . '/plugins',    FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS)));
+            $rdi->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(INSTALLDIR . '/plugins', FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS)));
             $time = file_exists(MODULE_CACHE_FILE) ? filemtime(MODULE_CACHE_FILE) : 0;
 
-            if ($_ENV['APP_ENV'] === 'test' || F\some($rdi, function ($e) use ($time) { return $e->getMTime() > $time; })) {
+            if ($_ENV['APP_ENV'] === 'test' || F\some($rdi, fn ($e) => $e->getMTime() > $time)) {
                 Log::info('Rebuilding plugin cache at runtime. This means we can\'t update DB definitions');
                 self::process();
             }
@@ -195,9 +201,9 @@ class ModuleManager
         foreach ($modules as $mod) {
             $path = "{$mod}/config" . Kernel::CONFIG_EXTS;
             $loader->load($path, 'glob'); // Is supposed to, but doesn't return anything that would let us identify if loading worked
-            foreach (explode(',', substr(Kernel::CONFIG_EXTS, 2, -1)) as $ext) {
+            foreach (explode(',', mb_substr(Kernel::CONFIG_EXTS, 2, -1)) as $ext) {
                 if (file_exists("{$mod}/config.{$ext}")) {
-                    $parameters[basename(strtolower($mod))] = basename(dirname(strtolower($mod)));
+                    $parameters[basename(mb_strtolower($mod))] = basename(\dirname(mb_strtolower($mod)));
                     break;
                 }
             }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -22,14 +24,8 @@ namespace Plugin\ActivityPub\Util\Type\Core;
  */
 class Collection extends ObjectType
 {
-    /**
-     * @var string
-     */
     protected string $type = 'Collection';
 
-    /**
-     * @var string
-     */
     public string $id;
 
     /**
@@ -39,8 +35,6 @@ class Collection extends ObjectType
      * serialized within the Collection object instance.
      *
      * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-totalitems
-     *
-     * @var int
      */
     protected int $totalItems;
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -41,25 +43,25 @@ abstract class Router
     /**
      * Generates an absolute URL, e.g. "http://example.com/dir/file".
      */
-    const ABSOLUTE_URL = UrlGeneratorInterface::ABSOLUTE_URL;
+    public const ABSOLUTE_URL = UrlGeneratorInterface::ABSOLUTE_URL;
 
     /**
      * Generates an absolute path, e.g. "/dir/file".
      */
-    const ABSOLUTE_PATH = UrlGeneratorInterface::ABSOLUTE_PATH;
+    public const ABSOLUTE_PATH = UrlGeneratorInterface::ABSOLUTE_PATH;
 
     /**
      * Generates a relative path based on the current request path, e.g. "../parent-file".
      *
      * @see UrlGenerator::getRelativePath()
      */
-    const RELATIVE_PATH = UrlGeneratorInterface::RELATIVE_PATH;
+    public const RELATIVE_PATH = UrlGeneratorInterface::RELATIVE_PATH;
 
     /**
      * Generates a network path, e.g. "//example.com/dir/file".
      * Such reference reuses the current scheme but specifies the host.
      */
-    const NETWORK_PATH = UrlGeneratorInterface::NETWORK_PATH;
+    public const NETWORK_PATH = UrlGeneratorInterface::NETWORK_PATH;
 
     public static ?SymfonyRouter $router          = null;
     public static ?UrlGeneratorInterface $url_gen = null;
@@ -85,7 +87,9 @@ abstract class Router
         return self::$url_gen->generate($id, $args, $type);
     }
 
-    /** function match($url) throws Symfony\Component\Routing\Exception\ResourceNotFoundException */
+    /**
+     * function match($url) throws Symfony\Component\Routing\Exception\ResourceNotFoundException
+     */
     public static function __callStatic(string $name, array $args)
     {
         return self::$router->{$name}(...$args);

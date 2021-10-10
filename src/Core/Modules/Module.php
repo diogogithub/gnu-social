@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -26,7 +28,7 @@ use App\Util\Common;
  */
 abstract class Module
 {
-    const MODULE_TYPE = 'module';
+    public const MODULE_TYPE = 'module';
 
     /**
      * Load values from the config and set them as properties on each module object
@@ -50,8 +52,6 @@ abstract class Module
 
     /**
      * Serialize the class to store in the cache
-     *
-     * @param mixed $state
      */
     public static function __set_state($state)
     {

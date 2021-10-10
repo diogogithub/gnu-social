@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -72,21 +74,19 @@ abstract class Event
      * @param string   $name     Name of the event
      * @param callable $handler  Code to run
      * @param int      $priority Higher runs first
-     * @param string   $ns
-     *
-     * @return void
      */
-    public static function addHandler(string $name,
-                                      callable $handler,
-                                      int $priority = 0,
-                                      string $ns = 'GNUsocial.'): void
-    {
+    public static function addHandler(
+        string $name,
+        callable $handler,
+        int $priority = 0,
+        string $ns = 'GNUsocial.',
+    ): void {
         self::$dispatcher->addListener(
             $ns . $name,
             function ($event, $event_name, $dispatcher) use ($handler, $name) {
                 // Old style of events (preferred)
                 if ($event instanceof GenericEvent) {
-                    if (call_user_func_array($handler, $event->getArguments()) === self::stop) {
+                    if ($handler(...$event->getArguments()) === self::stop) {
                         $event->stopPropagation();
                     }
                     return $event;
@@ -94,11 +94,11 @@ abstract class Event
                 // @codeCoverageIgnoreStart
                 // Symfony style of events
                 Log::warning("Event::addHandler for {$name} doesn't Conform to GNU social guidelines. Use of this style of event is discouraged.");
-                call_user_func($handler, $event, $event_name, $dispatcher);
-                return null;
+                $handler($event, $event_name, $dispatcher);
+
             // @codeCoverageIgnoreEnd
             },
-            $priority
+            $priority,
         );
     }
 
@@ -117,7 +117,7 @@ abstract class Event
      * @param string $ns   Namspace for the event
      *
      * @return bool flag saying whether to continue processing, based
-     *              on results of handlers.
+     *              on results of handlers
      */
     public static function handle(string $name, array $args = [], string $ns = 'GNUsocial.'): bool
     {
@@ -155,9 +155,6 @@ abstract class Event
      * Get the array of handlers for $name
      *
      * @param string $name Name of event
-     *
-     * @return array
-     * @return array
      */
     public static function getHandlers(string $name, string $ns = 'GNUsocial.'): array
     {

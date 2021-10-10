@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -27,6 +29,7 @@ use App\Util\Exception\NotStoredLocallyException;
 use App\Util\GNUsocialTestCase;
 use Functional as F;
 use Jchook\AssertThrows\AssertThrows;
+use SplFileInfo;
 
 class AttachmentThumbnailTest extends GNUsocialTestCase
 {
@@ -37,7 +40,7 @@ class AttachmentThumbnailTest extends GNUsocialTestCase
         parent::bootKernel();
 
         // Data fixture already loaded this file, but we need to get its hash to find it
-        $file = new \SplFileInfo(INSTALLDIR . '/tests/sample-uploads/attachment-lifecycle-target.jpg');
+        $file = new SplFileInfo(INSTALLDIR . '/tests/sample-uploads/attachment-lifecycle-target.jpg');
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
@@ -73,7 +76,7 @@ class AttachmentThumbnailTest extends GNUsocialTestCase
     {
         parent::bootKernel();
 
-        $file = new \SplFileInfo(INSTALLDIR . '/tests/sample-uploads/spreadsheet.ods');
+        $file = new SplFileInfo(INSTALLDIR . '/tests/sample-uploads/spreadsheet.ods');
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);

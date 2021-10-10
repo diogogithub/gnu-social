@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -44,13 +46,9 @@ class Favourite extends NoteHandlerPlugin
      * HTML rendering event that adds the favourite form as a note
      * action, if a user is logged in
      *
-     * @param Request $request
-     * @param Note    $note
-     * @param array   $actions
-     *
-     * @throws RedirectException
      * @throws InvalidFormException
      * @throws NoSuchNoteException
+     * @throws RedirectException
      *
      * @return bool Event hook
      */
@@ -79,7 +77,10 @@ class Favourite extends NoteHandlerPlugin
 
         // Form handler
         $ret = self::noteActionHandle(
-            $request, $form_fav, $note, "favourite-{$note->getId()}",
+            $request,
+            $form_fav,
+            $note,
+            "favourite-{$note->getId()}",
             /**
              * Called from form handler
              *
@@ -88,7 +89,7 @@ class Favourite extends NoteHandlerPlugin
              *
              * @throws RedirectException Always thrown in order to prevent accidental form re-submit from browser
              */
-            function ($note, $data) use ($opts) {
+            function (Note $note, Form $data) use ($opts) {
                 $favourite_note = DB::find('favourite', $opts);
                 if ($data["favourite-{$note->getId()}"] === '0' && $favourite_note === null) {
                     DB::persist(Entity\Favourite::create($opts));
@@ -104,7 +105,8 @@ class Favourite extends NoteHandlerPlugin
                 throw new RedirectException();
 
                 return Event::stop;
-            });
+            },
+        );
 
         if ($ret !== null) {
             return $ret;
@@ -125,7 +127,7 @@ class Favourite extends NoteHandlerPlugin
     {
         $r->connect(id: 'actor_favourites_id', uri_path: '/actor/{id<\d+>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorId']);
         $r->connect(id: 'actor_reverse_favourites_id', uri_path: '/actor/{id<\d+>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorId']);
-        $r->connect(id:'actor_favourites_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorNickname']);
+        $r->connect(id: 'actor_favourites_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorNickname']);
         $r->connect(id: 'actor_reverse_favourites_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorNickname']);
         return Event::next;
     }

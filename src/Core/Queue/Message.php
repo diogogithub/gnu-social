@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -30,8 +32,6 @@ class Message
 
     /**
      * @codeCoverageIgnore
-     *
-     * @param mixed $content
      */
     public function __construct($content, string $queue)
     {

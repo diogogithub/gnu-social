@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /*
  * This file is part of the ActivityPhp package.
  *
@@ -11,10 +13,10 @@
 
 namespace Plugin\ActivityPub\Util\Type;
 
-use function array_key_exists;
 use Exception;
 use Plugin\ActivityPub\Util\Type;
 use ReflectionClass;
+use ReflectionProperty;
 
 /**
  * \ActivityPhp\Type\ObjectAbstract is an abstract class for all
@@ -26,8 +28,6 @@ abstract class AbstractObject
 {
     /**
      * Keep all properties values that have been set
-     *
-     * @var array
      */
     private array $_props = [];
 
@@ -36,9 +36,6 @@ abstract class AbstractObject
     /**
      * Standard setter method
      * - Perform content validation if a validator exists
-     *
-     * @param string $name
-     * @param mixed  $value
      *
      * @throws Exception
      *
@@ -59,9 +56,9 @@ abstract class AbstractObject
                     $message,
                     static::class,
                     $name,
-                    print_r($value, true)
+                    print_r($value, true),
                 )
-                . PHP_EOL
+                . \PHP_EOL,
             );
         }
 
@@ -85,26 +82,22 @@ abstract class AbstractObject
     /**
      * Affect a value to a property or an extended property
      *
-     * @param mixed $value
-     *
      * @throws Exception
-     *
-     * @return mixed
      */
     private function transform(mixed $value): mixed
     {
         // Deep typing
-        if (is_array($value)) {
+        if (\is_array($value)) {
             if (isset($value['type'])) {
                 return Type::create($value);
-            } elseif (is_int(key($value))) {
+            } elseif (\is_int(key($value))) {
                 return array_map(
                     static function ($value) {
-                        return is_array($value) && isset($value['type'])
+                        return \is_array($value) && isset($value['type'])
                             ? Type::create($value)
                             : $value;
                     },
-                    $value
+                    $value,
                 );
             // Empty array, array that should not be cast as ActivityStreams types
             } else {
@@ -119,11 +112,7 @@ abstract class AbstractObject
     /**
      * Standard getter method
      *
-     * @param string $name
-     *
      * @throws Exception
-     *
-     * @return mixed
      */
     public function get(string $name): mixed
     {
@@ -136,43 +125,39 @@ abstract class AbstractObject
     /**
      * Checks that property exists
      *
-     * @param string $name
-     *
      * @throws Exception
-     *
-     * @return bool
      */
     public function has(string $name): bool
     {
         if (isset($this->{$name})) {
-            if (!array_key_exists($name, $this->_props)) {
+            if (!\array_key_exists($name, $this->_props)) {
                 $this->_props[$name] = $this->{$name};
             }
 
             return true;
         }
 
-        if (array_key_exists($name, $this->_props)) {
+        if (\array_key_exists($name, $this->_props)) {
             return true;
         }
 
         $reflect       = new ReflectionClass(Type::create($this->type));
-        $allowed_props = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
+        $allowed_props = $reflect->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
         $allowed       = [];
         foreach ($allowed_props as $prop) {
             $allowed[] = $prop->getName();
         }
-        if (!in_array($name, $allowed)) {
+        if (!\in_array($name, $allowed)) {
             sort($allowed);
             throw new Exception(
                 sprintf(
-                    'Property "%s" is not defined. Type="%s", ' .
-                    'Class="%s"' . PHP_EOL . 'Allowed properties: %s',
+                    'Property "%s" is not defined. Type="%s", '
+                    . 'Class="%s"' . \PHP_EOL . 'Allowed properties: %s',
                     $name,
                     $this->get('type'),
                     static::class,
-                    implode(', ', $allowed)
-                )
+                    implode(', ', $allowed),
+                ),
             );
         } else {
             return false;
@@ -181,8 +166,6 @@ abstract class AbstractObject
 
     /**
      * Get a list of all properties names
-     *
-     * @return array
      */
     public function getProperties(): array
     {
@@ -193,11 +176,11 @@ abstract class AbstractObject
                     array_keys(
                         array_diff_key(
                             get_object_vars($this),
-                            ['_props' => '1']
-                        )
-                    )
-                )
-            )
+                            ['_props' => '1'],
+                        ),
+                    ),
+                ),
+            ),
         );
     }
 
@@ -211,11 +194,9 @@ abstract class AbstractObject
         $keys = array_keys(
             array_filter(
                 get_object_vars($this),
-                static function ($value, $key): bool {
-                    return !is_null($value) && $key !== '_props';
-                },
-                ARRAY_FILTER_USE_BOTH
-            )
+                static fn ($value, $key): bool => !\is_null($value) && $key !== '_props',
+                \ARRAY_FILTER_USE_BOTH,
+            ),
         );
 
         $stack = [];
@@ -224,17 +205,17 @@ abstract class AbstractObject
         foreach ($keys as $key) {
             if ($this->{$key} instanceof self) {
                 $stack[$key] = $this->{$key}->toArray();
-            } elseif (!is_array($this->{$key})) {
+            } elseif (!\is_array($this->{$key})) {
                 $stack[$key] = $this->{$key};
-            } elseif (is_array($this->{$key})) {
-                if (is_int(key($this->{$key}))) {
+            } elseif (\is_array($this->{$key})) {
+                if (\is_int(key($this->{$key}))) {
                     $stack[$key] = array_map(
                         static function ($value) {
                             return $value instanceof self
                                 ? $value->toArray()
                                 : $value;
                         },
-                        $this->{$key}
+                        $this->{$key},
                     );
                 } else {
                     $stack[$key] = $this->{$key};
@@ -244,23 +225,23 @@ abstract class AbstractObject
 
         // _props
         foreach ($this->_props as $key => $value) {
-            if (is_null($value)) {
+            if (\is_null($value)) {
                 continue;
             }
 
             if ($value instanceof self) {
                 $stack[$key] = $value->toArray();
-            } elseif (!is_array($value)) {
+            } elseif (!\is_array($value)) {
                 $stack[$key] = $value;
             } else {
-                if (is_int(key($value))) {
+                if (\is_int(key($value))) {
                     $stack[$key] = array_map(
                         static function ($value) {
                             return $value instanceof self
                                 ? $value->toArray()
                                 : $value;
                         },
-                        $value
+                        $value,
                     );
                 } else {
                     $stack[$key] = $value;
@@ -275,14 +256,12 @@ abstract class AbstractObject
      * Get a JSON
      *
      * @param null|int $options PHP JSON options
-     *
-     * @return string
      */
     public function toJson(?int $options = null): string
     {
         return json_encode(
             $this->toArray(),
-            (int) $options
+            (int) $options,
         );
     }
 
@@ -297,15 +276,14 @@ abstract class AbstractObject
     {
         return Type::create(
             $this->type,
-            $this->toArray()
+            $this->toArray(),
         );
     }
 
     /**
      * Extend current type properties
      *
-     * @param string $property
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @throws Exception
      */
@@ -315,7 +293,7 @@ abstract class AbstractObject
             return;
         }
 
-        if (!array_key_exists($property, $this->_props)) {
+        if (!\array_key_exists($property, $this->_props)) {
             $this->_props[$property] = $default;
         }
     }
@@ -326,14 +304,11 @@ abstract class AbstractObject
     public function __isset(string $name): bool
     {
         return property_exists($this, $name)
-            || array_key_exists($name, $this->_props);
+            || \array_key_exists($name, $this->_props);
     }
 
     /**
      * Magical setter method
-     *
-     * @param string $name
-     * @param mixed  $value
      *
      * @throws Exception
      */
@@ -345,11 +320,7 @@ abstract class AbstractObject
     /**
      * Magical getter method
      *
-     * @param string $name
-     *
      * @throws Exception
-     *
-     * @return mixed
      */
     public function __get(string $name): mixed
     {
@@ -359,32 +330,27 @@ abstract class AbstractObject
     /**
      * Overloading methods
      *
-     * @param string     $name
-     * @param null|array $arguments
-     *
      * @throws Exception
-     *
-     * @return mixed
      */
-    public function __call(string $name, ?array $arguments = [])
+    public function __call(string $name, ?array $arguments = []): mixed
     {
         // Getters
         if (str_starts_with($name, 'get')) {
-            $attr = lcfirst(substr($name, 3));
+            $attr = lcfirst(mb_substr($name, 3));
             return $this->get($attr);
         }
 
         // Setters
         if (str_starts_with($name, 'set')) {
-            if (count($arguments) === 1) {
-                $attr = lcfirst(substr($name, 3));
+            if (\count($arguments) === 1) {
+                $attr = lcfirst(mb_substr($name, 3));
                 return $this->set($attr, $arguments[0]);
             } else {
                 throw new Exception(
                     sprintf(
                         'Expected exactly one argument for method "%s()"',
-                        $name
-                    )
+                        $name,
+                    ),
                 );
             }
         }
@@ -392,8 +358,8 @@ abstract class AbstractObject
         throw new Exception(
             sprintf(
                 'Method "%s" is not defined',
-                $name
-            )
+                $name,
+            ),
         );
     }
 }

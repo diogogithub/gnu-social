@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -25,7 +27,7 @@ class PollTest extends TestCase
 {
     public function testPoll()
     {
-        $poll1 = Poll::create(['options' => implode("\n",['option 1', '2nd option'])]);
+        $poll1 = Poll::create(['options' => implode("\n", ['option 1', '2nd option'])]);
         static::assertSame("option 1\n2nd option", $poll1->getOptions());
         static::assertSame(['option 1', '2nd option'], $poll1->getOptionsArr());
 
