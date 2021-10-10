@@ -81,6 +81,11 @@ class Security extends Controller
      * @param Authenticator $authenticator
      *
      * @return null|array|Response
+     * @throws EmailTakenException
+     * @throws NicknameTakenException
+     * @throws ServerException
+     * @throws DuplicateFoundException
+     * @throws EmailTakenException
      * @throws NicknameEmptyException
      * @throws NicknameInvalidException
      * @throws NicknameNotAllowedException

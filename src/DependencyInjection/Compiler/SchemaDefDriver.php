@@ -34,6 +34,7 @@ declare(strict_types = 1);
 namespace App\DependencyInjection\Compiler;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver;
 use Exception;
 use Functional as F;
@@ -91,11 +92,9 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
 
     /**
      * Fill in the database $metadata for $class_name
-     *
-     * @param string            $class_name
-     * @param ClassMetadataInfo $metadata
+     * @param ClassMetadataInfo $metadata ClassMetadataInfo is the real type, but we need to override the method
      */
-    public function loadMetadataForClass($class_name, $metadata)
+    public function loadMetadataForClass($class_name, ClassMetadata $metadata)
     {
         $schema = $class_name::schemaDef();
 
@@ -211,12 +210,8 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
      * Override StaticPHPDriver's method,
      * we care about classes that have the method `schemaDef`,
      * instead of `loadMetadata`.
-     *
-     * @param string $class_name
-     *
-     * @return bool
      */
-    public function isTransient($class_name)
+    public function isTransient($class_name): bool
     {
         return !method_exists($class_name, 'schemaDef');
     }
