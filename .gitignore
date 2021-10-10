@@ -16,8 +16,9 @@
 ###< symfony/phpunit-bridge ###
 
 ###> friendsofphp/php-cs-fixer ###
-!.php_cs
+!.php-cs-fixer.php
 /.php_cs.cache
+/.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
 
 ###> phpunit/phpunit ###
