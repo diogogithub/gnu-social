@@ -27,6 +27,21 @@ use Doctrine\Common\Collections\Criteria;
 
 abstract class Parser
 {
+
+    /**
+     * Merge $parts into $criteria_arr
+     */
+    private static function connectParts(array &$parts, array &$criteria_arr, string $last_op, mixed $eb, bool $force = false): void
+    {
+        foreach ([' ' => 'orX', '|' => 'orX', '&' => 'andX'] as $op => $func) {
+            if ($last_op === $op || $force) {
+                $criteria_arr[] = $eb->{$func}(...$parts);
+                $note_parts     = [];
+                break;
+            }
+        }
+    }
+
     /**
      * Parse $input string into a Doctrine query Criteria
      *
@@ -53,19 +68,6 @@ abstract class Parser
         $actor_parts        = [];
         $last_op            = null;
 
-        $connect_parts = /**
-                        * Merge $parts into $criteria_arr
-                        */
-                       function (array &$parts, array &$criteria_arr, bool $force = false) use ($eb, $last_op) {
-                           foreach ([' ' => 'orX', '|' => 'orX', '&' => 'andX'] as $op => $func) {
-                               if ($last_op === $op || $force) {
-                                   $criteria_arr[] = $eb->{$func}(...$parts);
-                                   $note_parts     = [];
-                                   break;
-                               }
-                           }
-                       };
-
         for ($index = 0; $index < $lenght; ++$index) {
             $end   = false;
             $match = false;
@@ -91,9 +93,9 @@ abstract class Parser
 
                     $right = $left = $index + 1;
 
-                    if (!is_null($last_op) && $last_op !== $delimiter) {
-                        $connect_parts($note_parts, $note_criteria_arr, force: false);
-                        $connect_parts($actor_parts, $actor_criteria_arr, force: false);
+                    if (!\is_null($last_op) && $last_op !== $delimiter) {
+                        self::connectParts($note_parts, $note_criteria_arr, $last_op, $eb, force: false);
+                        self::connectParts($actor_parts, $actor_criteria_arr, $last_op, $eb, force: false);
                     } else {
                         $last_op = $delimiter;
                     }
@@ -108,13 +110,11 @@ abstract class Parser
 
         $note_criteria = $actor_criteria = null;
         if (!empty($note_parts)) {
-            $connect_parts($note_parts, $note_criteria_arr, force: true);
+            self::connectParts($note_parts, $note_criteria_arr, $last_op, $eb, force: true);
             $note_criteria = new Criteria($eb->orX(...$note_criteria_arr));
-        } else {
-            if (!empty($actor_parts)) {
-                $connect_parts($actor_parts, $actor_criteria_arr, force: true);
-                $actor_criteria = new Criteria($eb->orX(...$actor_criteria_arr));
-            }
+        } elseif (!empty($actor_parts)) {
+            self::connectParts($actor_parts, $actor_criteria_arr, $last_op, $eb, force: true);
+            $actor_criteria = new Criteria($eb->orX(...$actor_criteria_arr));
         }
 
         return [$note_criteria, $actor_criteria];
