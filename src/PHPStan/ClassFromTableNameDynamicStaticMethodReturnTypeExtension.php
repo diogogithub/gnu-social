@@ -43,7 +43,7 @@ class ClassFromTableNameDynamicStaticMethodReturnTypeExtension implements Dynami
     ): \PHPStan\Type\Type {
         if (isset($_ENV['PHPSTAN_BOOT_KERNEL']) && \count($staticCall->args) >= 1 && ($arg = $staticCall->args[0]->value) instanceof String_) {
             // If called with the first argument as a string, it's a table name
-            return $scope->resolveTypeByName(new Name(DB::filterTableName($staticCall->name, [$arg->value])));
+            return $scope->resolveTypeByName(new Name(DB::filterTableName($staticCall->name->toString(), [$arg->value])));
         } else {
             // Let PHPStan handle it normally
             return \PHPStan\Reflection\ParametersAcceptorSelector::selectFromArgs($scope, $staticCall->args, $methodReflection->getVariants())->getReturnType();
