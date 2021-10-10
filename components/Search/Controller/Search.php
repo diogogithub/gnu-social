@@ -31,19 +31,29 @@ class Search extends Controller
 {
     public function handle(Request $request)
     {
-        $q        = $this->string('q');
-        $criteria = Parser::parse($q);
+        $q                                = $this->string('q');
+        [$note_criteria, $actor_criteria] = Parser::parse($q);
 
-        $qb = DB::createQueryBuilder();
-        $qb->select('note')->from('App\Entity\Note', 'note');
-        Event::handle('SeachQueryAddJoins', [&$qb]);
-        $qb->addCriteria($criteria);
-        $query   = $qb->getQuery();
-        $results = $query->execute();
+        $note_qb  = DB::createQueryBuilder();
+        $actor_qb = DB::createQueryBuilder();
+        $note_qb->select('note')->from('App\Entity\Note', 'note');
+        $actor_qb->select('actor')->from('App\Entity\Actor', 'actor');
+        Event::handle('SeachQueryAddJoins', [&$note_qb, &$actor_qb]);
+        $notes = $actors = [];
+        if (!is_null($note_criteria)) {
+            $note_qb->addCriteria($note_criteria);
+            $notes = $note_qb->getQuery()->execute();
+        } else {
+            if (!is_null($actor_criteria)) {
+                $actor_qb->addCriteria($actor_criteria);
+                $actors = $actor_qb->getQuery()->execute();
+            }
+        }
 
         return [
             '_template' => 'search/show.html.twig',
-            'results'   => $results,
+            'notes'     => $notes,
+            'actors'    => $actors,
         ];
     }
 }

@@ -34,29 +34,33 @@ abstract class Parser
      * recognises either spaces (currently `or`, should be fuzzy match), `OR` or `|` (`or`) and `AND` or `&` (`and`)
      *
      * TODO Better fuzzy match, implement exact match with quotes and nesting with parens
+     *
+     * @return Criteria[]
      */
-    public static function parse(string $input, int $level = 0): Criteria
+    public static function parse(string $input, int $level = 0): array
     {
         if ($level === 0) {
             $input = trim(preg_replace(['/\s+/', '/\s+AND\s+/', '/\s+OR\s+/'], [' ', '&', '|'], $input), ' |&');
         }
 
-        $left     = $right     = 0;
-        $lenght   = mb_strlen($input);
-        $stack    = [];
-        $eb       = Criteria::expr();
-        $criteria = [];
-        $parts    = [];
-        $last_op  = null;
+        $left               = $right               = 0;
+        $lenght             = mb_strlen($input);
+        $stack              = [];
+        $eb                 = Criteria::expr();
+        $note_criteria_arr  = [];
+        $actor_criteria_arr = [];
+        $note_parts         = [];
+        $actor_parts        = [];
+        $last_op            = null;
 
         $connect_parts = /**
-                        * Merge $parts into $criteria
+                        * Merge $parts into $criteria_arr
                         */
-                       function (bool $force = false) use ($eb, &$parts, $last_op, &$criteria) {
+                       function (array &$parts, array &$criteria_arr, bool $force = false) use ($eb, $last_op) {
                            foreach ([' ' => 'orX', '|' => 'orX', '&' => 'andX'] as $op => $func) {
                                if ($last_op === $op || $force) {
-                                   $criteria[] = $eb->{$func}(...$parts);
-                                   $parts      = [];
+                                   $criteria_arr[] = $eb->{$func}(...$parts);
+                                   $note_parts     = [];
                                    break;
                                }
                            }
@@ -68,18 +72,28 @@ abstract class Parser
 
             foreach (['&', '|', ' '] as $delimiter) {
                 if ($input[$index] === $delimiter || $end = ($index === $lenght - 1)) {
-                    $term = substr($input, $left, $end ? null : $right - $left);
-                    $res  = null;
-                    $ret  = Event::handle('SearchCreateExpression', [$eb, $term, &$res]);
-                    if (is_null($res) || $ret == Event::next) {
+                    $term     = substr($input, $left, $end ? null : $right - $left);
+                    $note_res = $actor_res = null;
+                    $ret      = Event::handle('SearchCreateExpression', [$eb, $term, &$note_res, &$actor_res]);
+                    if ((is_null($note_res) && is_null($actor_res)) || $ret == Event::next) {
                         throw new ServerException("No one claimed responsibility for a match term: {$term}");
+                    } else {
+                        if (!is_null($note_res)) {
+                            $note_parts[] = $note_res;
+                        } else {
+                            if (!is_null($actor_res)) {
+                                $actor_parts[] = $actor_res;
+                            } else {
+                                throw new ServerException('Unexpected state in Search parser');
+                            }
+                        }
                     }
-                    $parts[] = $res;
 
                     $right = $left = $index + 1;
 
                     if (!is_null($last_op) && $last_op !== $delimiter) {
-                        $connect_parts(force: false);
+                        $connect_parts($note_parts, $note_criteria_arr, force: false);
+                        $connect_parts($actor_parts, $actor_criteria_arr, force: false);
                     } else {
                         $last_op = $delimiter;
                     }
@@ -92,10 +106,17 @@ abstract class Parser
             }
         }
 
-        if (!empty($parts)) {
-            $connect_parts(force: true);
+        $note_criteria = $actor_criteria = null;
+        if (!empty($note_parts)) {
+            $connect_parts($note_parts, $note_criteria_arr, force: true);
+            $note_criteria = new Criteria($eb->orX(...$note_criteria_arr));
+        } else {
+            if (!empty($actor_parts)) {
+                $connect_parts($actor_parts, $actor_criteria_arr, force: true);
+                $actor_criteria = new Criteria($eb->orX(...$actor_criteria_arr));
+            }
         }
 
-        return new Criteria($eb->orX(...$criteria));
+        return [$note_criteria, $actor_criteria];
     }
 }

@@ -1,7 +1,7 @@
-{% for res in results %}
-  {% if res is instanceof('App\\Entity\\Note') %}
-    {% include '/cards/note/view.html.twig' with {'note': res} %}
-  {% else %}
-    {{ dump(res) }}
-  {% endif %}
+{% for note in notes %}
+  {% include '/cards/note/view.html.twig' with {'note': note} %}
+{% endfor %}
+
+{% for actor in actors %}
+  {% include 'actor/view.html.twig' with {'actor': actor} %}
 {% endfor %}

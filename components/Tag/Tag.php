@@ -90,18 +90,36 @@ class Tag extends Component
         return substr(Formatting::slugify($tag), 0, self::MAX_TAG_LENGTH);
     }
 
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, &$expr)
+    /**
+     * Populate $note_expr with an expression to match a tag, if the term looks like a tag
+     *
+     * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
+     *
+     * @param mixed $note_expr
+     * @param mixed $actor_expr
+     */
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, &$note_expr, &$actor_expr)
     {
-        if (preg_match(self::TAG_REGEX, $term)) {
-            $expr = $eb->eq('note_tag.tag', $term);
-            return Event::stop;
+        $search_term     = str_contains($term, ':#') ? explode(':', $term)[1] : $term;
+        $temp_note_expr  = $eb->eq('note_tag.tag', $search_term);
+        $temp_actor_expr = $eb->eq('actor_tag.tag', $search_term);
+        if (Formatting::startsWith($term, ['note', 'tag'])) {
+            $note_expr = $temp_note_expr;
         } else {
-            return Event::next;
+            if (Formatting::startsWith($term, ['people', 'actor'])) {
+                $actor_expr = $temp_actor_expr;
+            } else {
+                $note_expr  = $temp_note_expr;
+                $actor_expr = $temp_actor_expr;
+                return Event::next;
+            }
         }
+        return Event::stop;
     }
 
-    public function onSeachQueryAddJoins(QueryBuilder &$qb)
+    public function onSeachQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb)
     {
-        $qb->join('App\Entity\NoteTag', 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
+        $note_qb->join('App\Entity\NoteTag', 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
+        $actor_qb->join('App\Entity\ActorTag', 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id');
     }
 }
