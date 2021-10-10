@@ -91,8 +91,11 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
 
     /**
      * Fill in the database $metadata for $class_name
+     *
+     * @param string            $class_name
+     * @param ClassMetadataInfo $metadata
      */
-    public function loadMetadataForClass(string $class_name, ClassMetadataInfo $metadata)
+    public function loadMetadataForClass($class_name, $metadata)
     {
         $schema = $class_name::schemaDef();
 
@@ -208,8 +211,12 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
      * Override StaticPHPDriver's method,
      * we care about classes that have the method `schemaDef`,
      * instead of `loadMetadata`.
+     *
+     * @param string $class_name
+     *
+     * @return bool
      */
-    public function isTransient(string $class_name): bool
+    public function isTransient($class_name)
     {
         return !method_exists($class_name, 'schemaDef');
     }

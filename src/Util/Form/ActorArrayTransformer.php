@@ -40,21 +40,29 @@ class ActorArrayTransformer extends ArrayTransformer
 {
     /**
      * Transforms array of Actors into string of nicknames
+     *
+     * @param array $a
+     *
+     * @return string
      */
-    public function transform(array $a): string
+    public function transform($a)
     {
         return parent::transform(
             array_map(
-                fn ($actor) => $actor->getNickname(),
-                $a,
-            ),
+            fn ($actor) => $actor->getNickname(),
+            $a,
+        ),
         );
     }
 
     /**
      * Transforms string of nicknames into Actors
+     *
+     * @param string $s
+     *
+     * @return array
      */
-    public function reverseTransform(string $s): array
+    public function reverseTransform($s)
     {
         return array_map(
             fn ($nickmame) => Actor::getFromNickname($nickmame),

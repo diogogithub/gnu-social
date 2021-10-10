@@ -40,7 +40,12 @@ class ArrayTransformer implements DataTransformerInterface
 {
     // Can't use type annotations, to conform to interface
 
-    public function transform(array $a): string
+    /**
+     * @param array $a
+     *
+     * @return string
+     */
+    public function transform($a)
     {
         if (!\is_array($a)) {
             throw new TransformationFailedException();
@@ -48,7 +53,12 @@ class ArrayTransformer implements DataTransformerInterface
         return Formatting::toString($a, Formatting::SPLIT_BY_SPACE);
     }
 
-    public function reverseTransform(string $s): array
+    /**
+     * @param string $s
+     *
+     * @return array
+     */
+    public function reverseTransform($s)
     {
         if (empty($s)) {
             return [];

@@ -273,12 +273,13 @@ return $config
         'phpdoc_single_line_var_spacing' => true,
         // Fixes casing of PHPDoc tags.
         'phpdoc_tag_casing' => true,
-        // EXPERIMENTAL: Takes `@param` annotations of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.
-        'phpdoc_to_param_type' => true,
-        // EXPERIMENTAL: Takes `@var` annotation of non-mixed types and adjusts accordingly the property signature. Requires PHP >= 7.4.
-        'phpdoc_to_property_type' => true,
-        // EXPERIMENTAL: Takes `@return` annotation of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.
-        'phpdoc_to_return_type' => true,
+        // Would be neat, but breaks cases where the parents don't have annotations
+        // // EXPERIMENTAL: Takes `@param` annotations of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.
+        // 'phpdoc_to_param_type' => true,
+        // // EXPERIMENTAL: Takes `@var` annotation of non-mixed types and adjusts accordingly the property signature. Requires PHP >= 7.4.
+        // 'phpdoc_to_property_type' => true,
+        // // EXPERIMENTAL: Takes `@return` annotation of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.
+        // 'phpdoc_to_return_type' => true,
         // PHPDoc should start and end with content, excluding the very first and last line of the docblocks.
         'phpdoc_trim' => true,
         // Removes extra blank lines after summary and after description in PHPDoc.
@@ -368,10 +369,10 @@ return $config
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
-    ->exclude('vendor')
-    ->exclude('var')
-    ->exclude('docker')
-    ->exclude('src/Entity')
-    ->notPath('src/Core/DB/DefaultSettings.php')
-    ->in(__DIR__),
+            ->exclude('vendor')
+            ->exclude('var')
+            ->exclude('docker')
+            ->exclude('src/Entity')
+            ->notPath('src/Core/DB/DefaultSettings.php')
+            ->in(__DIR__),
     );

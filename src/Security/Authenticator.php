@@ -107,7 +107,10 @@ class Authenticator extends AbstractFormLoginAuthenticator
         return $user;
     }
 
-    public function checkCredentials($credentials, LocalUser $user)
+    /**
+     * @param LocalUser $user
+     */
+    public function checkCredentials($credentials, $user)
     {
         if (!$user->checkPassword($credentials['password'])) {
             throw new CustomUserMessageAuthenticationException(_m('Invalid login credentials.'));
