@@ -103,44 +103,34 @@ abstract class Formatting
     /**
      * Check whether $haystack starts with $needle
      *
-     * @param array|string $haystack if array, check that all strings start with $needle
-     * @param string       $needle
+     * @param array|string $haystack if array, check that all strings start with $needle (see below)
+     * @param array|string $needle   if array, check that one of the $needles is found
      *
      * @return bool
      */
-    public static function startsWith($haystack, string $needle): bool
+    public static function startsWith(array|string $haystack, array|string $needle): bool
     {
         if (is_string($haystack)) {
-            $length = strlen($needle);
-            return substr($haystack, 0, $length) === $needle;
+            return F\some(is_array($needle) ? $needle : [$needle], fn ($n) => str_starts_with($haystack, $n));
+        } else {
+            return F\every($haystack, fn ($haystack) => self::startsWith($haystack, $needle));
         }
-        return F\every($haystack,
-            function ($haystack) use ($needle) {
-                return self::startsWith($haystack, $needle);
-            });
     }
-
     /**
      * Check whether $haystack ends with $needle
      *
-     * @param array|string $haystack if array, check that all strings end with $needle
-     * @param string       $needle
+     * @param array|string $haystack if array, check that all strings end with $needle (see below)
+     * @param array|string $needle   if array, check that one of the $needles is found
      *
      * @return bool
      */
-    public static function endsWith($haystack, string $needle)
+    public static function endsWith(array|string $haystack, array|string $needle): bool
     {
         if (is_string($haystack)) {
-            $length = strlen($needle);
-            if ($length == 0) {
-                return true;
-            }
-            return substr($haystack, -$length) === $needle;
+            return F\some(is_array($needle) ? $needle : [$needle], fn ($n) => str_ends_with($haystack, $n));
+        } else {
+            return F\every($haystack, fn ($haystack) => self::endsWith($haystack, $needle));
         }
-        return F\every($haystack,
-            function ($haystack) use ($needle) {
-                return self::endsWith($haystack, $needle);
-            });
     }
 
     /**
