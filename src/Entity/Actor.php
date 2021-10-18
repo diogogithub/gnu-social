@@ -307,12 +307,12 @@ class Actor extends Entity
 
     public function getUri(): string
     {
-        return Router::url('actor_id', ['actor_id' => $this->getId()]);
+        return Router::url('actor_view_id', ['id' => $this->getId()]);
     }
 
-    public function getUrl(): string
+    public function getUrl(int $type = Router::ABSOLUTE_PATH): string
     {
-        return Router::url('actor_nickname', ['actor_nickname' => $this->getNickname()]);
+        return Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
     }
 
     public static function schemaDef(): array

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -24,6 +26,7 @@
  * @category Controller
  *
  * @author    Hugo Sales <hugo@hsal.es>
+ * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -48,10 +51,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * @method int int(string $param)
- * @method bool bool(string $param)
+ * @method int    int(string $param)
+ * @method bool   bool(string $param)
  * @method string string(string $param)
- * @method mixed handle(Request $request, mixed ...$extra)
+ * @method string params(string $param)
+ * @method mixed  handle(Request $request, mixed ...$extra)
  */
 abstract class Controller extends AbstractController implements EventSubscriberInterface
 {
@@ -72,7 +76,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
     {
         $this->request = $request;
         $class         = static::class;
-        $method        = 'on' . ucfirst(strtolower($request->getMethod()));
+        $method        = 'on' . ucfirst(mb_strtolower($request->getMethod()));
         $attributes    = array_diff_key($request->attributes->get('_route_params'), array_flip(['_format', '_fragment', '_locale', 'template', 'accept', 'is_system_path']));
         if (method_exists($class, $method)) {
             return $this->{$method}($request, ...$attributes);
@@ -108,7 +112,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
     {
         $request  = $event->getRequest();
         $response = $event->getControllerResult();
-        if (!is_array($response)) {
+        if (!\is_array($response)) {
             // This means it's not one of our custom format responses, nothing to do
             // @codeCoverageIgnoreStart
             return $event;
@@ -117,7 +121,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
 
         $this->vars = array_merge_recursive($this->vars, $response);
 
-        $template = $this->vars['_template'];
+        $template = \array_key_exists('_template', $this->vars) ? $this->vars['_template'] : null;
         unset($this->vars['_template'], $response['_template']);
 
         // Respond in the most preferred acceptable content type
@@ -132,12 +136,17 @@ abstract class Controller extends AbstractController implements EventSubscriberI
             'response' => &$potential_response,
         ]) !== Event::stop) {
             switch ($format) {
-            case 'html':
-                $event->setResponse($this->render($template, $this->vars));
-                break;
             case 'json':
                 $event->setResponse(new JsonResponse($response));
                 break;
+            case 'html':
+                if ($template !== null) {
+                    $event->setResponse($this->render($template, $this->vars));
+                    break;
+                } else {
+                    // no break, goto default
+                }
+                // no break
             default:
                 throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
             }
@@ -192,22 +201,22 @@ abstract class Controller extends AbstractController implements EventSubscriberI
     /**
      * Get and convert GET parameters. Can be called with `int`, `bool`, `string`, etc
      *
-     * @throws ValidatorException
      * @throws Exception
+     * @throws ValidatorException
      *
-     * @return null|mixed the value or null if no paramter exists
+     * @return null|array|bool|int|string the value or null if no parameter exists
      */
-    public function __call(string $method, array $args)
+    public function __call(string $method, array $args): array|bool|int|string|null
     {
-        $name  = $args[0];
-        $value = $this->request->query->get($name);
         switch ($method) {
         case 'int':
-            return (int) $value;
+            return $this->request->query->getInt($args[0]);
         case 'bool':
-            return (bool) $value;
+            return $this->request->query->getBoolean($args[0]);
         case 'string':
-            return (string) $value;
+            return $this->request->query->get($args[0]);
+        case 'params':
+            return $this->request->query->all();
         default:
             // @codeCoverageIgnoreStart
             Log::critical($m = "Method '{$method}' on class App\\Core\\Controller not found (__call)");

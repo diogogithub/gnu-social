@@ -24,6 +24,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\Modules\Component;
+use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Util\Common;
 use Component\Avatar\Controller as C;
@@ -36,7 +37,7 @@ class Avatar extends Component
     {
     }
 
-    public function onAddRoute($r): bool
+    public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect('avatar_actor', '/actor/{actor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar_view']);
         $r->connect('avatar_default', '/avatar/default/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'default_avatar_view']);
