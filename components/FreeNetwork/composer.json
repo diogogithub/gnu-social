@@ -1,0 +1,5 @@
+{
+  "require": {
+    "pear/xml_xrd": "^0.3.1"
+  }
+}

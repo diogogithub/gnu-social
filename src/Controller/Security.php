@@ -1,16 +1,15 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use App\Core\Event;
 use App\Core\Form;
-use App\Util\Exception\NicknameInvalidException;
-use LogicException;
-use function App\Core\I18n\_m;
 use App\Core\Log;
+use App\Core\Router\Router;
 use App\Core\VisibilityScope;
 use App\Entity\Actor;
 use App\Entity\Follow;
@@ -19,9 +18,9 @@ use App\Entity\Note;
 use App\Security\Authenticator;
 use App\Security\EmailVerifier;
 use App\Util\Common;
-use App\Util\Exception\DuplicateFoundException;
-use App\Util\Exception\EmailTakenException;
 use App\Util\Exception\NicknameEmptyException;
+use App\Util\Exception\NicknameException;
+use App\Util\Exception\NicknameInvalidException;
 use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
@@ -29,6 +28,7 @@ use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use App\Util\Nickname;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use LogicException;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -38,6 +38,7 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use function App\Core\I18n\_m;
 
 class Security extends Controller
 {
@@ -56,10 +57,10 @@ class Security extends Controller
         $last_login_id = $authenticationUtils->getLastUsername();
 
         return [
-            '_template'     => 'security/login.html.twig',
+            '_template' => 'security/login.html.twig',
             'last_login_id' => $last_login_id,
-            'error'         => $error,
-            'notes_fn'      => fn () => Note::getAllNotes(VisibilityScope::$instance_scope),
+            'error' => $error,
+            'notes_fn' => fn() => Note::getAllNotes(VisibilityScope::$instance_scope),
         ];
     }
 
@@ -80,43 +81,40 @@ class Security extends Controller
      * @param Authenticator $authenticator
      *
      * @return null|array|Response
-     * @throws EmailTakenException
-     * @throws NicknameTakenException
-     * @throws ServerException
-     * @throws DuplicateFoundException
-     * @throws EmailTakenException
      * @throws NicknameEmptyException
-     * @throws NicknameNotAllowedException
-     * @throws NicknameTooLongException
      * @throws NicknameInvalidException
-     *
+     * @throws NicknameNotAllowedException
+     * @throws NicknameTakenException
+     * @throws NicknameTooLongException
+     * @throws ServerException
+     * @throws NicknameException
      */
     public function register(Request                   $request,
                              GuardAuthenticatorHandler $guard_handler,
-                             Authenticator             $authenticator)
+                             Authenticator             $authenticator): array|Response|null
     {
         $form = Form::create([
             ['nickname', TextType::class, [
-                'label'       => _m('Nickname'),
-                'help'        => _m('Your desired nickname (e.g., j0hnD03)'),
+                'label' => _m('Nickname'),
+                'help' => _m('Your desired nickname (e.g., j0hnD03)'),
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a nickname')]),
                     new Length([
-                        'min'        => 1,
+                        'min' => 1,
                         'minMessage' => _m(['Your nickname must be at least # characters long'], ['count' => 1]),
-                        'max'        => Nickname::MAX_LEN,
-                        'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]), ]),
+                        'max' => Nickname::MAX_LEN,
+                        'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]),]),
                 ],
-                'block_name'      => 'nickname',
-                'label_attr'      => ['class' => 'section-form-label'],
+                'block_name' => 'nickname',
+                'label_attr' => ['class' => 'section-form-label'],
                 'invalid_message' => _m('Nickname not valid. Please provide a valid nickname.'),
             ]],
             ['email', EmailType::class, [
-                'label'           => _m('Email'),
-                'help'            => _m('Desired email for this account (e.g., john@provider.com)'),
-                'constraints'     => [new NotBlank(['message' => _m('Please enter an email')])],
-                'block_name'      => 'email',
-                'label_attr'      => ['class' => 'section-form-label'],
+                'label' => _m('Email'),
+                'help' => _m('Desired email for this account (e.g., john@provider.com)'),
+                'constraints' => [new NotBlank(['message' => _m('Please enter an email')])],
+                'block_name' => 'email',
+                'label_attr' => ['class' => 'section-form-label'],
                 'invalid_message' => _m('Email not valid. Please provide a valid email.'),
             ]],
             FormFields::repeated_password(),
@@ -126,7 +124,7 @@ class Security extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data             = $form->getData();
+            $data = $form->getData();
             $data['password'] = $form->get('password')->getData();
 
             // TODO: ensure there's no user with this email registered already
@@ -137,18 +135,21 @@ class Security extends Controller
             try {
                 // This already checks if the nickname is being used
                 $actor = Actor::create(['nickname' => $sanitized_nickname]);
-                $user  = LocalUser::create([
-                    'nickname'       => $sanitized_nickname,
+                $user = LocalUser::create([
+                    'nickname' => $sanitized_nickname,
                     'outgoing_email' => $data['email'],
                     'incoming_email' => $data['email'],
-                    'password'       => LocalUser::hashPassword($data['password']),
+                    'password' => LocalUser::hashPassword($data['password']),
                 ]);
                 DB::persistWithSameId(
                     $actor,
                     $user,
                     // Self follow
-                    fn (int $id) => DB::persist(Follow::create(['follower' => $id, 'followed' => $id])),
+                    fn(int $id) => DB::persist(Follow::create(['follower' => $id, 'followed' => $id])),
                 );
+
+                Event::handle('SuccessfulLocalUserRegistration', [$actor, $user]);
+
                 DB::flush();
                 // @codeCoverageIgnoreStart
             } catch (UniqueConstraintViolationException $e) {
@@ -163,7 +164,7 @@ class Security extends Controller
             if ($_ENV['APP_ENV'] !== 'dev' && Common::config('site', 'use_email')) {
                 // @codeCoverageIgnoreStart
                 EmailVerifier::sendEmailConfirmation($user);
-            // @codeCoverageIgnoreEnd
+                // @codeCoverageIgnoreEnd
             } else {
                 $user->setIsEmailVerified(true);
             }
@@ -177,9 +178,9 @@ class Security extends Controller
         }
 
         return [
-            '_template'         => 'security/register.html.twig',
+            '_template' => 'security/register.html.twig',
             'registration_form' => $form->createView(),
-            'notes_fn'          => fn ()          => Note::getAllNotes(VisibilityScope::$instance_scope),
+            'notes_fn' => fn() => Note::getAllNotes(VisibilityScope::$instance_scope),
         ];
     }
 }

@@ -37,7 +37,7 @@ abstract class AS2ToEntity
     {
         $map = [
             'activity_uri' => $activity['id'],
-            'actor_id'     => FreenetworkActor::getOrCreateByUri(actor_uri: $activity['actor'], source: 'ActivityPub')->getActorId(),
+            'actor_id'     => FreenetworkActor::getOrCreateByRemoteUri(actor_uri: $activity['actor'])->getActorId(),
             'verb'         => self::activity_stream_two_verb_to_gs_verb($activity['type']),
             'object_type'  => self::activity_stream_two_object_type_to_gs_table($activity['object']['type']),
             'object_uri'   => $activity['object']['id'],

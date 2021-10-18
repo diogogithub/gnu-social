@@ -1,10 +1,9 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Plugin\ActivityPub\Util\Model\EntityToType;
 
-use App\Core\Event;
 use App\Core\Router\Router;
 use App\Entity\Note;
 use DateTimeInterface;
@@ -16,14 +15,13 @@ class NoteToType
     /**
      * @throws Exception
      */
-    public static function translate(Note $note): Type
+    public static function translate(Note $note): Type\Extended\Object\Note
     {
         $attributedTo = null;
-        Event::handle('FreeNetworkGenerateLocalActorUri', ['source' => 'ActivityPub', 'actor_id' => $note->getActorId(), 'actor_uri' => &$attributedTo]);
         $attr = [
-            '@context'     => 'https://www.w3.org/ns/activitystreams',
-            'id'           => Router::url('note_view', ['id' => $note->getId()], Router::ABSOLUTE_URL),
-            'published'    => $note->getCreated()->format(DateTimeInterface::RFC3339),
+            '@context' => 'https://www.w3.org/ns/activitystreams',
+            'id' => Router::url('note_view', ['id' => $note->getId()], Router::ABSOLUTE_URL),
+            'published' => $note->getCreated()->format(DateTimeInterface::RFC3339),
             'attributedTo' => $attributedTo,
             //'to' => $to,
             //'cc' => $cc,

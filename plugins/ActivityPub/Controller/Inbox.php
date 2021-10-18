@@ -38,7 +38,7 @@ class Inbox extends Controller
     /**
      * Inbox handler
      */
-    public function handle(?int $gsactor_id = null)
+    public function handle(?int $gsactor_id = null): TypeResponse
     {
         if (!\is_null($gsactor_id)) {
             $user = DB::find('local_user', ['id' => $gsactor_id]);

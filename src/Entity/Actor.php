@@ -305,14 +305,29 @@ class Actor extends Entity
                           ));
     }
 
-    public function getUri(): string
+    public function getUri(int $type = Router::ABSOLUTE_PATH): string
     {
-        return Router::url('actor_view_id', ['id' => $this->getId()]);
+        return Router::url('actor_view_id', ['id' => $this->getId()], $type);
     }
 
     public function getUrl(int $type = Router::ABSOLUTE_PATH): string
     {
         return Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+    }
+
+    public function getAliases(): array
+    {
+        return array_keys($this->getAliasesWithIDs());
+    }
+
+    public function getAliasesWithIDs(): array
+    {
+        $aliases = [];
+
+        $aliases[$this->getUri(Router::ABSOLUTE_URL)] = $this->getId();
+        $aliases[$this->getUrl(Router::ABSOLUTE_URL)] = $this->getId();
+
+        return $aliases;
     }
 
     public static function schemaDef(): array

@@ -48,21 +48,20 @@ class FreenetworkActor extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private string $actor_uri;
-    private string $source;
+    private string $profile_page;
     private int $actor_id;
     private bool $is_local;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function getActorUri(): string
+    public function getProfilepage(): string
     {
-        return $this->actor_uri;
+        return $this->profile_page;
     }
 
-    public function setActorUri(string $actor_uri): void
+    public function setProfilepage(string $profile_page): void
     {
-        $this->actor_uri = $actor_uri;
+        $this->profile_page = $profile_page;
     }
 
     public function getSource(): string
@@ -85,7 +84,7 @@ class FreenetworkActor extends Entity
         $this->actor_id = $actor_id;
     }
 
-    public function isIsLocal(): bool
+    public function getIsLocal(): bool
     {
         return $this->is_local;
     }
@@ -117,35 +116,15 @@ class FreenetworkActor extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public static function getOrCreateById($actor_id, $source): self
+    public static function getOrCreateByRemoteUri($actor_uri): self
     {
-        $fnactor = self::getWithPK(['actor_id' => $actor_id, 'source' => $source]);
-        if ($fnactor === null) {
-            $actor_uri = null;
-            Event::handle('FreeNetworkGenerateLocalActorUri', [$source, $actor_id, &$actor_uri]);
-            $fnactor = self::create([
-                'actor_uri' => $actor_uri,
-                'source'    => $source,
-                'actor_id'  => $actor_id,
-                'is_local'  => true,
-            ]);
-            DB::persist($fnactor);
-            return $fnactor;
-        } else {
-            return $fnactor;
-        }
-    }
-
-    public static function getOrCreateByUri($actor_uri, $source): self
-    {
-        $fnactor = DB::findBy('freenetwork_actor', ['actor_uri' => $actor_uri, 'source' => $source]);
+        $fnactor = DB::findBy('freenetwork_actor', ['profile_page' => $actor_uri, 'is_local' => false]);
         if ($fnactor === []) {
             // TODO grab with webfinger
             // If already has for a different protocol and isn't local, update
             // else create actor and then fnactor
             $fnactor = self::create([
-                'actor_uri' => $actor_uri,
-                'source'    => $source,
+                'profile_page' => $actor_uri,
                 'actor_id'  => 1,
                 'is_local'  => false,
             ]);
@@ -161,16 +140,15 @@ class FreenetworkActor extends Entity
         return [
             'name'   => 'freenetwork_actor',
             'fields' => [
-                'actor_uri' => ['type' => 'text',      'not null' => true],
-                'source'    => ['type' => 'varchar',   'not null' => true, 'foreign key' => true, 'length' => 32, 'target' => 'NoteSource.code', 'multiplicity' => 'many to one', 'description' => 'fkey to source of note, like "web", "im", or "clientname"'],
-                'actor_id'  => ['type' => 'int',       'not null' => true],
-                'is_local'  => ['type' => 'bool',      'not null' => true, 'description' => 'whether this was a locally generated or an imported actor'],
-                'created'   => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'  => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'profile_page' => ['type' => 'text', 'not null' => true],
+                'actor_id'     => ['type' => 'int', 'not null' => true],
+                'is_local'     => ['type' => 'bool', 'not null' => true, 'description' => 'whether this was a locally generated or an imported actor'],
+                'created'      => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['actor_id', 'source'],
+            'primary key' => ['profile_page'],
             'indexes'     => [
-                'freenetwork_actor_uri_idx' => ['actor_uri', 'source'],
+                'freenetwork_profile_page_idx' => ['actor_id'],
             ],
             'foreign keys' => [
                 'freenetwork_actor_actor_id_fkey' => ['actor', ['actor_id' => 'id']],

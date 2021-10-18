@@ -19,7 +19,7 @@ abstract class AS2ToNote
      */
     public static function translate(array $object, ?string $source = null): Note
     {
-        $actor_id = FreenetworkActor::getOrCreateByUri(actor_uri: $object['attributedTo'], source: 'ActivityPub')->getActorId();
+        $actor_id = FreenetworkActor::getOrCreateByRemoteUri(actor_uri: $object['attributedTo'])->getActorId();
         $map      = [
             'is_local'     => false,
             'created'      => new DateTime($object['published'] ?? 'now'),

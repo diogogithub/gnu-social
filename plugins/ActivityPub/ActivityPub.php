@@ -8,14 +8,24 @@ use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
+use App\Entity\Actor;
 use Exception;
 use Plugin\ActivityPub\Controller\Inbox;
 use Plugin\ActivityPub\Util\Response\ActorResponse;
 use Plugin\ActivityPub\Util\Response\NoteResponse;
 use Plugin\ActivityPub\Util\Response\TypeResponse;
+use XML_XRD;
+use XML_XRD_Element_Link;
 
 class ActivityPub extends Plugin
 {
+    public static array $accept_headers = [
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+        'application/activity+json',
+        'application/json',
+        'application/ld+json',
+    ];
+
     public function version(): string
     {
         return '3.0.0';
@@ -33,19 +43,19 @@ class ActivityPub extends Plugin
             'activitypub_actor_inbox',
             '/actor/{gsactor_id<\d+>}/inbox.json',
             [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers],
+            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]]
         );
         $r->connect(
             'activitypub_actor_outbox',
             '/actor/{gsactor_id<\d+>}/outbox.json',
             [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers],
+            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]]
         );
         $r->connect(
             'activitypub_inbox',
             '/inbox.json',
             [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers],
+            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]]
         );
         return Event::next;
     }
@@ -83,13 +93,6 @@ class ActivityPub extends Plugin
         );
     }
 
-    public static array $accept_headers = [
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-        'application/activity+json',
-        'application/json',
-        'application/ld+json',
-    ];
-
     /**
      * @throws Exception
      */
@@ -126,12 +129,29 @@ class ActivityPub extends Plugin
         }
     }
 
-    public function onFreeNetworkGenerateLocalActorUri(string $source, int $actor_id, ?string &$actor_uri): bool
+    /**
+     * Add activity+json mimetype on WebFinger
+     *
+     * @param XML_XRD            $xrd
+     * @param Managed_DataObject $object
+     *
+     * @throws Exception
+     */
+    public function onEndWebFingerProfileLinks(XML_XRD $xrd, Actor $object)
     {
-        if ($source !== 'ActivityPub') {
-            return Event::next;
+        if ($object->isPerson()) {
+            $link = new XML_XRD_Element_Link(
+                'self',
+                $object->getUri(Router::ABSOLUTE_URL),//Router::url('actor_view_id', ['id' => $object->getId()], Router::ABSOLUTE_URL),
+                'application/activity+json'
+            );
+            $xrd->links[] = clone $link;
         }
-        $actor_uri = Router::url('actor_view_id', ['id' => $actor_id], Router::ABSOLUTE_URL);
-        return Event::stop;
+    }
+
+    public function onFreeNetworkGenerateLocalActorUri(int $actor_id, ?array &$actor_uri): bool
+    {
+        $actor_uri['ActivityPub'] = Router::url('actor_view_id', ['id' => $actor_id], Router::ABSOLUTE_URL);
+        return Event::next;
     }
 }
