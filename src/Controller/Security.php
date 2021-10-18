@@ -132,7 +132,7 @@ class Security extends Controller
             // TODO: ensure there's no user with this email registered already
 
             // Already used is checked below
-            $sanitized_nickname = Nickname::normalize($data['nickname'], check_already_used: false);
+            $sanitized_nickname = Nickname::normalize($data['nickname'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: false);
 
             try {
                 // This already checks if the nickname is being used

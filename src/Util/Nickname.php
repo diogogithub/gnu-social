@@ -56,6 +56,11 @@ use InvalidArgumentException;
 class Nickname
 {
     /**
+     * Maximum number of characters in a canonical-form nickname. Changes must validate regexs
+     */
+    const MAX_LEN = 64;
+
+    /**
      * Regex fragment for pulling a formated nickname *OR* ID number.
      * Suitable for router def of 'id' parameters on API actions.
      *
@@ -67,7 +72,7 @@ class Nickname
      *
      * @fixme would prefer to define in reference to the other constants
      */
-    public const INPUT_FMT = '(?:[0-9]+|[0-9a-zA-Z_]{1,64})';
+    public const INPUT_FMT = '(?:[0-9]+|[0-9a-zA-Z_]{1,' . self::MAX_LEN . '})';
 
     /**
      * Regex fragment for acceptable user-formatted variant of a nickname.
@@ -82,7 +87,7 @@ class Nickname
      *
      * This, INPUT_FMT and CANONICAL_FMT should not be enclosed in []s.
      */
-    public const DISPLAY_FMT = '[0-9a-zA-Z_]{1,64}';
+    public const DISPLAY_FMT = '[0-9a-zA-Z_]{1,' . self::MAX_LEN . '}';
 
     /**
      * Simplified regex fragment for acceptable full WebFinger ID of a user
@@ -91,11 +96,6 @@ class Nickname
      * in matching it in our URLs, like https://social.example/user@example.com
      */
     public const WEBFINGER_FMT = '(?:\w+[\w\-\_\.]*)?\w+\@' . URL_REGEX_DOMAIN_NAME;
-
-    /**
-     * Maximum number of characters in a canonical-form nickname. Changes must validate regexs
-     */
-    const MAX_LEN = 64;
 
     /**
      * Regex fragment for checking a canonical nickname.
@@ -182,7 +182,7 @@ class Nickname
      * @throws NicknameTakenException
      * @throws NicknameTooLongException
      */
-    public static function normalize(string $nickname, bool $check_already_used = true, bool $check_is_allowed = true): string
+    public static function normalize(string $nickname, bool $check_already_used = false, int $which = self::CHECK_LOCAL_USER, bool $check_is_allowed = true): string
     {
         $nickname = trim($nickname);
         $nickname = str_replace('_', '', $nickname);
@@ -190,7 +190,7 @@ class Nickname
         // We could do UTF-8 normalization (å to a, etc.) with something like Normalizer::normalize($nickname, Normalizer::FORM_C)
         // We won't as it could confuse tremendously the user, he must know what is valid and should fix his own input
 
-        if (!self::validate($nickname, $check_already_used, $check_is_allowed) || !self::isCanonical($nickname)) {
+        if (!self::validate(nickname: $nickname, check_already_used: $check_already_used, which: $which, check_is_allowed: $check_is_allowed) || !self::isCanonical($nickname)) {
             throw new NicknameInvalidException();
         }
 
@@ -201,14 +201,14 @@ class Nickname
      * Nice simple check of whether the given string is a valid input nickname,
      * which can be normalized into an internally canonical form.
      *
-     * Note that valid nicknames may be in use or reserved.
+     * Note that valid nicknames may be in use or blacklisted.
      *
      * @return bool True if nickname is valid. False if invalid (or taken if $check_already_used == true).
      */
-    public static function isValid(string $nickname, bool $check_already_used = true, bool $check_is_allowed = true): bool
+    public static function isValid(string $nickname, bool $check_already_used = false, int $which = self::CHECK_LOCAL_USER, bool $check_is_allowed = true): bool
     {
         try {
-            self::normalize($nickname, $check_already_used, $check_is_allowed);
+            self::normalize(nickname: $nickname, check_already_used: $check_already_used, which: $which, check_is_allowed: $check_is_allowed);
         } catch (NicknameException) {
             return false;
         }
@@ -223,7 +223,7 @@ class Nickname
      */
     public static function isCanonical(string $nickname): bool
     {
-        return preg_match('/^(?:' . self::CANONICAL_FMT . ')$/', $nickname);
+        return preg_match('/^(?:' . self::CANONICAL_FMT . ')$/', $nickname) > 0;
     }
 
     /**

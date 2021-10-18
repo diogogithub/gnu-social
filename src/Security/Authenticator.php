@@ -92,7 +92,7 @@ class Authenticator extends AbstractFormLoginAuthenticator
             if (filter_var($credentials['nickname_or_email'], FILTER_VALIDATE_EMAIL) !== false) {
                 $user = LocalUser::getByEmail($credentials['nickname_or_email']);
             } else {
-                $user = LocalUser::getWithPK(['nickname' => Nickname::normalize($credentials['nickname_or_email'], check_already_used: false)]);
+                $user = LocalUser::getWithPK(['nickname' => Nickname::normalize($credentials['nickname_or_email'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: false)]);
             }
             if ($user === null) {
                 throw new NoSuchActorException('No such local user.');
