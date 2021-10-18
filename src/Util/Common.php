@@ -73,13 +73,22 @@ abstract class Common
 
     /**
      * Access sysadmin's configuration preferences for GNU social
+     * Returns value if exists, null if not set
      */
     public static function config(string $section, ?string $setting = null)
     {
-        if ($setting !== null) {
-            return self::$config[$section][$setting];
+        if (!array_key_exists($section, self::$config)) {
+            return null;
         } else {
-            return self::$config[$section] ?? [];
+            if ($setting !== null) {
+                if (array_key_exists($setting, self::$config[$section])) {
+                    return self::$config[$section][$setting];
+                } else {
+                    return null;
+                }
+            } else {
+                return self::$config[$section];
+            }
         }
     }
 
