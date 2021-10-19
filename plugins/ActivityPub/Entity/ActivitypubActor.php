@@ -58,9 +58,10 @@ class ActivitypubActor extends Entity
         return $this->uri;
     }
 
-    public function setUri(string $uri): void
+    public function setUri(string $uri): self
     {
         $this->uri = $uri;
+        return $this;
     }
 
     public function getActorId(): int
@@ -68,9 +69,10 @@ class ActivitypubActor extends Entity
         return $this->actor_id;
     }
 
-    public function setActorId(int $actor_id): void
+    public function setActorId(int $actor_id): self
     {
         $this->actor_id = $actor_id;
+        return $this;
     }
 
     public function getInboxUri(): string
@@ -78,9 +80,10 @@ class ActivitypubActor extends Entity
         return $this->inbox_uri;
     }
 
-    public function setInboxUri(string $inbox_uri): void
+    public function setInboxUri(string $inbox_uri): self
     {
         $this->inbox_uri = $inbox_uri;
+        return $this;
     }
 
     public function getInboxSharedUri(): string
@@ -88,9 +91,10 @@ class ActivitypubActor extends Entity
         return $this->inbox_shared_uri;
     }
 
-    public function setInboxSharedUri(string $inbox_shared_uri): void
+    public function setInboxSharedUri(string $inbox_shared_uri): self
     {
         $this->inbox_shared_uri = $inbox_shared_uri;
+        return $this;
     }
 
     public function getCreated(): DateTimeInterface
@@ -98,9 +102,10 @@ class ActivitypubActor extends Entity
         return $this->created;
     }
 
-    public function setCreated(DateTimeInterface $created): void
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
+        return $this;
     }
 
     public function getModified(): DateTimeInterface
@@ -108,14 +113,15 @@ class ActivitypubActor extends Entity
         return $this->modified;
     }
 
-    public function setModified(DateTimeInterface $modified): void
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
+        return $this;
     }
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public static function schemaDef()
+    public static function schemaDef(): array
     {
         return [
             'name'   => 'activitypub_actor',

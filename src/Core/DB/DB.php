@@ -68,7 +68,7 @@ class DB
     {
         $all = self::$em->getMetadataFactory()->getAllMetadata();
         foreach ($all as $meta) {
-            self::$table_map[$meta->getTableName()]          = $meta->getMetadataValue('name');
+            self::$table_map[$meta->getTableName()] = $meta->getMetadataValue('name');
             self::$class_pk[$meta->getMetadataValue('name')] = $meta->getIdentifier();
         }
     }
