@@ -113,7 +113,7 @@ abstract class HTML
                     $out .= "<{$tag}/>";
                 } else {
                     $attrs  = isset($contents['attrs']) ? self::attr(array_shift($contents), $options) : '';
-                    $is_tag = preg_match('/[A-Za-z][A-Za-z0-9]*/', $tag);
+                    $is_tag = is_string($tag) && preg_match('/[A-Za-z][A-Za-z0-9]*/', $tag);
                     $inner  = self::html($contents, $options, $indent + 1);
                     if ($is_tag) {
                         if (!\in_array($tag, array_merge($options['allowed_tags'] ?? [], self::ALLOWED_TAGS))) {

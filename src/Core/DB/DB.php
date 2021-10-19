@@ -221,7 +221,7 @@ class DB
         $metadata = self::getClassMetadata(\get_class($owner));
         $seqName  = $metadata->getSequenceName($conn->getDatabasePlatform());
         self::persist($owner);
-        $id = $conn->lastInsertId($seqName);
+        $id = (int ) $conn->lastInsertId($seqName);
         F\map(\is_array($others) ? $others : [$others], function ($o) use ($id) { $o->setId($id); self::persist($o); });
         if (!\is_null($extra)) {
             $extra($id);
