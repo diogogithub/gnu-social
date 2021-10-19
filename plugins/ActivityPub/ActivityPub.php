@@ -40,6 +40,12 @@ class ActivityPub extends Plugin
     public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect(
+            'activitypub_inbox',
+            '/inbox.json',
+            [Inbox::class, 'handle'],
+            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]]
+        );
+        $r->connect(
             'activitypub_actor_inbox',
             '/actor/{gsactor_id<\d+>}/inbox.json',
             [Inbox::class, 'handle'],
@@ -51,46 +57,7 @@ class ActivityPub extends Plugin
             [Inbox::class, 'handle'],
             options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]]
         );
-        $r->connect(
-            'activitypub_inbox',
-            '/inbox.json',
-            [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]]
-        );
         return Event::next;
-    }
-
-    /**
-     * Validate HTTP Accept headers
-     *
-     * @param bool $strict Strict mode
-     *
-     * @throws Exception when strict mode enabled
-     */
-    public static function validateAcceptHeader(array|string|null $accept, bool $strict): bool
-    {
-        if (\is_string($accept)
-            && \in_array($accept, self::$accept_headers)
-        ) {
-            return true;
-        } elseif (\is_array($accept)
-            && \count(
-                array_intersect($accept, self::$accept_headers),
-            ) > 0
-        ) {
-            return true;
-        }
-
-        if (!$strict) {
-            return false;
-        }
-
-        throw new Exception(
-            sprintf(
-                "HTTP Accept header error. Given: '%s'",
-                $accept,
-            ),
-        );
     }
 
     /**

@@ -100,6 +100,17 @@ class RouteLoader extends Loader
      */
     public function connect(string $id, string $uri_path, $target, ?array $options = [], ?array $param_reqs = [])
     {
+        // XXX: This hack can definitely be optimised by actually intersecting the arrays,
+        // maybe this helps: https://backbeat.tech/blog/symfony-routing-tricks-part-1
+        // see: https://symfony.com/index.php/doc/3.1/components/http_foundation.html#accessing-accept-headers-data
+        if (isset($options['accept'])) {
+            $accept_header_condition = '';
+            foreach ($options['accept'] as $accept) {
+                $accept_header_condition .= "('$accept' in request.getAcceptableContentTypes()) ||";
+            }
+            $accept_header_condition = substr($accept_header_condition, 0, -3);
+        }
+
         $this->rc->add(
             $id,
             new Route(
@@ -134,7 +145,7 @@ class RouteLoader extends Loader
                 methods: $options['http-methods'] ?? $options['methods'] ?? [],
                 // condition = ''    -- Symfony condition expression,
                 // see https://symfony.com/doc/current/routing.html#matching-expressions
-                condition: isset($options['accept']) ? "request.headers.get('Accept') in " . json_encode($options['accept']) : ($options['condition'] ?? ''),
+                condition: isset($options['accept']) ? $accept_header_condition : ($options['condition'] ?? ''),
             ),
         );
     }

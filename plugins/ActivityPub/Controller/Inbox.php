@@ -47,12 +47,6 @@ class Inbox extends Controller
             }
         }
 
-        // Check accept header
-        ActivityPub::validateAcceptHeader(
-            $this->request->headers->get('accept'),
-            true,
-        );
-
         // TODO: Check if Actor can post
 
         // Get content
