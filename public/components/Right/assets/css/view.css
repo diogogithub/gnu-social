@@ -1,4 +1,6 @@
-.panel-right .panel-content {
+
+
+.section-panel-right {
     right: 0;
 }
 
@@ -8,15 +10,15 @@
     top: -100%;
 }
 
-#panel-right-icon {
-    margin-left: var(--unit-size);
+.panel-right-icon {
+    margin-left: var(--small) !important;
     cursor: pointer !important;
     border: 2px solid transparent;
 }
 
-@media only screen
-and (min-width: 1281px) {
-    #panel-right-icon {
+@media only screen and (min-width: 1281px) {
+    .panel-right-icon {
         display: none;
     }
 }
+

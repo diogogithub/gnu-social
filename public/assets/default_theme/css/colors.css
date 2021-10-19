@@ -1,334 +1,149 @@
-@media (prefers-color-scheme: dark) {
-    button:focus,
-    button:hover,
-    input:focus,
-    input:hover,
-    select:focus,
-    select:hover,
-    textarea:focus,
-    textarea:hover {
-        -webkit-box-shadow: inset 0 0 0 2px #8081BA !important;
-        -moz-box-shadow: inset 0 0 0 2px #8081BA !important;
-        box-shadow: inset 0 0 0 2px #8081BA !important;
-    }
-    *:focus {
-        -webkit-box-shadow: inset 0 0 0 2px #8081BA;
-        -moz-box-shadow: inset 0 0 0 2px #8081BA;
-        box-shadow: inset 0 0 0 2px #8081BA;
-    }
-    #header,
-    .accessibility-menu,
-    .header-extra-forms-open,
-    .section-title-details,
-    .set-background-color-hard,
-    input[type=checkbox]:checked ~ .panel-content,
-    input[type=radio] {
-        background-color: #242434 !important;
-    }
 
-    .button-container,
-    .note-actions-set,
-    .set-background-color-soft,
-    hr,
-    input[type=checkbox] {
-        background-color: #46465E !important;
-    }
 
-    #replyform,
-    .doc-navigation,
-    .h-entry,
-    .markdown-blocks,
-    .profile,
-    .section-attachments,
-    .section-settings,
-    .section-settings ul,
-    .section-widget,
-    .set-background-color-alpha,
-    button,
-    input,
-    select,
-    textarea {
-        background-color: #1A1A2666 !important;
-    }
-    .set-background-color-gradient,
-    button:not(.button-container),
-    input[type=file] {
-        background: -webkit-gradient(linear, left top, left bottom, from(#46465E), to(transparent)) !important;
-        background: -webkit-linear-gradient(top, #46465E, transparent) !important;
-        background: -moz-linear-gradient(top, #46465E, transparent) !important;
-        background: -o-linear-gradient(top, #46465E, transparent) !important;
-        background: linear-gradient(180deg, #46465E, transparent) !important;
-    }
-
-    .note-info {
-        background: -webkit-gradient(linear, right top, left top, from(#1A1A2666), to(transparent)) !important;
-        background: -webkit-linear-gradient(right, #1A1A2666, transparent) !important;
-        background: -moz-linear-gradient(right, #1A1A2666, transparent) !important;
-        background: -o-linear-gradient(right, #1A1A2666, transparent) !important;
-        background: linear-gradient(to left, #1A1A2666, transparent) !important;
-    }
-
-    .section-settings hr {
-        background-image: -webkit-gradient(linear, left top, right top, from(#1A1A2666), color-stop(90%, transparent));
-        background-image: -webkit-linear-gradient(left, #1A1A2666, transparent 90%);
-        background-image: -moz-linear-gradient(left, #1A1A2666, transparent 90%);
-        background-image: -o-linear-gradient(left, #1A1A2666, transparent 90%);
-        background-image: linear-gradient(to right, #1A1A2666, transparent 90%);
-    }
-
-    .form .separator {
-        background-image: -webkit-gradient(linear, left top, left bottom, from(#1A1A2666), color-stop(90%, transparent));
-        background-image: -webkit-linear-gradient(top, #1A1A2666, transparent 90%);
-        background-image: -moz-linear-gradient(top, #1A1A2666, transparent 90%);
-        background-image: -o-linear-gradient(top, #1A1A2666, transparent 90%);
-        background-image: linear-gradient(to bottom, #1A1A2666, transparent 90%);
-    }
-    .button-container:focus,
-    .button-container:hover,
-    .set-background-color-accent,
-    input[type=checkbox],
-    input[type=checkbox]:focus,
-    input[type=checkbox]:hover,
-    input[type=radio]:focus,
-    input[type=radio]:hover {
-        background-color: #8081BA !important;
-    }
-
-    .note-actions-set,
-    .set-background-color-foreground {
-        background-color: #FFF !important;
-    }
-
-    ::-webkit-file-upload-button {
-        color: #FFF;
-        fill: #FFF;
-    }
-
-    ::file-selector-button {
-        color: #FFF;
-        fill: #FFF;
-    }
-
-    body,
-    input,
-    textarea,
-    select {
-        color: #FFF;
-        fill: #FFF;
-    }
-
-    .accessibility-menu,
-    .set-border-accent {
-        border: 2px solid #8081BA;
-    }
-    .doc-navigation,
-    .h-entry,
-    .markdown-blocks,
-    .section-settings,
-    .section-settings ul,
-    .section-widget,
-    .set-border-soft,
-    button,
-    input,
-    select,
-    textarea {
-        border: 2px solid #46465E !important;
-    }
-
-    #header,
-    .h-entry,
-    .header-extra-forms-open,
-    .profile,
-    .set-shadow-dark,
-    button,
-    input,
-    select,
-    textarea {
-        -webkit-box-shadow: 0 0 16px 0 #00000016;
-        -moz-box-shadow: 0 0 16px 0 #00000016;
-        box-shadow: 0 0 16px 0 #00000016;
-    }
-
-    .set-shadow-light {
-        -webkit-box-shadow: 0 0 16px 0 #FFFFFF16;
-        -moz-box-shadow: 0 0 16px 0 #FFFFFF16;
-        box-shadow: 0 0 16px 0 #FFFFFF16;
-    }
-
-    .bg {
-        background-image: url("../images/background_dark.png");
-    }
-
-    select {
-        background-image: url("../images/select_drop_dark.png") !important;
-    }
+/* Focus and hover (inset shadow is used in alternative to a border to prevent further redraws) */
+button:focus,
+button:hover,
+input:focus,
+input:hover,
+select:focus,
+select:hover,
+textarea:focus,
+textarea:hover {
+    -webkit-box-shadow: var(--shadow-inset-accent) !important;
+    -moz-box-shadow: var(--shadow-inset-accent) !important;
+    box-shadow: var(--shadow-inset-accent) !important;
 }
-@media (prefers-color-scheme: light) {
-    button:focus,
-    button:hover,
-    input:focus,
-    input:hover,
-    select:focus,
-    select:hover,
-    textarea:focus,
-    textarea:hover {
-        -webkit-box-shadow: inset 0 0 0 2px #2e3440 !important;
-        -moz-box-shadow: inset 0 0 0 2px #2e3440 !important;
-        box-shadow: inset 0 0 0 2px #2e3440 !important;
-    }
-    *:focus {
-        -webkit-box-shadow: inset 0 0 0 2px #2e3440;
-        -moz-box-shadow: inset 0 0 0 2px #2e3440;
-        box-shadow: inset 0 0 0 2px #2e3440;
-    }
-    #header,
-    .accessibility-menu,
-    .header-extra-forms-open,
-    .section-title-details,
-    .set-background-color-hard,
-    input[type=checkbox]:checked ~ .panel-content,
-    input[type=radio] {
-        background-color: #eceff4 !important;
-    }
 
-    .note-actions-set,
-    .set-background-color-soft,
-    hr,
-    input[type=checkbox] {
-        background-color: #4c566a66 !important;
-    }
-
-    #replyform,
-    .doc-navigation,
-    .h-entry,
-    .markdown-blocks,
-    .profile,
-    .section-attachments,
-    .section-settings,
-    .section-settings ul,
-    .section-widget,
-    .set-background-color-alpha,
-    button,
-    input,
-    select,
-    textarea {
-        background-color: #eceff488 !important;
-    }
-    .set-background-color-gradient,
-    button:not(.button-container),
-    input[type=file] {
-        background: -webkit-gradient(linear, left top, left bottom, from(#d8dee966), to(transparent)) !important;
-        background: -webkit-linear-gradient(top, #d8dee966, transparent) !important;
-        background: -moz-linear-gradient(top, #d8dee966, transparent) !important;
-        background: -o-linear-gradient(top, #d8dee966, transparent) !important;
-        background: linear-gradient(180deg, #d8dee966, transparent) !important;
-    }
-
-    .note-info {
-        background: -webkit-gradient(linear, right top, left top, from(#eceff488), to(transparent)) !important;
-        background: -webkit-linear-gradient(right, #eceff488, transparent) !important;
-        background: -moz-linear-gradient(right, #eceff488, transparent) !important;
-        background: -o-linear-gradient(right, #eceff488, transparent) !important;
-        background: linear-gradient(to left, #eceff488, transparent) !important;
-    }
-
-    .section-settings hr {
-        background-image: -webkit-gradient(linear, left top, right top, from(#d8dee966), color-stop(90%, transparent));
-        background-image: -webkit-linear-gradient(left, #d8dee966, transparent 90%);
-        background-image: -moz-linear-gradient(left, #d8dee966, transparent 90%);
-        background-image: -o-linear-gradient(left, #d8dee966, transparent 90%);
-        background-image: linear-gradient(to right, #d8dee966, transparent 90%);
-    }
-
-    .form .separator {
-        background-image: -webkit-gradient(linear, left top, left bottom, from(#d8dee966), color-stop(90%, transparent));
-        background-image: -webkit-linear-gradient(top, #d8dee966, transparent 90%);
-        background-image: -moz-linear-gradient(top, #d8dee966, transparent 90%);
-        background-image: -o-linear-gradient(top, #d8dee966, transparent 90%);
-        background-image: linear-gradient(to bottom, #d8dee966, transparent 90%);
-    }
-    .button-container:focus,
-    .button-container:hover,
-    .set-background-color-accent,
-    input[type=checkbox]:focus,
-    input[type=checkbox]:hover,
-    input[type=radio]:focus,
-    input[type=radio]:hover {
-        background-color: #2e3440 !important;
-    }
-
-    .note-actions-unset {
-        background-color: #2e344055 !important;
-    }
-    .note-actions-set,
-    .set-background-color-foreground,
-    input[type=checkbox]:checked,
-    input[type=radio]:checked {
-        background-color: #2e3440 !important;
-    }
-
-    ::-webkit-file-upload-button {
-        color: #2e3440;
-        fill: #2e3440;
-    }
-
-    ::file-selector-button {
-        color: #2e3440;
-        fill: #2e3440;
-    }
-
-    body,
-    input,
-    textarea,
-    select {
-        color: #2e3440;
-        fill: #2e3440;
-    }
-
-    .accessibility-menu,
-    .set-border-accent {
-        border: 2px solid #2e3440;
-    }
-
-    .doc-navigation,
-    .h-entry,
-    .markdown-blocks,
-    .section-settings,
-    .section-settings ul,
-    .section-widget,
-    .set-border-soft,
-    button,
-    input,
-    select,
-    textarea {
-        border: 2px solid #4c566a66 !important;
-    }
-
-    #header,
-    .h-entry,
-    .header-extra-forms-open,
-    .profile,
-    .set-shadow-dark,
-    button,
-    input,
-    select,
-    textarea {
-        -webkit-box-shadow: 0 0 16px 0 #00000016;
-        -moz-box-shadow: 0 0 16px 0 #00000016;
-        box-shadow: 0 0 16px 0 #00000016;
-    }
-
-    .set-shadow-light {
-        -webkit-box-shadow: 0 0 16px 0 #FFFFFF16;
-        -moz-box-shadow: 0 0 16px 0 #FFFFFF16;
-        box-shadow: 0 0 16px 0 #FFFFFF16;
-    }
-
-    .bg {
-        background-image: url("../images/background_light.png");
-    }
-
-    select {
-        background-image: url("../images/select_drop_light.png") !important;
-    }
+*:focus {
+    -webkit-box-shadow: var(--shadow-inset-accent);
+    -moz-box-shadow: var(--shadow-inset-accent);
+    box-shadow: var(--shadow-inset-accent);
 }
+
+.page-header,
+.accessibility-menu,
+.header-extra-forms-open,
+.set-background-color-hard,
+input[type=checkbox]:checked~.panel-content,
+input[type=radio] {
+    background-color: var(--background-hard) !important;
+}
+
+.button-container,
+.note-actions-set,
+.set-background-color-soft,
+hr,
+input[type=checkbox] {
+    background-color: var(--background-soft) !important;
+}
+
+#replyform,
+.doc-navigation,
+.h-entry,
+.markdown-blocks,
+.profile,
+.section-title-details,
+.section-attachments,
+.section-settings,
+.section-settings ul,
+.section-widget,
+.set-background-color-alpha,
+button,
+input,
+select,
+textarea {
+    background-color: var(--translucent) !important;
+}
+
+.set-background-color-gradient,
+button:not(.button-container),
+input[type=file] {
+    background: var(--gradient) !important;
+}
+
+.note-info {
+    background: var(--tneidarg) !important;
+}
+
+.section-settings hr {
+    background: var(--background-soft) !important;
+}
+
+.button-container:focus,
+.button-container:hover,
+.set-background-color-accent,
+input[type=checkbox],
+input[type=checkbox]:focus,
+input[type=checkbox]:hover,
+input[type=radio]:focus,
+input[type=radio]:hover {
+    background-color: var(--accent) !important;
+}
+
+.note-actions-set,
+.set-background-color-foreground {
+    background-color: var(--foreground) !important;
+}
+
+::-webkit-file-upload-button {
+    color: var(--foreground);
+    fill: var(--foreground);
+}
+
+::file-selector-button {
+    color: var(--foreground);
+    fill: var(--foreground);
+}
+
+::file-selector-button {
+    color: var(--foreground);
+    fill: var(--foreground);
+}
+
+body,
+input,
+textarea,
+select {
+    color: var(--foreground);
+    fill: var(--foreground);
+}
+
+.accessibility-menu,
+.set-border-accent {
+    border: 2px solid var(--accent);
+}
+
+.doc-navigation,
+.h-entry,
+.markdown-blocks,
+.section-settings,
+.section-settings ul,
+.section-widget,
+.set-border-soft,
+button,
+input,
+select,
+textarea {
+    border: 2px solid var(--background-soft) !important;
+}
+
+#header,
+.h-entry,
+.header-extra-forms-open,
+.profile,
+.set-shadow-dark,
+button,
+input,
+select,
+textarea {
+    -webkit-box-shadow: var(--shadow);
+    -moz-box-shadow: var(--shadow);
+    box-shadow: var(--shadow);
+}
+
+.set-shadow-light {
+    -webkit-box-shadow: var(--shadow-light);
+    -moz-box-shadow: var(--shadow-light);
+    box-shadow: var(--shadow-light);
+}
+

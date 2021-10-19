@@ -16,7 +16,7 @@
 
 {% block body %}
     {{ parent() }}
-    <div class="content">
+    <div class="page">
         <div class="main">
             {% include '/cards/note/view.html.twig' with {'note': note} only %}
             {{ form(reply) }}

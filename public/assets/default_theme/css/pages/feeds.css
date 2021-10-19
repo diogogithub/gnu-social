@@ -1,85 +1,170 @@
+
+
 .notes hr {
-    margin-top: 6px
+    margin-top: var(--smaller)
 }
+
 .note-wrapper {
     width: 100%;
     height: inherit
 }
+
 .note-sidebar {
-    padding: 0.6rem
+    padding: var(--smaller)
 }
+
 .note-sidebar * {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -moz-box-orient: vertical;
+    -moz-box-direction: normal;
+    -ms-flex-direction: column;
     flex-direction: column;
     margin-left: auto;
     margin-right: auto;
     max-height: 100%
 }
+
 .note-sidebar .avatar {
-    width: 3rem;
+    width: var(--big);
     height: auto;
     background: unset;
-    margin-bottom: 0.6rem;
+    margin-bottom: var(--smaller);
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
     border-radius: 2px
 }
+
 .h-entry:not(:first-child) {
-    margin-top: 0.6rem
+    margin-top: var(--smaller)
 }
+
+.h-entry img {
+    background: repeating-conic-gradient(#ffffff66 0deg 90deg, #ffffff33 0deg 180deg) 0 0/40px 40px round;
+}
+
 .h-entry .embed {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -moz-box-orient: vertical;
+    -moz-box-direction: normal;
+    -ms-flex-direction: column;
     flex-direction: column;
-    padding: 0.6rem;
+    padding: var(--smaller);
     border: unset;
     width: 100%
 }
+
 .h-entry .embed[class*="p-"] {
-    padding: unset !important
+    padding: unset
 }
+
 .h-entry a:focus {
     text-decoration: underline
 }
+
 .h-entry .embed header img {
     padding: unset;
+    max-width: -webkit-min-content;
+    max-width: -moz-min-content;
     max-width: min-content;
+    max-height: -webkit-min-content;
+    max-height: -moz-min-content;
     max-height: min-content
 }
+
 .h-entry {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
-    border-radius: 0.6rem
+    -webkit-border-radius: var(--smaller);
+    -moz-border-radius: var(--smaller);
+    border-radius: var(--smaller)
 }
+
 .h-entry figure {
     margin: unset;
+    -o-object-fit: cover;
     object-fit: cover
 }
+
 .h-entry .replies .h-entry {
     background-color: unset;
-    padding: 0 0.6rem 0.6rem 0;
-    margin-left: 1.3rem
+    padding: 0 var(--smaller) var(--smaller) 0;
+    margin-left: var(--small)
 }
+
 .note-info {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -moz-box-pack: justify;
+    -ms-flex-pack: justify;
     justify-content: space-between;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -moz-box-align: center;
+    -ms-flex-align: center;
     align-items: center;
-    max-height: 3rem;
+    max-height: var(--big);
     border-bottom: unset;
-    border-radius: 0.6rem 0.6rem 0 0;
-    font-size: 1.3rem;
+    -webkit-border-radius: var(--smaller) var(--smaller) 0 0;
+    -moz-border-radius: var(--smaller) var(--smaller) 0 0;
+    border-radius: var(--smaller) var(--smaller) 0 0;
+    font-size: var(--small);
     padding: 6px 10px 6px 0
 }
+
 .note-author {
-    font-size: 1rem;
+    font-size: var(--default);
     font-weight: bold;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -moz-box-align: center;
+    -ms-flex-align: center;
     align-items: center;
+    -webkit-align-self: center;
+    -ms-flex-item-align: center;
+    -ms-grid-row-align: center;
     align-self: center
 }
+
 .note-actions {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
     vertical-align: middle
 }
+
 .note-actions .form-group {
     all: unset
 }
+
 .button-container {
     border: none !important;
     -webkit-border-radius: unset !important;
@@ -89,62 +174,100 @@
     mask-repeat: no-repeat !important;
     -webkit-mask-size: cover !important;
     mask-size: cover !important;
-    margin-left: 0.6rem;
-    width: 1rem;
-    height: 1rem;
+    margin-left: var(--smaller);
+    width: var(--default);
+    height: var(--default);
 }
-}
+
 .button-container:hover,
 .button-container:focus {
-    border: none !important
+    border: none
 }
+
 .favourite-button-container {
-    -webkit-mask-image: url("../../icons/heart.svg") !important;
-    -o-mask-image: url("../../icons/heart.svg") !important;
-    -moz-mask-image: url("../../icons/heart.svg") !important;
-    mask-image: url("../../icons/heart.svg") !important
+    -webkit-mask-image: url("../../icons/heart.svg");
+    -o-mask-image: url("../../icons/heart.svg");
+    -moz-mask-image: url("../../icons/heart.svg");
+    mask-image: url("../../icons/heart.svg")
 }
+
 .reply-button-container {
-    -webkit-mask-image: url("../../icons/reply.svg") !important;
-    -o-mask-image: url("../../icons/reply.svg") !important;
-    -moz-mask-image: url("../../icons/reply.svg") !important;
-    mask-image: url("../../icons/reply.svg") !important
+    -webkit-mask-image: url("../../icons/reply.svg");
+    -o-mask-image: url("../../icons/reply.svg");
+    -moz-mask-image: url("../../icons/reply.svg");
+    mask-image: url("../../icons/reply.svg")
 }
+
 .repeat-button-container {
-    -webkit-mask-image: url("../../icons/repeat.svg") !important;
-    -o-mask-image: url("../../icons/repeat.svg") !important;
-    -moz-mask-image: url("../../icons/repeat.svg") !important;
-    mask-image: url("../../icons/repeat.svg") !important
+    -webkit-mask-image: url("../../icons/repeat.svg");
+    -o-mask-image: url("../../icons/repeat.svg");
+    -moz-mask-image: url("../../icons/repeat.svg");
+    mask-image: url("../../icons/repeat.svg")
 }
+
 .delete-button-container {
-    -webkit-mask-image: url("../../icons/delete.svg") !important;
-    -o-mask-image: url("../../icons/delete.svg") !important;
-    -moz-mask-image: url("../../icons/delete.svg") !important;
-    mask-image: url("../../icons/delete.svg") !important;
-    background: #FF634766 !important
+    -webkit-mask-image: url("../../icons/delete.svg");
+    -o-mask-image: url("../../icons/delete.svg");
+    -moz-mask-image: url("../../icons/delete.svg");
+    mask-image: url("../../icons/delete.svg");
+    background: #FF634766
 }
+
 .note-content {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -moz-box-orient: vertical;
+    -moz-box-direction: normal;
+    -ms-flex-direction: column;
     flex-direction: column;
-    border-radius: 0 0 0.6rem 0.6rem;
-    padding: 1rem
+    -webkit-border-radius: 0 0 var(--smaller) var(--smaller);
+    -moz-border-radius: 0 0 var(--smaller) var(--smaller);
+    border-radius: 0 0 var(--smaller) var(--smaller);
+    padding: var(--default)
 }
+
 .note-text {
-    margin-bottom: 0.6rem
+    margin-bottom: var(--smaller)
 }
+
 .section-attachments {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
     flex-wrap: wrap;
+    max-width: -webkit-max-content;
+    max-width: -moz-max-content;
     max-width: max-content;
-    border-radius: 0.6rem;
-    padding: 0.6rem;
+    -webkit-border-radius: var(--smaller);
+    -moz-border-radius: var(--smaller);
+    border-radius: var(--smaller);
+    padding: var(--smaller);
+    -webkit-align-self: flex-start;
+    -ms-flex-item-align: start;
     align-self: flex-start
 }
+
 .note-attachments:not(:only-child) {
-    margin-right: 0.6rem
+    margin-right: var(--smaller)
 }
-.note-attachments > figure figcaption {
+
+.note-attachments>figure figcaption {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
     word-break: break-all;
-    margin-bottom: 0.6rem
+    margin-bottom: var(--smaller)
 }
+

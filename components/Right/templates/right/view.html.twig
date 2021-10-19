@@ -1,8 +1,8 @@
 {% block rightpanel %}
-<div class="panel panel-right">
-    <input type="checkbox" id="panel-right-toggle" aria-hidden="true" tabindex="-1">
-    <label id="panel-right-icon" for="panel-right-toggle" aria-hidden="true" tabindex="-1">{{ icon('notes', 'icon icon-right') | raw }}</label>
+<label class="panel-right-icon" for="panel-right-toggle" aria-hidden="true" tabindex="-1">{{ icon('notes', 'icon icon-right') | raw }}</label>
+<input type="checkbox" id="panel-right-toggle" aria-hidden="true" tabindex="-1">
 
+<div class="header-panel section-panel-right">
     <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <aside class="panel-content accessibility-target">
 
