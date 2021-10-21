@@ -28,6 +28,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\GSFile;
+use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Security;
@@ -89,8 +90,14 @@ class Posting extends Component
             ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
             ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
             ['content',     TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)]]],
-            ['attachments', FileType::class,     ['label' => _m('Attachments:'), 'data' => null, 'multiple' => true, 'required' => false]],
-        ];
+            ['attachments', FileType::class,     [
+                'label' => _m('Attachments:'),
+                'multiple' => true,
+                'required' => false,
+                'invalid_message' => _m('Attachment not valid.'),
+            ]
+        ]];
+
         if (\count($available_content_types) > 1) {
             $form_params[] = ['content_type', ChoiceType::class,
                 [
@@ -105,12 +112,16 @@ class Posting extends Component
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
-            $data = $form->getData();
-            if ($form->isValid()) {
-                $content_type = $data['content_type'] ?? $available_content_types[array_key_first($available_content_types)];
-                self::storeLocalNote($user->getActor(), $data['content'], $content_type, $data['attachments']);
-                throw new RedirectException();
-            } else {
+            try {
+                $data = $form->getData();
+                if ($form->isValid()) {
+                    $content_type = $data['content_type'] ?? $available_content_types[array_key_first($available_content_types)];
+                    self::storeLocalNote($user->getActor(), $data['content'], $content_type, $data['attachments']);
+                    throw new RedirectException();
+                }
+            } catch (FormSizeFileException $sizeFileException) {
+                throw new FormSizeFileException(_m($sizeFileException));
+            } catch (InvalidFormException $invalidFormException) {
                 throw new InvalidFormException();
             }
         }
@@ -144,10 +155,10 @@ class Posting extends Component
         /** @var \Symfony\Component\HttpFoundation\File\UploadedFile[] $attachments */
         foreach ($attachments as $f) {
             $filesize      = $f->getSize();
-            $max_file_size = Common::config('attachments', 'file_quota');
+            $max_file_size = Common::getUploadLimit();
             if ($max_file_size < $filesize) {
-                throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. '
-                    . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize], ));
+                throw new FormSizeFileException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. '
+                    . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize]));
             }
             Event::handle('EnforceUserFileQuota', [$filesize, $actor->getId()]);
             $processed_attachments[] = [GSFile::storeFileAsAttachment($f), $f->getClientOriginalName()];

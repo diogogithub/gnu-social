@@ -258,6 +258,17 @@ abstract class Common
     }
 
     /**
+     * Uses common config 'attachments' 'file_quota' while respecting PreferredPhpUploadLimit
+     */
+    public static function getUploadLimit(): int
+    {
+        return min(
+            self::getPreferredPhpUploadLimit(),
+            self::config('attachments', 'file_quota')
+        );
+    }
+
+    /**
      * Clamps a value between 2 numbers
      *
      * @return float|int clamped value
