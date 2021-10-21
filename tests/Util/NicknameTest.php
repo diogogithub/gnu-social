@@ -27,7 +27,6 @@ use App\Util\Exception\NicknameInvalidException;
 use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
-use App\Util\Exception\NicknameTooShortException;
 use App\Util\GNUsocialTestCase;
 use App\Util\Nickname;
 use Jchook\AssertThrows\AssertThrows;
@@ -52,7 +51,6 @@ class NicknameTest extends GNUsocialTestCase
         static::assertSame('foobar', Nickname::normalize('  foobar  ', check_already_used: false));
         // static::assertSame('foobar', Nickname::normalize('foo_bar', check_already_used: false));
         // static::assertSame('foobar', Nickname::normalize('FooBar', check_already_used: false));
-        static::assertThrows(NicknameTooShortException::class, fn () => Nickname::normalize('foo', check_already_used: false));
         static::assertThrows(NicknameEmptyException::class, fn () => Nickname::normalize('', check_already_used: false));
         // static::assertThrows(NicknameInvalidException::class,  fn () => Nickname::normalize('FóóBár', check_already_used: false));
         static::assertThrows(NicknameNotAllowedException::class, fn () => Nickname::normalize('this_nickname_is_reserved', check_already_used: false));

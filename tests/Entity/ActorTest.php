@@ -22,7 +22,6 @@ declare(strict_types = 1);
 namespace App\Tests\Entity;
 
 use App\Core\DB\DB;
-use App\Entity\Actor;
 use App\Entity\ActorTag;
 use App\Util\GNUsocialTestCase;
 use Functional as F;
@@ -36,11 +35,6 @@ class ActorTest extends GNUsocialTestCase
     {
         $actor = DB::findOneBy('actor', ['nickname' => 'taken_user']);
         static::assertSame("/{$actor->getId()}/avatar", $actor->getAvatarUrl());
-    }
-
-    public function testGetFromNickname()
-    {
-        static::assertNotNull(Actor::getFromNickname('taken_user'));
     }
 
     public function testSelfTags()

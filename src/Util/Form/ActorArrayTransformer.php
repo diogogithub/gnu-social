@@ -34,7 +34,7 @@ declare(strict_types = 1);
 
 namespace App\Util\Form;
 
-use App\Entity\Actor;
+use App\Entity\LocalUser;
 
 class ActorArrayTransformer extends ArrayTransformer
 {
@@ -56,8 +56,9 @@ class ActorArrayTransformer extends ArrayTransformer
      */
     public function reverseTransform($s)
     {
+        // TODO support full mentions
         return array_map(
-            fn ($nickmame) => Actor::getFromNickname($nickmame),
+            fn ($nickmame) => LocalUser::getByNickname($nickmame),
             parent::reverseTransform($s),
         );
     }

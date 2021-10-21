@@ -92,7 +92,9 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
 
     /**
      * Fill in the database $metadata for $class_name
-     * @param ClassMetadataInfo $metadata ClassMetadataInfo is the real type, but we need to override the method
+     *
+     * @param class-string      $class_name
+     * @param ClassMetadataInfo $metadata   ClassMetadataInfo is the real type, but we need to override the method
      */
     public function loadMetadataForClass($class_name, ClassMetadata $metadata)
     {

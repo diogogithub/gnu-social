@@ -21,14 +21,14 @@ declare(strict_types = 1);
 
 namespace App\Security;
 
-use App\Core\DB\DB;
-use App\Util\Exception\NoSuchActorException;
-use App\Util\Exception\NotFoundException;
 use function App\Core\I18n\_m;
+use App\Core\Router\Router;
 use App\Entity\LocalUser;
 use App\Entity\User;
+use App\Util\Exception\NoSuchActorException;
 use App\Util\Nickname;
 use Exception;
+use Stringable;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -36,6 +36,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -75,12 +76,15 @@ class Authenticator extends AbstractFormLoginAuthenticator
     public function getCredentials(Request $request)
     {
         return [
-            'nickname_or_email'   => $request->request->get('nickname_or_email'),
-            'password'   => $request->request->get('password'),
-            'csrf_token' => $request->request->get('_csrf_token'),
+            'nickname_or_email' => $request->request->get('nickname_or_email'),
+            'password'          => $request->request->get('password'),
+            'csrf_token'        => $request->request->get('_csrf_token'),
         ];
     }
 
+    /**
+     * Get a user given credentials and a CSRF token
+     */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $token = new CsrfToken('authenticate', $credentials['csrf_token']);
@@ -89,10 +93,10 @@ class Authenticator extends AbstractFormLoginAuthenticator
         }
 
         try {
-            if (filter_var($credentials['nickname_or_email'], FILTER_VALIDATE_EMAIL) !== false) {
+            if (filter_var($credentials['nickname_or_email'], \FILTER_VALIDATE_EMAIL) !== false) {
                 $user = LocalUser::getByEmail($credentials['nickname_or_email']);
             } else {
-                $user = LocalUser::getWithPK(['nickname' => Nickname::normalize($credentials['nickname_or_email'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: false)]);
+                $user = LocalUser::getByNickname(Nickname::normalize($credentials['nickname_or_email'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: false));
             }
             if ($user === null) {
                 throw new NoSuchActorException('No such local user.');
@@ -119,21 +123,32 @@ class Authenticator extends AbstractFormLoginAuthenticator
         }
     }
 
+    /**
+     * After a successful login, redirect user to the path saved in their session or to the root of the website
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        $nickname = $token->getUser();
+        if ($nickname instanceof Stringable) {
+            $nickname = (string) $nickname;
+        } elseif ($nickname instanceof UserInterface) {
+            $nickname = $nickname->getUsername();
+        }
+
         $request->getSession()->set(
             Security::LAST_USERNAME,
-            $token->getUser()->getNickname()
+            $nickname,
         );
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('main_all'));
+        return new RedirectResponse(Router::url('/'));
     }
 
     protected function getLoginUrl()
     {
-        return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+        return Router::url(self::LOGIN_ROUTE);
     }
 }

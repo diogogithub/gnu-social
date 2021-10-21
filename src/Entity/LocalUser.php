@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -21,11 +23,11 @@
 
 namespace App\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\UserRoles;
 use App\Util\Common;
-use App\Util\Exception\DuplicateFoundException;
 use DateTimeInterface;
 use Exception;
 use libphonenumber\PhoneNumber;
@@ -64,8 +66,8 @@ class LocalUser extends Entity implements UserInterface
     private ?bool $auto_follow_back;
     private ?int $follow_policy;
     private ?bool $is_stream_private;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -280,7 +282,7 @@ class LocalUser extends Entity implements UserInterface
      * Returns the salt that was originally used to encode the password.
      * BCrypt and Argon2 generate their own salts
      */
-    public function getSalt()
+    public function getSalt(): ?string
     {
         return null;
     }
@@ -303,24 +305,17 @@ class LocalUser extends Entity implements UserInterface
     {
     }
 
+    public static function getByNickname(string $nickname): ?self
+    {
+        return Cache::get("user-nickname-{$nickname}", fn () => DB::findOneBy('local_user', ['nickname' => $nickname]));
+    }
+
     /**
-     * Is the nickname or email already in use locally?
-     *
-     * @return self Returns self if nickname or email found
+     * @return self Returns self if email found
      */
     public static function getByEmail(string $email): ?self
     {
-        $users = DB::findBy('local_user', ['or' => ['outgoing_email' => $email, 'incoming_email' => $email]]);
-        switch (count($users)) {
-        case 0:
-            return null;
-        case 1:
-            return $users[0];
-        default:
-            // @codeCoverageIgnoreStart
-            throw new DuplicateFoundException('Multiple values in table local_user match the requested criteria');
-            // @codeCoverageIgnoreEnd
-        }
+        return Cache::get("user-email-{$email}", fn () => DB::findOneBy('local_user', ['or' => ['outgoing_email' => $email, 'incoming_email' => $email]]));
     }
 
     /**
@@ -332,9 +327,11 @@ class LocalUser extends Entity implements UserInterface
         // Timing safe password verification
         if (password_verify($password_plain_text, $this->password)) {
             // Update old formats
-            if (password_needs_rehash($this->password,
-                                      self::algoNameToConstant(Common::config('security', 'algorithm')),
-                                      Common::config('security', 'options'))
+            if (password_needs_rehash(
+                $this->password,
+                self::algoNameToConstant(Common::config('security', 'algorithm')),
+                Common::config('security', 'options'),
+            )
             ) {
                 // @codeCoverageIgnoreStart
                 $this->changePassword(null, $password_plain_text, override: true);
@@ -373,9 +370,9 @@ class LocalUser extends Entity implements UserInterface
         case 'argon2i':
         case 'argon2d':
         case 'argon2id':
-            $c = 'PASSWORD_' . strtoupper($algo);
-            if (defined($c)) {
-                return constant($c);
+            $c = 'PASSWORD_' . mb_strtoupper($algo);
+            if (\defined($c)) {
+                return \constant($c);
             }
             // fallthrough
             // no break

@@ -103,12 +103,12 @@ class RouteLoader extends Loader
         // XXX: This hack can definitely be optimised by actually intersecting the arrays,
         // maybe this helps: https://backbeat.tech/blog/symfony-routing-tricks-part-1
         // see: https://symfony.com/index.php/doc/3.1/components/http_foundation.html#accessing-accept-headers-data
+        $accept_header_condition = '';
         if (isset($options['accept'])) {
-            $accept_header_condition = '';
             foreach ($options['accept'] as $accept) {
-                $accept_header_condition .= "('$accept' in request.getAcceptableContentTypes()) ||";
+                $accept_header_condition .= "('{$accept}' in request.getAcceptableContentTypes()) ||";
             }
-            $accept_header_condition = substr($accept_header_condition, 0, -3);
+            $accept_header_condition = mb_substr($accept_header_condition, 0, -3);
         }
 
         $this->rc->add(

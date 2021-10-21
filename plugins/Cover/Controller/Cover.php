@@ -152,5 +152,6 @@ class Cover
         //     return  new Response('Cover File not found',Response::HTTP_NOT_FOUND);
         // }
         // return GSFile::sendFile($cover->getFilePath(), $file->getMimetype(), $file->getTitle());
+        return new Response('Cover File not found', Response::HTTP_NOT_FOUND);
     }
 }
