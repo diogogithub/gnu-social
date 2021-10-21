@@ -2,7 +2,6 @@ DIR=$(strip $(notdir $(CURDIR))) # Seems a bit hack-ish, but `basename` works di
 
 translate-container-name = $$(if docker container inspect $(1) > /dev/null 2>&1; then echo $(1); else echo $(1) | sed 'y/_/-/' ; fi)
 
-
 .PHONY:
 	@if ! docker info > /dev/null; then echo "Docker does not seem to be running"; exit 1; fi
 
@@ -37,7 +36,7 @@ doc-check:
 	bin/php-doc-check src components plugins
 
 phpstan: tooling-docker
-	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/phpstan.sh
+	bin/phpstan
 
 stop-tooling: .PHONY
 	cd docker/tooling && docker-compose down
