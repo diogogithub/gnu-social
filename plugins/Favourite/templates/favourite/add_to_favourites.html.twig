@@ -1,0 +1,25 @@
+{% extends 'stdgrid.html.twig' %}
+
+{% block meta %}
+    {{ parent() }}
+{% endblock %}
+
+{% block title %}{{ 'Favourite ' | trans }}{{ note.getActorNickname() }}{{ '\'s note.' | trans }}{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %}
+
+{% block left %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    {{ parent() }}
+    <div class="page">
+        <div class="main">
+            {% include '/cards/note/view.html.twig' with {'note': note} only %}
+            {{ form(add_favourite) }}
+        </div>
+    </div>
+{% endblock body %}

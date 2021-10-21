@@ -44,13 +44,14 @@ class Reply extends NoteHandlerPlugin
         return Event::next;
     }
 
+    // TODO: Refactoring to link instead of a form
     /**
      * HTML rendering event that adds the reply form as a note action,
      * if a user is logged in
      *
      * @throws RedirectException
      */
-    public function onAddNoteActions(Request $request, Note $note, array &$actions)
+/*    public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
         if (($user = Common::user()) === null) {
             return Event::next;
@@ -97,5 +98,5 @@ class Reply extends NoteHandlerPlugin
         }
         $actions[] = $form->createView();
         return Event::next;
-    }
+    }*/
 }

@@ -25,8 +25,6 @@ namespace Plugin\Favourite;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Form;
-use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
@@ -36,8 +34,6 @@ use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
 use App\Util\Nickname;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
 class Favourite extends NoteHandlerPlugin
@@ -58,61 +54,24 @@ class Favourite extends NoteHandlerPlugin
             return Event::next;
         }
 
-        // if note is favoured, "is_set" is 1
+        // If note is favourite, "is_set" is 1
         $opts     = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
-        $is_set   = DB::find('favourite', $opts) !== null;
-        $form_fav = Form::create([
-            ['submit_favourite', SubmitType::class,
-                [
-                    'label' => ' ',
-                    'attr'  => [
-                        'class' => ($is_set ? 'note-actions-set' : 'note-actions-unset') . ' button-container favourite-button-container',
-                        'title' => $is_set ? _m('Note already favourite!') : _m('Favourite this note!'),
-                    ],
-                ],
-            ],
-            ['note_id', HiddenType::class, ['data' => $note->getId()]],
-            ["favourite-{$note->getId()}", HiddenType::class, ['data' => $is_set ? '1' : '0']],
-        ]);
+        $is_favourite   = DB::find('favourite', $opts) !== null;
 
-        // Form handler
-        $ret = self::noteActionHandle(
-            $request,
-            $form_fav,
-            $note,
-            "favourite-{$note->getId()}",
-            /**
-             * Called from form handler
-             *
-             * @param Note $note to be favoured
-             * @param Form $data input
-             *
-             * @throws RedirectException Always thrown in order to prevent accidental form re-submit from browser
-             */
-            function (Note $note, Form $data) use ($opts) {
-                $favourite_note = DB::find('favourite', $opts);
-                if ($data["favourite-{$note->getId()}"] === '0' && $favourite_note === null) {
-                    DB::persist(Entity\Favourite::create($opts));
-                    DB::flush();
-                } else {
-                    if ($data["favourite-{$note->getId()}"] === '1' && $favourite_note !== null) {
-                        DB::remove($favourite_note);
-                        DB::flush();
-                    }
-                }
+        // Generating URL for favourite action route
+        $args = ['id' => $note->getId()];
+        $type = Router::ABSOLUTE_PATH;
+        $favourite_action_url = $is_favourite ?
+            Router::url('note_remove_favourite', $args, $type) :
+            Router::url('note_add_favourite', $args, $type);
 
-                // Prevent accidental refreshes from resubmitting the form
-                throw new RedirectException();
+        $extra_classes =  $is_favourite ? "note-actions-set" : "note-actions-unset";
+        $favourite_action = [
+            "url" => $favourite_action_url,
+            "classes" => "button-container favourite-button-container $extra_classes"
+        ];
 
-                return Event::stop;
-            },
-        );
-
-        if ($ret !== null) {
-            return $ret;
-        }
-
-        $actions[] = $form_fav->createView();
+        $actions[] = $favourite_action;
         return Event::next;
     }
 
@@ -125,8 +84,15 @@ class Favourite extends NoteHandlerPlugin
 
     public function onAddRoute(RouteLoader $r): bool
     {
+        // Add/remove note to/from favourites
+        $r->connect(id: 'note_add_favourite', uri_path: '/note/{id<\d+>}/add_favourite', target: [Controller\Favourite::class, 'noteAddFavourite']);
+        $r->connect(id: 'note_remove_favourite', uri_path: '/note/{id<\d+>}/remove_favourite', target: [Controller\Favourite::class, 'noteRemoveFavourite']);
+
+        // View all favourites by actor id
         $r->connect(id: 'actor_favourites_id', uri_path: '/actor/{id<\d+>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorId']);
         $r->connect(id: 'actor_reverse_favourites_id', uri_path: '/actor/{id<\d+>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorId']);
+
+        // View all favourites by nickname
         $r->connect(id: 'actor_favourites_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorNickname']);
         $r->connect(id: 'actor_reverse_favourites_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorNickname']);
         return Event::next;

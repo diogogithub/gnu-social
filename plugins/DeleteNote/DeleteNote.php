@@ -46,13 +46,14 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class DeleteNote extends NoteHandlerPlugin
 {
+    // TODO: Refactoring to link instead of a form
     /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
      *
      * @throws RedirectException
      */
-    public function onAddNoteActions(Request $request, Note $note, array &$actions)
+/*    public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
         if (($user = Common::user()) === null) {
             return Event::next;
@@ -100,5 +101,5 @@ class DeleteNote extends NoteHandlerPlugin
         }
         $actions[] = $form_delete->createView();
         return Event::next;
-    }
+    }*/
 }

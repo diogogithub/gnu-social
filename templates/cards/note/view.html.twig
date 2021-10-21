@@ -17,7 +17,7 @@
             {% if app.user %}
                 <div class="note-actions">
                     {% for current_action in get_note_actions(note) %}
-                        {{ form(current_action) }}
+                        <a class="{{ current_action["classes"] }}" href="{{ current_action["url"] }}"></a>
                     {% endfor %}
                 </div>
             {% endif %}

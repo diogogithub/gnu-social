@@ -210,7 +210,6 @@
     -o-mask-image: url("../../icons/delete.svg");
     -moz-mask-image: url("../../icons/delete.svg");
     mask-image: url("../../icons/delete.svg");
-    background: #FF634766
 }
 
 .note-content {
