@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -54,8 +56,9 @@ class Note extends Entity
     private ?int $repeat_of;
     private int $scope = VisibilityScope::PUBLIC;
     private string $url;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private string $language;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -79,17 +82,12 @@ class Note extends Entity
         return $this->actor_id;
     }
 
-    /**
-     * @return string
-     */
     public function getContentType(): string
     {
         return $this->content_type;
     }
 
     /**
-     * @param string $content_type
-     *
      * @return Note
      */
     public function setContentType(string $content_type): self
@@ -197,6 +195,17 @@ class Note extends Entity
         return $this;
     }
 
+    public function getLanguage(): string
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(string $language): self
+    {
+        $this->language = $language;
+        return $this;
+    }
+
     public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
@@ -239,11 +248,12 @@ class Note extends Entity
 
     public static function getAllNotes(int $noteScope): array
     {
-        return DB::sql('select * from note n ' .
-                       'where n.reply_to is null and (n.scope & :notescope) <> 0 ' .
-                       'order by n.created DESC',
-                       ['n'         => 'App\Entity\Note'],
-                       ['notescope' => $noteScope]
+        return DB::sql(
+            'select * from note n '
+                       . 'where n.reply_to is null and (n.scope & :notescope) <> 0 '
+                       . 'order by n.created DESC',
+            ['n'         => 'App\Entity\Note'],
+            ['notescope' => $noteScope],
         );
     }
 
@@ -251,11 +261,11 @@ class Note extends Entity
     {
         return Cache::get('note-attachments-' . $this->id, function () {
             return DB::dql(
-                    'select att from App\Entity\Attachment att ' .
-                    'join App\Entity\AttachmentToNote atn with atn.attachment_id = att.id ' .
-                    'where atn.note_id = :note_id',
-                    ['note_id' => $this->id]
-                );
+                'select att from App\Entity\Attachment att '
+                    . 'join App\Entity\AttachmentToNote atn with atn.attachment_id = att.id '
+                    . 'where atn.note_id = :note_id',
+                ['note_id' => $this->id],
+            );
         });
     }
 
@@ -263,28 +273,28 @@ class Note extends Entity
     {
         return Cache::get('note-links-' . $this->id, function () {
             return DB::dql(
-                'select l from App\Entity\Link l ' .
-                'join App\Entity\NoteToLink ntl with ntl.link_id = l.id ' .
-                'where ntl.note_id = :note_id',
-                ['note_id' => $this->id]
+                'select l from App\Entity\Link l '
+                . 'join App\Entity\NoteToLink ntl with ntl.link_id = l.id '
+                . 'where ntl.note_id = :note_id',
+                ['note_id' => $this->id],
             );
         });
     }
 
     public function getReplies(): array
     {
-        return Cache::getList('note-replies-' . $this->id, function () {
-            return DB::dql('select n from App\Entity\Note n where n.reply_to = :id', ['id' => $this->id]);
-        });
+        return Cache::getList('note-replies-' . $this->id, fn () => DB::dql('select n from App\Entity\Note n where n.reply_to = :id', ['id' => $this->id]));
     }
 
     public function getReplyToNickname(): ?string
     {
         if (!empty($this->reply_to)) {
             return Cache::get('note-reply-to-' . $this->id, function () {
-                return DB::dql('select g from App\Entity\Note n join ' .
-                                   'App\Entity\Actor g with n.actor_id = g.id where n.reply_to = :reply',
-                                   ['reply' => $this->reply_to])[0]->getNickname();
+                return DB::dql(
+                    'select g from App\Entity\Note n join '
+                                   . 'App\Entity\Actor g with n.actor_id = g.id where n.reply_to = :reply',
+                    ['reply' => $this->reply_to],
+                )[0]->getNickname();
             });
         }
         return null;
@@ -298,14 +308,16 @@ class Note extends Entity
         // TODO cache this
         $scope = VisibilityScope::create($this->scope);
         return $scope->public
-            || (!is_null($a) && (
+            || (!\is_null($a) && (
                 ($scope->follower && 0 != DB::count('follow', ['follower' => $a->getId(), 'followed' => $this->actor_id]))
                 || ($scope->addressee && 0 != DB::count('notification', ['activity_id' => $this->id, 'actor_id' => $a->getId()]))
-                || ($scope->group && [] != DB::dql('select m from group_member m ' .
-                                                   'join group_inbox i with m.group_id = i.group_id ' .
-                                                   'join note n with i.activity_id = n.id ' .
-                                                   'where n.id = :note_id and m.actor_id = :actor_id',
-                                                   ['note_id' => $this->id, 'actor_id' => $a->getId()]))
+                || ($scope->group && [] != DB::dql(
+                    'select m from group_member m '
+                                                   . 'join group_inbox i with m.group_id = i.group_id '
+                                                   . 'join note n with i.activity_id = n.id '
+                                                   . 'where n.id = :note_id and m.actor_id = :actor_id',
+                    ['note_id' => $this->id, 'actor_id' => $a->getId()],
+                ))
             ));
     }
 
@@ -335,6 +347,7 @@ class Note extends Entity
                 'repeat_of'    => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'note this is a repeat of'],
                 'scope'        => ['type' => 'int',       'not null' => true, 'default' => VisibilityScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = followers; 16 = messages; null = default'],
                 'url'          => ['type' => 'text',      'description' => 'Permalink to Note'],
+                'language'     => ['type' => 'varchar',   'length' => 10, 'description' => 'The locale identifier for the language of a note. 2-leter-iso-language-code_4-leter-script-code_2-leter-iso-country-code'],
                 'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
