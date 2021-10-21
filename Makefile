@@ -33,6 +33,9 @@ tooling-docker: .PHONY
 test: tooling-docker
 	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh
 
+doc-check:
+	bin/php-doc-check src components plugins
+
 phpstan: tooling-docker
 	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/phpstan.sh
 
