@@ -41,6 +41,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Core\Log;
 use App\Entity\UserNotificationPrefs;
 use App\Util\Common;
 use App\Util\Exception\AuthenticationException;
@@ -115,8 +116,8 @@ class UserPanel extends AbstractController
         $user = Common::user();
         // TODO Add support missing settings
         $form = Form::create([
-            ['outgoing_email', TextType::class,        ['label' => _m('Outgoing email'), 'required' => true,  'help' => _m('Change the email we use to contact you')]],
-            ['incoming_email', TextType::class,        ['label' => _m('Incoming email'), 'required' => true,  'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
+            ['outgoing_email', TextType::class,        ['label' => _m('Outgoing email'), 'required' => false,  'help' => _m('Change the email we use to contact you')]],
+            ['incoming_email', TextType::class,        ['label' => _m('Incoming email'), 'required' => false,  'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
             ['old_password',   TextType::class,        ['label' => _m('Old password'),   'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
             FormFields::repeated_password(['required' => false]),
             ['language',       LocaleType::class,      ['label' => _m('Language'),       'required' => false, 'help' => _m('Your preferred language')]],
@@ -228,8 +229,9 @@ class UserPanel extends AbstractController
                     // @codeCoverageIgnoreStart
                 } catch (Exception $e) {
                     // Somehow, the exception doesn't bubble up in phpunit
-                    dd($data, $e);
+                    // dd($data, $e);
                     // @codeCoverageIgnoreEnd
+                    Log::critical('Exception at ' . $e->getFile() . ':' . $e->getLine() . ': ' . $e->getMessage());
                 }
             }
         }

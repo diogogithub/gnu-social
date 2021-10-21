@@ -15,14 +15,14 @@ abstract class FormFields
 {
     public static function repeated_password(array $options = []): array
     {
-        return ['password', RepeatedType::class,
-            ['type'             => PasswordType::class,
+        return [
+            'password', RepeatedType::class,
+            [
+                'type'          => PasswordType::class,
                 'first_options' => [
-                    'label'      => _m('Password'),
-                    'label_attr' => ['class' => 'section-form-label'],
-                    'attr'       => ['placeholder' => '********'],
-                    'required'   => $options['required'] ?? true,
-
+                    'label'       => _m('Password'),
+                    'label_attr'  => ['class' => 'section-form-label'],
+                    'attr'        => ['placeholder' => '********'],
                     'constraints' => [
                         new NotBlank(['message' => _m('Please enter a password')]),
                         new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
@@ -37,6 +37,7 @@ abstract class FormFields
                     'help'       => _m('Confirm your password.'),
                 ],
                 'mapped'          => false,
+                'required'        => $options['required'] ?? true,
                 'invalid_message' => _m('The password fields must match'),
             ],
         ];
