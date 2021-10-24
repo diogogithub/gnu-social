@@ -1,12 +1,12 @@
 {% set handled = false %}
 {% for block in handle_event('ViewAttachment', {'attachment': attachment, 'note': note}) %}
     {% set handled = true %}
-    <div class="note-attachments">
+    <div class="note-attachments-unit">
         {{ block | raw }}
     </div>
 {% endfor %}
 {% if not handled %}
-    <div>
+    <div class="note-attachments-unit">
         <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a> </i>
     </div>
 {% endif %}

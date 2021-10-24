@@ -1,18 +1,22 @@
+<hr>
+
 <article class="h-entry embed">
     <header>
-        {% if attributes['has_attachment'] != false %}
-            {% set thumbnail_parameters = {
-                'id': embed.getAttachmentId(),
-                'size': 'medium'
-            } %}
-            <img alt="{{embed.getTitle() | escape}}" class="{{attributes['class']}}"
-                 width="{{attributes['width']}}" height="{{attributes['height']}}"
-                 src="{{ path('attachment_thumbnail', thumbnail_parameters) }}" />
-        {% endif %}
-        <h5 class="p-name embed">
-            <a class="u-url" href="{{link.getUrl()}}">{{embed.getTitle() | escape}}</a>
-        </h5>
-        <div class="p-author embed">
+        <a class="p-name u-url" href="{{link.getUrl()}}">{{embed.getTitle() | escape}}</a>
+    </header>
+
+    {% if attributes['has_attachment'] != false %}
+        {% set thumbnail_parameters = {
+            'id': embed.getAttachmentId(),
+            'size': 'medium'
+        } %}
+        <img alt="{{embed.getTitle() | escape}}" class="{{attributes['class']}}"
+             width="{{attributes['width']}}" height="{{attributes['height']}}"
+             src="{{ path('attachment_thumbnail', thumbnail_parameters) }}" />
+    {% endif %}
+
+    <div class="p-summary">
+        <div class="p-author">
             {% if embed.getAuthorName() is not null %}
                 <div class="fn vcard author">
                     {% if embed.getAuthorUrl() is null %}
@@ -32,8 +36,9 @@
                 </div>
             {% endif %}
         </div>
-    </header>
-    <div class="p-summary embed">
+
+        <hr>
+
         {{ embed.getDescription() | escape }}
     </div>
 </article>

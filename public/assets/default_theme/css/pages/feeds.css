@@ -49,22 +49,50 @@
     background: repeating-conic-gradient(#ffffff66 0deg 90deg, #ffffff33 0deg 180deg) 0 0/40px 40px round;
 }
 
-.h-entry .embed {
+.embed {
     display: -webkit-box;
     display: -webkit-flex;
     display: -moz-box;
     display: -ms-flexbox;
     display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    -moz-box-orient: vertical;
-    -moz-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
+    flex-wrap: wrap;
     padding: var(--smaller);
     border: unset;
-    width: 100%
+}
+
+.embed header {
+    width: 100%;
+    margin-bottom: var(--small);
+}
+
+.embed img {
+    width: 25%;
+    height: auto;
+    margin-right: var(--smaller);
+}
+
+.embed .p-summary {
+    width: 60%;
+}
+
+.embed .p-name,
+.embed .p-author {
+    font-weight: bold;
+}
+
+.embed img {
+    padding: unset;
+    max-width: -webkit-min-content;
+    max-width: -moz-min-content;
+    max-width: min-content;
+    max-height: -webkit-min-content;
+    max-height: -moz-min-content;
+    max-height: min-content
+}
+
+.embed .p-summary hr {
+    margin-top: var(--smaller);
+    margin-bottom: var(--smaller);
 }
 
 .h-entry .embed[class*="p-"] {
@@ -73,16 +101,6 @@
 
 .h-entry a:focus {
     text-decoration: underline
-}
-
-.h-entry .embed header img {
-    padding: unset;
-    max-width: -webkit-min-content;
-    max-width: -moz-min-content;
-    max-width: min-content;
-    max-height: -webkit-min-content;
-    max-height: -moz-min-content;
-    max-height: min-content
 }
 
 .h-entry {
@@ -108,7 +126,8 @@
     margin-left: var(--small)
 }
 
-.note-info {
+.note-info,
+embed header {
     display: -webkit-box;
     display: -webkit-flex;
     display: -moz-box;
@@ -240,7 +259,7 @@
     margin-bottom: var(--smaller)
 }
 
-.section-attachments {
+.note-attachments-unit {
     display: -webkit-box;
     display: -webkit-flex;
     display: -moz-box;
@@ -261,11 +280,11 @@
     align-self: flex-start
 }
 
-.note-attachments:not(:only-child) {
+.note-attachments-unit:not(:only-child) {
     margin-right: var(--smaller)
 }
 
-.note-attachments>figure figcaption {
+.note-attachments-unit>figure figcaption {
     display: -webkit-box;
     display: -webkit-flex;
     display: -moz-box;

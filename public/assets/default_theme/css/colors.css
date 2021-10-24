@@ -43,7 +43,7 @@ input[type=checkbox] {
 .markdown-blocks,
 .profile,
 .section-title-details,
-.section-attachments,
+.note-attachments-unit,
 .section-settings,
 .section-settings ul,
 .section-widget,
@@ -114,7 +114,7 @@ select {
 }
 
 .doc-navigation,
-.h-entry,
+.h-entry:not(.embed),
 .markdown-blocks,
 .section-settings,
 .section-settings ul,
@@ -128,7 +128,7 @@ textarea {
 }
 
 #header,
-.h-entry,
+.h-entry:not(.embed),
 .header-extra-forms-open,
 .profile,
 .set-shadow-dark,
