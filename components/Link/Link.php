@@ -42,8 +42,8 @@ class Link extends Component
     {
         if (Common::config('attachments', 'process_links')) {
             $matched_urls = [];
-            preg_match($this->getURLRegex(), $content, $matched_urls);
-            $matched_urls = array_unique($matched_urls);
+            preg_match_all($this->getURLRegex(), $content, $matched_urls);
+            $matched_urls = array_unique($matched_urls[1]);
             foreach ($matched_urls as $match) {
                 try {
                     $link_id = Entity\Link::getOrCreate($match)->getId();
