@@ -27,6 +27,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use App\Core\Router\Router;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoLoggedInUser;
@@ -72,8 +73,12 @@ class Favourite extends Controller
             $opts = ['note_id' => $id, 'actor_id' => $user->getId()];
             DB::persist(FavouriteEntity::create($opts));
             DB::flush();
-            // TODO: proper redirect from where the user came from
-            throw new RedirectException();
+
+            if ($redirect_back_exists = explode("&", explode("?", $_SERVER['REQUEST_URI'])[1] )[0]) {
+                $redirect_back_exists = substr($redirect_back_exists, 5);
+                # TODO anchor on element id
+                throw new RedirectException($redirect_back_exists);
+            }
         }
 
         return [
@@ -114,8 +119,12 @@ class Favourite extends Controller
         if ($form_remove_favourite->isSubmitted()) {
             DB::remove($remove_favourite_note);
             DB::flush();
-            // TODO: proper redirect from where the user came from
-            throw new RedirectException();
+
+            if ($redirect_back_exists = explode("&", explode("?", $_SERVER['REQUEST_URI'])[1] )[0]) {
+                $redirect_back_exists = substr($redirect_back_exists, 5);
+                # TODO anchor on element id
+                throw new RedirectException($redirect_back_exists);
+            }
         }
 
         $note = DB::find('note', ['id' => $id]);

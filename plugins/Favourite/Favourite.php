@@ -34,6 +34,7 @@ use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
 use App\Util\Nickname;
+use phpDocumentor\Reflection\PseudoTypes\NumericString;
 use Symfony\Component\HttpFoundation\Request;
 
 class Favourite extends NoteHandlerPlugin
@@ -54,7 +55,7 @@ class Favourite extends NoteHandlerPlugin
             return Event::next;
         }
 
-        // If note is favourite, "is_set" is 1
+        // If note is favourite, "is_favourite" is 1
         $opts     = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
         $is_favourite   = DB::find('favourite', $opts) !== null;
 
@@ -65,10 +66,14 @@ class Favourite extends NoteHandlerPlugin
             Router::url('note_remove_favourite', $args, $type) :
             Router::url('note_add_favourite', $args, $type);
 
+        // Concatenating get parameter to redirect the user to where he came from
+        $favourite_action_url .= '?from=' . urlencode(Common::route());
+
         $extra_classes =  $is_favourite ? "note-actions-set" : "note-actions-unset";
         $favourite_action = [
             "url" => $favourite_action_url,
-            "classes" => "button-container favourite-button-container $extra_classes"
+            "classes" => "button-container favourite-button-container $extra_classes",
+            "id" => "favourite-button-container-" . $note->getId()
         ];
 
         $actions[] = $favourite_action;

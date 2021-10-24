@@ -1,24 +1,17 @@
 {% extends 'stdgrid.html.twig' %}
 
-{% block meta %}
-    {{ parent() }}
-{% endblock %}
-
 {% block title %}{{ 'Remove favourite from ' | trans }}{{ note.getActorNickname() }}{{ '\'s note.' | trans }}{% endblock %}
 
-{% block header %}
+{% block stylesheets %}
     {{ parent() }}
-{% endblock %}
-
-{% block left %}
-    {{ parent() }}
-{% endblock %}
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
+{% endblock stylesheets %}
 
 {% block body %}
     {{ parent() }}
     <div class="page">
         <div class="main">
-            {% include '/cards/note/view.html.twig' with {'note': note} only %}
+            {% include '/cards/note/view.html.twig' with {'note': note, 'note_actions_show': false} only %}
             {{ form(remove_favourite) }}
         </div>
     </div>
