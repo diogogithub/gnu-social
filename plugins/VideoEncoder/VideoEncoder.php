@@ -54,9 +54,13 @@ class VideoEncoder extends Plugin
         return '1.0.0';
     }
 
+    public static function shouldHandle (string $mimetype): bool {
+        return GSFile::mimetypeMajor($mimetype) === 'video' || $mimetype === 'image/gif';
+    }
+
     public function onFileMetaAvailable(array &$event_map, string $mimetype): bool
     {
-        if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
+        if (!self::shouldHandle($mimetype)) {
             return Event::next;
         }
         $event_map['video'][]     = [$this, 'fileMeta'];
@@ -66,7 +70,7 @@ class VideoEncoder extends Plugin
 
     public function onFileSanitizerAvailable(array &$event_map, string $mimetype): bool
     {
-        if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
+        if ($mimetype !== 'image/gif') {
             return Event::next;
         }
         $event_map['video'][]     = [$this, 'fileMeta'];
@@ -76,7 +80,7 @@ class VideoEncoder extends Plugin
 
     public function onFileResizerAvailable(array &$event_map, string $mimetype): bool
     {
-        if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
+        if ($mimetype !== 'image/gif') {
             return Event::next;
         }
         $event_map['video'][]     = [$this, 'resizeVideoPath'];
@@ -91,15 +95,10 @@ class VideoEncoder extends Plugin
      * @param null|int    $width    out
      * @param null|int    $height   out
      *
-     * @return bool true if sanitized
+     * @return bool true if metadata filled
      */
     public function fileMeta(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
     {
-        if (//GSFile::mimetypeMajor($mimetype) !== 'video' &&
-            $mimetype !== 'image/gif') {
-            return false;
-        }
-
         // Create FFProbe instance
         // Need to explicitly tell the drivers' location, or it won't find them
         $ffprobe = ffprobe::create([
@@ -108,13 +107,11 @@ class VideoEncoder extends Plugin
         ]);
 
         $metadata = $ffprobe->streams($file->getRealPath()) // extracts streams informations
-            ->videos()                      // filters video streams
-            ->first();                       // returns the first video stream
+                            ->videos()                      // filters video streams
+                            ->first();                      // returns the first video stream
         $width  = $metadata->get('width');
         $height = $metadata->get('height');
 
-        // Only one plugin can handle sanitization
-        $mimetype = 'image/gif';
         return true;
     }
 
@@ -141,6 +138,10 @@ class VideoEncoder extends Plugin
      */
     public function onViewAttachment(array $vars, array &$res): bool
     {
+        if ($vars['attachment']->getMimetypeMajor() !== 'video') {
+            return Event::next;
+        }
+
         $res[] = Formatting::twigRenderFile(
             'videoEncoder/videoEncoderView.html.twig',
             [

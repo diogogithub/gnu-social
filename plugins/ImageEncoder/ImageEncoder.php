@@ -55,9 +55,13 @@ class ImageEncoder extends Plugin
         return '3.0.0';
     }
 
+    public static function shouldHandle (string $mimetype): bool {
+        return GSFile::mimetypeMajor($mimetype) === 'image';
+    }
+
     public function onFileMetaAvailable(array &$event_map, string $mimetype): bool
     {
-        if (GSFile::mimetypeMajor($mimetype) !== 'image') {
+        if (!self::shouldHandle($mimetype)) {
             return Event::next;
         }
         $event_map['image'][] = [$this, 'fileMeta'];
@@ -66,7 +70,7 @@ class ImageEncoder extends Plugin
 
     public function onFileSanitizerAvailable(array &$event_map, string $mimetype): bool
     {
-        if (GSFile::mimetypeMajor($mimetype) !== 'image') {
+        if (!self::shouldHandle($mimetype)) {
             return Event::next;
         }
         $event_map['image'][] = [$this, 'fileSanitize'];
@@ -75,7 +79,7 @@ class ImageEncoder extends Plugin
 
     public function onFileResizerAvailable(array &$event_map, string $mimetype): bool
     {
-        if (GSFile::mimetypeMajor($mimetype) !== 'image') {
+        if (!self::shouldHandle($mimetype)) {
             return Event::next;
         }
         $event_map['image'][] = [$this, 'resizeImagePath'];
@@ -177,9 +181,10 @@ class ImageEncoder extends Plugin
      */
     public function onViewAttachment(array $vars, array &$res): bool
     {
-        if ($vars['attachment']->getMimetypeMajor() !== 'image') {
+        if (!self::shouldHandle($vars['attachment']->getMimetype())) {
             return Event::next;
         }
+
         $res[] = Formatting::twigRenderFile(
             'imageEncoder/imageEncoderView.html.twig',
             [
