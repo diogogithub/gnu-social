@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 // {{{ License
 
@@ -28,8 +28,6 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\GSFile;
-use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
-use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Security;
 use App\Entity\Actor;
@@ -47,6 +45,11 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Validator\Constraints\Length;
+use function App\Core\I18n\_m;
+use function count;
 
 class Posting extends Component
 {
@@ -65,13 +68,13 @@ class Posting extends Component
         }
 
         $actor_id = $user->getId();
-        $to_tags  = [];
-        $tags     = Cache::get(
+        $to_tags = [];
+        $tags = Cache::get(
             "actor-circle-{$actor_id}",
-            fn () => DB::dql('select c.tag from App\Entity\ActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]),
+            fn() => DB::dql('select c.tag from App\Entity\ActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]),
         );
         foreach ($tags as $t) {
-            $t           = $t['tag'];
+            $t = $t['tag'];
             $to_tags[$t] = $t;
         }
 
@@ -82,45 +85,48 @@ class Posting extends Component
         $initial_content = '';
         Event::handle('PostingInitialContent', [&$initial_content]);
 
-        $available_content_types = ['Plain Text' => 'text/plain'];
+        $available_content_types = [
+            'Plain Text' => 'text/plain',
+        ];
         Event::handle('PostingAvailableContentTypes', [&$available_content_types]);
 
-        $request     = $vars['request'];
+        $request = $vars['request'];
         $form_params = [
-            ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
-            ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
-            ['content',     TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)]]],
-            ['attachments', FileType::class,     [
+            ['to', ChoiceType::class, ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
+            ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
+            ['content', TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])],]],
+            ['attachments', FileType::class, [
                 'label' => _m('Attachments:'),
                 'multiple' => true,
                 'required' => false,
                 'invalid_message' => _m('Attachment not valid.'),
             ]
-        ]];
+            ]
+        ];
 
-        if (\count($available_content_types) > 1) {
+        if (count($available_content_types) > 1) {
             $form_params[] = ['content_type', ChoiceType::class,
                 [
-                    'label'   => _m('Text format:'), 'multiple' => false, 'expanded' => false,
-                    'data'    => $available_content_types[array_key_first($available_content_types)],
+                    'label' => _m('Text format:'), 'multiple' => false, 'expanded' => false,
+                    'data' => $available_content_types[array_key_first($available_content_types)],
                     'choices' => $available_content_types,
                 ],
             ];
         }
-        $form_params[] = ['post_note',   SubmitType::class,   ['label' => _m('Post')]];
-        $form          = Form::create($form_params);
+        $form_params[] = ['post_note', SubmitType::class, ['label' => _m('Post')]];
+        $form = Form::create($form_params);
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             try {
-                $data = $form->getData();
                 if ($form->isValid()) {
+                    $data = $form->getData();
                     $content_type = $data['content_type'] ?? $available_content_types[array_key_first($available_content_types)];
                     self::storeLocalNote($user->getActor(), $data['content'], $content_type, $data['attachments']);
                     throw new RedirectException();
                 }
             } catch (FormSizeFileException $sizeFileException) {
-                throw new FormSizeFileException(_m($sizeFileException));
+                throw new FormSizeFileException();
             } catch (InvalidFormException $invalidFormException) {
                 throw new InvalidFormException();
             }
@@ -144,21 +150,21 @@ class Posting extends Component
         $rendered = null;
         Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $reply_to]);
         $note = Note::create([
-            'actor_id'     => $actor->getId(),
-            'content'      => $content,
+            'actor_id' => $actor->getId(),
+            'content' => $content,
             'content_type' => $content_type,
-            'rendered'     => $rendered,
-            'is_local'     => true,
+            'rendered' => $rendered,
+            'is_local' => true,
         ]);
 
         $processed_attachments = [];
-        /** @var \Symfony\Component\HttpFoundation\File\UploadedFile[] $attachments */
+        /** @var UploadedFile[] $attachments */
         foreach ($attachments as $f) {
-            $filesize      = $f->getSize();
+            $filesize = $f->getSize();
             $max_file_size = Common::getUploadLimit();
             if ($max_file_size < $filesize) {
-                throw new FormSizeFileException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. '
-                    . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize]));
+                throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. '
+                    . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize],));
             }
             Event::handle('EnforceUserFileQuota', [$filesize, $actor->getId()]);
             $processed_attachments[] = [GSFile::storeFileAsAttachment($f), $f->getClientOriginalName()];
