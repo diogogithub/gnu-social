@@ -144,7 +144,7 @@ class Authenticator extends AbstractFormLoginAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse(Router::url('/'));
+        return new RedirectResponse(Router::url('main_all'));
     }
 
     protected function getLoginUrl()
