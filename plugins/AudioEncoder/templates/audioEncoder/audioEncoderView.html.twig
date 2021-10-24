@@ -1,0 +1,9 @@
+<div>
+  <figure>
+    <audio class="u-audio" src="{{ attachment.getUrl() }}" controls>
+    </audio>
+    <figcaption><a
+          href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
+    </figcaption>
+  </figure>
+</div>
