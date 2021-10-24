@@ -24,6 +24,7 @@ declare(strict_types = 1);
 namespace App\Core;
 
 use App\Core\DB\DB;
+use App\Util\Exception\FileNotAllowedException;
 use function App\Core\I18n\_m;
 use App\Entity\Attachment;
 use App\Util\Common;
@@ -92,14 +93,19 @@ class GSFile
                 $attachment->setWidth($width);
                 $attachment->setHeight($height);
                 $attachment->setSize($file->getSize());
-                $file->move(Common::config('attachments', 'dir'), $hash);
+                if (self::isMimetypeAllowed($mimetype)) {
+                    $file->move(Common::config('attachments', 'dir'), $hash);
+                    DB::persist($attachment);
+                } else {
+                    throw new FileNotAllowedException();
+                }
             }
         } catch (NotFoundException) {
             // Create an Attachment
             // The following properly gets the mimetype with `file` or other
             // available methods, so should be safe
             $mimetype               = mb_substr($file->getMimeType(), 0, 64);
-            $width                  = $height                  = null;
+            $width                  = $height = null;
             $event_map[$mimetype]   = [];
             $major_mime             = self::mimetypeMajor($mimetype);
             $event_map[$major_mime] = [];
@@ -123,11 +129,35 @@ class GSFile
                 'width'    => $width,
                 'height'   => $height,
             ]);
-            $file->move(Common::config('attachments', 'dir'), $hash);
-            DB::persist($attachment);
+            if (self::isMimetypeAllowed($mimetype)) {
+                $file->move(Common::config('attachments', 'dir'), $hash);
+                DB::persist($attachment);
+            } else {
+                $attachment->setFilename(null);
+                $attachment->setMimetype(null);
+                $attachment->setSize(null);
+                $attachment->setWidth(null);
+                $attachment->setHeight(null);
+                DB::persist($attachment);
+                throw new FileNotAllowedException($mimetype);
+            }
             Event::handle('AttachmentStoreNew', [&$attachment]);
         }
         return $attachment;
+    }
+
+    /**
+     * Tests against common config attachment `supported` mimetypes and `ext_blacklist`.
+     *
+     * @param string $mimetype
+     * @return bool true if allowed, false otherwise
+     */
+    public static function isMimetypeAllowed(string $mimetype): bool {
+        $passed_whitelist = in_array($mimetype, array_keys(Common::config('attachments', 'supported')));
+        $mime = new MimeTypes();
+        $passed_blacklist = count(array_intersect($mime->getExtensions($mimetype), Common::config('attachments', 'ext_blacklist'))) === 0;
+        unset($mime);
+        return $passed_whitelist && $passed_blacklist;
     }
 
     /**
