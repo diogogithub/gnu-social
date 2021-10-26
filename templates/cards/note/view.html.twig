@@ -1,4 +1,6 @@
 {% set nickname = note.getActorNickname() %}
+{% set fullname = note.getActorFullname() %}
+{% set actor_url = note.getActor().getUrl() %}
 {% if note_actions_show is not defined %} {% set note_actions_show = true %} {% endif %}
 
 <article class="h-entry hentry note">
@@ -10,10 +12,12 @@
 
         {# TODO: this should link to the note's user profile? #}
         <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
-            <strong class="note-author u-url">
-                {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
-                {{ nickname }}
-            </strong>
+            {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
+            <a href="{{ actor_url }}" class="note-author u-url">
+                <strong class="note-author-fullname">{{ fullname }}</strong>
+                <em class="note-author-nickname">{{ nickname }}</em>
+                <em class="note-author-instance">{{ nickname }}</em>
+            </a>
 
             {% if app.user and note_actions_show %}
                 <div class="note-actions">
@@ -30,7 +34,6 @@
         </div>
 
         <section tabindex="0" role="dialog" class="e-content entry-content note-content">
-
             <div class="note-text" tabindex="0" title="{{ 'Note text content.' | trans }}">
                 {{ note.getRendered() | raw }}
             </div>

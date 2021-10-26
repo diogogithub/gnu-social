@@ -52,7 +52,7 @@ class Actor extends Entity
     // @codeCoverageIgnoreStart
     private int $id;
     private string $nickname;
-    private ?string $fullname;
+    private string $fullname;
     private int $roles = 4;
     private ?string $homepage;
     private ?string $bio;
@@ -86,13 +86,13 @@ class Actor extends Entity
         return $this->nickname;
     }
 
-    public function setFullname(?string $fullname): self
+    public function setFullname(string $fullname): self
     {
         $this->fullname = $fullname;
         return $this;
     }
 
-    public function getFullname(): ?string
+    public function getFullname(): string
     {
         return $this->fullname;
     }
@@ -231,6 +231,13 @@ class Actor extends Entity
     {
         return Cache::get('actor-nickname-id-' . $id, function () use ($id) {
             return self::getById($id)->getNickname();
+        });
+    }
+
+    public static function getFullnameById(int $id): string
+    {
+        return Cache::get('actor-fullname-id-' . $id, function () use ($id) {
+            return self::getById($id)->getFullname();
         });
     }
 

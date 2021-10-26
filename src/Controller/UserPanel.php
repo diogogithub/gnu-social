@@ -102,8 +102,9 @@ class UserPanel extends AbstractController
             ['self_tags',  TextType::class,      ['label' => _m('Self Tags'), 'required' => false, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.'), 'transformer' => ArrayTransformer::class]],
             ['save_personal_info',       SubmitType::class,    ['label' => _m('Save personal info')]],
         ];
-        $extra_step = function ($data, $extra_args) use ($user) {
+        $extra_step = function ($data, $extra_args) use ($user, $actor) {
             $user->setNickname($data['nickname']);
+            if (!$data['full_name'] && !$actor->getFullname()) { $actor->setFullname($data['nickname']); }
         };
         return Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
     }

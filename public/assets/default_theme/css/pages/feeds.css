@@ -154,7 +154,6 @@ embed header {
 
 .note-author {
     font-size: var(--default);
-    font-weight: bold;
     display: -webkit-box;
     display: -webkit-flex;
     display: -moz-box;
@@ -169,6 +168,15 @@ embed header {
     -ms-flex-item-align: center;
     -ms-grid-row-align: center;
     align-self: center
+}
+.note-author-fullname {
+    font-weight: bold;
+}
+.note-author-nickname {
+    opacity: 0.5;
+}
+.note-author-nickname::before {
+    content: '@';
 }
 
 .note-actions {
