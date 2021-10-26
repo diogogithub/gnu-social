@@ -46,13 +46,14 @@ class Favourite extends Controller
      * @throws NoSuchNoteException
      * @throws InvalidFormException
      * @throws \App\Util\Exception\ServerException
+     * @throws NoLoggedInUser
      */
-    public function noteAddFavourite(Request $request, int $id): bool|array
+    public function favouriteAddNote(Request $request, int $id): bool|array
     {
         $user = Common::ensureLoggedIn();
         $opts = ['id' => $id];
         $add_favourite_note = DB::find('note', $opts);
-        if (!$user || $add_favourite_note === null) {
+        if (is_null($add_favourite_note)) {
             throw new NoSuchNoteException();
         }
 
@@ -71,13 +72,17 @@ class Favourite extends Controller
 
         if ($form_add_to_favourite->isSubmitted()) {
             $opts = ['note_id' => $id, 'actor_id' => $user->getId()];
-            DB::persist(FavouriteEntity::create($opts));
-            DB::flush();
+            $note_already_favourited = DB::find('favourite', $opts);
 
-            if ($redirect_back_exists = explode("&", explode("?", $_SERVER['REQUEST_URI'])[1] )[0]) {
-                $redirect_back_exists = substr($redirect_back_exists, 5);
+            if (is_null($note_already_favourited)) {
+                $opts = ['note_id' => $id, 'actor_id' => $user->getId()];
+                DB::persist(FavouriteEntity::create($opts));
+                DB::flush();
+            }
+
+            if (array_key_exists('from', $get_params = $this->params())) {
                 # TODO anchor on element id
-                throw new RedirectException($redirect_back_exists);
+                throw new RedirectException($get_params['from']);
             }
         }
 
@@ -95,12 +100,12 @@ class Favourite extends Controller
      * @throws \App\Util\Exception\ServerException
      * @throws NoLoggedInUser
      */
-    public function noteRemoveFavourite(Request $request, int $id): array
+    public function favouriteRemoveNote(Request $request, int $id): array
     {
         $user = Common::ensureLoggedIn();
         $opts = ['note_id' => $id, 'actor_id' => $user->getId()];
         $remove_favourite_note = DB::find('favourite', $opts);
-        if (!$user || $remove_favourite_note === null) {
+        if (is_null($remove_favourite_note)) {
             throw new NoSuchNoteException();
         }
 
@@ -117,13 +122,14 @@ class Favourite extends Controller
 
         $form_remove_favourite->handleRequest($request);
         if ($form_remove_favourite->isSubmitted()) {
-            DB::remove($remove_favourite_note);
-            DB::flush();
+            if ($remove_favourite_note) {
+                DB::remove($remove_favourite_note);
+                DB::flush();
+            }
 
-            if ($redirect_back_exists = explode("&", explode("?", $_SERVER['REQUEST_URI'])[1] )[0]) {
-                $redirect_back_exists = substr($redirect_back_exists, 5);
+            if (array_key_exists('from', $get_params = $this->params())) {
                 # TODO anchor on element id
-                throw new RedirectException($redirect_back_exists);
+                throw new RedirectException($get_params['from']);
             }
         }
 

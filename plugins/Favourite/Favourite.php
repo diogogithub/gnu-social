@@ -63,11 +63,11 @@ class Favourite extends NoteHandlerPlugin
         $args = ['id' => $note->getId()];
         $type = Router::ABSOLUTE_PATH;
         $favourite_action_url = $is_favourite ?
-            Router::url('note_remove_favourite', $args, $type) :
-            Router::url('note_add_favourite', $args, $type);
+            Router::url('favourite_remove', $args, $type) :
+            Router::url('favourite_add', $args, $type);
 
         // Concatenating get parameter to redirect the user to where he came from
-        $favourite_action_url .= '?from=' . urlencode(Common::route());
+        $favourite_action_url .= '?from=' . substr($request->getQueryString(), 2);
 
         $extra_classes =  $is_favourite ? "note-actions-set" : "note-actions-unset";
         $favourite_action = [
@@ -82,24 +82,24 @@ class Favourite extends NoteHandlerPlugin
 
     public function onAddProfileNavigationItem(array $vars, array &$res): bool
     {
-        $res[] = ['title' => 'Favourites', 'path' => Router::url('actor_favourites_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'actor_favourites_nickname'];
-        $res[] = ['title' => 'Reverse Favourites', 'path' => Router::url('actor_reverse_favourites_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'actor_reverse_favourites_nickname'];
+        $res[] = ['title' => 'Favourites', 'path' => Router::url('favourites_view_by_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'favourites_view_by_nickname'];
+        $res[] = ['title' => 'Reverse Favourites', 'path' => Router::url('favourites_reverse_view_by_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'favourites_view_by_nickname'];
         return Event::next;
     }
 
     public function onAddRoute(RouteLoader $r): bool
     {
         // Add/remove note to/from favourites
-        $r->connect(id: 'note_add_favourite', uri_path: '/note/{id<\d+>}/add_favourite', target: [Controller\Favourite::class, 'noteAddFavourite']);
-        $r->connect(id: 'note_remove_favourite', uri_path: '/note/{id<\d+>}/remove_favourite', target: [Controller\Favourite::class, 'noteRemoveFavourite']);
+        $r->connect(id: 'favourite_add', uri_path: '/object/note/{id<\d+>}/favour', target: [Controller\Favourite::class, 'favouriteAddNote']);
+        $r->connect(id: 'favourite_remove', uri_path: '/object/note/{id<\d+>}/unfavour', target: [Controller\Favourite::class, 'favouriteRemoveNote']);
 
         // View all favourites by actor id
-        $r->connect(id: 'actor_favourites_id', uri_path: '/actor/{id<\d+>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorId']);
-        $r->connect(id: 'actor_reverse_favourites_id', uri_path: '/actor/{id<\d+>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorId']);
+        $r->connect(id: 'favourites_view_by_actor_id', uri_path: '/actor/{id<\d+>}/favourites', target: [Controller\Favourite::class, 'favouritesViewByActorId']);
+        $r->connect(id: 'favourites_reverse_view_by_actor_id', uri_path: '/actor/{id<\d+>}/reverse_favourites', target: [Controller\Favourite::class, 'favouritesReverseViewByActorId']);
 
         // View all favourites by nickname
-        $r->connect(id: 'actor_favourites_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorNickname']);
-        $r->connect(id: 'actor_reverse_favourites_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorNickname']);
+        $r->connect(id: 'favourites_view_by_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorNickname']);
+        $r->connect(id: 'favourites_reverse_view_by_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorNickname']);
         return Event::next;
     }
 }

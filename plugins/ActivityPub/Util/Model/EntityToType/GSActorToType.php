@@ -32,7 +32,7 @@ class GSActorToType
             'outbox'    => Router::url('activitypub_actor_outbox', ['gsactor_id' => $gsactor->getId()], Router::ABSOLUTE_URL),
             'following' => Router::url('actor_subscriptions_id', ['id' => $gsactor->getId()], Router::ABSOLUTE_URL),
             'followers' => Router::url('actor_subscribers_id', ['id' => $gsactor->getId()], Router::ABSOLUTE_URL),
-            'liked'     => Router::url('actor_favourites_id', ['id' => $gsactor->getId()], Router::ABSOLUTE_URL),
+            'liked'     => Router::url('favourites_view_by_actor_id', ['id' => $gsactor->getId()], Router::ABSOLUTE_URL),
             //'streams' =>
             'preferredUsername' => $gsactor->getNickname(),
             'publicKey' => [
