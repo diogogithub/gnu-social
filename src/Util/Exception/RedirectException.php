@@ -33,17 +33,21 @@ class RedirectException extends Exception
 
     /**
      * Used for responding to a request with a redirect. Either
-     * generates a url from a $route_id and $params or fully formed,
+     * generates a url from a $route_id_or_path and $params or fully formed,
      * from $url. Prevents open redirects, unless $allow_open_redirect
      */
-    public function __construct(string $route_id = '', array $params = [], string $message = '', int $code = 302, ?string $url = null, bool $allow_open_redirect = false, ?Exception $previous_exception = null)
+    public function __construct(string $route_id_or_path = '', array $params = [], string $message = '', int $code = 302, ?string $url = null, bool $allow_open_redirect = false, ?Exception $previous_exception = null)
     {
-        if (!empty($route_id) || !empty($url)) {
-            $url ??= Router::url($route_id, $params, Router::ABSOLUTE_PATH); // Absolute path doesn't include host
-            if (!$allow_open_redirect) {
-                if (Router::isAbsolute($url)) {
-                    Log::warning("A RedirectException that shouldn't allow open redirects attempted to redirect to {$url}");
-                    throw new ServerException(_m('Can not redirect to outside the website from here'), 5400); // 500 Internal server error (likely a bug)
+        if (!empty($route_id_or_path) || !empty($url)) {
+            if ($route_id_or_path[0] === '/') {
+                $url = "https://{$_ENV['SOCIAL_DOMAIN']}{$route_id_or_path}";
+            } else {
+                $url ??= Router::url($route_id_or_path, $params, Router::ABSOLUTE_PATH); // Absolute path doesn't include host
+                if (!$allow_open_redirect) {
+                    if (Router::isAbsolute($url)) {
+                        Log::warning("A RedirectException that shouldn't allow open redirects attempted to redirect to {$url}");
+                        throw new ServerException(_m('Can not redirect to outside the website from here'), 5400); // 500 Internal server error (likely a bug)
+                    }
                 }
             }
             $this->redirect_response = new RedirectResponse($url);
