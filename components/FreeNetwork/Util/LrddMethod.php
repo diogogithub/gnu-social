@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Component\FreeNetwork\Util;
 
 use App\Core\Event;
 use App\Core\HTTPClient;
+use Exception;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 use XML_XRD;
 
 /**
@@ -40,26 +44,14 @@ abstract class LrddMethod
      */
     abstract public function discover($uri);
 
-    protected function fetchUrl($url, $method = HTTPClient::METHOD_GET)
+    protected function fetchUrl($url, $method = 'get'): ResponseInterface
     {
         // If we have a blacklist enabled, let's check against it
         Event::handle('UrlBlacklistTest', [$url]);
 
-        $client = new HTTPClient();
+        $response = HTTPClient::$method($url);
 
-        // GAAHHH, this method sucks! How about we make a better HTTPClient interface?
-        switch ($method) {
-            case HTTPClient::METHOD_GET:
-                $response = $client->get($url);
-                break;
-            case HTTPClient::METHOD_HEAD:
-                $response = $client->head($url);
-                break;
-            default:
-                throw new Exception('Bad HTTP method.');
-        }
-
-        if ($response->getStatus() != 200) {
+        if ($response->getStatusCode() !== 200) {
             throw new Exception('Unexpected HTTP status code.');
         }
 

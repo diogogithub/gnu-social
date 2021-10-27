@@ -21,14 +21,12 @@ declare(strict_types = 1);
 
 namespace Component\FreeNetwork;
 
-use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Router\Router;
-use Component\FreeNetwork\Entity\FreenetworkActor;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
+use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Entity\Note;
@@ -43,7 +41,7 @@ use Component\FreeNetwork\Controller\Webfinger;
 use Component\FreeNetwork\Util\Discovery;
 use Component\FreeNetwork\Util\WebfingerResource;
 use Component\FreeNetwork\Util\WebfingerResource\WebfingerResourceActor;
-use Doctrine\ORM\NoResultException;
+use Component\FreeNetwork\Util\WebfingerResource\WebfingerResourceNote;
 use Exception;
 use Plugin\ActivityPub\Entity\ActivitypubActivity;
 use Plugin\ActivityPub\Util\Response\TypeResponse;
@@ -62,82 +60,46 @@ use XML_XRD_Element_Link;
  */
 class FreeNetwork extends Component
 {
-    const PLUGIN_VERSION = '0.1.0';
+    public const PLUGIN_VERSION = '0.1.0';
 
-    const OAUTH_ACCESS_TOKEN_REL  = 'http://apinamespace.org/oauth/access_token';
-    const OAUTH_REQUEST_TOKEN_REL = 'http://apinamespace.org/oauth/request_token';
-    const OAUTH_AUTHORIZE_REL     = 'http://apinamespace.org/oauth/authorize';
+    public const OAUTH_ACCESS_TOKEN_REL  = 'http://apinamespace.org/oauth/access_token';
+    public const OAUTH_REQUEST_TOKEN_REL = 'http://apinamespace.org/oauth/request_token';
+    public const OAUTH_AUTHORIZE_REL     = 'http://apinamespace.org/oauth/authorize';
 
     public function onAddRoute(RouteLoader $m): bool
     {
         $m->connect('freenetwork_hostmeta', '.well-known/host-meta', [HostMeta::class, 'handle']);
-        $m->connect('freenetwork_hostmeta_format', '.well-known/host-meta.:format',
+        $m->connect(
+            'freenetwork_hostmeta_format',
+            '.well-known/host-meta.:format',
             [HostMeta::class, 'handle'],
-            ['format' => '(xml|json)']);
+            ['format' => '(xml|json)'],
+        );
         // the resource GET parameter can be anywhere, so don't mention it here
         $m->connect('freenetwork_webfinger', '.well-known/webfinger', [Webfinger::class, 'handle']);
-        $m->connect('freenetwork_webfinger_format', '.well-known/webfinger.:format',
+        $m->connect(
+            'freenetwork_webfinger_format',
+            '.well-known/webfinger.:format',
             [Webfinger::class, 'handle'],
-            ['format' => '(xml|json)']);
+            ['format' => '(xml|json)'],
+        );
         $m->connect('freenetwork_ownerxrd', 'main/ownerxrd', [OwnerXrd::class, 'handle']);
         return Event::next;
     }
 
-    public function onLoginAction($action, &$login)
-    {
-        switch ($action) {
-            case 'hostmeta':
-            case 'webfinger':
-                $login = true;
-                return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param Actor $actor
-     * @param LocalUser $user
-     * @return bool
-     */
-//    public function onSuccessfulLocalUserRegistration(Actor $actor, LocalUser $user): bool
-//    {
-//        //$profile_page = Router::url(id: 'actor_view_nickname', args: ['nickname' => $actor->getNickname()], type: Router::ABSOLUTE_URL);
-//        $profile_page = $actor->getUrl(Router::ABSOLUTE_URL);
-//        $actor_uri = $actor->getUri(Router::ABSOLUTE_URL);
-//        Event::handle('FreeNetworkSaveProfilePage', [$source = 'user', $actor_id = $actor->getId(), &$profile_page, &$actor_uri]);
-//        $fnactorpp = FreenetworkActor::create([
-//            'actor_uri' => $profile_page,
-//            'source'    => $source,
-//            'actor_id'  => $actor_id,
-//            'is_local'  => true,
-//        ]);
-//        DB::persist($fnactorpp);
-//        if ($profile_page !== $actor_uri) {
-//            $fnactoruri = FreenetworkActor::create([
-//                'actor_uri' => $actor_uri,
-//                'source' => $source,
-//                'actor_id' => $actor_id,
-//                'is_local' => true,
-//            ]);
-//            DB::persist($fnactoruri);
-//        }
-//        return Event::next;
-//    }
-
-    public function onStartGetProfileAcctUri(Actor $profile, &$acct)
+    public function onStartGetProfileAcctUri(Actor $profile, &$acct): bool
     {
         $wfr = new WebFingerResourceActor($profile);
         try {
             $acct = $wfr->reconstructAcct();
-        } catch (Exception $e) {
-            return true;
+        } catch (Exception) {
+            return Event::next;
         }
 
-        return false;
+        return Event::stop;
     }
 
-    public function onEndGetWebFingerResource($resource, WebfingerResource &$target = null, array $args = [])
+    public function onEndGetWebFingerResource($resource, ?WebfingerResource &$target = null, array $args = [])
     {
         // * Either we didn't find the profile, then we want to make
         //   the $profile variable null for clarity.
@@ -147,57 +109,41 @@ class FreeNetwork extends Component
         //   our search here by discarding the remote profile.
         $profile = null;
         if (Discovery::isAcct($resource)) {
-            $parts = explode('@', substr(urldecode($resource), 5)); // 5 is strlen of 'acct:'
-            if (count($parts) == 2) {
-                list($nick, $domain) = $parts;
-                if ($domain !== $_ENV['SOCIAL_DOMAIN']) {// XXX: Common::config('site', 'server')) {
+            $parts = explode('@', mb_substr(urldecode($resource), 5)); // 5 is strlen of 'acct:'
+            if (\count($parts) == 2) {
+                [$nick, $domain] = $parts;
+                if ($domain !== $_ENV['SOCIAL_DOMAIN']) {
                     throw new ServerException(_m('Remote profiles not supported via WebFinger yet.'));
                 }
 
-                $nick = Nickname::normalize(nickname: $nick, check_already_used: false, check_is_allowed: false);
+                $nick              = Nickname::normalize(nickname: $nick, check_already_used: false, check_is_allowed: false);
                 $freenetwork_actor = LocalUser::getWithPK(['nickname' => $nick]);
                 if (!($freenetwork_actor instanceof LocalUser)) {
                     throw new NoSuchActorException($nick);
                 }
                 $profile = $freenetwork_actor->getActor();
             }
-        } elseif (!filter_var($resource, FILTER_VALIDATE_URL)) {
-            // Try the User URI lookup!
-            try {
-                $resource_parts = parse_url($resource);
-                if ($resource_parts['host'] === $_ENV['SOCIAL_DOMAIN']) {
-                    $str = parse_url($resource_parts['path']);
-                    // actor_view_nickname
-                    $renick = '/\/@(' . Nickname::DISPLAY_FMT . ')\/?/m';
-                    // actor_view_id
-                    $reuri = '/\/actor/(\d+)\/?/m';
-                    if (preg_match_all($renick, $str, $matches, PREG_SET_ORDER, 0) === 1) {
-                        $profile = LocalUser::getWithPK(['nickname' => $matches[1]])->getActor();
-                    } else if (preg_match_all($reuri, $str, $matches, PREG_SET_ORDER, 0) === 1) {
-                        $profile = Actor::getById($matches[1]);
-                    }
-                } else {
-                    throw new NoResultException();
-                }
-            } catch (NoResultException $e) {
-                // not a User, maybe a Note? we'll try that further down...
-            }
         } else {
-            // this means $resource is a common_valid_http_url (or https)
-            // First build up a set of alternative resource URLs that we can use.
             try {
-                Log::debug(__METHOD__ . ': Finding User URI for WebFinger lookup on resource==' . $resource);
-                $freenetwork_actor = FreenetworkActor::getWithPK(['profile_page' => $resource]);
-                if ($freenetwork_actor !== null) {
-                    $profile = Actor::getById($freenetwork_actor->getActorId());
+                if (filter_var($resource, \FILTER_VALIDATE_URL) !== false) {
+                    // This means $resource is a valid url
+                    $resource_parts = parse_url($resource);
+                    // TODO: Use URLMatcher
+                    if ($resource_parts['host'] === $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
+                        $str = $resource_parts['path'];
+                        // actor_view_nickname
+                        $renick = '/\/@(' . Nickname::DISPLAY_FMT . ')\/?/m';
+                        // actor_view_id
+                        $reuri = '/\/actor\/(\d+)\/?/m';
+                        if (preg_match_all($renick, $str, $matches, \PREG_SET_ORDER, 0) === 1) {
+                            $profile = LocalUser::getWithPK(['nickname' => $matches[0][1]])->getActor();
+                        } elseif (preg_match_all($reuri, $str, $matches, \PREG_SET_ORDER, 0) === 1) {
+                            $profile = Actor::getById((int) $matches[0][1]);
+                        }
+                    }
                 }
-                unset($freenetwork_actor);
-            } catch (Exception $e) {
-                // Most likely a UserNoProfileException, if it ever happens
-                // and then we need to do some debugging and perhaps fixes.
-                Log::error(get_class($e) . ': ' . $e->getMessage());
-                throw $e;
-            }
+            } catch (NoSuchActorException $e) {
+                // not a User, maybe a Note? we'll try that further down...
 
 //            try {
 //                Log::debug(__METHOD__ . ': Finding User_group URI for WebFinger lookup on resource==' . $resource);
@@ -212,44 +158,46 @@ class FreeNetwork extends Component
 //                Log::error(get_class($e) . ': ' . $e->getMessage());
 //                throw $e;
 //            }
+            }
         }
 
         if ($profile instanceof Actor) {
             Log::debug(__METHOD__ . ': Found Profile with ID==' . $profile->getID() . ' for resource==' . $resource);
             $target = new WebfingerResourceActor($profile);
-            return false;   // We got our target, stop handler execution
+            return Event::stop; // We got our target, stop handler execution
         }
 
         $APNote = ActivitypubActivity::getWithPK(['object_uri' => $resource]);
         if ($APNote instanceof ActivitypubActivity) {
-            $target = new WebfingerResource\WebfingerResourceNote(Note::getWithPK(['id' => $APNote->getObjectId()]));
-            return false;
+            $target = new WebfingerResourceNote(Note::getWithPK(['id' => $APNote->getObjectId()]));
+            return Event::stop; // We got our target, stop handler execution
         }
 
-        return true;
+        return Event::next;
     }
 
-    public function onStartHostMetaLinks(array &$links)
+    public function onStartHostMetaLinks(array &$links): bool
     {
         foreach (Discovery::supportedMimeTypes() as $type) {
-            $links[] = new XML_XRD_Element_Link(Discovery::LRDD_REL,
+            $links[] = new XML_XRD_Element_Link(
+                Discovery::LRDD_REL,
                 Router::url(id: 'freenetwork_webfinger', args: [], type: Router::ABSOLUTE_URL) . '?resource={uri}',
                 $type,
-                isTemplate: true);
+                isTemplate: true,
+            );
         }
 
         // TODO OAuth connections
         //$links[] = new XML_XRD_Element_link(self::OAUTH_ACCESS_TOKEN_REL, common_local_url('ApiOAuthAccessToken'));
         //$links[] = new XML_XRD_Element_link(self::OAUTH_REQUEST_TOKEN_REL, common_local_url('ApiOAuthRequestToken'));
         //$links[] = new XML_XRD_Element_link(self::OAUTH_AUTHORIZE_REL, common_local_url('ApiOAuthAuthorize'));
+        return Event::next;
     }
 
     /**
      * Add a link header for LRDD Discovery
-     *
-     * @param mixed $action
      */
-    public function onStartShowHTML($action)
+    public function onStartShowHTML($action): bool
     {
         if ($action instanceof ShowstreamAction) {
             $resource = $action->getTarget()->getUri();
@@ -259,18 +207,21 @@ class FreeNetwork extends Component
                 header('Link: <' . $url . '>; rel="' . Discovery::LRDD_REL . '"; type="' . $type . '"', false);
             }
         }
+        return Event::next;
     }
 
-    public function onStartDiscoveryMethodRegistration(Discovery $disco)
+    public function onStartDiscoveryMethodRegistration(Discovery $disco): bool
     {
-        $disco->registerMethod('LRDDMethod_WebFinger');
+        $disco->registerMethod('\Component\FreeNetwork\Util\LrddMethod\LrddMethodWebfinger');
+        return Event::next;
     }
 
-    public function onEndDiscoveryMethodRegistration(Discovery $disco)
+    public function onEndDiscoveryMethodRegistration(Discovery $disco): bool
     {
-        $disco->registerMethod('LRDDMethod_HostMeta');
-        $disco->registerMethod('LRDDMethod_LinkHeader');
-        $disco->registerMethod('LRDDMethod_LinkHTML');
+        $disco->registerMethod('\Component\FreeNetwork\Util\LrddMethod\LrddMethodHostMeta');
+        $disco->registerMethod('\Component\FreeNetwork\Util\LrddMethod\LrddMethodLinkHeader');
+        $disco->registerMethod('\Component\FreeNetwork\Util\LrddMethod\LrddMethodLinkHtml');
+        return Event::next;
     }
 
     /**
@@ -279,7 +230,7 @@ class FreeNetwork extends Component
      */
     public function onControllerResponseInFormat(string $route, array $accept_header, array $vars, ?TypeResponse &$response = null): bool
     {
-        if (!in_array($route, ['freenetwork_hostmeta', 'freenetwork_hostmeta_format', 'freenetwork_webfinger', 'freenetwork_webfinger_format', 'freenetwork_ownerxrd'])) {
+        if (!\in_array($route, ['freenetwork_hostmeta', 'freenetwork_hostmeta_format', 'freenetwork_webfinger', 'freenetwork_webfinger_format', 'freenetwork_ownerxrd'])) {
             return Event::next;
         }
 
@@ -293,7 +244,7 @@ class FreeNetwork extends Component
          *                                       -- RFC 7033 (WebFinger)
          *                            http://tools.ietf.org/html/rfc7033
          */
-        $mimeType = count($mimeType) !== 0 ? array_pop($mimeType) : $vars['default_mimetype'];
+        $mimeType = \count($mimeType) !== 0 ? array_pop($mimeType) : $vars['default_mimetype'];
 
         $headers = [];
 
@@ -308,32 +259,6 @@ class FreeNetwork extends Component
             Discovery::JRD_MIMETYPE, Discovery::JRD_MIMETYPE_OLD => new JsonResponse(data: $vars['xrd']->to('json'), headers: $headers, json: true),
         };
         return Event::stop;
-    }
-
-    /**
-     * Fetch all the aliases of some remote profile
-     *
-     * @param string $uri profile's URI
-     *
-     * @throws Exception (If the Discovery's HTTP requests fail)
-     *
-     * @return null|array aliases
-     *
-     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
-     */
-    public static function grab_profile_aliases(string $uri): ?array
-    {
-        $disco = new Discovery();
-        $xrd   = $disco->lookup($uri);
-
-        $all_ids = array_merge([$xrd->subject], $xrd->aliases);
-
-        if (!in_array($uri, $all_ids)) {
-            Log::info('The original URI was not listed itself when doing discovery on it!');
-            return null;
-        }
-
-        return $all_ids;
     }
 
     public function onPluginVersion(array &$versions): bool

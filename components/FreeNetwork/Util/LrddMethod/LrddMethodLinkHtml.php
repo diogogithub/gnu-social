@@ -47,7 +47,7 @@ class LrddMethodLinkHtml extends LRDDMethod
     {
         $response = self::fetchUrl($uri);
 
-        return self::parse($response->getBody());
+        return self::parse($response->getContent());
     }
 
     /**

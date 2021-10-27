@@ -17,6 +17,7 @@ namespace Component\FreeNetwork\Util\LrddMethod;
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 use App\Core\Log;
+use Component\FreeNetwork\Util\Discovery;
 use Component\FreeNetwork\Util\LrddMethod;
 use Exception;
 
@@ -72,7 +73,7 @@ class LrddMethodHostMeta extends LRDDMethod
 
             try {
                 $response = self::fetchUrl($url);
-                $this->xrd->loadString($response->getBody());
+                $this->xrd->loadString($response->getContent());
             } catch (Exception $e) {
                 Log::debug('LRDD could not load resource descriptor: ' . $url . ' (' . $e->getMessage() . ')');
                 continue;

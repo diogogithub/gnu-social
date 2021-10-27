@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 /**
  * StatusNet - the distributed open-source microblogging tool
  * Copyright (C) 2010, StatusNet, Inc.
@@ -37,31 +39,32 @@
 namespace Component\FreeNetwork\Util;
 
 use App\Core\Event;
+use App\Core\GSFile;
 use App\Core\HTTPClient;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Util\Exception\ClientException;
+use Exception;
 use XML_XRD;
-use function App\Core\I18n\_m;
+use XML_XRD_Element_Link;
 
 class Discovery
 {
-    const LRDD_REL    = 'lrdd';
-    const UPDATESFROM = 'http://schemas.google.com/g/2010#updates-from';
-    const HCARD       = 'http://microformats.org/profile/hcard';
-    const MF2_HCARD   = 'http://microformats.org/profile/h-card';   // microformats2 h-card
+    public const LRDD_REL    = 'lrdd';
+    public const UPDATESFROM = 'http://schemas.google.com/g/2010#updates-from';
+    public const HCARD       = 'http://microformats.org/profile/hcard';
+    public const MF2_HCARD   = 'http://microformats.org/profile/h-card';   // microformats2 h-card
 
-    const JRD_MIMETYPE_OLD = 'application/json';    // RFC6415 uses this
-    const JRD_MIMETYPE     = 'application/jrd+json';
-    const XRD_MIMETYPE     = 'application/xrd+xml';
+    public const JRD_MIMETYPE_OLD = 'application/json';    // RFC6415 uses this
+    public const JRD_MIMETYPE     = 'application/jrd+json';
+    public const XRD_MIMETYPE     = 'application/xrd+xml';
 
-    public $methods = [];
+    public array $methods = [];
 
     /**
      * Constructor for a discovery object
      *
      * Registers different discovery methods.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -70,7 +73,7 @@ class Discovery
         }
     }
 
-    public static function supportedMimeTypes()
+    public static function supportedMimeTypes(): array
     {
         return [
             'json'    => self::JRD_MIMETYPE,
@@ -83,10 +86,8 @@ class Discovery
      * Register a discovery class
      *
      * @param string $class Class name
-     *
-     * @return void
      */
-    public function registerMethod($class)
+    public function registerMethod($class): void
     {
         $this->methods[] = $class;
     }
@@ -98,9 +99,9 @@ class Discovery
      *
      * @return XML_XRD object for the resource descriptor of the id
      */
-    public function lookup($id)
+    public function lookup(string $id): XML_XRD
     {
-        // Normalize the incoming $id to make sure we have a uri
+        // Normalize the incoming $id to make sure we have an uri
         $uri = self::normalize($id);
 
         Log::debug(sprintf('Performing discovery for "%s" (normalized "%s")', $id, $uri));
@@ -123,18 +124,17 @@ class Discovery
                     throw new Exception('No resource descriptor URI in link.');
                 }
 
-                $client  = new HTTPClient();
                 $headers = [];
-                if (!is_null($link->type)) {
-                    $headers[] = "Accept: {$link->type}";
+                if (!\is_null($link->type)) {
+                    $headers['Accept'] = $link->type;
                 }
 
-                $response = $client->get($xrd_uri, $headers);
-                if ($response->getStatus() != 200) {
+                $response = HTTPClient::get($xrd_uri, ['headers' => $headers]);
+                if ($response->getStatusCode() !== 200) {
                     throw new Exception('Unexpected HTTP status code.');
                 }
 
-                switch (common_bare_mime($response->getHeader('content-type'))) {
+                switch (GSFile::mimetypeBare($response->getHeaders()['content-type'][0])) {
                     case self::JRD_MIMETYPE_OLD:
                     case self::JRD_MIMETYPE:
                         $type = 'json';
@@ -144,24 +144,24 @@ class Discovery
                         break;
                     default:
                         // fall back to letting XML_XRD auto-detect
-                        Log::debug('No recognized content-type header for resource descriptor body on ' . _ve($xrd_uri));
+                        Log::debug('No recognized content-type header for resource descriptor body on ' . $xrd_uri);
                         $type = null;
                 }
-                $xrd->loadString($response->getBody(), $type);
+                $xrd->loadString($response->getContent(), $type);
                 return $xrd;
             } catch (ClientException $e) {
                 if ($e->getCode() === 403) {
-                    Log::info(sprintf('%s: Aborting discovery on URL %s: %s', _ve($class), _ve($uri), _ve($e->getMessage())));
+                    Log::info(sprintf('%s: Aborting discovery on URL %s: %s', $class, $uri, $e->getMessage()));
                     break;
                 }
             } catch (Exception $e) {
-                Log::info(sprintf('%s: Failed for %s: %s', _ve($class), _ve($uri), _ve($e->getMessage())));
+                Log::info(sprintf('%s: Failed for %s: %s', $class, $uri, $e->getMessage()));
                 continue;
             }
         }
 
         // TRANS: Exception. %s is an ID.
-        throw new Exception(sprintf(_('Unable to find services for %s.'), $id));
+        throw new Exception(sprintf(_m('Unable to find services for %s.'), $id));
     }
 
     /**
@@ -170,9 +170,9 @@ class Discovery
      * @param array  $links   Links to check (as instances of XML_XRD_Element_Link)
      * @param string $service Service to find
      *
-     * @return array $link assoc array representing the link
+     * @return XML_XRD_Element_Link $link
      */
-    public static function getService(array $links, $service)
+    public static function getService(array $links, $service): XML_XRD_Element_Link
     {
         foreach ($links as $link) {
             if ($link->rel === $service) {
@@ -187,17 +187,12 @@ class Discovery
     /**
      * Given a "user id" make sure it's normalized to an acct: uri
      *
-     * @param string $user_id User ID to normalize
-     * @param mixed  $uri
+     * @param string $uri User ID to normalize
      *
      * @return string normalized acct: URI
      */
-    public static function normalize($uri)
+    public static function normalize(string $uri): string
     {
-        if (is_null($uri) || $uri === '') {
-            throw new Exception(_m('No resource given.'));
-        }
-
         $parts = parse_url($uri);
         // If we don't have a scheme, but the path implies user@host,
         // though this is far from a perfect matching procedure...
@@ -209,7 +204,7 @@ class Discovery
         return $uri;
     }
 
-    public static function isAcct($uri)
+    public static function isAcct($uri): bool
     {
         return mb_strtolower(mb_substr($uri, 0, 5)) == 'acct:';
     }
@@ -224,10 +219,8 @@ class Discovery
      *
      * @return string replaced values
      */
-    public static function applyTemplate($template, $uri)
+    public static function applyTemplate($template, $uri): string
     {
-        $template = str_replace('{uri}', urlencode($uri), $template);
-
-        return $template;
+        return str_replace('{uri}', urlencode($uri), $template);
     }
 }

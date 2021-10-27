@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Component\FreeNetwork\Util\LrddMethod;
 
-use App\Core\HTTPClient;
 use App\Core\Log;
 use Component\FreeNetwork\Util\LinkHeader;
 use Component\FreeNetwork\Util\LrddMethod;
@@ -29,16 +30,13 @@ class LrddMethodLinkHeader extends LRDDMethod
     /**
      * For HTTP IDs fetch the URL and look for Link headers.
      *
-     * @param mixed $uri
-     *
      * @todo fail out of WebFinger URIs faster
-     *
      */
     public function discover($uri)
     {
-        $response = self::fetchUrl($uri, HTTPClient::METHOD_HEAD);
+        $response = self::fetchUrl($uri, 'head');
 
-        $link_header = $response->getHeader('Link');
+        $link_header = $response->getHeaders()['link'][0];
         if (empty($link_header)) {
             throw new Exception('No Link header found');
         }
