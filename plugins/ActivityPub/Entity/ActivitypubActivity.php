@@ -42,7 +42,6 @@ class ActivitypubActivity extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $id;
     private string $activity_uri;
     private int $actor_id;
     private string $verb;
@@ -53,17 +52,6 @@ class ActivitypubActivity extends Entity
     private ?string $source;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
-
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
     public function getActivityUri(): string
     {
@@ -183,7 +171,6 @@ class ActivitypubActivity extends Entity
         return [
             'name'   => 'activitypub_activity',
             'fields' => [
-                'id'           => ['type' => 'serial',   'not null' => true],
                 'activity_uri' => ['type' => 'text',     'not null' => true, 'description' => 'Activity\'s URI'],
                 'actor_id'     => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'who made the note'],
                 'verb'         => ['type' => 'varchar',  'length' => 32,     'not null' => true, 'description' => 'internal activity verb, influenced by activity pub verbs'],
@@ -195,7 +182,7 @@ class ActivitypubActivity extends Entity
                 'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['id'],
+            'primary key' => ['activity_uri'],
             'indexes'     => [
                 'activity_activity_uri_idx' => ['activity_uri'],
                 'activity_object_uri_idx'   => ['object_uri'],

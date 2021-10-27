@@ -8,7 +8,7 @@
     "ext-ctype": "*",
     "ext-curl": "*",
     "ext-iconv": "*",
-    "ext-vips": "*",
+    "ext-openssl": "*",
     "alchemy/zippy": "v0.5.x-dev",
     "composer/package-versions-deprecated": "1.11.99.3",
     "doctrine/annotations": "^1.0",
@@ -62,8 +62,7 @@
     "twig/extra-bundle": "^2.12|^3.0",
     "twig/markdown-extra": "^3.0",
     "twig/twig": "^2.12|^3.0",
-    "wikimedia/composer-merge-plugin": "^2.0",
-    "ext-openssl": "*"
+    "wikimedia/composer-merge-plugin": "^2.0"
   },
   "require-dev": {
     "doctrine/doctrine-fixtures-bundle": "^3.4",

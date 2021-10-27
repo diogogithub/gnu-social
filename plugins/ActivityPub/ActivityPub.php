@@ -9,8 +9,12 @@ use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
+use App\Entity\LocalUser;
+use App\Util\Exception\NoSuchActorException;
+use App\Util\Nickname;
 use Exception;
 use Plugin\ActivityPub\Controller\Inbox;
+use Plugin\ActivityPub\Entity\ActivitypubActor;
 use Plugin\ActivityPub\Util\Response\ActorResponse;
 use Plugin\ActivityPub\Util\Response\NoteResponse;
 use Plugin\ActivityPub\Util\Response\TypeResponse;
@@ -19,11 +23,22 @@ use XML_XRD_Element_Link;
 
 class ActivityPub extends Plugin
 {
+    // ActivityStreams 2.0 Accept Headers
     public static array $accept_headers = [
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
         'application/activity+json',
         'application/json',
         'application/ld+json',
+    ];
+
+    // So that this isn't hardcoded everywhere
+    public const PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
+        'Public',
+        'as:Public',
+    ];
+    public const HTTP_CLIENT_HEADERS = [
+        'Accept'     => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+        'User-Agent' => 'GNUsocialBot ' . GNUSOCIAL_VERSION . ' - ' . GNUSOCIAL_PROJECT_URL,
     ];
 
     public function version(): string
@@ -43,21 +58,50 @@ class ActivityPub extends Plugin
             'activitypub_inbox',
             '/inbox.json',
             [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]]
+            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]],
         );
         $r->connect(
             'activitypub_actor_inbox',
             '/actor/{gsactor_id<\d+>}/inbox.json',
             [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]]
+            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]],
         );
         $r->connect(
             'activitypub_actor_outbox',
             '/actor/{gsactor_id<\d+>}/outbox.json',
             [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]]
+            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]],
         );
         return Event::next;
+    }
+
+    public static function getActorByUri(string $resource, ?bool $attempt_fetch = true): Actor
+    {
+        // Try local
+        if (filter_var($resource, \FILTER_VALIDATE_URL) !== false) {
+            // This means $resource is a valid url
+            $resource_parts = parse_url($resource);
+            // TODO: Use URLMatcher
+            if ($resource_parts['host'] === $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
+                $str = $resource_parts['path'];
+                // actor_view_nickname
+                $renick = '/\/@(' . Nickname::DISPLAY_FMT . ')\/?/m';
+                // actor_view_id
+                $reuri = '/\/actor\/(\d+)\/?/m';
+                if (preg_match_all($renick, $str, $matches, \PREG_SET_ORDER, 0) === 1) {
+                    return LocalUser::getWithPK(['nickname' => $matches[0][1]])->getActor();
+                } elseif (preg_match_all($reuri, $str, $matches, \PREG_SET_ORDER, 0) === 1) {
+                    return Actor::getById((int) $matches[0][1]);
+                }
+            }
+        }
+        // Try remote
+        $aprofile = ActivitypubActor::getByAddr($resource);
+        if ($aprofile instanceof ActivitypubActor) {
+            return Actor::getById($aprofile->getActorId());
+        } else {
+            throw new NoSuchActorException("From URI: {$resource}");
+        }
     }
 
     /**
@@ -99,21 +143,19 @@ class ActivityPub extends Plugin
     /**
      * Add activity+json mimetype on WebFinger
      *
-     * @param XML_XRD            $xrd
-     * @param Managed_DataObject $object
-     *
      * @throws Exception
      */
-    public function onEndWebFingerProfileLinks(XML_XRD $xrd, Actor $object)
+    public function onEndWebFingerProfileLinks(XML_XRD $xrd, Actor $object): bool
     {
         if ($object->isPerson()) {
             $link = new XML_XRD_Element_Link(
-                'self',
-                $object->getUri(Router::ABSOLUTE_URL),//Router::url('actor_view_id', ['id' => $object->getId()], Router::ABSOLUTE_URL),
-                'application/activity+json'
+                rel: 'self',
+                href: $object->getUri(Router::ABSOLUTE_URL),//Router::url('actor_view_id', ['id' => $object->getId()], Router::ABSOLUTE_URL),
+                type: 'application/activity+json',
             );
             $xrd->links[] = clone $link;
         }
+        return Event::next;
     }
 
     public function onFreeNetworkGenerateLocalActorUri(int $actor_id, ?array &$actor_uri): bool

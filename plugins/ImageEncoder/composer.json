@@ -1,5 +1,6 @@
 {
     "require": {
+        "ext-vips": "*",
         "jcupitt/vips": "1.0.8"
     }
 }

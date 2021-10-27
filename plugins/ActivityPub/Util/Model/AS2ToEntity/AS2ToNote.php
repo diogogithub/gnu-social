@@ -8,19 +8,24 @@ use App\Core\Event;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Formatting;
-use Component\FreeNetwork\Entity\FreenetworkActor;
 use DateTime;
 use Exception;
+use Plugin\ActivityPub\ActivityPub;
+use Plugin\ActivityPub\Entity\ActivitypubActivity;
 
 abstract class AS2ToNote
 {
     /**
      *@throws Exception
      */
-    public static function translate(array $object, ?string $source = null): Note
+    public static function translate(array $object, ?string $source, ?string $actor_uri, ?ActivitypubActivity $act = null): Note
     {
-        $actor_id = FreenetworkActor::getOrCreateByRemoteUri(actor_uri: $object['attributedTo'])->getActorId();
-        $map      = [
+        if (isset($actor_uri) && $actor_uri === $object['attributedTo']) {
+            $actor_id = $act->getActorId();
+        } else {
+            $actor_id = ActivityPub::getActorByUri($object['attributedTo'])->getId();
+        }
+        $map = [
             'is_local'     => false,
             'created'      => new DateTime($object['published'] ?? 'now'),
             'content'      => $object['content'] ?? null,

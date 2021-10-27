@@ -32,8 +32,16 @@ declare(strict_types = 1);
 
 namespace Plugin\ActivityPub\Entity;
 
+use App\Core\Cache;
 use App\Core\Entity;
+use function App\Core\I18n\_m;
+use App\Core\Log;
+use App\Entity\Actor;
+use Component\FreeNetwork\Util\Discovery;
 use DateTimeInterface;
+use Exception;
+use Plugin\ActivityPub\Util\DiscoveryHints;
+use Plugin\ActivityPub\Util\Explorer;
 
 /**
  * Table Definition for activitypub_actor
@@ -120,6 +128,97 @@ class ActivitypubActor extends Entity
     }
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    /**
+     * Look up, and if necessary create, an Activitypub_profile for the remote
+     * entity with the given WebFinger address.
+     * This should never return null -- you will either get an object or
+     * an exception will be thrown.
+     *
+     * @param string $addr WebFinger address
+     *
+     * @throws Exception on error conditions
+     */
+    public static function getByAddr(string $addr): self
+    {
+        // Normalize $addr, i.e. add 'acct:' if missing
+        $addr = Discovery::normalize($addr);
+
+        // Try the cache
+        $uri = Cache::get(sprintf('ActivitypubActor-webfinger-%s', urlencode($addr)), fn () => false);
+
+        if ($uri !== false) {
+            if (\is_null($uri)) {
+                // TRANS: Exception.
+                throw new Exception(_m('Not a valid WebFinger address (via cache).'));
+            }
+            try {
+                return self::fromUri($uri);
+            } catch (Exception $e) {
+                Log::error(sprintf(__METHOD__ . ': WebFinger address cache inconsistent with database, did not find Activitypub_profile uri==%s', $uri));
+                Cache::set(sprintf('ActivitypubActor-webfinger-%s', urlencode($addr)), false);
+            }
+        }
+
+        // Now, try some discovery
+
+        $disco = new Discovery();
+
+        try {
+            $xrd = $disco->lookup($addr);
+        } catch (Exception $e) {
+            // Save negative cache entry so we don't waste time looking it up again.
+            // @todo FIXME: Distinguish temporary failures?
+            Cache::set(sprintf('ActivitypubActor-webfinger-%s', urlencode($addr)), null);
+            // TRANS: Exception.
+            throw new Exception(_m('Not a valid WebFinger address: ' . $e->getMessage()));
+        }
+
+        $hints = array_merge(
+            ['webfinger' => $addr],
+            DiscoveryHints::fromXRD($xrd),
+        );
+
+        if (\array_key_exists('activitypub', $hints)) {
+            $uri = $hints['activitypub'];
+            try {
+                LOG::info("Discovery on acct:{$addr} with URI:{$uri}");
+                $aprofile = self::fromUri($hints['activitypub']);
+                Cache::set(sprintf('ActivitypubActor-webfinger-%s', urlencode($addr)), $aprofile->getUri());
+                return $aprofile;
+            } catch (Exception $e) {
+                Log::warning("Failed creating profile from URI:'{$uri}', error:" . $e->getMessage());
+                throw $e;
+                // keep looking
+                //
+                // @todo FIXME: This means an error discovering from profile page
+                // may give us a corrupt entry using the webfinger URI, which
+                // will obscure the correct page-keyed profile later on.
+            }
+        }
+
+        // XXX: try hcard
+        // XXX: try FOAF
+
+        // TRANS: Exception. %s is a WebFinger address.
+        throw new Exception(sprintf(_m('Could not find a valid profile for "%s".'), $addr));
+    }
+
+    /**
+     * Ensures a valid Activitypub_profile when provided with a valid URI.
+     *
+     * @param bool $grab_online whether to try online grabbing, defaults to true
+     *
+     * @throws Exception if it isn't possible to return an Activitypub_profile
+     */
+    public static function fromUri(string $url, bool $grab_online = true): self
+    {
+        try {
+            return Explorer::get_profile_from_url($url, $grab_online);
+        } catch (Exception $e) {
+            throw new Exception('No valid ActivityPub profile found for given URI.', previous: $e);
+        }
+    }
 
     public static function schemaDef(): array
     {
