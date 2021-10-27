@@ -39,6 +39,15 @@ use Psr\Log\LoggerInterface;
 
 /**
  * @mixin LoggerInterface
+ *
+ * @method static void debug(string $message, array $context = [])     // (100): Detailed debug information.
+ * @method static void info(string $message, array $context = [])      // (200): Interesting events. E.g.: SQL logs.
+ * @method static void notice(string $message, array $context = [])    // (250): Normal but significant events.
+ * @method static void warning(string $message, array $context = [])   // (300): Exceptional occurrences that are not errors. Examples: Use of deprecated APIs, poor use of an API, undesirable things that are not necessarily wrong.
+ * @method static void error(string $message, array $context = [])     // (400): Runtime errors that do not require immediate action but should typically be logged and monitored.
+ * @method static void critical(string $message, array $context = [])  // (500): Critical conditions. Example: Application component unavailable, unexpected exception.
+ * @method static void alert(string $message, array $context = [])     // (550): Action must be taken immediately. Example: Entire website down, database unavailable, etc. This should trigger the SMS alerts and wake the sysadmin up.
+ * @method static void emergency(string $message, array $context = []) // (600): Emergency: system is unusable.
  */
 abstract class Log
 {
