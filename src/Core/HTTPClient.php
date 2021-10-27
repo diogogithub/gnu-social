@@ -21,6 +21,9 @@ declare(strict_types = 1);
 
 namespace App\Core;
 
+use InvalidArgumentException;
+use Symfony\Component\HttpClient\Exception\ClientException as HTTPClientException;
+use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -44,6 +47,28 @@ abstract class HTTPClient
     public static function setClient(HttpClientInterface $client)
     {
         self::$client = $client;
+    }
+
+    public static function statusCodeIsOkay(int|ResponseInterface $status): bool
+    {
+        if (!\is_int($status)) {
+            $status = $status->getStatusCode();
+        }
+        return $status >= 200 && $status < 300;
+    }
+
+    public static function getEffectiveUrl(ResponseInterface $head): string
+    {
+        try {
+            // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
+            $head->getHeaders();
+            // @codeCoverageIgnoreStart
+        } catch (HTTPClientException|TransportException $e) {
+            throw new InvalidArgumentException(previous: $e);
+            // @codeCoverageIgnoreEnd
+        }
+        // The last effective url (after getHeaders, so it follows redirects)
+        return $head->getInfo('url');
     }
 
     public static function __callStatic(string $name, array $args)
