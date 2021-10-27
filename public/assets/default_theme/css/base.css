@@ -616,7 +616,8 @@ html {
             border-radius: var(--smaller);
         }
         50% {
-            -webkit-border-radius: var(--smaller);
+            -webkit-border-rns
+Enable/disabadius: var(--smaller);
             border-radius: var(--smaller);
             -webkit-box-shadow: inset 0 20px 40px #FFF;
             box-shadow: inset 0 20px 40px #FFF;

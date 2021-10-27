@@ -1,74 +1,120 @@
-{% set nickname = note.getActorNickname() %}
-{% set fullname = note.getActorFullname() %}
-{% set actor_url = note.getActor().getUrl() %}
-{% if note_actions_show is not defined %} {% set note_actions_show = true %} {% endif %}
+{% block note_actions %}
+    {% if app.user or note_actions_hide is defined %}
+        <div class="note-actions">
+            {% for current_action in get_note_actions(note) %}
+                <a class="{{ current_action["classes"] }}" href="{{ current_action["url"] }}"></a>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock note_actions %}
 
-<article class="h-entry hentry note">
+{% block note_reply_to %}
+    {% set reply_to = note.getReplyToNickname()%}
+    {% if reply_to is not null %}
+        {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
+    {% endif %}
+{% endblock note_reply_to %}
+
+{% block note_replies %}
+    {% if replies is defined and replies is not empty %}
+        <div class="u-in-reply-to replies" tabindex="0" title="{{ 'Begin replies to ' | trans }} {{ nickname }}'s note!">
+            {% for conversation in replies %}
+                {{ _self.macro_note(conversation['note'], conversation['replies']) }}
+                <hr tabindex="0" title="{{ 'End of reply' | trans }}">
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock note_replies %}
+
+{% block note_attachments %}
+    {% if hide_attachments is not defined %}
+        {% if note.getAttachments() is not empty %}
+            <section class="note-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
+                {% for attachment in note.getAttachments() %}
+                    {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
+                {% endfor %}
+            </section>
+        {% endif %}
+    {% endif %}
+{% endblock note_attachments %}
+
+{% block note_links %}
+    {% if note.getLinks() is not empty %}
+        <div class="note-links" title="{{ 'Shared links.' | trans }}">
+            {% for link in note.getLinks() %}
+                {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
+                    {{ block | raw }}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock note_links %}
+
+{% block note_text %}
+    <div class="note-text" tabindex="0" title="{{ 'Note text content.' | trans }}">
+        {{ note.getRendered() | raw }}
+    </div>
+{% endblock note_text %}
+
+{% block note_author %}
+    {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
+    <a href="{{ actor_url }}" class="note-author u-url">
+        <strong class="note-author-fullname">
+            {% if fullname is defined %}
+                {{ fullname }}
+            {% else %}
+                {{ nickname }}
+            {% endif %}
+        </strong>
+        <em class="note-author-nickname">{{ nickname }}</em>
+    </a>
+{% endblock note_author %}
+
+{% block note_sidebar %}
     <aside class="note-sidebar">
         <img class="u-logo avatar" src="{{ note.getActorAvatarUrl() }}" alt="{{ nickname }}'s avatar" width="32px" height="32px">
     </aside>
+{% endblock note_sidebar %}
 
-    <div class="note-wrapper">
+{% macro macro_note(note, replies) %}
+    {% set nickname = note.getActorNickname() %}
+    {% set fullname = note.getActorFullname() %}
+    {% set actor_url = note.getActor().getUrl() %}
 
-        {# TODO: this should link to the note's user profile? #}
-        <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
-            {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
-            <a href="{{ actor_url }}" class="note-author u-url">
-                <strong class="note-author-fullname">{{ fullname }}</strong>
-                <em class="note-author-nickname">{{ nickname }}</em>
-            </a>
-
-            {% if app.user and note_actions_show %}
-                <div class="note-actions">
-                    {% for current_action in get_note_actions(note) %}
-                        <a class="{{ current_action["classes"] }}" href="{{ current_action["url"] }}"></a>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            {% set reply_to = note.getReplyToNickname() %}
-            {% if reply_to is not null and not skip_reply_to is defined %}
-                {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
-            {% endif %}
+    <article class="h-entry hentry note">
+        {{ block('note_sidebar') }}
+        <div class="note-wrapper">
+            <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
+                {{ block('note_author') }}
+                {{ block('note_reply_to') }}
+                {{ block('note_actions') }}
+            </div>
+            <section tabindex="0" role="dialog" class="e-content entry-content note-content">
+                {{ block('note_text') }}
+                {{ block('note_attachments') }}
+                {{ block('note_links') }}
+            </section>
+            {{ block('note_replies') }}
         </div>
+    </article>
+{% endmacro macro_note %}
 
-        <section tabindex="0" role="dialog" class="e-content entry-content note-content">
-            <div class="note-text" tabindex="0" title="{{ 'Note text content.' | trans }}">
-                {{ note.getRendered() | raw }}
+{% macro macro_note_minimal(note) %}
+    {% set nickname = note.getActorNickname() %}
+    {% set fullname = note.getActorFullname() %}
+    {% set actor_url = note.getActor().getUrl() %}
+
+    <article class="h-entry hentry note">
+        {{ block('note_sidebar') }}
+        <div class="note-wrapper">
+            <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
+                {{ block('note_author') }}
             </div>
-
-            {% if hide_attachments is not defined %}
-                {% if note.getAttachments() is not empty %}
-                    <section class="note-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
-                        {% for attachment in note.getAttachments() %}
-                            {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
-                        {% endfor %}
-                    </section>
-                {% endif %}
-            {% endif %}
-
-            {% if note.getLinks() is not empty %}
-                <div class="note-links" title="{{ 'Shared links.' | trans }}">
-                    {% for link in note.getLinks() %}
-                        {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
-                            {{ block | raw }}
-                        {% endfor %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </section>
-
-        {% if replies is defined and replies is not empty %}
-            <div class="u-in-reply-to replies" tabindex="0" title="{{ 'Begin replies to ' | trans }} {{ nickname }}'s note!">
-                {% for conversation in replies %}
-                    {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        {% if reply_to is not empty %}
-            <hr tabindex="0" title="{{ 'End of this reply' | trans }}">
-        {% endif %}
-    </div>
-
-</article>
+            <section tabindex="0" role="dialog" class="e-content entry-content note-content">
+                {{ block('note_text') }}
+                {{ block('note_attachments') }}
+                {{ block('note_links') }}
+            </section>
+        </div>
+    </article>
+{% endmacro macro_note_minimal %}

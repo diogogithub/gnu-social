@@ -23,77 +23,66 @@ namespace Plugin\Repeat;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Form;
-use function App\Core\I18n\_m;
+use App\Core\Router\RouteLoader;
+use App\Core\Router\Router;
+use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NoSuchNoteException;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
 class Repeat extends NoteHandlerPlugin
 {
-    // TODO: Refactoring to link instead of a form
+
     /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
      *
+     * @throws InvalidFormException
+     * @throws NoSuchNoteException
      * @throws RedirectException
+     *
+     * @return bool Event hook
      */
-/*    public function onAddNoteActions(Request $request, Note $note, array &$actions)
+    public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
-        if (($user = Common::user()) === null) {
+        if (is_null($user = Common::user())) {
             return Event::next;
         }
 
-        $opts        = ['actor_id' => $user->getId(), 'repeat_of' => $note->getId()];
-        $is_set      = DB::count('note', $opts) == 1;
-        $form_repeat = Form::create([
-            ['submit_repeat', SubmitType::class,
-                [
-                    'label' => ' ',
-                    'attr'  => [
-                        'class' => ($is_set ? 'note-actions-set' : 'note-actions-unset') . ' button-container repeat-button-container',
-                        'title' => $is_set ? _m('Note already repeated!') : _m('Repeat this note!'),
-                    ],
-                ],
-            ],
-            ['note_id', HiddenType::class, ['data' => $note->getId()]],
-            ["repeat-{$note->getId()}", HiddenType::class, ['data' => $is_set ? '1' : '0']],
-        ]);
+        // If note is repeat, "is_repeated" is 1
+        $opts = ['actor_id' => $user->getId(), 'repeat_of' => $note->getId()];
+        $is_repeated = DB::count('note', $opts) >= 1;
 
-        // Handle form
-        $ret = self::noteActionHandle(
-            $request,
-            $form_repeat,
-            $note,
-            "repeat-{$note->getId()}",
-            function ($note, $data, $user) {
-                if ($data["repeat-{$note->getId()}"] === '0') {
-                    DB::persist(Note::create([
-                        'actor_id'  => $user->getId(),
-                        'repeat_of' => $note->getId(),
-                        'content'   => $note->getContent(),
-                        'is_local'  => true,
-                    ]));
-                } else {
-                    DB::remove(DB::findOneBy('note', ['actor_id' => $user->getId(), 'repeat_of' => $note->getId()]));
-                }
-                DB::flush();
+        // Generating URL for repeat action route
+        $args = ['id' => $note->getId()];
+        $type = Router::ABSOLUTE_PATH;
+        $repeat_action_url = $is_repeated ?
+            Router::url('repeat_remove', $args, $type) :
+            Router::url('repeat_add', $args, $type);
 
-                // Prevent accidental refreshes from resubmitting the form
-                throw new RedirectException();
+        // Concatenating get parameter to redirect the user to where he came from
+        $repeat_action_url .= '?from=' . substr($request->getQueryString(), 2);
 
-                return Event::stop;
-            },
-        );
+        $extra_classes =  $is_repeated ? "note-actions-set" : "note-actions-unset";
+        $repeat_action = [
+            "url" => $repeat_action_url,
+            "classes" => "button-container repeat-button-container $extra_classes",
+            "id" => "repeat-button-container-" . $note->getId()
+        ];
 
-        if ($ret !== null) {
-            return $ret;
-        }
-        $actions[] = $form_repeat->createView();
+        $actions[] = $repeat_action;
         return Event::next;
-    }*/
+    }
+
+    public function onAddRoute(RouteLoader $r): bool
+    {
+        // Add/remove note to/from repeats
+        $r->connect(id: 'repeat_add', uri_path: '/object/note/{id<\d+>}/repeat', target: [Controller\Repeat::class, 'repeatAddNote']);
+        $r->connect(id: 'repeat_remove', uri_path: '/object/note/{id<\d+>}/unrepeat', target: [Controller\Repeat::class, 'repeatRemoveNote']);
+
+        return Event::next;
+    }
 }

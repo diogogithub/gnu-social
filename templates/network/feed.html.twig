@@ -1,4 +1,5 @@
 {% extends 'stdgrid.html.twig' %}
+{% import "/cards/note/view.html.twig" as noteView %}
 
 {% block title %}{% if page_title is defined %}{{ page_title | trans }}{% endif %}{% endblock %}
 
@@ -13,7 +14,7 @@
         <div class="h-feed hfeed notes">
             {% if notes is defined and notes is not empty %}
                 {% for conversation in notes %}
-                    {% include '/cards/note/view.html.twig' with {'note': conversation['note'], 'replies': conversation['replies']} only %}
+                    {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
                     <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
                 {% endfor %}
             {% else %}

@@ -51,7 +51,7 @@ class Favourite extends NoteHandlerPlugin
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
-        if (($user = Common::user()) === null) {
+        if (is_null($user = Common::user())) {
             return Event::next;
         }
 
