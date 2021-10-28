@@ -125,6 +125,15 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $var instanceof $instance;
     }
 
+    public function handleOverrideTemplateImport(string $template, string $default_import): string
+    {
+        $result = '';
+        if (Event::handle('OverrideTemplateImport', [$template, $default_import, &$result]) !== Event::stop) {
+            $result = $default_import;
+        }
+        return $result;
+    }
+
     // ----------------------------------------------------------
 
     /**

@@ -1,5 +1,6 @@
 {% extends 'stdgrid.html.twig' %}
-{% import "/cards/note/view.html.twig" as noteView %}
+{% set override_import = handle_override_template_import('/network/feed.html.twig', '/cards/note/view.html.twig') %}
+{% import override_import as noteView %}
 
 {% block title %}{% if page_title is defined %}{{ page_title | trans }}{% endif %}{% endblock %}
 
@@ -14,8 +15,10 @@
         <div class="h-feed hfeed notes">
             {% if notes is defined and notes is not empty %}
                 {% for conversation in notes %}
-                    {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
-                    <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                    {% block current_note %}
+                        {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
+                        <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                    {% endblock current_note %}
                 {% endfor %}
             {% else %}
                 <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>

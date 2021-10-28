@@ -1,0 +1,22 @@
+{% extends '/cards/note/view.html.twig' %}
+
+{% macro macro_note(note, replies) %}
+    {% set nickname = note.getActorNickname() %}
+    {% set fullname = note.getActorFullname() %}
+    {% set actor_url = note.getActor().getUrl() %}
+    {% set repeat_of = note.getRepeatOf() %}
+
+    <article class="h-entry hentry note">
+        {{ block('note_sidebar') }}
+        <div class="note-wrapper">
+            <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
+                {{ block('note_author') }}
+                {{ block('note_actions') }}
+            </div>
+            <section tabindex="0" role="dialog" class="e-content entry-content note-content">
+                {{ _self.macro_note_minimal(note) }}
+            </section>
+            {{ block('note_replies') }}
+        </div>
+    </article>
+{% endmacro macro_note %}

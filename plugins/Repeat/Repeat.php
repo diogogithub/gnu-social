@@ -31,6 +31,7 @@ use App\Core\Modules\NoteHandlerPlugin;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
+use App\Util\Formatting;
 use Symfony\Component\HttpFoundation\Request;
 
 class Repeat extends NoteHandlerPlugin
@@ -74,6 +75,17 @@ class Repeat extends NoteHandlerPlugin
         ];
 
         $actions[] = $repeat_action;
+        return Event::next;
+    }
+
+    public function onOverrideTemplateImport(string $current_template, string $default, string &$response)
+    {
+        switch ($current_template) {
+            case '/network/feed.html.twig':
+                $response = "plugins/repeat/cards/note/view.html.twig";
+                return Event::stop;
+        }
+
         return Event::next;
     }
 
