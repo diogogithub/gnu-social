@@ -62,6 +62,12 @@ parameters:
       ssl:
       dir: "%kernel.project_dir%/file/attachments/"
       supported:
+        application/gpx+xml: gpx
+        application/msword: doc
+        application/ogg: ogx
+        application/pdf: pdf
+        application/vnd.ms-excel: xls
+        application/vnd.ms-powerpoint: ppt
         application/vnd.oasis.opendocument.chart: odc
         application/vnd.oasis.opendocument.formula: odf
         application/vnd.oasis.opendocument.graphics: odg
@@ -71,28 +77,29 @@ parameters:
         application/vnd.oasis.opendocument.presentation-template: otp
         application/vnd.oasis.opendocument.spreadsheet: ods
         application/vnd.oasis.opendocument.spreadsheet-template: ots
-        application/vnd.oasis.opendocument.text: odt
         application/vnd.oasis.opendocument.text-master: odm
+        application/vnd.oasis.opendocument.text: odt
         application/vnd.oasis.opendocument.text-template: ott
         application/vnd.oasis.opendocument.text-web: oth
-        application/pdf: pdf
-        application/zip: zip
+        application/vnd.openxmlformats-officedocument.presentationml.pre: potm
+        application/vnd.openxmlformats-officedocument.spreadsheetml.shee: xlsx
+        application/vnd.openxmlformats-officedocument.wordprocessingml.d: docx
         application/x-bzip2: bz2
         application/x-go-sgf: sgf
         application/xml: xml
-        application/gpx+xml: gpx
-        image/png: png
-        image/jpeg: jpeg
-        image/gif: gif
-        image/vnd.microsoft.icon: ico
-        image/svg+xml: svg
-        audio/ogg: ogg
+        application/zip: zip
         audio/mpeg: mpg
+        audio/ogg: ogg
         audio/x-speex: spx
-        application/ogg: ogx
+        image/gif: gif
+        image/jpeg: jpeg
+        image/png: png
+        image/svg+xml: svg
+        image/vnd.microsoft.icon: ico
         text/plain: txt
-        video/mpeg: mpeg
+        text/rtf: rtf
         video/mp4: mp4
+        video/mpeg: mpeg
         video/ogg: ogv
         video/quicktime: mov
         video/webm: webm
