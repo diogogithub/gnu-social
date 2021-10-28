@@ -57,7 +57,7 @@ class LocalUser extends Entity implements UserInterface
     private ?string $outgoing_email;
     private ?string $incoming_email;
     private ?bool $is_email_verified;
-    private ?string $language;
+    private ?int $preferred_language;
     private ?string $timezone;
     private ?PhoneNumber $phone_number;
     private ?int $sms_carrier;
@@ -135,15 +135,15 @@ class LocalUser extends Entity implements UserInterface
         return $this->is_email_verified;
     }
 
-    public function setLanguage(?string $language): self
+    public function setPreferredLanguage(?string $preferred_language): self
     {
-        $this->language = $language;
+        $this->preferred_language = $preferred_language;
         return $this;
     }
 
-    public function getLanguage(): ?string
+    public function getPreferredLanguage(): ?int
     {
-        return $this->language;
+        return $this->preferred_language;
     }
 
     public function setTimezone(?string $timezone): self
@@ -387,23 +387,23 @@ class LocalUser extends Entity implements UserInterface
             'name'        => 'local_user',
             'description' => 'local users, bots, etc',
             'fields'      => [
-                'id'                => ['type' => 'int',          'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
-                'nickname'          => ['type' => 'varchar',      'not null' => true,    'length' => 64, 'description' => 'nickname or username, foreign key to actor'],
-                'password'          => ['type' => 'varchar',      'length' => 191,       'description' => 'salted password, can be null for users with federated authentication'],
-                'outgoing_email'    => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for password recovery, notifications, etc.'],
-                'incoming_email'    => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for post-by-email'],
-                'is_email_verified' => ['type' => 'bool',         'default' => false,    'description' => 'Whether the user opened the comfirmation email'],
-                'language'          => ['type' => 'varchar',      'length' => 50,        'description' => 'preferred language'],
-                'timezone'          => ['type' => 'varchar',      'length' => 50,        'description' => 'timezone'],
-                'phone_number'      => ['type' => 'phone_number', 'description' => 'phone number'],
-                'sms_carrier'       => ['type' => 'int',          'foreign key' => true, 'target' => 'SmsCarrier.id', 'multiplicity' => 'one to one', 'description' => 'foreign key to sms_carrier'],
-                'sms_email'         => ['type' => 'varchar',      'length' => 191,       'description' => 'built from sms and carrier (see sms_carrier)'],
-                'uri'               => ['type' => 'varchar',      'length' => 191,       'description' => 'universally unique identifier, usually a tag URI'],
-                'auto_follow_back'  => ['type' => 'bool',         'default' => false,    'description' => 'automatically follow users who follow us'],
-                'follow_policy'     => ['type' => 'int',          'size' => 'tiny',      'default' => 0, 'description' => '0 = anybody can follow; 1 = require approval'],
-                'is_stream_private' => ['type' => 'bool',         'default' => false,    'description' => 'whether to limit all notices to followers only'],
-                'created'           => ['type' => 'datetime',     'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'          => ['type' => 'timestamp',    'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'                 => ['type' => 'int',          'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
+                'nickname'           => ['type' => 'varchar',      'not null' => true,    'length' => 64, 'description' => 'nickname or username, foreign key to actor'],
+                'password'           => ['type' => 'varchar',      'length' => 191,       'description' => 'salted password, can be null for users with federated authentication'],
+                'outgoing_email'     => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for password recovery, notifications, etc.'],
+                'incoming_email'     => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for post-by-email'],
+                'is_email_verified'  => ['type' => 'bool',         'default' => false,    'description' => 'Whether the user opened the comfirmation email'],
+                'preferred_language' => ['type' => 'int',          'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'one to many', 'description' => 'preferred language'],
+                'timezone'           => ['type' => 'varchar',      'length' => 50,        'description' => 'timezone'],
+                'phone_number'       => ['type' => 'phone_number', 'description' => 'phone number'],
+                'sms_carrier'        => ['type' => 'int',          'foreign key' => true, 'target' => 'SmsCarrier.id', 'multiplicity' => 'one to one', 'description' => 'foreign key to sms_carrier'],
+                'sms_email'          => ['type' => 'varchar',      'length' => 191,       'description' => 'built from sms and carrier (see sms_carrier)'],
+                'uri'                => ['type' => 'varchar',      'length' => 191,       'description' => 'universally unique identifier, usually a tag URI'],
+                'auto_follow_back'   => ['type' => 'bool',         'default' => false,    'description' => 'automatically follow users who follow us'],
+                'follow_policy'      => ['type' => 'int',          'size' => 'tiny',      'default' => 0, 'description' => '0 = anybody can follow; 1 = require approval'],
+                'is_stream_private'  => ['type' => 'bool',         'default' => false,    'description' => 'whether to limit all notices to followers only'],
+                'created'            => ['type' => 'datetime',     'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'           => ['type' => 'timestamp',    'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [

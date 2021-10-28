@@ -352,7 +352,7 @@ class Note extends Entity
                 'repeat_of'    => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'note this is a repeat of'],
                 'scope'        => ['type' => 'int',       'not null' => true, 'default' => VisibilityScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = followers; 16 = messages; null = default'],
                 'url'          => ['type' => 'text',      'description' => 'Permalink to Note'],
-                'language'     => ['type' => 'varchar',   'length' => 10, 'description' => 'The locale identifier for the language of a note. 2-leter-iso-language-code_4-leter-script-code_2-leter-iso-country-code'],
+                'language'     => ['type' => 'int',       'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'one to many', 'description' => 'The language for this note'],
                 'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
@@ -365,7 +365,7 @@ class Note extends Entity
                 'note_conversation_created_idx'   => ['conversation', 'created'],
                 'note_reply_to_idx'               => ['reply_to'],
             ],
-            'fulltext indexes' => ['notice_fulltext_idx' => ['content']],
+            'fulltext indexes' => ['notice_fulltext_idx' => ['content']], // TODO make this configurable
         ];
     }
 }
