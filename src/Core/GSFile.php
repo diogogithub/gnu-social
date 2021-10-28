@@ -24,11 +24,11 @@ declare(strict_types = 1);
 namespace App\Core;
 
 use App\Core\DB\DB;
-use App\Util\Exception\FileNotAllowedException;
 use function App\Core\I18n\_m;
 use App\Entity\Attachment;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
+use App\Util\Exception\FileNotAllowedException;
 use App\Util\Exception\NoSuchFileException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\NotStoredLocallyException;
@@ -58,7 +58,7 @@ class GSFile
      *
      * @throws DuplicateFoundException
      */
-    public static function storeFileAsAttachment(TemporaryFile|SymfonyFile $file): Attachment
+    public static function storeFileAsAttachment(TemporaryFile|SymfonyFile $file, bool $check_is_supported_mimetype = true): Attachment
     {
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
@@ -93,11 +93,11 @@ class GSFile
                 $attachment->setWidth($width);
                 $attachment->setHeight($height);
                 $attachment->setSize($file->getSize());
-                if (self::isMimetypeAllowed($mimetype)) {
+                if (!$check_is_supported_mimetype || self::isMimetypeAllowed($mimetype)) {
                     $file->move(Common::config('attachments', 'dir'), $hash);
                     DB::persist($attachment);
                 } else {
-                    throw new FileNotAllowedException();
+                    throw new FileNotAllowedException($mimetype);
                 }
             }
         } catch (NotFoundException) {
@@ -105,7 +105,7 @@ class GSFile
             // The following properly gets the mimetype with `file` or other
             // available methods, so should be safe
             $mimetype               = mb_substr($file->getMimeType(), 0, 64);
-            $width                  = $height = null;
+            $width                  = $height                  = null;
             $event_map[$mimetype]   = [];
             $major_mime             = self::mimetypeMajor($mimetype);
             $event_map[$major_mime] = [];
@@ -129,7 +129,7 @@ class GSFile
                 'width'    => $width,
                 'height'   => $height,
             ]);
-            if (self::isMimetypeAllowed($mimetype)) {
+            if (!$check_is_supported_mimetype || self::isMimetypeAllowed($mimetype)) {
                 $file->move(Common::config('attachments', 'dir'), $hash);
                 DB::persist($attachment);
             } else {
@@ -149,13 +149,13 @@ class GSFile
     /**
      * Tests against common config attachment `supported` mimetypes and `ext_blacklist`.
      *
-     * @param string $mimetype
      * @return bool true if allowed, false otherwise
      */
-    public static function isMimetypeAllowed(string $mimetype): bool {
-        $passed_whitelist = in_array($mimetype, array_keys(Common::config('attachments', 'supported')));
-        $mime = new MimeTypes();
-        $passed_blacklist = count(array_intersect($mime->getExtensions($mimetype), Common::config('attachments', 'ext_blacklist'))) === 0;
+    public static function isMimetypeAllowed(string $mimetype): bool
+    {
+        $passed_whitelist = \in_array($mimetype, array_keys(Common::config('attachments', 'supported')));
+        $mime             = new MimeTypes();
+        $passed_blacklist = \count(array_intersect($mime->getExtensions($mimetype), Common::config('attachments', 'ext_blacklist'))) === 0;
         unset($mime);
         return $passed_whitelist && $passed_blacklist;
     }
