@@ -102,11 +102,14 @@ class CacheTest extends KernelTestCase
 
         // Redis supports lists directly, uses different implementation
         $key = 'test' . time();
+        static::assertSame([], Cache::getList($key . '0', fn ($i) => []));
+        static::assertSame(['foo'], Cache::getList($key . '1', fn ($i) => ['foo']));
         static::assertSame(['foo', 'bar'], Cache::getList($key, fn ($i) => ['foo', 'bar']));
+        static::assertSame(['foo', 'bar'], Cache::getList($key, function () { $this->assertFalse('should not be called'); })); // Repeat to test no recompute lrange
         Cache::pushList($key, 'quux');
-        static::assertSame(['foo', 'bar', 'quux'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }));
-        Cache::pushList($key, 'foobar', pool: 'default', max_count: 2);
-        static::assertSame(['quux', 'foobar'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }));
+        static::assertSame(['quux', 'foo', 'bar'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }));
+        Cache::pushList($key, 'foobar', max_count: 2);
+        static::assertSame(['foobar', 'quux'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }));
         static::assertTrue(Cache::deleteList($key));
     }
 

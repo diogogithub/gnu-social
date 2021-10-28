@@ -42,7 +42,7 @@ class AttachmentTest extends GNUsocialTestCase
 
         // Setup first attachment
         $file       = new TemporaryFile();
-        $attachment = GSFile::storeFileAsAttachment($file);
+        $attachment = GSFile::storeFileAsAttachment($file, check_is_supported_mimetype: false);
         $path       = $attachment->getPath();
         $hash       = $attachment->getFilehash();
         static::assertFileExists($attachment->getPath());
@@ -51,14 +51,14 @@ class AttachmentTest extends GNUsocialTestCase
 
         // Delete the backed storage of the attachment
         static::assertTrue($attachment->deleteStorage());
-        static::assertFileNotExists($path);
+        static::assertFileDoesNotExist($path);
         static::assertNull($attachment->getPath());
         DB::persist($attachment);
         DB::flush();
 
         // Setup the second attachment, re-adding the backed store
         $file                = new TemporaryFile();
-        $repeated_attachment = GSFile::storeFileAsAttachment($file);
+        $repeated_attachment = GSFile::storeFileAsAttachment($file, check_is_supported_mimetype: false);
         $path                = $attachment->getPath();
         static::assertSame(2, $repeated_attachment->getLives());
         static::assertFileExists($path);
@@ -71,7 +71,7 @@ class AttachmentTest extends GNUsocialTestCase
         // Garbage collect the second attachment, which should delete everything
         $repeated_attachment->kill();
         static::assertSame(0, $repeated_attachment->getLives());
-        static::assertFileNotExists($path);
+        static::assertFileDoesNotExist($path);
         static::assertSame([], DB::findBy('attachment', ['filehash' => $hash]));
     }
 
@@ -106,7 +106,7 @@ class AttachmentTest extends GNUsocialTestCase
         $attachment->setFilename($filename);
 
         $actor = DB::findOneBy('actor', ['nickname' => 'taken_user']);
-        DB::persist($note = Note::create(['actor_id' => $actor->getId(), 'content' => 'some content']));
+        DB::persist($note = Note::create(['actor_id' => $actor->getId(), 'content' => 'attachment: some content', 'content_type' => 'text/plain']));
         DB::persist(AttachmentToNote::create(['attachment_id' => $attachment->getId(), 'note_id' => $note->getId(), 'title' => 'A title']));
         DB::flush();
 
@@ -115,6 +115,7 @@ class AttachmentTest extends GNUsocialTestCase
 
     public function testGetUrl()
     {
+        static::bootKernel();
         $attachment = DB::findBy('attachment', ['mimetype' => 'image/png'], limit: 1)[0];
         $id         = $attachment->getId();
         static::assertSame("/attachment/{$id}/view", $attachment->getUrl());
@@ -122,6 +123,7 @@ class AttachmentTest extends GNUsocialTestCase
 
     public function testMimetype()
     {
+        static::bootKernel();
         $file = new SplFileInfo(INSTALLDIR . '/tests/sample-uploads/image.jpg');
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);

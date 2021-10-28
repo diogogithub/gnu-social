@@ -81,17 +81,21 @@ class AttachmentTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
     }
 
-    // TODO re-enable test
-    // public function testAttachmentThumbnail()
-    // {
-    //     $this->testAttachment('/thumbnail');
-    //     $this->assertResponseIsSuccessful();
-    // }
-
-    public function testAttachmentThumbnailWrongSize()
+    public function testAttachmentThumbnailSmall()
     {
-        $this->testAttachment('/thumbnail?w=1&h=1');
-        $this->assertSelectorTextContains('.stacktrace', 'ClientException');
-        // $this->assertResponseStatusCodeSame(400);
+        $this->testAttachment('/thumbnail/small');
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testAttachmentThumbnailMedium()
+    {
+        $this->testAttachment('/thumbnail/medium');
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testAttachmentThumbnailBig()
+    {
+        $this->testAttachment('/thumbnail/big');
+        $this->assertResponseIsSuccessful();
     }
 }

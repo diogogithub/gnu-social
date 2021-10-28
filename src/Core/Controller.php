@@ -126,12 +126,13 @@ abstract class Controller extends AbstractController implements EventSubscriberI
         unset($this->vars['_template'], $response['_template']);
 
         // Respond in the most preferred acceptable content type
+        $route  = $request->get('_route');
         $accept = $request->getAcceptableContentTypes() ?: ['text/html'];
         $format = $request->getFormat($accept[0]);
 
         $potential_response = null;
         if (Event::handle('ControllerResponseInFormat', [
-            'route' => $request->get('_route'),
+            'route' => $route,
             'accept_header' => $accept,
             'vars' => $this->vars,
             'response' => &$potential_response,
@@ -152,6 +153,11 @@ abstract class Controller extends AbstractController implements EventSubscriberI
                 throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
             }
         } else {
+            if (\is_null($potential_response)) {
+                // TODO BugFoundException
+                Log::critical($m = "ControllerResponseInFormat for route '{$route}' returned Event::stop but didn't provide a response");
+                throw new ServerException(_m($m, ['route' => $route]));
+            }
             $event->setResponse($potential_response);
         }
 

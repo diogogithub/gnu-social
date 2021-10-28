@@ -39,7 +39,7 @@ class CoreFixtures extends Fixture
             $actors[$nick] = $actor;
         }
 
-        $n = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some content']);
+        $n = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some content', 'content_type' => 'text/plain']);
         $manager->persist($n);
         $notes   = [];
         $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some other content', 'reply_to' => $n->getId(), 'content_type' => 'text/plain']);

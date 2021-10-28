@@ -179,7 +179,13 @@ abstract class Cache
                 $res  = $calculate(null, $save);
                 if ($save) {
                     self::setList($key, $res, $pool, $max_count, $beta);
-                    return \array_slice($res, $left ?? 0, $right - ($left ?? 0));
+                    $offset = $left ?? 0;
+                    if (\is_null($right) && \is_null($max_count)) {
+                        $length = null;
+                    } else {
+                        $length = ($right ?? $max_count) - $offset;
+                    }
+                    return \array_slice($res, $offset, $length);
                 }
             }
             return self::$redis[$pool]->lRange($key, $left ?? 0, ($right ?? $max_count ?? 0) - 1);
@@ -200,16 +206,19 @@ abstract class Cache
     public static function setList(string $key, array $value, string $pool = 'default', ?int $max_count = null, float $beta = 1.0): void
     {
         if (isset(self::$redis[$pool])) {
-            self::$redis[$pool]
-                // Ensure atomic
-                ->multi(Redis::MULTI)
-                ->del($key)
-                ->rPush($key, ...$value)
-                // trim to $max_count, unless it's 0
-                ->lTrim($key, -$max_count ?? 0, -1)
-                ->exec();
+            if (empty($value)) {
+                self::$redis[$pool]->del($key); // Redis doesn't support empty lists
+            } else {
+                self::$redis[$pool] // Ensure atomic
+                    ->multi(Redis::MULTI)
+                    ->del($key)
+                    ->rPush($key, ...$value)
+                    // trim to $max_count, unless it's 0
+                    ->lTrim($key, 0, $max_count ?? -1)
+                    ->exec();
+            }
         } else {
-            self::set($key, $value, $pool);
+            self::set($key, \array_slice($value, 0, $max_count), $pool);
         }
     }
 
@@ -224,14 +233,13 @@ abstract class Cache
                 ->multi(Redis::PIPELINE)
                 ->lPush($key, $value)
                 // trim to $max_count, if given
-                ->lTrim($key, -$max_count ?? 0, -1)
+                ->lTrim($key, 0, ($max_count ?? 0) - 1)
                 ->exec();
         } else {
-            $res   = self::get($key, fn () => [], $pool, $beta);
-            $res[] = $value;
-            if ($max_count != null) {
-                $count = \count($res);
-                $res   = \array_slice($res, $count - $max_count, $count); // Trim the older values
+            $res = self::get($key, fn () => [], $pool, $beta);
+            array_unshift($res, $value);
+            if (!\is_null($max_count)) {
+                $res = \array_slice($res, 0, $max_count); // Trim away the older values
             }
             self::set($key, $res, $pool);
         }
@@ -342,7 +350,7 @@ abstract class Cache
 
         $filter_scope = fn (Note $n) => $n->isVisibleTo($actor);
 
-        $getter = fn (int $offset, int $lenght) => DB::dql($query, $query_args, options: ['offset' => $offset, 'limit' => $lenght]);
+        $getter = fn (int $offset, int $length) => DB::dql($query, $query_args, options: ['offset' => $offset, 'limit' => $length]);
 
         $requested_left               = $offset               = $per_page * ($page - 1);
         $requested_right              = $requested_left + $per_page;
@@ -350,10 +358,10 @@ abstract class Cache
             explode(':', self::get("{$key}-bounds", fn () => "{$requested_left}:{$requested_right}")),
             fn (string $v) => (int) $v,
         );
-        $lenght = $stored_right - $stored_left;
+        $length = $stored_right - $stored_left;
 
-        if (!\is_null($max_count) && $lenght > $max_count) {
-            $lenght          = $max_count;
+        if (!\is_null($max_count) && $length > $max_count) {
+            $length          = $max_count;
             $requested_right = $requested_left + $max_count;
         }
 
@@ -367,7 +375,7 @@ abstract class Cache
         return F\filter(
             self::getList(
                 $key,
-                fn () => $getter($requested_left, $lenght),
+                fn () => $getter($requested_left, $length),
                 max_count: $max_count,
                 left: $requested_left,
                 right: $requested_right,
