@@ -133,7 +133,7 @@ class ActivityPub extends Plugin
                 $response = FollowersResponse::handle($vars['actor']);
                 return Event::stop;*/
             default:
-                if (Event::handle('ActivityStreamsTwoResponse', [$route, &$response])) {
+                if (Event::handle('ActivityStreamsTwoResponse', [$route, &$response]) == Event::stop) {
                     return Event::stop;
                 }
                 return Event::next;
