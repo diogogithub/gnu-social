@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -61,8 +63,9 @@ class Actor extends Entity
     private ?float $lon;
     private ?int $location_id;
     private ?int $location_service;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private ?int $preferred_lang_id;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -185,6 +188,17 @@ class Actor extends Entity
         return $this->location_service;
     }
 
+    public function setPreferredLangId(?string $preferred_lang_id): self
+    {
+        $this->preferred_lang_id = $preferred_lang_id;
+        return $this;
+    }
+
+    public function getPreferredLangId(): ?int
+    {
+        return $this->preferred_lang_id;
+    }
+
     public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
@@ -222,30 +236,26 @@ class Actor extends Entity
 
     public static function getById(int $id): ?self
     {
-        return Cache::get('actor-id-' . $id, function () use ($id) {
-            return DB::find('actor', ['id' => $id]);
-        });
+        return Cache::get('actor-id-' . $id, fn () => DB::find('actor', ['id' => $id]));
     }
 
     public static function getNicknameById(int $id): string
     {
-        return Cache::get('actor-nickname-id-' . $id, function () use ($id) {
-            return self::getById($id)->getNickname();
-        });
+        return Cache::get('actor-nickname-id-' . $id, fn () => self::getById($id)->getNickname());
     }
 
     public static function getFullnameById(int $id): string
     {
-        return Cache::get('actor-fullname-id-' . $id, function () use ($id) {
-            return self::getById($id)->getFullname();
-        });
+        return Cache::get('actor-fullname-id-' . $id, fn () => self::getById($id)->getFullname());
     }
 
     public function getSelfTags(bool $_test_force_recompute = false): array
     {
-        return Cache::get('selftags-' . $this->id,
-                          fn () => DB::findBy('actor_tag', ['tagger' => $this->id, 'tagged' => $this->id]),
-                          beta: $_test_force_recompute ? INF : 1.0);
+        return Cache::get(
+            'selftags-' . $this->id,
+            fn () => DB::findBy('actor_tag', ['tagger' => $this->id, 'tagged' => $this->id]),
+            beta: $_test_force_recompute ? \INF : 1.0,
+        );
     }
 
     public function setSelfTags(array $tags, array $existing): void
@@ -253,7 +263,7 @@ class Actor extends Entity
         $tag_existing  = F\map($existing, fn ($pt) => $pt->getTag());
         $tag_to_add    = array_diff($tags, $tag_existing);
         $tag_to_remove = array_diff($tag_existing, $tags);
-        $pt_to_remove  = F\filter($existing, fn ($pt) => in_array($pt->getTag(), $tag_to_remove));
+        $pt_to_remove  = F\filter($existing, fn ($pt) => \in_array($pt->getTag(), $tag_to_remove));
         foreach ($tag_to_add as $tag) {
             $pt = ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag]);
             DB::persist($pt);
@@ -267,20 +277,28 @@ class Actor extends Entity
 
     public function getSubscribersCount()
     {
-        return Cache::get('followers-' . $this->id,
-                          function () {
-                              return DB::dql('select count(f) from App\Entity\Follow f where f.followed = :followed',
-                                             ['followed' => $this->id])[0][1] - 1; // Remove self follow
-                          });
+        return Cache::get(
+            'followers-' . $this->id,
+            function () {
+                              return DB::dql(
+                                  'select count(f) from App\Entity\Follow f where f.followed = :followed',
+                                  ['followed' => $this->id],
+                              )[0][1] - 1; // Remove self follow
+                          },
+        );
     }
 
     public function getSubscriptionsCount()
     {
-        return Cache::get('followed-' . $this->id,
-                          function () {
-                              return DB::dql('select count(f) from App\Entity\Follow f where f.follower = :follower',
-                                             ['follower' => $this->id])[0][1] - 1; // Remove self follow
-                          });
+        return Cache::get(
+            'followed-' . $this->id,
+            function () {
+                              return DB::dql(
+                                  'select count(f) from App\Entity\Follow f where f.follower = :follower',
+                                  ['follower' => $this->id],
+                              )[0][1] - 1; // Remove self follow
+                          },
+        );
     }
 
     public function isPerson(): bool
@@ -302,14 +320,17 @@ class Actor extends Entity
     {
         // Will throw exception on invalid input.
         $nickname = Nickname::normalize($nickname, check_already_used: false);
-        return Cache::get('relative-nickname-' . $nickname . '-' . $this->getId(),
-                          fn () => DB::dql('select a from actor a where ' .
-                                           'a.id in (select followed from follow f join actor a on f.followed = a.id where and f.follower = :actor_id and a.nickname = :nickname) or' .
-                                           'a.id in (select follower from follow f join actor a on f.follower = a.id where and f.followed = :actor_id and a.nickname = :nickname) or' .
-                                           'a.nickname = :nickname' .
-                                           'limit 1',
-                                           ['nickname' => $nickname, 'actor_id' => $this->getId()]
-                          ));
+        return Cache::get(
+            'relative-nickname-' . $nickname . '-' . $this->getId(),
+            fn () => DB::dql(
+                              'select a from actor a where '
+                                           . 'a.id in (select followed from follow f join actor a on f.followed = a.id where and f.follower = :actor_id and a.nickname = :nickname) or'
+                                           . 'a.id in (select follower from follow f join actor a on f.follower = a.id where and f.followed = :actor_id and a.nickname = :nickname) or'
+                                           . 'a.nickname = :nickname'
+                                           . 'limit 1',
+                              ['nickname' => $nickname, 'actor_id' => $this->getId()],
+                          ),
+        );
     }
 
     public function getUri(int $type = Router::ABSOLUTE_PATH): string
@@ -337,25 +358,32 @@ class Actor extends Entity
         return $aliases;
     }
 
+    public function getPreferredLanguageChoice()
+    {
+        $lang_id = $this->getPreferredLangId();
+        return Cache::get("language-{$lang_id}", fn () => (string) DB::findOneBy('language', ['id' => $lang_id]));
+    }
+
     public static function schemaDef(): array
     {
-        $def = [
+        return [
             'name'        => 'actor',
             'description' => 'local and remote users, groups and bots are actors, for instance',
             'fields'      => [
-                'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
-                'fullname'         => ['type' => 'text', 'description' => 'display name'],
-                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this actor has'],
-                'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
-                'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
-                'location'         => ['type' => 'text', 'description' => 'physical location'],
-                'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
-                'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
-                'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
-                'location_service' => ['type' => 'int', 'description' => 'service used to obtain location id'],
-                'created'          => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'                => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
+                'nickname'          => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
+                'fullname'          => ['type' => 'text', 'description' => 'display name'],
+                'roles'             => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this actor has'],
+                'homepage'          => ['type' => 'text', 'description' => 'identifying URL'],
+                'bio'               => ['type' => 'text', 'description' => 'descriptive biography'],
+                'location'          => ['type' => 'text', 'description' => 'physical location'],
+                'lat'               => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
+                'lon'               => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
+                'location_id'       => ['type' => 'int', 'description' => 'location id if possible'],
+                'location_service'  => ['type' => 'int', 'description' => 'service used to obtain location id'],
+                'preferred_lang_id' => ['type' => 'int',          'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'one to many', 'description' => 'preferred language'],
+                'created'           => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'          => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'indexes'     => [
@@ -365,7 +393,5 @@ class Actor extends Entity
                 'actor_fulltext_idx' => ['nickname', 'fullname', 'location', 'bio', 'homepage'],
             ],
         ];
-
-        return $def;
     }
 }

@@ -24,6 +24,7 @@ declare(strict_types = 1);
 namespace App\Entity;
 
 use App\Core\Entity;
+use DateTimeInterface;
 
 /**
  * Entity for languages
@@ -41,7 +42,7 @@ class Language extends Entity
     // @codeCoverageIgnoreStart
     private int $id;
     private string $language;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $created;
 
     public function setId(int $id): self
     {
@@ -78,6 +79,11 @@ class Language extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public function __toString()
+    {
+        return $this->getLanguage();
+    }
+
     public static function schemaDef(): array
     {
         return [
@@ -89,7 +95,10 @@ class Language extends Entity
                 'created'  => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['id'],
-            'indexes'     => [
+            'unique keys' => [
+                'language_language_uniq' => ['language'],
+            ],
+            'indexes' => [
                 'language_idx' => ['language'],
             ],
         ];
