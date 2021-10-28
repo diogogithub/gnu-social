@@ -122,6 +122,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
         $this->vars = array_merge_recursive($this->vars, $response);
 
         $template = \array_key_exists('_template', $this->vars) ? $this->vars['_template'] : null;
+        Event::handle('OverrideTemplate', [$this->vars, &$template]); // Allow plugins to replace the template used for anything
         unset($this->vars['_template'], $response['_template']);
 
         // Respond in the most preferred acceptable content type
