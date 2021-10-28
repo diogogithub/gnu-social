@@ -35,7 +35,7 @@ tooling-docker: .PHONY
 	@cd docker/tooling && docker-compose up -d > /dev/null 2>&1
 
 test: tooling-docker
-	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,defaultstring)
+	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,'.*')
 
 doc-check:
 	bin/php-doc-check src components plugins
