@@ -126,8 +126,11 @@ class TemporaryFile extends SplFileInfo
      */
     protected function cleanup(): void
     {
-        if ($this->resource !== false) {
+        if (!\is_null($this->resource) && $this->resource !== false) {
             $path = $this->getRealPath();
+            if ($path === false) {
+                throw new BugFoundException();
+            }
             $this->close();
             if (file_exists($path)) {
                 @unlink($path);
