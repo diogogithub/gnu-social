@@ -1,6 +1,11 @@
+
 DIR=$(strip $(notdir $(CURDIR))) # Seems a bit hack-ish, but `basename` works differently
 
 translate-container-name = $$(if docker container inspect $(1) > /dev/null 2>&1; then echo $(1); else echo $(1) | sed 'y/_/-/' ; fi)
+args = `arg="$(filter-out $@,$(MAKECMDGOALS))" && echo $${arg:-${1}}`
+
+%:
+	@:
 
 .PHONY:
 	@if ! docker info > /dev/null; then echo "Docker does not seem to be running"; exit 1; fi
@@ -30,7 +35,7 @@ tooling-docker: .PHONY
 	@cd docker/tooling && docker-compose up -d > /dev/null 2>&1
 
 test: tooling-docker
-	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh
+	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,defaultstring)
 
 doc-check:
 	bin/php-doc-check src components plugins
