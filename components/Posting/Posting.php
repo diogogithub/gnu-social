@@ -101,7 +101,7 @@ class Posting extends Component
                 'required'        => false,
                 'invalid_message' => _m('Attachment not valid.'),
             ]],
-            ['language', LocaleType::class, ['label' => _m('Note language:'), 'multiple' => false, 'default' => $user->getPreferredLanguageChoice()]],
+            ['language', LocaleType::class, ['label' => _m('Note language:'), 'multiple' => false, 'preferred_choices' => Actor::getById($actor_id)->getPreferredLanguageChoice()]],
         ];
 
         if (\count($available_content_types) > 1) {
