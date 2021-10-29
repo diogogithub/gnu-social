@@ -152,6 +152,10 @@ embed header {
     padding: 6px 10px 6px 0
 }
 
+.note-info {
+    background: var(--gradient-backwards) !important;
+}
+
 .note-author {
     font-size: var(--default);
     display: -webkit-box;
@@ -188,6 +192,10 @@ embed header {
     vertical-align: middle
 }
 
+.note-actions-set {
+    opacity: 1 !important;
+}
+
 .note-actions .form-group {
     all: unset
 }
@@ -204,11 +212,14 @@ embed header {
     margin-left: var(--smaller);
     width: var(--default);
     height: var(--default);
+    background-color: var(--foreground);
+    opacity: 0.33;
 }
 
 .button-container:hover,
 .button-container:focus {
-    border: none
+    border: none;
+    opacity: 1;
 }
 
 .favourite-button-container {
@@ -286,6 +297,7 @@ embed header {
     -webkit-align-self: flex-start;
     -ms-flex-item-align: start;
     align-self: flex-start
+    background-color: var(--background-card) !important;
 }
 
 .note-attachments-unit:not(:only-child) {

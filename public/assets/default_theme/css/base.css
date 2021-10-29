@@ -14,224 +14,236 @@
 }
 
 /* RESET START */
-    :link,
-    :visited {
-        text-decoration: none;
-        color: currentColor;
-    }
-    a:hover {
-        text-decoration: underline;
-    }
+:link,
+:visited {
+    text-decoration: none;
+    color: currentColor;
+}
+a:hover {
+    text-decoration: underline;
+}
 
-    hr {
-        all: unset;
-        display: block;
-        height: 1px;
-    }
+hr {
+    all: unset;
+    display: block;
+    height: 1px;
+}
 
-    ol,
-    ul {
-        list-style: none;
-    }
+ol,
+ul {
+    list-style: none;
+}
 
-    blockquote,
-    body,
-    fieldset,
-    form,
-    html,
-    input,
-    pre,
-    textarea {
-        margin: 0;
-        padding: 0;
-        border: none;
-    }
-    :link img,
-    :visited img,
-    a img {
-        border: none;
-    }
+blockquote,
+body,
+fieldset,
+form,
+html,
+input,
+pre,
+textarea {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+:link img,
+:visited img,
+a img {
+    border: none;
+}
 
-    address {
-        font-style: normal;
-    }
+address {
+    font-style: normal;
+}
 
-    :focus {
-        outline: none;
-    }
+:focus {
+    outline: none;
+}
 
-    ::-moz-focus-inner {
-        border: 0;
-    }
+::-moz-focus-inner {
+    border: 0;
+}
 
-    details summary > * {
-        margin: unset;
-        padding: unset;
-    }
+details summary > * {
+    margin: unset;
+    padding: unset;
+}
 
-    details > summary {
-        list-style: none;
-    }
+details > summary {
+    list-style: none;
+}
 
-    details > summary::-webkit-details-marker {
-        display: none;
-    }
+details > summary::-webkit-details-marker {
+    display: none;
+}
 
-    /* Internet Explorer <details> graceful degradation */
-    @supports not (-ms-ime-align: auto) {
-        details summary {
-            cursor: pointer;
-        }
+/* Internet Explorer <details> graceful degradation */
+@supports not (-ms-ime-align: auto) {
+    details summary {
+        cursor: pointer;
     }
+}
 
-    [hidden] {
-        display: none;
-    }
+[hidden] {
+    display: none;
+}
 
-    * {
-        -webkit-box-sizing: border-box !important;
-        -moz-box-sizing: border-box !important;
-        box-sizing: border-box !important;
-    }
+* {
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+}
 
-    body,
-    html {
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        background-attachment: fixed;
-        font-family: 'Open Sans', sans-serif;
-        font-size: var(--default);
-    }
+body,
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-attachment: fixed;
+    font-family: 'Open Sans', sans-serif;
+    font-size: var(--default);
+}
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        all: unset;
-        display: block;
-        font-family: 'Poppins', sans-serif;
-    }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    all: unset;
+    display: block;
+    font-family: 'Poppins', sans-serif;
+}
 
-    h1 {
-        font-size: var(--medium);
-        font-weight: 700;
-        margin-bottom: 16.2px;
-    }
+h1 {
+    font-size: var(--medium);
+    font-weight: 700;
+    margin-bottom: 16.2px;
+}
 
-    h2 {
-        font-size: var(--small);
-        font-weight: 600;
-        margin-bottom: 13px;
-    }
+h2 {
+    font-size: var(--small);
+    font-weight: 600;
+    margin-bottom: 13px;
+}
 
-    h3 {
-        font-size: var(--default);
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
+h3 {
+    font-size: var(--default);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
 
-    h4,
-    h5 {
-        font-size: var(--default);
-        font-weight: 400;
-        margin-bottom: 6.1px;
-    }
+h4,
+h5 {
+    font-size: var(--default);
+    font-weight: 400;
+    margin-bottom: 6.1px;
+}
 
-    p {
-        font-family: 'Open Sans', sans-serif;
-        font-size: var(--default);
-        font-weight: 400;
-        margin: unset;
-    }
-    p:first-line {
-        padding-left: var(--default);
-    }
-    p:first-line {
-        margin-top: 0;
-        margin-bottom: 10px;
-    }
-    p:not(:first-line) {
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
+p {
+    font-family: 'Open Sans', sans-serif;
+    font-size: var(--default);
+    font-weight: 400;
+    margin: unset;
+}
+p:first-line {
+    padding-left: var(--default);
+}
+p:first-line {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+p:not(:first-line) {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
 
-    label {
-        max-width: 100%;
-    }
+label {
+    max-width: 100%;
+}
 
-    input[type=password],
-    input[type=text],
-    textarea {
-        font-family: 'Open Sans', sans-serif;
-        font-weight: 400;
-        padding: 4px 6px;
-    }
+input[type=password],
+input[type=text],
+textarea {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+    padding: 4px 6px;
+}
 
-    ul {
-        text-decoration: none;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    }
+ul {
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
 
-    li {
-        margin: 0;
-        padding: 0;
-    }
+li {
+    margin: 0;
+    padding: 0;
+}
+
+/* Focus and hover (inset shadow is used in alternative to a border to prevent further redraws) */
+*:focus {
+-webkit-box-shadow: var(--shadow-inset-accent);
+-moz-box-shadow: var(--shadow-inset-accent);
+box-shadow: var(--shadow-inset-accent);
+}
+
+hr {
+    background-color: var(--border) !important;
+}
 /* RESET END */
 
 /* DARK AND LIGHT COLOUR SCHEMES START */
     @media (prefers-color-scheme: dark) {
         /* Colour vars */
         :root {
-            --foreground: #E6E6F7;
-            --background-hard: #212130;
-            --background-soft: #46465E;
-            --background-checkerboard: repeating-conic-gradient(#ffffff66 0deg 90deg, #ffffff33 0deg 180deg) 0 0/40px 40px round;
-            --accent: #7070BA;
-            --translucent: hsla(240, 19%, 16%, 40%);
-            --shadow: 0 0 16px 0 #00000016;
-            --shadow-light: 0 0 16px 0 #FFFFFF16;
+            --foreground: #F0F6F6;
+            --background-hard: #141216;
+            --background-card: #131217;
+            --border: #201F25;
+            --accent: #E88282;
+            --shadow: 0 0 12px 0 #01010166;
             --shadow-inset-accent: inset 0 0 0 2px var(--accent);
-            --gradient: linear-gradient(to left,  var(--background-hard) 0%, var(--translucent) 100%) !important;
+            --background-checkerboard: repeating-conic-gradient(#ffffff66 0deg 90deg, #ffffff33 0deg 180deg) 0 0/40px 40px round;
+            --gradient: linear-gradient(10deg,  var(--border) 0%, transparent 100%) !important;
+            --gradient-backwards: linear-gradient(290deg,  var(--border) 0%, var(--background-card) 100%) !important;
         }
 
         /* The page background image itself */
         .background-image {
-            background-color: var(--background-soft);
-            background-image: url("../images/background_dark.png");
+            background-color: var(--background-hard);
         }
         /* Select element custom dropdown arrow */
         select {
-            background-image: url("../images/select_drop_dark.png") !important;
+            background: var(--gradient), url("../images/select_drop_dark.png") no-repeat center right 5px !important;
+            background-size: cover, 16px !important;
         }
     }
 
     @media (prefers-color-scheme: light) {
         /* Colour vars */
         :root {
-            --foreground: #242434;
-            --background-hard: #eceff4;
-            --background-soft: #4c566a66;
-            --accent: #4c566a;
-            --translucent: rgba(255, 255, 255, 0);
-            --shadow: 0 0 16px 0 #FFFFFF16;
-            --shadow-light: 0 0 16px 0 #00000016;
-            --shadow-inset-accent: inset 0 0 0 2px #4c566a;
-            --gradient: linear-gradient(to right, #FFFFFFAA, transparent) !important;
-            --tneidarg: linear-gradient(to left, #FFFFFFAA, transparent) !important;
+            --foreground: #09090D;
+            --background-hard: #EBEBEB;
+            --background-card: #F0F0F0;
+            --border: #D5D5D5;
+            --accent: #A22430;
+            --shadow: 0 0 12px 0 #24243416;
+            --shadow-inset-accent: inset 0 0 0 2px var(--accent);
+            --background-checkerboard: repeating-conic-gradient(#ffffff66 0deg 90deg, #ffffff33 0deg 180deg) 0 0/40px 40px round;
+            --gradient: linear-gradient(290deg,  var(--border) 0%, transparent 60%) !important;
+            --gradient-backwards: linear-gradient(290deg,  var(--border) 0%, var(--background-card) 100%) !important;
         }
 
         /* The page background image itself */
         .background-image {
-            background-image: url("../images/background_light.png");
+            background-color: var(--background-hard);
         }
-
         /* Select element custom dropdown arrow */
         select {
-            background-image: url("../images/select_drop_light.png") !important;
+            background: var(--gradient), url("../images/select_drop_light.png") no-repeat center right 5px !important;
+            background-size: cover, 16px !important;
+            background-blend-mode: saturation;
         }
     }
 /* DARK AND LIGHT COLOUR SCHEMES END */
@@ -275,6 +287,8 @@
     height: min-content;
     padding: var(--smaller);
     border-radius: var(--smaller);
+    background-color: var(--background-hard) !important;
+    border: 2px solid var(--border);
 }
 
 .accessibility-menu ul {
@@ -298,6 +312,8 @@
     width: 100%;
     align-items: center;
     padding: var(--smaller);
+    background: var(--gradient) !important;
+    box-shadow: var(--shadow);
 }
 /* Allow scrolling all the way to the top ("page-header" has a height of 3rem) */
 html {
@@ -476,22 +492,7 @@ html {
         -o-background-size: 100% 100%;
         background-size: 100% 100%;
         z-index: auto;
-    }
-
-    @media (prefers-color-scheme: dark) {
-        #panel-left-toggle:checked + .header-panel,
-        #panel-right-toggle:checked + .header-panel,
-        a[id|="anchor"]:target ~ .panel-content {
-            background-image: url("../images/background_dark.png");
-        }
-    }
-
-    @media (prefers-color-scheme: light) {
-        #panel-left-toggle:checked + .header-panel,
-        #panel-right-toggle:checked + .header-panel,
-        a[id|="anchor"]:target ~ .panel-content {
-            background-image: url("../images/background_light.png");
-        }
+        background-color: var(--background-hard) !important;
     }
 }
 

@@ -83,17 +83,13 @@ textarea {
     -webkit-border-radius: 0.6rem;
     -moz-border-radius: 0.6rem;
     border-radius: 0.6rem;
+    background: var(--gradient) !important;
 }
 select {
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
     cursor: pointer;
     background-repeat: no-repeat;
-    -webkit-background-size: 16px 16px;
-    -moz-background-size: 16px;
-    -o-background-size: 16px;
-    background-size: 16px;
-    background-position: center right 5px;
     -webkit-border-radius: 0.6rem;
     -moz-border-radius: 0.6rem;
     border-radius: 0.6rem;
@@ -152,4 +148,25 @@ input[type=file] {
 input[type=checkbox],
 input[type=radio] {
     border: unset !important;
+}
+
+input[type=radio] {
+    background-color: var(--background-hard) !important;
+}
+
+input[type=checkbox] {
+    background-color: var(--border) !important;
+}
+
+button:focus,
+button:hover,
+input:focus,
+input:hover,
+select:focus,
+select:hover,
+textarea:focus,
+textarea:hover {
+    -webkit-box-shadow: var(--shadow-inset-accent) !important;
+    -moz-box-shadow: var(--shadow-inset-accent) !important;
+    box-shadow: var(--shadow-inset-accent) !important;
 }

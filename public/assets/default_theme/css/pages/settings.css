@@ -10,6 +10,11 @@
     margin-bottom: 0.6rem;
 }
 
+.section-settings,
+.section-settings ul {
+    background-color: var(--background-card) !important;
+}
+
 .section-settings ul {
     border-radius: 0.6rem;
     padding: 0.6rem;

@@ -1,58 +1,10 @@
 
 
-/* Focus and hover (inset shadow is used in alternative to a border to prevent further redraws) */
-button:focus,
-button:hover,
-input:focus,
-input:hover,
-select:focus,
-select:hover,
-textarea:focus,
-textarea:hover {
-    -webkit-box-shadow: var(--shadow-inset-accent) !important;
-    -moz-box-shadow: var(--shadow-inset-accent) !important;
-    box-shadow: var(--shadow-inset-accent) !important;
-}
-
-*:focus {
-    -webkit-box-shadow: var(--shadow-inset-accent);
-    -moz-box-shadow: var(--shadow-inset-accent);
-    box-shadow: var(--shadow-inset-accent);
-}
-
-.page-header,
-.accessibility-menu,
-.header-extra-forms-open,
-.set-background-color-hard,
-input[type=checkbox]:checked~.panel-content,
-input[type=radio] {
-    background-color: var(--background-hard) !important;
-}
-
-.button-container,
-.note-actions-set,
-.set-background-color-soft,
-hr,
-input[type=checkbox] {
-    background-color: var(--background-soft) !important;
-}
-
 #replyform,
 .doc-navigation,
 .h-entry,
-.markdown-blocks,
-.profile,
-.section-title-details,
-.note-attachments-unit,
-.section-settings,
-.section-settings ul,
-.section-widget,
-.set-background-color-alpha,
-button,
-input,
-select,
-textarea {
-    background-color: var(--translucent) !important;
+.markdown-blocks {
+    background-color: var(--background-card) !important;
 }
 
 .set-background-color-gradient,
@@ -61,8 +13,12 @@ input[type=file] {
     background: var(--gradient) !important;
 }
 
+.note-info {
+    background: var(--tneidarg) !important;
+}
+
 .section-settings hr {
-    background: var(--background-soft) !important;
+    background: var(--border) !important;
 }
 
 .button-container:focus,
@@ -104,11 +60,6 @@ select {
     fill: var(--foreground);
 }
 
-.accessibility-menu,
-.set-border-accent {
-    border: 2px solid var(--accent);
-}
-
 .doc-navigation,
 .h-entry:not(.embed),
 .markdown-blocks,
@@ -120,7 +71,7 @@ button,
 input,
 select,
 textarea {
-    border: 2px solid var(--background-soft) !important;
+    border: 2px solid var(--border) !important;
 }
 
 #header,
@@ -135,11 +86,5 @@ textarea {
     -webkit-box-shadow: var(--shadow);
     -moz-box-shadow: var(--shadow);
     box-shadow: var(--shadow);
-}
-
-.set-shadow-light {
-    -webkit-box-shadow: var(--shadow-light);
-    -moz-box-shadow: var(--shadow-light);
-    box-shadow: var(--shadow-light);
 }
 
