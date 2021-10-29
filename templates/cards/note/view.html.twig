@@ -60,7 +60,7 @@
     {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
     <a href="{{ actor_url }}" class="note-author u-url">
         <strong class="note-author-fullname">
-            {% if fullname is defined %}
+            {% if fullname is not null %}
                 {{ fullname }}
             {% else %}
                 {{ nickname }}

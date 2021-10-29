@@ -241,7 +241,7 @@ class Note extends Entity
         return Actor::getNicknameById($this->actor_id);
     }
 
-    public function getActorFullname(): string
+    public function getActorFullname(): ?string
     {
         return Actor::getFullnameById($this->actor_id);
     }
