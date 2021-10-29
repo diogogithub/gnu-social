@@ -157,6 +157,10 @@
         margin-bottom: 10px;
     }
 
+    label {
+        max-width: 100%;
+    }
+
     input[type=password],
     input[type=text],
     textarea {
@@ -182,21 +186,21 @@
     @media (prefers-color-scheme: dark) {
         /* Colour vars */
         :root {
-            --foreground: #FFF;
-            --background-hard: #242434;
+            --foreground: #E6E6F7;
+            --background-hard: #212130;
             --background-soft: #46465E;
             --background-checkerboard: repeating-conic-gradient(#ffffff66 0deg 90deg, #ffffff33 0deg 180deg) 0 0/40px 40px round;
-            --accent: #8081BA;
-            --translucent: #24243466;
+            --accent: #7070BA;
+            --translucent: hsla(240, 19%, 16%, 40%);
             --shadow: 0 0 16px 0 #00000016;
             --shadow-light: 0 0 16px 0 #FFFFFF16;
-            --shadow-inset-accent: inset 0 0 0 2px #8081BA;
-            --gradient: linear-gradient(to right, var(--translucent), transparent) !important;
-            --tneidarg: linear-gradient(to left, var(--translucent), transparent) !important;
+            --shadow-inset-accent: inset 0 0 0 2px var(--accent);
+            --gradient: linear-gradient(to left,  var(--background-hard) 0%, var(--translucent) 100%) !important;
         }
 
         /* The page background image itself */
         .background-image {
+            background-color: var(--background-soft);
             background-image: url("../images/background_dark.png");
         }
         /* Select element custom dropdown arrow */
@@ -212,7 +216,7 @@
             --background-hard: #eceff4;
             --background-soft: #4c566a66;
             --accent: #4c566a;
-            --translucent: #FFFFFFAA;
+            --translucent: rgba(255, 255, 255, 0);
             --shadow: 0 0 16px 0 #FFFFFF16;
             --shadow-light: 0 0 16px 0 #00000016;
             --shadow-inset-accent: inset 0 0 0 2px #4c566a;
@@ -261,18 +265,6 @@
     background-size: 100% 100%;
 }
 
-body:after {
-    content: "";
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: -1;
-    background-image: url("data:image/png;base64,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");
-url(data:image/png;base64,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);
-    opacity: 21%;
-}
 .accessibility-menu {
     display: block;
     position: absolute;

@@ -97,6 +97,10 @@ select {
     -webkit-border-radius: 0.6rem;
     -moz-border-radius: 0.6rem;
     border-radius: 0.6rem;
+    max-width: 100% !important;
+}
+select > option {
+    width: 1px;
 }
 input[type=radio] {
     border: solid 0.25em !important;

@@ -61,10 +61,6 @@ input[type=file] {
     background: var(--gradient) !important;
 }
 
-.note-info {
-    background: var(--tneidarg) !important;
-}
-
 .section-settings hr {
     background: var(--background-soft) !important;
 }
