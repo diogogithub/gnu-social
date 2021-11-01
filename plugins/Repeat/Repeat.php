@@ -25,11 +25,13 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
+use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Formatting;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,21 +55,30 @@ class Repeat extends NoteHandlerPlugin
             return Event::next;
         }
 
-        // If note is repeat, "is_repeated" is 1
-        $opts = ['actor_id' => $user->getId(), 'repeat_of' => $note->getId()];
-        $is_repeated = DB::count('note', $opts) >= 1;
+        // If note is repeated, "is_repeated" is 1
+        $opts = ['repeat_of' => $note->getId()];
+        try {
+            if (DB::findOneBy('note_repeat', $opts)) {
+                return Event::next;
+            }
+        } catch (DuplicateFoundException $e) {
+        } catch (NotFoundException $e) {
+        }
+
+        $is_repeat = DB::count('note_repeat', ['id' => $note->getId()]) >= 1;
+
 
         // Generating URL for repeat action route
         $args = ['id' => $note->getId()];
         $type = Router::ABSOLUTE_PATH;
-        $repeat_action_url = $is_repeated ?
+        $repeat_action_url = $is_repeat ?
             Router::url('repeat_remove', $args, $type) :
             Router::url('repeat_add', $args, $type);
 
         // Concatenating get parameter to redirect the user to where he came from
         $repeat_action_url .= '?from=' . substr($request->getQueryString(), 2);
 
-        $extra_classes =  $is_repeated ? "note-actions-set" : "note-actions-unset";
+        $extra_classes =  $is_repeat ? "note-actions-set" : "note-actions-unset";
         $repeat_action = [
             "url" => $repeat_action_url,
             "classes" => "button-container repeat-button-container $extra_classes",
@@ -87,6 +98,17 @@ class Repeat extends NoteHandlerPlugin
         }
 
         return Event::next;
+    }
+
+    public function onGetAdditionalTemplateVars(array $vars, array &$result)
+    {
+        $note_id = $vars['note_id'];
+
+        $opts = ['id' => $note_id];
+        $is_repeat = DB::count('note_repeat', $opts) >= 1;
+
+        $result = ['is_repeat' => (bool)$is_repeat];
+        return Event::stop;
     }
 
     public function onAddRoute(RouteLoader $r): bool

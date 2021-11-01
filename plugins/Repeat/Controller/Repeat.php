@@ -34,6 +34,7 @@ use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
+use Plugin\Repeat\Entity\NoteRepeat;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use function App\Core\I18n\_m;
@@ -52,7 +53,7 @@ class Repeat extends Controller
     {
         $user = Common::ensureLoggedIn();
         $opts = ['actor_id' => $user->getId(), 'repeat_of' => $id];
-        $note_already_repeated = DB::count('note', $opts) >= 1;
+        $note_already_repeated = DB::count('note_repeat', $opts) >= 1;
         if (is_null($note_already_repeated)) {
             throw new NoSuchNoteException();
         }
@@ -71,15 +72,38 @@ class Repeat extends Controller
 
         $form_add_to_repeat->handleRequest($request);
         if ($form_add_to_repeat->isSubmitted()) {
+
             if (!is_null($note)) {
-                DB::persist(Note::create([
-                    'actor_id'  => $user->getId(),
-                    'repeat_of' => $note->getId(),
-                    'content'   => $note->getContent(),
+                $actor_id = $user->getId();
+                $content = $note->getContent();
+
+                // Create a new note with the same content as the original
+                $repeat = Note::create([
+                    'actor_id'  => $actor_id,
+                    'content'   => $content,
                     'content_type' => $note->getContentType(),
                     'rendered' => $note->getRendered(),
                     'is_local'  => true,
-                ]));
+                ]);
+                DB::persist($repeat);
+
+                // Update DB
+                DB::flush();
+
+                // Find the id of the note we just created
+                $repeat_id = $repeat->getId();
+                $og_id = $note->getId();
+
+                // Add it to note_repeat table
+                if (!is_null($repeat_id)) {
+                    DB::persist(NoteRepeat::create([
+                        'id' => $repeat_id,
+                        'actor_id' => $actor_id,
+                        'repeat_of' => $og_id
+                    ]));
+                }
+
+                // Update DB one last time
                 DB::flush();
             }
 
@@ -106,7 +130,7 @@ class Repeat extends Controller
     public function repeatRemoveNote(Request $request, int $id): array
     {
         $user = Common::ensureLoggedIn();
-        $opts = ['note_id' => $id, 'actor_id' => $user->getId()];
+        $opts = ['id' => $id];
         $remove_repeat_note = DB::find('note', $opts);
         if (is_null($remove_repeat_note)) {
             throw new NoSuchNoteException();

@@ -134,6 +134,15 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $result;
     }
 
+    public function getAdditionalTemplateVars(array $vars): array
+    {
+        $result = [];
+        if (Event::handle('GetAdditionalTemplateVars', [$vars, &$result]) !== Event::stop) {
+            return [];
+        }
+        return $result;
+    }
+
     // ----------------------------------------------------------
 
     /**

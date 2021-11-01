@@ -1,22 +1,54 @@
 {% extends '/cards/note/view.html.twig' %}
 
+{% block note_author_repeated %}
+    {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
+    <a href="{{ actor_url }}" class="note-author u-url">
+        <strong class="note-author-fullname">
+            {% if fullname is not null %}
+                {{ fullname }}
+            {% else %}
+                {{ nickname }}
+            {% endif %}
+        </strong>
+        <em class="note-author-nickname">{{ nickname }}  {{ "repeated the following note" | trans }}</em>
+    </a>
+{% endblock note_author_repeated %}
+
 {% macro macro_note(note, replies) %}
     {% set nickname = note.getActorNickname() %}
     {% set fullname = note.getActorFullname() %}
     {% set actor_url = note.getActor().getUrl() %}
-    {% set repeat_of = note.getRepeatOf() %}
+    {% set additional_vars =  handle_event('GetAdditionalTemplateVars', {'note_id': note.getId(), 'actor_id': note.getActorId()}) %}
 
-    <article class="h-entry hentry note">
-        {{ block('note_sidebar') }}
-        <div class="note-wrapper">
-            <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
-                {{ block('note_author') }}
-                {{ block('note_actions') }}
+    {% if additional_vars['is_repeat'] %}
+        <article class="h-entry hentry note">
+            {{ block('note_sidebar') }}
+            <div class="note-wrapper">
+                <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
+                    {{ block('note_author_repeated') }}
+                    {{ block('note_actions') }}
+                </div>
+                <section tabindex="0" role="dialog" class="e-content entry-content note-content">
+                    {{ _self.macro_note_minimal(note) }}
+                </section>
+                {{ block('note_replies') }}
             </div>
-            <section tabindex="0" role="dialog" class="e-content entry-content note-content">
-                {{ _self.macro_note_minimal(note) }}
-            </section>
-            {{ block('note_replies') }}
-        </div>
-    </article>
+        </article>
+    {% else %}
+        <article class="h-entry hentry note">
+            {{ block('note_sidebar') }}
+            <div class="note-wrapper">
+                <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
+                    {{ block('note_author') }}
+                    {{ block('note_actions') }}
+                </div>
+                <section tabindex="0" role="dialog" class="e-content entry-content note-content">
+                    {{ block('note_text') }}
+                    {{ block('note_attachments') }}
+                    {{ block('note_links') }}
+                </section>
+                {{ block('note_replies') }}
+            </div>
+        </article>
+    {% endif %}
 {% endmacro macro_note %}
