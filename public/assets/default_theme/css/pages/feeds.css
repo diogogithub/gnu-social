@@ -111,7 +111,7 @@
     display: flex;
     -webkit-border-radius: var(--smaller);
     -moz-border-radius: var(--smaller);
-    border-radius: var(--smaller)
+    border-radius: var(--smaller);
 }
 
 .h-entry figure {
@@ -149,11 +149,12 @@ embed header {
     -moz-border-radius: var(--smaller) var(--smaller) 0 0;
     border-radius: var(--smaller) var(--smaller) 0 0;
     font-size: var(--small);
-    padding: 6px 10px 6px 0
+    padding: 6px 10px 6px 0;
 }
 
 .note-info {
     background: var(--gradient-backwards) !important;
+    background-clip: padding-box;
 }
 
 .note-author {

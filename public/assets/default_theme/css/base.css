@@ -201,7 +201,7 @@ hr {
             --background-hard: #141216;
             --background-card: #131217;
             --border: #201F25;
-            --accent: #E88282;
+            --accent: #5ddbcf;
             --shadow: 0 0 12px 0 #01010166;
             --shadow-inset-accent: inset 0 0 0 2px var(--accent);
             --background-checkerboard: repeating-conic-gradient(#ffffff66 0deg 90deg, #ffffff33 0deg 180deg) 0 0/40px 40px round;
