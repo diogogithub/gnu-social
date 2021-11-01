@@ -67,6 +67,7 @@ class Posting extends Component
             return Event::next;
         }
 
+        $actor    = $user->getActor();
         $actor_id = $user->getId();
         $to_tags  = [];
         $tags     = Cache::get(
@@ -90,18 +91,15 @@ class Posting extends Component
         ];
         Event::handle('PostingAvailableContentTypes', [&$available_content_types]);
 
+        $context_actor = null; // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
+
         $request     = $vars['request'];
         $form_params = [
-            ['to', ChoiceType::class, ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
-            ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
-            ['content', TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]],
-            ['attachments', FileType::class, [
-                'label'           => _m('Attachments:'),
-                'multiple'        => true,
-                'required'        => false,
-                'invalid_message' => _m('Attachment not valid.'),
-            ]],
-            ['language', LocaleType::class, ['label' => _m('Note language:'), 'multiple' => false, 'preferred_choices' => Actor::getById($actor_id)->getPreferredLanguageChoice()]],
+            ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
+            ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
+            ['content',     TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]],
+            ['attachments', FileType::class,     ['label' => _m('Attachments:'), 'multiple' => true, 'required' => false, 'invalid_message' => _m('Attachment not valid.')]],
+            ['language',    LocaleType::class,   ['label' => _m('Note language:'), 'multiple' => false, 'preferred_choices' => $actor->getPreferredLanguageChoice($context_actor)]],
         ];
 
         if (\count($available_content_types) > 1) {

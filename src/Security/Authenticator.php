@@ -31,7 +31,6 @@ use Exception;
 use Stringable;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
@@ -59,20 +58,24 @@ class Authenticator extends AbstractFormLoginAuthenticator
 
     public const LOGIN_ROUTE = 'security_login';
 
-    private $urlGenerator;
     private $csrfTokenManager;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager)
+    public function __construct(CsrfTokenManagerInterface $csrfTokenManager)
     {
-        $this->urlGenerator     = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
     }
 
+    /**
+     * @return bool
+     */
     public function supports(Request $request)
     {
         return self::LOGIN_ROUTE === $request->attributes->get('_route') && $request->isMethod('POST');
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getCredentials(Request $request)
     {
         return [
@@ -84,6 +87,10 @@ class Authenticator extends AbstractFormLoginAuthenticator
 
     /**
      * Get a user given credentials and a CSRF token
+     *
+     * @param array<string, string> $credentials result of self::getCredentials
+     *
+     * @return ?LocalUser
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
@@ -91,7 +98,7 @@ class Authenticator extends AbstractFormLoginAuthenticator
         if (!$this->csrfTokenManager->isTokenValid($token)) {
             throw new InvalidCsrfTokenException();
         }
-
+        $user = null;
         try {
             if (filter_var($credentials['nickname_or_email'], \FILTER_VALIDATE_EMAIL) !== false) {
                 $user = LocalUser::getByEmail($credentials['nickname_or_email']);
@@ -107,12 +114,12 @@ class Authenticator extends AbstractFormLoginAuthenticator
                 _m('Invalid login credentials.'),
             );
         }
-
         return $user;
     }
 
     /**
-     * @param LocalUser $user
+     * @param array<string, string> $credentials result of self::getCredentials
+     * @param LocalUser             $user
      */
     public function checkCredentials($credentials, $user)
     {

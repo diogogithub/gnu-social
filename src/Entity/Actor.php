@@ -28,6 +28,7 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Router\Router;
 use App\Core\UserRoles;
+use App\Util\Common;
 use App\Util\Exception\NicknameException;
 use App\Util\Nickname;
 use Component\Avatar\Avatar;
@@ -283,11 +284,11 @@ class Actor extends Entity
         return Cache::get(
             'followers-' . $this->id,
             function () {
-                              return DB::dql(
-                                  'select count(f) from App\Entity\Follow f where f.followed = :followed',
-                                  ['followed' => $this->id],
-                              )[0][1] - 1; // Remove self follow
-                          },
+                return DB::dql(
+                    'select count(f) from App\Entity\Follow f where f.followed = :followed',
+                    ['followed' => $this->id],
+                )[0][1] - 1; // Remove self follow
+            },
         );
     }
 
@@ -296,11 +297,11 @@ class Actor extends Entity
         return Cache::get(
             'followed-' . $this->id,
             function () {
-                              return DB::dql(
-                                  'select count(f) from App\Entity\Follow f where f.follower = :follower',
-                                  ['follower' => $this->id],
-                              )[0][1] - 1; // Remove self follow
-                          },
+                return DB::dql(
+                    'select count(f) from App\Entity\Follow f where f.follower = :follower',
+                    ['follower' => $this->id],
+                )[0][1] - 1; // Remove self follow
+            },
         );
     }
 
@@ -362,10 +363,20 @@ EOF
         return $aliases;
     }
 
-    public function getPreferredLanguageChoice()
+    /**
+     * Get the most appropraite language for $this to use when
+     * referring to $context (a reply or a group, for instance)
+     *
+     * @return string the Language as a string (save space in cache)
+     */
+    public function getPreferredLanguageChoice(?self $context = null): string
     {
-        $lang_id = $this->getPreferredLangId();
-        return Cache::get("language-{$lang_id}", fn () => (string) DB::findOneBy('language', ['id' => $lang_id]));
+        $lang_id = $context?->getPreferredLangId() ?? $this->getPreferredLangId();
+        if (\is_null($lang_id)) {
+            return Common::config('site', 'language');
+        }
+        $key = 'actor-lang-' . $this->getId() . (!\is_null($context) ? '-' . $context->getId() : '');
+        return Cache::get($key, fn () => (string) DB::findOneBy('language', ['id' => $lang_id]));
     }
 
     public static function schemaDef(): array
@@ -385,7 +396,7 @@ EOF
                 'lon'               => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
                 'location_id'       => ['type' => 'int', 'description' => 'location id if possible'],
                 'location_service'  => ['type' => 'int', 'description' => 'service used to obtain location id'],
-                'preferred_lang_id' => ['type' => 'int',          'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'one to many', 'description' => 'preferred language'],
+                'preferred_lang_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'one to many', 'description' => 'preferred language'],
                 'created'           => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'          => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

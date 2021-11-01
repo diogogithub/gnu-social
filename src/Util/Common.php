@@ -79,11 +79,11 @@ abstract class Common
      */
     public static function config(string $section, ?string $setting = null)
     {
-        if (!array_key_exists($section, self::$config)) {
+        if (!\array_key_exists($section, self::$config)) {
             return null;
         } else {
             if ($setting !== null) {
-                if (array_key_exists($setting, self::$config[$section])) {
+                if (\array_key_exists($setting, self::$config[$section])) {
                     return self::$config[$section][$setting];
                 } else {
                     return null;
@@ -264,7 +264,7 @@ abstract class Common
     {
         return min(
             self::getPreferredPhpUploadLimit(),
-            self::config('attachments', 'file_quota')
+            self::config('attachments', 'file_quota'),
         );
     }
 
