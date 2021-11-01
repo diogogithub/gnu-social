@@ -307,10 +307,11 @@ abstract class Formatting
 
             $matches = self::findMentionsRaw($text, '@');
 
+            //dd($matches);
             foreach ($matches as $match) {
                 try {
                     $nickname = Nickname::normalize($match[0], check_already_used: false);
-                } catch (NicknameException $e) {
+                } catch (NicknameException) {
                     // Bogus match? Drop it.
                     continue;
                 }
@@ -388,7 +389,7 @@ abstract class Formatting
 
             $group_matches = self::findMentionsRaw($text, '!');
             foreach ($group_matches as $group_match) {
-                $nickname = Nickname::normalize($group_match[0], check_already_used: false);
+                $nickname = Nickname::normalize($group_match[0], check_already_used: false, check_is_allowed: false);
                 $group    = Group::getFromNickname($nickname, $actor);
 
                 if (!$group instanceof Group) {
@@ -410,7 +411,7 @@ abstract class Formatting
 
             Event::handle('EndFindMentions', [$actor, $text, &$mentions]);
         }
-
+        //dd($text,$mentions);
         return $mentions;
     }
 
@@ -440,6 +441,7 @@ abstract class Formatting
             $atmatches,
             \PREG_OFFSET_CAPTURE,
         );
+        //dd('/' . Nickname::BEFORE_MENTIONS . preg_quote($preMention, '/') . '(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/', $atmatches);
 
         return array_merge($tmatches[1], $atmatches[1]);
     }

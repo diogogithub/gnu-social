@@ -289,7 +289,7 @@ abstract class Common
 
         // (if false, we use '?' in 'https?' to say the 's' is optional)
         $regex = $ensure_secure ? '/^https$/' : '/^https?$/';
-        return filter_var($url, \FILTER_VALIDATE_URL)
+        return filter_var($url, \FILTER_VALIDATE_URL) !== false
             && preg_match($regex, parse_url($url, \PHP_URL_SCHEME));
     }
 

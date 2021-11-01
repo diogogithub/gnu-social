@@ -323,16 +323,17 @@ class Actor extends Entity
     {
         // Will throw exception on invalid input.
         $nickname = Nickname::normalize($nickname, check_already_used: false);
-        return Cache::get(
-            'relative-nickname-' . $nickname . '-' . $this->getId(),
-            fn () => DB::dql(
-                              'select a from actor a where '
-                                           . 'a.id in (select followed from follow f join actor a on f.followed = a.id where and f.follower = :actor_id and a.nickname = :nickname) or'
-                                           . 'a.id in (select follower from follow f join actor a on f.follower = a.id where and f.followed = :actor_id and a.nickname = :nickname) or'
-                                           . 'a.nickname = :nickname'
-                                           . 'limit 1',
-                              ['nickname' => $nickname, 'actor_id' => $this->getId()],
-                          ),
+        return Cache::get('relative-nickname-' . $nickname . '-' . $this->getId(),
+                          fn () => DB::dql(<<<EOF
+select a from actor a where 
+a.id in (select fa.followed from follow fa join actor aa with fa.followed = aa.id where fa.follower = :actor_id and aa.nickname = :nickname) or 
+a.id in (select fb.follower from follow fb join actor ab with fb.follower = ab.id where fb.followed = :actor_id and ab.nickname = :nickname) or 
+a.nickname = :nickname
+EOF
+                                  ,
+                                  ['nickname' => $nickname, 'actor_id' => $this->getId()],
+                                  ['limit' => 1]
+                              )[0] ?? null
         );
     }
 

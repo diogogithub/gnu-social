@@ -120,7 +120,7 @@ class Nickname
      * FIXME: Make this so you can have multiple whitespace but not multiple
      * parenthesis or something. '(((@n_n@)))' might as well be a smiley.
      */
-    public const BEFORE_MENTIONS = '(?:^|[\s\.\,\:\;\[\(]+)';
+    public const BEFORE_MENTIONS = '(?:^|[\s\.\,\:\;\[\(\>]+)';
 
     public const CHECK_LOCAL_USER  = 1;
     public const CHECK_LOCAL_GROUP = 2;
