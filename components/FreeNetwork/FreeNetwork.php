@@ -125,7 +125,7 @@ class FreeNetwork extends Component
             }
         } else {
             try {
-                if (filter_var($resource, \FILTER_VALIDATE_URL) !== false) {
+                if (Common::isValidHttpUrl($resource)) {
                     // This means $resource is a valid url
                     $resource_parts = parse_url($resource);
                     // TODO: Use URLMatcher
