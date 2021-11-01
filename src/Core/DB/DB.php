@@ -68,7 +68,7 @@ class DB
     {
         $all = self::$em->getMetadataFactory()->getAllMetadata();
         foreach ($all as $meta) {
-            self::$table_map[$meta->getTableName()] = $meta->getMetadataValue('name');
+            self::$table_map[$meta->getTableName()]          = $meta->getMetadataValue('name');
             self::$class_pk[$meta->getMetadataValue('name')] = $meta->getIdentifier();
         }
     }
@@ -88,7 +88,7 @@ class DB
      */
     public static function dql(string $query, array $params = [], array $options = [])
     {
-        $query = preg_replace(F\map(self::$table_map, fn ($_, $s) => "/\\b{$s}\\b/"), self::$table_map, $query);
+        $query = preg_replace(F\map(self::$table_map, fn ($_, $s) => "/(?<!\\.)\\b{$s}\\b/"), self::$table_map, $query);
         $q     = new Query(self::$em);
         $q->setDQL($query);
 
