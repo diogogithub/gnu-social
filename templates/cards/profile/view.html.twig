@@ -2,10 +2,11 @@
 {% set actor_avatar = actor.getAvatarUrl() %}
 {% set actor_tags = actor.getSelfTags() %}
 {% set actor_bio = actor.getBio() %}
+{% set actor_uri = actor.getUri() %}
 
 {% block profile_view %}
     <section id='profile-{{ actor.id }}' class='profile' title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
-        <a href="{{ path('actor_view_nickname', {'nickname' : actor_nickname}) }}">
+        <a href="{{ actor_uri }}">
             <div class="profile-info">
                 <img src='{{ actor_avatar }}' class="profile-avatar" alt="{{ actor_nickname }}{{ '\'s avatar.' | trans }}">
                 <strong class="profile-info-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
