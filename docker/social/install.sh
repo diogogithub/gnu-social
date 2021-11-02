@@ -28,8 +28,9 @@ if [ ${DB_EXISTS} -ne 0 ]; then
     chmod g+w -R .
     chown -R :www-data .
 
-    php bin/console doctrine:database:create || exit 1
-    php bin/console doctrine:schema:create   || exit 1
+    php bin/console doctrine:database:create    || exit 1
+    php bin/console doctrine:schema:create      || exit 1
+    php bin/console app:populate_initial_values || exit 1
 
     echo "GNU social is installed"
 else
