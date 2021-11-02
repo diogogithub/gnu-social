@@ -23,8 +23,12 @@ declare(strict_types = 1);
 
 namespace App\Entity;
 
+use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Entity;
+use function App\Core\I18n\_m;
 use DateTimeInterface;
+use Functional as F;
 
 /**
  * Entity for languages
@@ -103,9 +107,17 @@ class Language extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public function __toString()
+    public static function getLanguageChoices(): array
     {
-        return $this->getLongDisplay();
+        return Cache::getList(
+            'languages', // TODO replace with F\transform
+            fn () => array_merge(...F\map(DB::dql('select l from language l'), fn ($e) => $e->toChoiceFormat())),
+        );
+    }
+
+    public function toChoiceFormat(): array
+    {
+        return [_m($this->getLongDisplay()) => $this->getShortDisplay()];
     }
 
     public static function schemaDef(): array

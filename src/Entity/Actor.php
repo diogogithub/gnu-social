@@ -315,15 +315,15 @@ class Actor extends Entity
         return Cache::get(
             'relative-nickname-' . $nickname . '-' . $this->getId(),
             fn () => DB::dql(
-                              <<<'EOF'
-                                  select a from actor a where 
-                                  a.id in (select fa.followed from follow fa join actor aa with fa.followed = aa.id where fa.follower = :actor_id and aa.nickname = :nickname) or 
-                                  a.id in (select fb.follower from follow fb join actor ab with fb.follower = ab.id where fb.followed = :actor_id and ab.nickname = :nickname) or 
-                                  a.nickname = :nickname
-                                  EOF,
-                              ['nickname' => $nickname, 'actor_id' => $this->getId()],
-                              ['limit'    => 1],
-                          )[0] ?? null,
+                <<<'EOF'
+                    select a from actor a where 
+                    a.id in (select fa.followed from follow fa join actor aa with fa.followed = aa.id where fa.follower = :actor_id and aa.nickname = :nickname) or 
+                    a.id in (select fb.follower from follow fb join actor ab with fb.follower = ab.id where fb.followed = :actor_id and ab.nickname = :nickname) or 
+                    a.nickname = :nickname
+                    EOF,
+                ['nickname' => $nickname, 'actor_id' => $this->getId()],
+                ['limit'    => 1],
+            )[0] ?? null,
         );
     }
 
@@ -363,10 +363,12 @@ class Actor extends Entity
         $id = $context?->getId() ?? $this->getId();
         return Cache::get(
             'actor-' . $this->getId() . '-langs' . (!\is_null($context) ? '-' . $context->getId() : ''),
-            fn () => DB::dql(
-                'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.order ASC',
-                ['id' => $id],
-            ) ?: [DB::findOneBy('language', ['locale' => Common::config('site', 'language')])],
+            fn () => array_merge( // TODO replace with F\transform
+                ...F\map(DB::dql(
+                    'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.order ASC',
+                    ['id' => $id],
+                ), fn ($l) => $l->toChoiceFormat()),
+            ) ?: DB::findOneBy('language', ['locale' => Common::config('site', 'language')])->toChoiceFormat(),
         );
     }
 

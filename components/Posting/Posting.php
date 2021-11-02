@@ -35,6 +35,7 @@ use App\Entity\Actor;
 use App\Entity\ActorToAttachment;
 use App\Entity\Attachment;
 use App\Entity\AttachmentToNote;
+use App\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -44,7 +45,6 @@ use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\LocaleType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
@@ -91,7 +91,11 @@ class Posting extends Component
         ];
         Event::handle('PostingAvailableContentTypes', [&$available_content_types]);
 
-        $context_actor = null; // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
+        $context_actor              = null; // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
+        $preferred_language_choices = $actor->getPreferredLanguageChoices($context_actor);
+        $language_choices           = Language::getLanguageChoices();
+
+        // TODO short display
 
         $request     = $vars['request'];
         $form_params = [
@@ -99,7 +103,7 @@ class Posting extends Component
             ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
             ['content',     TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]],
             ['attachments', FileType::class,     ['label' => _m('Attachments:'), 'multiple' => true, 'required' => false, 'invalid_message' => _m('Attachment not valid.')]],
-            ['language',    LocaleType::class,   ['label' => _m('Note language:'), 'multiple' => false, 'preferred_choices' => $actor->getPreferredLanguageChoice($context_actor)]],
+            ['language',    ChoiceType::class,   ['label' => _m('Note language:'), 'preferred_choices' => $preferred_language_choices, 'choices' => $language_choices, 'required' => true, 'multiple' => false]],
         ];
 
         if (\count($available_content_types) > 1) {
