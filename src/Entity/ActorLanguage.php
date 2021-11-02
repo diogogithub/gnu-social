@@ -42,6 +42,7 @@ class ActorLanguage extends Entity
     // @codeCoverageIgnoreStart
     private int $actor_id;
     private int $language_id;
+    private int $order;
 
     public function setActorId(int $actor_id): self
     {
@@ -64,6 +65,17 @@ class ActorLanguage extends Entity
     {
         return $this->language_id;
     }
+
+    public function getOrder(): int
+    {
+        return $this->order;
+    }
+
+    public function setOrder(int $order): self
+    {
+        $this->order = $order;
+        return $this;
+    }
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
@@ -73,8 +85,9 @@ class ActorLanguage extends Entity
             'name'        => 'actor_language',
             'description' => 'join table where one actor can have many languages',
             'fields'      => [
-                'actor_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'the actor this language entry refers to'],
-                'language_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'many to many', 'not null' => true, 'description' => 'the language this entry refers to'],
+                'actor_id'    => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to many', 'not null' => true, 'description' => 'the actor this language entry refers to'],
+                'language_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'many to many', 'not null' => true, 'description' => 'the language this entry refers to'],
+                'order'       => ['type' => 'int', 'not null' => true, 'description' => 'the order in which a user\'s language options should be displayed'],
             ],
             'primary key' => ['actor_id', 'language_id'],
             'indexes'     => [

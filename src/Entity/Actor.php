@@ -56,7 +56,7 @@ class Actor extends Entity
     private int $id;
     private string $nickname;
     private ?string $fullname = null;
-    private int $roles = 4;
+    private int $roles        = 4;
     private ?string $homepage;
     private ?string $bio;
     private ?string $location;
@@ -64,7 +64,6 @@ class Actor extends Entity
     private ?float $lon;
     private ?int $location_id;
     private ?int $location_service;
-    private ?int $preferred_lang_id;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -98,7 +97,7 @@ class Actor extends Entity
 
     public function getFullname(): ?string
     {
-        if (is_null($this->fullname)) {
+        if (\is_null($this->fullname)) {
             return null;
         }
         return $this->fullname;
@@ -190,17 +189,6 @@ class Actor extends Entity
     public function getLocationService(): ?int
     {
         return $this->location_service;
-    }
-
-    public function setPreferredLangId(?string $preferred_lang_id): self
-    {
-        $this->preferred_lang_id = $preferred_lang_id;
-        return $this;
-    }
-
-    public function getPreferredLangId(): ?int
-    {
-        return $this->preferred_lang_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -324,17 +312,18 @@ class Actor extends Entity
     {
         // Will throw exception on invalid input.
         $nickname = Nickname::normalize($nickname, check_already_used: false);
-        return Cache::get('relative-nickname-' . $nickname . '-' . $this->getId(),
-                          fn () => DB::dql(<<<EOF
-select a from actor a where 
-a.id in (select fa.followed from follow fa join actor aa with fa.followed = aa.id where fa.follower = :actor_id and aa.nickname = :nickname) or 
-a.id in (select fb.follower from follow fb join actor ab with fb.follower = ab.id where fb.followed = :actor_id and ab.nickname = :nickname) or 
-a.nickname = :nickname
-EOF
-                                  ,
-                                  ['nickname' => $nickname, 'actor_id' => $this->getId()],
-                                  ['limit' => 1]
-                              )[0] ?? null
+        return Cache::get(
+            'relative-nickname-' . $nickname . '-' . $this->getId(),
+            fn () => DB::dql(
+                              <<<'EOF'
+                                  select a from actor a where 
+                                  a.id in (select fa.followed from follow fa join actor aa with fa.followed = aa.id where fa.follower = :actor_id and aa.nickname = :nickname) or 
+                                  a.id in (select fb.follower from follow fb join actor ab with fb.follower = ab.id where fb.followed = :actor_id and ab.nickname = :nickname) or 
+                                  a.nickname = :nickname
+                                  EOF,
+                              ['nickname' => $nickname, 'actor_id' => $this->getId()],
+                              ['limit'    => 1],
+                          )[0] ?? null,
         );
     }
 
@@ -367,16 +356,18 @@ EOF
      * Get the most appropraite language for $this to use when
      * referring to $context (a reply or a group, for instance)
      *
-     * @return string the Language as a string (save space in cache)
+     * @return string[] the Languages as string (save space in cache)
      */
-    public function getPreferredLanguageChoice(?self $context = null): string
+    public function getPreferredLanguageChoices(?self $context = null): array
     {
-        $lang_id = $context?->getPreferredLangId() ?? $this->getPreferredLangId();
-        if (\is_null($lang_id)) {
-            return Common::config('site', 'language');
-        }
-        $key = 'actor-lang-' . $this->getId() . (!\is_null($context) ? '-' . $context->getId() : '');
-        return Cache::get($key, fn () => (string) DB::findOneBy('language', ['id' => $lang_id]));
+        $id = $context?->getId() ?? $this->getId();
+        return Cache::get(
+            'actor-' . $this->getId() . '-langs' . (!\is_null($context) ? '-' . $context->getId() : ''),
+            fn () => DB::dql(
+                'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.order ASC',
+                ['id' => $id],
+            ) ?: [DB::findOneBy('language', ['locale' => Common::config('site', 'language')])],
+        );
     }
 
     public static function schemaDef(): array
@@ -385,20 +376,19 @@ EOF
             'name'        => 'actor',
             'description' => 'local and remote users, groups and bots are actors, for instance',
             'fields'      => [
-                'id'                => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'nickname'          => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
-                'fullname'          => ['type' => 'text', 'description' => 'display name'],
-                'roles'             => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this actor has'],
-                'homepage'          => ['type' => 'text', 'description' => 'identifying URL'],
-                'bio'               => ['type' => 'text', 'description' => 'descriptive biography'],
-                'location'          => ['type' => 'text', 'description' => 'physical location'],
-                'lat'               => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
-                'lon'               => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
-                'location_id'       => ['type' => 'int', 'description' => 'location id if possible'],
-                'location_service'  => ['type' => 'int', 'description' => 'service used to obtain location id'],
-                'preferred_lang_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'one to many', 'description' => 'preferred language'],
-                'created'           => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'          => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
+                'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
+                'fullname'         => ['type' => 'text', 'description' => 'display name'],
+                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this actor has'],
+                'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
+                'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
+                'location'         => ['type' => 'text', 'description' => 'physical location'],
+                'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
+                'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
+                'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
+                'location_service' => ['type' => 'int', 'description' => 'service used to obtain location id'],
+                'created'          => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'indexes'     => [

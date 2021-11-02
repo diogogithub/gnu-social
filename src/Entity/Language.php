@@ -41,7 +41,9 @@ class Language extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private string $language;
+    private string $locale;
+    private string $long_display;
+    private string $short_display;
     private DateTimeInterface $created;
 
     public function setId(int $id): self
@@ -55,15 +57,37 @@ class Language extends Entity
         return $this->id;
     }
 
-    public function setLanguage(string $language): self
+    public function setLocale(string $locale): self
     {
-        $this->language = $language;
+        $this->locale = $locale;
         return $this;
     }
 
-    public function getLanguage(): string
+    public function getLocale(): string
     {
-        return $this->language;
+        return $this->locale;
+    }
+
+    public function setLongDisplay(string $long_display): self
+    {
+        $this->long_display = $long_display;
+        return $this;
+    }
+
+    public function getLongDisplay(): string
+    {
+        return $this->long_display;
+    }
+
+    public function setShortDisplay(string $short_display): self
+    {
+        $this->short_display = $short_display;
+        return $this;
+    }
+
+    public function getShortDisplay(): string
+    {
+        return $this->short_display;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -81,7 +105,7 @@ class Language extends Entity
 
     public function __toString()
     {
-        return $this->getLanguage();
+        return $this->getLongDisplay();
     }
 
     public static function schemaDef(): array
@@ -90,16 +114,18 @@ class Language extends Entity
             'name'        => 'language',
             'description' => 'all known languages',
             'fields'      => [
-                'id'       => ['type' => 'serial',   'not null' => true, 'description' => 'unique identifier'],
-                'language' => ['type' => 'char',     'length' => 64, 'description' => 'The locale identifier for the language of a note. 2-leter-iso-language-code_4-leter-script-code_2-leter-iso-country-code, but kept longer in case we get a different format'],
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'id'            => ['type' => 'serial',  'not null' => true, 'description' => 'unique identifier'],
+                'locale'        => ['type' => 'char',    'length' => 64, 'description' => 'The locale identifier for the language of a note. 2-leter-iso-language-code_4-leter-script-code_2-leter-iso-country-code, but kept longer in case we get a different format'],
+                'long_display'  => ['type' => 'varchar', 'length' => 64, 'description' => 'The long display string for the language, in english (translated later)'],
+                'short_display' => ['type' => 'varchar', 'length' => 12,  'description' => 'The short display string for the language (used for the first option)'],
+                'created'       => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['id'],
             'unique keys' => [
-                'language_language_uniq' => ['language'],
+                'language_locale_uniq' => ['locale'],
             ],
             'indexes' => [
-                'language_idx' => ['language'],
+                'locale_idx' => ['locale'],
             ],
         ];
     }
