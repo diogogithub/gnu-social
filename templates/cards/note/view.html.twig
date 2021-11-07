@@ -79,21 +79,29 @@
 {% macro macro_note(note, replies) %}
     {% set nickname = note.getActorNickname() %}
     {% set fullname = note.getActorFullname() %}
-    {% set actor_url = note.getActor().getUrl() %}
+    {% set actor = note.getActor() %}
+    {% set actor_url = actor.getUrl() %}
 
     <article class="h-entry hentry note">
         {{ block('note_sidebar') }}
         <div class="note-wrapper">
             <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
                 {{ block('note_author') }}
-                {{ block('note_reply_to') }}
                 {{ block('note_actions') }}
             </div>
+
             <section tabindex="0" role="dialog" class="e-content entry-content note-content">
                 {{ block('note_text') }}
                 {{ block('note_attachments') }}
                 {{ block('note_links') }}
             </section>
+
+            {% for block in handle_event('AppendCardNote', {'note': note, 'actor': actor}) %}
+                <aside class="note-complementary">
+                    {{ block | raw }}
+                </aside>
+            {% endfor %}
+
             {{ block('note_replies') }}
         </div>
     </article>

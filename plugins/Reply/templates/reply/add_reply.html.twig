@@ -1,25 +1,19 @@
 {% extends 'stdgrid.html.twig' %}
-
-{% block meta %}
-    {{ parent() }}
-{% endblock %}
+{% import "/cards/note/view.html.twig" as noteView %}
 
 {% block title %}{{ 'Reply to ' | trans }}{{ note.getActorNickname() }}{{ '\'s note.' | trans }}{% endblock %}
 
-{% block header %}
+{% block stylesheets %}
     {{ parent() }}
-{% endblock %}
-
-{% block left %}
-    {{ parent() }}
-{% endblock %}
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
+{% endblock stylesheets %}
 
 {% block body %}
     {{ parent() }}
     <div class="page">
         <div class="main">
-            {% include '/cards/note/view.html.twig' with {'note': note} only %}
-            {{ form(reply) }}
+            {{ noteView.macro_note_minimal(note) }}
+            {{ form(add_reply) }}
         </div>
     </div>
 {% endblock body %}

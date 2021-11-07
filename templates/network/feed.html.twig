@@ -1,7 +1,5 @@
 {% extends 'stdgrid.html.twig' %}
-
-{% set override_import = handle_override_template_import('/network/feed.html.twig', '/cards/note/view.html.twig') %}
-{% import override_import as noteView %}
+{% import '/cards/note/view.html.twig' as noteView %}
 
 {% block title %}{% if page_title is defined %}{{ page_title | trans }}{% endif %}{% endblock %}
 

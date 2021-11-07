@@ -28,11 +28,14 @@ use App\Core\Event;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
+use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
+use App\Util\Formatting;
 use App\Util\Nickname;
 use phpDocumentor\Reflection\PseudoTypes\NumericString;
 use Symfony\Component\HttpFoundation\Request;
@@ -84,6 +87,14 @@ class Favourite extends NoteHandlerPlugin
     {
         $res[] = ['title' => 'Favourites', 'path' => Router::url('favourites_view_by_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'favourites_view_by_nickname'];
         $res[] = ['title' => 'Reverse Favourites', 'path' => Router::url('favourites_reverse_view_by_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'favourites_view_by_nickname'];
+        return Event::next;
+    }
+
+    public function onAppendCardNote(array $vars, array &$result) {
+        // if note is the original, append on end "user favourited this"
+        $actor = $vars['actor'];
+        $note = $vars['note'];
+
         return Event::next;
     }
 

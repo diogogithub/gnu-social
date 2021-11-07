@@ -155,10 +155,10 @@ class Posting extends Component
      * @throws ClientException
      * @throws ServerException
      */
-    public static function storeLocalNote(Actor $actor, string $content, string $content_type, array $attachments, ?Note $reply_to = null, ?Note $repeat_of = null)
+    public static function storeLocalNote(Actor $actor, string $content, string $content_type, array $attachments)
     {
         $rendered = null;
-        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $reply_to]);
+        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor]);
         $note = Note::create([
             'actor_id'     => $actor->getId(),
             'content'      => $content,
@@ -195,6 +195,8 @@ class Posting extends Component
         }
 
         DB::flush();
+
+        return $note;
     }
 
     public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, Actor $author, ?Note $reply_to = null)

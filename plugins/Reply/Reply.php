@@ -23,80 +23,102 @@ declare(strict_types = 1);
 
 namespace Plugin\Reply;
 
+use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Form;
 use App\Core\Modules\NoteHandlerPlugin;
+use App\Core\Router\Router;
+use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NoSuchNoteException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
-use Component\Posting\Posting;
+use App\Util\Formatting;
 use Plugin\Reply\Controller\Reply as ReplyController;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Plugin\Reply\Entity\NoteReply;
 use Symfony\Component\HttpFoundation\Request;
+use function PHPUnit\Framework\isEmpty;
 
 class Reply extends NoteHandlerPlugin
 {
-    public function onAddRoute($r)
+    /**
+     * HTML rendering event that adds the repeat form as a note
+     * action, if a user is logged in
+     *
+     * @throws InvalidFormException
+     * @throws NoSuchNoteException
+     * @throws RedirectException
+     *
+     * @return bool Event hook
+     */
+    public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
-        $r->connect('note_reply', '/note/reply/{reply_to<\\d*>}', ReplyController::class);
+        if (is_null(Common::user())) {
+            return Event::next;
+        }
+
+        // Generating URL for repeat action route
+        $args = ['id' => $note->getId()];
+        $type = Router::ABSOLUTE_PATH;
+        $reply_action_url = Router::url('reply_add', $args, $type);
+
+        // Concatenating get parameter to redirect the user to where he came from
+        $reply_action_url .= '?from=' . substr($request->getQueryString(), 2);
+
+        $reply_action = [
+            "url" => $reply_action_url,
+            "classes" => "button-container reply-button-container note-actions-unset",
+            "id" => "reply-button-container-" . $note->getId()
+        ];
+
+        $actions[] = $reply_action;
+        return Event::next;
+    }
+
+    public function onAppendCardNote(array $vars, array &$result) {
+        // if note is the original, append on end "user replied to this"
+        // if note is the reply itself: append on end "in response to user in conversation"
+        $actor = $vars['actor'];
+        $note = $vars['note'];
+
+        if ($actor !== null) {
+            try {
+                try {
+                    $complementary_info = '';
+                    $note_replies[] = NoteReply::getNoteReplies($note);
+
+                    if (isEmpty($note_replies)) {
+                        return Event::next;
+                    }
+
+                    dd($note_replies);
+
+                    foreach ($note_replies as $reply) {
+                        $reply_actor = Actor::getWithPK($reply['actor_id']);
+                        $reply_actor_url = $reply_actor->getUrl();
+                        $reply_actor_nickname = $reply_actor->getNickname();
+                        $complementary_info .= "<a href={$reply_actor_url}>{$reply_actor_nickname}</a>, ";
+                    }
+
+                    $complementary_info = rtrim(trim($complementary_info), ',');
+                    $complementary_info .= ' replied to this note.';
+                    $result[] = Formatting::twigRenderString($complementary_info, []);
+                } catch (NotFoundException $e) {
+                    return Event::next;
+                }
+            } catch (NotFoundException $e) {
+                return Event::next;
+            }
+        }
 
         return Event::next;
     }
 
-    // TODO: Refactoring to link instead of a form
-    /**
-     * HTML rendering event that adds the reply form as a note action,
-     * if a user is logged in
-     *
-     * @throws RedirectException
-     */
-/*    public function onAddNoteActions(Request $request, Note $note, array &$actions)
+    public function onAddRoute($r)
     {
-        if (($user = Common::user()) === null) {
-            return Event::next;
-        }
+        $r->connect('reply_add', '/object/note/{id<\d+>}/reply', [ReplyController::class, 'replyAddNote']);
 
-        $form = Form::create([
-            ['content',     HiddenType::class, ['label' => ' ', 'required' => false]],
-            ['attachments', HiddenType::class, ['label' => ' ', 'required' => false]],
-            ['note_id',     HiddenType::class, ['data' => $note->getId()]],
-            ['reply',       SubmitType::class,
-                [
-                    'label' => ' ',
-                    'attr'  => [
-                        'class' => 'note-actions-unset button-container reply-button-container',
-                        'title' => 'Reply to this note!',
-                    ],
-                ],
-            ],
-        ]);
-
-        // Handle form
-        $ret = self::noteActionHandle($request, $form, $note, 'reply', function ($note, $data, $user) use ($request) {
-            if ($data['content'] !== null) {
-                // JS submitted
-                // TODO Implement in JS
-                Posting::storeLocalNote(
-                    actor: $user->getActor(),
-                    content: $data['content'],
-                    content_type: 'text/plain',
-                    attachments: $data['attachments'],
-                    reply_to: $data['reply_to'],
-                    repeat_of: null,
-                );
-            } else {
-                // JS disabled, redirect
-                throw new RedirectException('note_reply', ['reply_to' => $note->getId(), 'return_to' => $request->getRequestUri()]);
-
-                return Event::stop;
-            }
-        });
-
-        if ($ret !== null) {
-            return $ret;
-        }
-        $actions[] = $form->createView();
         return Event::next;
-    }*/
+    }
 }

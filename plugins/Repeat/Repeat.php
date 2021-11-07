@@ -25,6 +25,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
+use App\Entity\Actor;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
@@ -89,26 +90,13 @@ class Repeat extends NoteHandlerPlugin
         return Event::next;
     }
 
-    public function onOverrideTemplateImport(string $current_template, string $default, string &$response)
-    {
-        switch ($current_template) {
-            case '/network/feed.html.twig':
-                $response = "plugins/repeat/cards/note/view.html.twig";
-                return Event::stop;
-        }
+    public function onAppendCardNote(array $vars, array &$result) {
+        // if note is the original and user isn't the one who repeated, append on end "user repeated this"
+        // if user is the one who repeated, append on end "you repeated this, remove repeat?"
+        $actor = $vars['actor'];
+        $note = $vars['note'];
 
         return Event::next;
-    }
-
-    public function onGetAdditionalTemplateVars(array $vars, array &$result)
-    {
-        $note_id = $vars['note_id'];
-
-        $opts = ['id' => $note_id];
-        $is_repeat = DB::count('note_repeat', $opts) >= 1;
-
-        $result = ['is_repeat' => (bool)$is_repeat];
-        return Event::stop;
     }
 
     public function onAddRoute(RouteLoader $r): bool

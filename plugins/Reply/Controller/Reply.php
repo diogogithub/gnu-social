@@ -29,6 +29,9 @@ namespace Plugin\Reply\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
+use App\Entity\Actor;
+use Component\Posting\Posting;
+use Plugin\Reply\Entity\NoteReply;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
@@ -38,7 +41,6 @@ use App\Util\Exception\ClientException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
-use Component\Posting\Posting;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -49,12 +51,13 @@ class Reply extends Controller
     /**
      * Controller for the note reply non-JS page
      */
-    public function handle(Request $request, string $reply_to)
+    public function replyAddNote(Request $request, int $id)
     {
         $user     = Common::ensureLoggedIn();
         $actor_id = $user->getId();
-        $note     = DB::find('note', ['id' => (int) $reply_to]);
-        if ($note === null || !$note->isVisibleTo($user)) {
+
+        $note = Note::getWithPK($id);
+        if (is_null($note) || !$note->isVisibleTo($user)) {
             throw new NoSuchNoteException();
         }
 
@@ -74,35 +77,56 @@ class Reply extends Controller
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                Posting::storeLocalNote(
-                    actor: $user->getActor(),
+                // Create a new note with the same content as the original
+                $reply = Posting::storeLocalNote(
+                    actor: Actor::getWithPK($actor_id),
                     content: $data['content'],
                     content_type: 'text/plain', // TODO
                     attachments: $data['attachments'],
-                    reply_to: $reply_to,
-                    repeat_of: null,
                 );
-                $return = $this->string('return_to');
-                if (!\is_null($return)) {
+                DB::persist($reply);
+
+                // Update DB
+                DB::flush();
+
+                // Find the id of the note we just created
+                $reply_id = $reply->getId();
+                $og_id = $note->getId();
+
+                // Add it to note_repeat table
+                if (!is_null($reply_id)) {
+                    DB::persist(NoteReply::create([
+                        'id' => $reply_id,
+                        'actor_id' => $actor_id,
+                        'reply_to' => $og_id
+                    ]));
+                }
+
+                // Update DB one last time
+                DB::flush();
+
+                if (array_key_exists('from', $get_params = $this->params())) {
                     // Prevent open redirect
-                    if (Router::isAbsolute($return)) {
-                        Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$return})");
+                    if (Router::isAbsolute($get_params['from'])) {
+                        Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$get_params['from']})");
                         throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
                     } else {
-                        throw new RedirectException(url: $return);
+                        # TODO anchor on element id
+                        throw new RedirectException($get_params['from']);
                     }
                 } else {
                     throw new RedirectException('root'); // If we don't have a URL to return to, go to the instance root
                 }
+
             } else {
                 throw new InvalidFormException();
             }
         }
 
         return [
-            '_template' => 'note/reply.html.twig',
+            '_template' => 'reply/add_reply.html.twig',
             'note'      => $note,
-            'reply'     => $form->createView(),
+            'add_reply' => $form->createView(),
         ];
     }
 }
