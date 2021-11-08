@@ -62,8 +62,9 @@ class DB
     /**
      * Table name to class map, used to allow specifying table names instead of classes in doctrine calls
      */
-    private static array $table_map = [];
-    private static array $class_pk  = [];
+    private static array $table_map              = [];
+    private static array $class_pk               = [];
+    private static ?string $table_entity_pattern = null;
     public static function initTableMap()
     {
         $all = self::$em->getMetadataFactory()->getAllMetadata();
@@ -71,6 +72,8 @@ class DB
             self::$table_map[$meta->getTableName()]          = $meta->getMetadataValue('name');
             self::$class_pk[$meta->getMetadataValue('name')] = $meta->getIdentifier();
         }
+
+        self::$table_entity_pattern = '/(' . implode('|', array_keys(self::$table_map)) . ')\s([^\s]+)/';
     }
 
     public static function getTableForClass(string $class)
@@ -111,9 +114,16 @@ class DB
      * from table aliases to class names. Replaces '{select}' in
      * $query with the appropriate select list
      */
-    public static function sql(string $query, array $entities, array $params = [])
+    public static function sql(string $query// , array $entities
+                               , array $params = [], )
     {
-        $rsm = new ResultSetMappingBuilder(self::$em);
+        $rsm     = new ResultSetMappingBuilder(self::$em, ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT);
+        $matches = [];
+        preg_match_all(self::$table_entity_pattern, $query, $matches);
+        $entities = [];
+        foreach (F\zip($matches[1], $matches[2]) as [$table, $alias]) {
+            $entities[$alias] = self::$table_map[$table];
+        }
         foreach ($entities as $alias => $entity) {
             $rsm->addRootEntityFromClassMetadata($entity, $alias);
         }
