@@ -173,16 +173,16 @@ class UserPanel extends AbstractController
             ];
 
             $help = [
-                'target_actor_id'       => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
-                'activity_by_followed'  => 'Notify me when someone I follow has new activity',
-                'mention'               => 'Notify me when mentions me in a notice',
-                'reply'                 => 'Notify me when someone replies to a notice made by me',
-                'follow'                => 'Notify me when someone follows me or asks for permission to do so',
-                'favorite'              => 'Notify me when someone favorites one of my notices',
-                'nudge'                 => 'Notify me when someone nudges me',
-                'dm'                    => 'Notify me when someone sends me a direct message',
-                'post_on_status_change' => 'Post a notice when my status in this service changes',
-                'enable_posting'        => 'Enable posting from this service',
+                'target_actor_id'        => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
+                'activity_by_subscribed' => 'Notify me when someone I subscribed has new activity',
+                'mention'                => 'Notify me when mentions me in a notice',
+                'reply'                  => 'Notify me when someone replies to a notice made by me',
+                'subscription'           => 'Notify me when someone subscribes to me or asks for permission to do so',
+                'favorite'               => 'Notify me when someone favorites one of my notices',
+                'nudge'                  => 'Notify me when someone nudges me',
+                'dm'                     => 'Notify me when someone sends me a direct message',
+                'post_on_status_change'  => 'Post a notice when my status in this service changes',
+                'enable_posting'         => 'Enable posting from this service',
             ];
 
             switch ($type_str) {

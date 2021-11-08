@@ -23,7 +23,7 @@ use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Subscription queue
+ * Entity for subscription
  *
  * @category  DB
  * @package   GNUsocial
@@ -36,34 +36,35 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class FollowQueue extends Entity
+class Subscription extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $follower;
-    private int $followed;
+    private int $subscriber;
+    private int $subscribed;
     private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
-    public function setFollower(int $follower): self
+    public function setSubscriber(int $subscriber): self
     {
-        $this->follower = $follower;
+        $this->subscriber = $subscriber;
         return $this;
     }
 
-    public function getFollower(): int
+    public function getSubscriber(): int
     {
-        return $this->follower;
+        return $this->subscriber;
     }
 
-    public function setFollowed(int $followed): self
+    public function setSubscribed(int $subscribed): self
     {
-        $this->followed = $followed;
+        $this->subscribed = $subscribed;
         return $this;
     }
 
-    public function getFollowed(): int
+    public function getSubscribed(): int
     {
-        return $this->followed;
+        return $this->subscribed;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -77,23 +78,34 @@ class FollowQueue extends Entity
         return $this->created;
     }
 
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'follow_queue',
-            'description' => 'Holder for Follow requests awaiting moderation.',
-            'fields'      => [
-                'follower' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'Follow_queue_follower_fkey', 'not null' => true, 'description' => 'actor making the request'],
-                'followed' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'Follow_queue_followed_fkey', 'not null' => true, 'description' => 'actor being followed'],
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+            'name'   => 'subscription',
+            'fields' => [
+                'subscriber' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'subscrib_subscriber_fkey', 'not null' => true,  'description' => 'actor listening'],
+                'subscribed' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'subscrib_subscribed_fkey', 'not null' => true,  'description' => 'actor being listened to'],
+                'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['follower', 'followed'],
+            'primary key' => ['subscriber', 'subscribed'],
             'indexes'     => [
-                'follow_queue_follower_created_idx' => ['follower', 'created'],
-                'follow_queue_followed_created_idx' => ['followed', 'created'],
+                'subscrib_subscriber_idx' => ['subscriber', 'created'],
+                'subscrib_subscribed_idx' => ['subscribed', 'created'],
             ],
         ];
     }

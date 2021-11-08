@@ -12,7 +12,7 @@ use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\VisibilityScope;
 use App\Entity\Actor;
-use App\Entity\Follow;
+use App\Entity\Subscription;
 use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Security\Authenticator;
@@ -145,8 +145,8 @@ class Security extends Controller
                 DB::persistWithSameId(
                     $actor,
                     $user,
-                    // Self follow
-                    fn (int $id) => DB::persist(Follow::create(['follower' => $id, 'followed' => $id])),
+                    // Self subscription
+                    fn (int $id) => DB::persist(Subscription::create(['subscriber' => $id, 'subscribed' => $id])),
                 );
 
                 Event::handle('SuccessfulLocalUserRegistration', [$actor, $user]);

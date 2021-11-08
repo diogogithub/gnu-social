@@ -39,14 +39,14 @@ class UserNotificationPrefs extends Entity
     private int $user_id;
     private string $transport;
     private ?int $target_actor_id;
-    private bool $activity_by_followed  = true;
-    private bool $mention               = true;
-    private bool $reply                 = true;
-    private bool $follow                = true;
-    private bool $favorite              = true;
-    private bool $nudge                 = false;
-    private bool $dm                    = true;
-    private bool $post_on_status_change = false;
+    private bool $activity_by_subscribed = true;
+    private bool $mention                = true;
+    private bool $reply                  = true;
+    private bool $subscription           = true;
+    private bool $favorite               = true;
+    private bool $nudge                  = false;
+    private bool $dm                     = true;
+    private bool $post_on_status_change  = false;
     private ?bool $enable_posting;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
@@ -84,15 +84,15 @@ class UserNotificationPrefs extends Entity
         return $this->target_actor_id;
     }
 
-    public function setActivityByFollowed(bool $activity_by_followed): self
+    public function setActivityBySubscribed(bool $activity_by_subscribed): self
     {
-        $this->activity_by_followed = $activity_by_followed;
+        $this->activity_by_subscribed = $activity_by_subscribed;
         return $this;
     }
 
-    public function getActivityByFollowed(): bool
+    public function getActivityBySubscribed(): bool
     {
-        return $this->activity_by_followed;
+        return $this->activity_by_subscribed;
     }
 
     public function setMention(bool $mention): self
@@ -117,15 +117,15 @@ class UserNotificationPrefs extends Entity
         return $this->reply;
     }
 
-    public function setFollow(bool $follow): self
+    public function setSubscription(bool $subscription): self
     {
-        $this->follow = $follow;
+        $this->subscription = $subscription;
         return $this;
     }
 
-    public function getFollow(): bool
+    public function getSubscription(): bool
     {
-        return $this->follow;
+        return $this->subscription;
     }
 
     public function setFavorite(bool $favorite): self
@@ -213,20 +213,20 @@ class UserNotificationPrefs extends Entity
         return [
             'name'   => 'user_notification_prefs',
             'fields' => [
-                'user_id'               => ['type' => 'int',       'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'not null' => true],
-                'transport'             => ['type' => 'varchar',   'length' => 191, 'not null' => true, 'description' => 'transport (ex email. xmpp, aim)'],
-                'target_actor_id'       => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'default' => null, 'description' => 'If not null, settings are specific only to a given actors'],
-                'activity_by_followed'  => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when a new activity by someone we follow is made'],
-                'mention'               => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when mentioned by someone we do not follow'],
-                'reply'                 => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when someone replies to a notice made by us'],
-                'follow'                => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify someone follows us'],
-                'favorite'              => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify someone favorites a notice by us'],
-                'nudge'                 => ['type' => 'bool',      'not null' => true, 'default' => false, 'description' => 'Notify someone nudges us'],
-                'dm'                    => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify someone sends us a direct message'],
-                'post_on_status_change' => ['type' => 'bool',      'not null' => true, 'default' => false, 'description' => 'Post a notice when our status in service changes'],
-                'enable_posting'        => ['type' => 'bool',      'default' => true,  'description' => 'Enable posting from this service'],
-                'created'               => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'              => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'user_id'                => ['type' => 'int',       'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'not null' => true],
+                'transport'              => ['type' => 'varchar',   'length' => 191, 'not null' => true, 'description' => 'transport (ex email. xmpp, aim)'],
+                'target_actor_id'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'default' => null, 'description' => 'If not null, settings are specific only to a given actors'],
+                'activity_by_subscribed' => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when a new activity by someone we subscribe is made'],
+                'mention'                => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when mentioned by someone we do not subscribe'],
+                'reply'                  => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when someone replies to a notice made by us'],
+                'subscription'           => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify someone subscribes us'],
+                'favorite'               => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify someone favorites a notice by us'],
+                'nudge'                  => ['type' => 'bool',      'not null' => true, 'default' => false, 'description' => 'Notify someone nudges us'],
+                'dm'                     => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify someone sends us a direct message'],
+                'post_on_status_change'  => ['type' => 'bool',      'not null' => true, 'default' => false, 'description' => 'Post a notice when our status in service changes'],
+                'enable_posting'         => ['type' => 'bool',      'default' => true,  'description' => 'Enable posting from this service'],
+                'created'                => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'               => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['user_id', 'transport'],
             'indexes'     => [

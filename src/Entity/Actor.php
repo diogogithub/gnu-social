@@ -270,25 +270,25 @@ class Actor extends Entity
     public function getSubscribersCount()
     {
         return Cache::get(
-            'followers-' . $this->id,
+            'subscribers-' . $this->id,
             function () {
                 return DB::dql(
-                    'select count(f) from App\Entity\Follow f where f.followed = :followed',
-                    ['followed' => $this->id],
-                )[0][1] - 1; // Remove self follow
+                    'select count(f) from App\Entity\Subscription f where f.subscribed = :subscribed',
+                    ['subscribed' => $this->id],
+                )[0][1] - 1; // Remove self subscription
             },
         );
     }
 
-    public function getSubscriptionsCount()
+    public function getSubscribedCount()
     {
         return Cache::get(
-            'followed-' . $this->id,
+            'subscribed-' . $this->id,
             function () {
                 return DB::dql(
-                    'select count(f) from App\Entity\Follow f where f.follower = :follower',
-                    ['follower' => $this->id],
-                )[0][1] - 1; // Remove self follow
+                    'select count(f) from App\Entity\Subscription f where f.subscriber = :subscriber',
+                    ['subscriber' => $this->id],
+                )[0][1] - 1; // Remove self subscription
             },
         );
     }
@@ -317,8 +317,8 @@ class Actor extends Entity
             fn () => DB::dql(
                 <<<'EOF'
                     select a from actor a where 
-                    a.id in (select fa.followed from follow fa join actor aa with fa.followed = aa.id where fa.follower = :actor_id and aa.nickname = :nickname) or 
-                    a.id in (select fb.follower from follow fb join actor ab with fb.follower = ab.id where fb.followed = :actor_id and ab.nickname = :nickname) or 
+                    a.id in (select fa.subscibed from subscription fa join actor aa with fa.subscibed = aa.id where fa.subsciber = :actor_id and aa.nickname = :nickname) or 
+                    a.id in (select fb.subsciber from subscription fb join actor ab with fb.subsciber = ab.id where fb.subscibed = :actor_id and ab.nickname = :nickname) or 
                     a.nickname = :nickname
                     EOF,
                 ['nickname' => $nickname, 'actor_id' => $this->getId()],

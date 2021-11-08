@@ -314,7 +314,7 @@ class Note extends Entity
         $scope = VisibilityScope::create($this->scope);
         return $scope->public
             || (!\is_null($a) && (
-                ($scope->follower && 0 != DB::count('follow', ['follower' => $a->getId(), 'followed' => $this->actor_id]))
+                ($scope->subscriber && 0 != DB::count('subscription', ['subscriber' => $a->getId(), 'subscribed' => $this->actor_id]))
                 || ($scope->addressee && 0 != DB::count('notification', ['activity_id' => $this->id, 'actor_id' => $a->getId()]))
                 || ($scope->group && [] != DB::dql(
                     'select m from group_member m '
@@ -350,7 +350,7 @@ class Note extends Entity
                 'source'       => ['type' => 'varchar',   'foreign key' => true, 'length' => 32, 'target' => 'NoteSource.code', 'multiplicity' => 'many to one', 'description' => 'fkey to source of note, like "web", "im", or "clientname"'],
                 'conversation' => ['type' => 'int',       'foreign key' => true, 'target' => 'Conversation.id', 'multiplicity' => 'one to one', 'description' => 'the local conversation id'],
 //                'repeat_of'    => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'note this is a repeat of'],
-                'scope'        => ['type' => 'int',       'not null' => true, 'default' => VisibilityScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = followers; 16 = messages; null = default'],
+                'scope'        => ['type' => 'int',       'not null' => true, 'default' => VisibilityScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = subscribers; 16 = messages; null = default'],
                 'url'          => ['type' => 'text',      'description' => 'Permalink to Note'],
                 'language'     => ['type' => 'int',       'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'one to many', 'description' => 'The language for this note'],
                 'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],

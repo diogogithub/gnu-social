@@ -36,13 +36,13 @@ use App\Entity\Actor;
 
 class Notification
 {
-    public const NOTICE_BY_FOLLOWED = 1;
-    public const MENTION            = 2;
-    public const REPLY              = 3;
-    public const FOLLOW             = 4;
-    public const FAVORITE           = 5;
-    public const NUDGE              = 6;
-    public const DM                 = 7;
+    public const NOTICE_BY_SUBSCRIBED = 1;
+    public const MENTION              = 2;
+    public const REPLY                = 3;
+    public const SUBSCRIPTION               = 4;
+    public const FAVORITE             = 5;
+    public const NUDGE                = 6;
+    public const DM                   = 7;
 
     /**
      * One of the above constants

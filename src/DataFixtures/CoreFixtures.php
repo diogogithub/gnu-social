@@ -6,7 +6,7 @@ namespace App\DataFixtures;
 
 use App\Core\VisibilityScope;
 use App\Entity\Actor;
-use App\Entity\Follow;
+use App\Entity\Subscription;
 use App\Entity\GroupInbox;
 use App\Entity\GroupMember;
 use App\Entity\LocalGroup;
@@ -34,15 +34,15 @@ class CoreFixtures extends Fixture
             $ent->{$method}($actor->getId());
             $local_entities[$nick] = $ent;
             $manager->persist($ent);
-            // Add self follows
-            $manager->persist(Follow::create(['follower' => $actor->getId(), 'followed' => $actor->getId()]));
+            // Add self subscriptions
+            $manager->persist(Subscription::create(['subscriber' => $actor->getId(), 'subscribed' => $actor->getId()]));
             $actors[$nick] = $actor;
         }
 
         $n = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some content']);
         $manager->persist($n);
         $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some other content', 'reply_to' => $n->getId()]);
-        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'private note', 'scope' => VisibilityScope::FOLLOWER]);
+        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'private note', 'scope' => VisibilityScope::SUBSCRIBER]);
         $notes[] = $group_note = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP]);
         foreach ($notes as $note) {
             $manager->persist($note);

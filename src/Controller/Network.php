@@ -52,7 +52,7 @@ class Network extends Controller
     private $public_scope   = VisibilityScope::PUBLIC;
     private $instance_scope = VisibilityScope::PUBLIC | VisibilityScope::SITE;
     private $message_scope  = VisibilityScope::MESSAGE;
-    private $follower_scope = VisibilityScope::PUBLIC | VisibilityScope::FOLLOWER;
+    private $subscriber_scope = VisibilityScope::PUBLIC | VisibilityScope::SUBSCRIBER;
 
     public function public(Request $request)
     {
@@ -80,9 +80,9 @@ class Network extends Controller
                     -- Select notes from:
                     select note.* from note left join -- left join ensures all returned notes' ids are not null
                     (
-                        -- Followed by target
-                        select n.id from note n inner join follow f on n.actor_id = f.followed
-                            where f.follower = :target_actor_id
+                        -- Subscribed by target
+                        select n.id from note n inner join subscription f on n.actor_id = f.subscribed
+                            where f.subscriber = :target_actor_id
                         union all
                         -- Replies to notes by target
                         select n.id from note n inner join note nr on nr.id = nr.reply_to
@@ -90,7 +90,7 @@ class Network extends Controller
                         -- Notifications to target
                         select a.activity_id from notification a inner join note n on a.activity_id = n.id
                         union all
-                        -- Notes in groups target follows
+                        -- Notes in groups target subscriptions
                         select gi.activity_id from group_inbox gi inner join group_member gm on gi.group_id = gm.group_id
                             where gm.actor_id = :target_actor_id
                     )

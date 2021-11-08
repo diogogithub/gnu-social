@@ -61,14 +61,14 @@ abstract class AbstractTransport
     public function getHelpMessage(int $t): string
     {
         switch ($t) {
-        case Notification::NOTICE_BY_FOLLOWED:
-            return _m('Send me alerts of mentions by those I follow through {name}', ['{name}' => $this->getName()]);
+        case Notification::NOTICE_BY_SUBSCRIBED:
+            return _m('Send me alerts of mentions by those I subscribe through {name}', ['{name}' => $this->getName()]);
         case Notification::MENTION:
             return _m('Send me alerts of mentions through {name}', ['{name}' => $this->getName()]);
         case Notification::REPLY:
             return _m('Send me alerts of replies to my notice through {name}', ['{name}' => $this->getName()]);
-        case Notification::FOLLOW:
-            return _m('Send me alerts of new follows through {name}', ['{name}' => $this->getName()]);
+        case Notification::SUBSCRIPTION:
+            return _m('Send me alerts of new subscriptions through {name}', ['{name}' => $this->getName()]);
         case Notification::FAVORITE:
             return _m('Send me alerts of new favorites on my notices through {name}', ['{name}' => $this->getName()]);
         case Notification::NUDGE:
@@ -86,14 +86,14 @@ abstract class AbstractTransport
     public function getLabelMessage(int $t): string
     {
         switch ($t) {
-        case Notification::NOTICE_BY_FOLLOWED:
+        case Notification::NOTICE_BY_SUBSCRIBED:
             return _m('Notify me of new notices');
         case Notification::MENTION:
             return _m('Notify me of mentions');
         case Notification::REPLY:
             return _m('Notify me of replies');
-        case Notification::FOLLOW:
-            return _m('Notify me of new follows');
+        case Notification::SUBSCRIPTION:
+            return _m('Notify me of new subscriptions');
         case Notification::FAVORITE:
             return _m('Notify me of new favorites');
         case Notification::NUDGE:

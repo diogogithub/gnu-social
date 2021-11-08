@@ -62,8 +62,8 @@ class LocalUser extends Entity implements UserInterface
     private ?int $sms_carrier;
     private ?string $sms_email;
     private ?string $uri;
-    private ?bool $auto_follow_back;
-    private ?int $follow_policy;
+    private ?bool $auto_subscribe_back;
+    private ?int $subscription_policy;
     private ?bool $is_stream_private;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
@@ -189,26 +189,26 @@ class LocalUser extends Entity implements UserInterface
         return $this->uri;
     }
 
-    public function setAutoFollowBack(?bool $auto_follow_back): self
+    public function setAutoSubscribeBack(?bool $auto_subscribe_back): self
     {
-        $this->auto_follow_back = $auto_follow_back;
+        $this->auto_subscribe_back = $auto_subscribe_back;
         return $this;
     }
 
-    public function getAutoFollowBack(): ?bool
+    public function getAutoSubscribeBack(): ?bool
     {
-        return $this->auto_follow_back;
+        return $this->auto_subscribe_back;
     }
 
-    public function setFollowPolicy(?int $follow_policy): self
+    public function setSubscriptionPolicy(?int $subscription_policy): self
     {
-        $this->follow_policy = $follow_policy;
+        $this->subscription_policy = $subscription_policy;
         return $this;
     }
 
-    public function getFollowPolicy(): ?int
+    public function getSubscriptionPolicy(): ?int
     {
-        return $this->follow_policy;
+        return $this->subscription_policy;
     }
 
     public function setIsStreamPrivate(?bool $is_stream_private): self
@@ -382,9 +382,9 @@ class LocalUser extends Entity implements UserInterface
                 'sms_carrier'       => ['type' => 'int',          'foreign key' => true, 'target' => 'SmsCarrier.id', 'multiplicity' => 'one to one', 'description' => 'foreign key to sms_carrier'],
                 'sms_email'         => ['type' => 'varchar',      'length' => 191,       'description' => 'built from sms and carrier (see sms_carrier)'],
                 'uri'               => ['type' => 'varchar',      'length' => 191,       'description' => 'universally unique identifier, usually a tag URI'],
-                'auto_follow_back'  => ['type' => 'bool',         'default' => false,    'description' => 'automatically follow users who follow us'],
-                'follow_policy'     => ['type' => 'int',          'size' => 'tiny',      'default' => 0, 'description' => '0 = anybody can follow; 1 = require approval'],
-                'is_stream_private' => ['type' => 'bool',         'default' => false,    'description' => 'whether to limit all notices to followers only'],
+                'auto_subscribe_back'  => ['type' => 'bool',         'default' => false,    'description' => 'automatically subscribe to users who subscribed us'],
+                'subscription_policy'     => ['type' => 'int',          'size' => 'tiny',      'default' => 0, 'description' => '0 = anybody can subscribe; 1 = require approval'],
+                'is_stream_private' => ['type' => 'bool',         'default' => false,    'description' => 'whether to limit all notices to subscribers only'],
                 'created'           => ['type' => 'datetime',     'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'          => ['type' => 'timestamp',    'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

@@ -29,7 +29,7 @@ class VisibilityScope extends Bitmap
     public const SITE      = 2;
     public const ADDRESSEE = 4;
     public const GROUP     = 8;
-    public const FOLLOWER  = 16;
+    public const SUBSCRIBER  = 16;
     public const MESSAGE   = 32;
 
     public static int $instance_scope = self::PUBLIC | self::SITE;

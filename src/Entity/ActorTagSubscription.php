@@ -23,7 +23,7 @@ use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for subscription
+ * Entity for actor Tag Subscription
  *
  * @category  DB
  * @package   GNUsocial
@@ -36,35 +36,35 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Follow extends Entity
+class ActorTagSubscription extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $follower;
-    private int $followed;
+    private int $actor_id;
+    private int $actor_tag;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
-    public function setFollower(int $follower): self
+    public function setActorId(int $actor_id): self
     {
-        $this->follower = $follower;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getFollower(): int
+    public function getActorId(): int
     {
-        return $this->follower;
+        return $this->actor_id;
     }
 
-    public function setFollowed(int $followed): self
+    public function setActorTag(int $actor_tag): self
     {
-        $this->followed = $followed;
+        $this->actor_tag = $actor_tag;
         return $this;
     }
 
-    public function getFollowed(): int
+    public function getActorTag(): int
     {
-        return $this->followed;
+        return $this->actor_tag;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -95,17 +95,18 @@ class Follow extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'follow',
+            'name'   => 'actor_tag_subscription',
             'fields' => [
-                'follower' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'follow_follower_fkey', 'not null' => true,  'description' => 'actor listening'],
-                'followed' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'follow_followed_fkey', 'not null' => true,  'description' => 'actor being listened to'],
-                'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'actor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_subscription_actor_id_fkey', 'not null' => true, 'description' => 'foreign key to actor table'],
+                'actor_tag' => ['type' => 'int',       // 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'one to one', // tag can't unique, but doctrine doesn't understand this
+                    'name'             => 'actor_tag_subscription_actor_tag_fkey', 'not null' => true, 'description' => 'foreign key to actor_tag', ],
+                'created'  => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['follower', 'followed'],
+            'primary key' => ['actor_tag_id', 'actor_id'],
             'indexes'     => [
-                'follow_follower_idx' => ['follower', 'created'],
-                'follow_followed_idx' => ['followed', 'created'],
+                'actor_tag_subscription_actor_id_idx' => ['actor_id'],
+                'actor_tag_subscription_created_idx'  => ['created'],
             ],
         ];
     }
