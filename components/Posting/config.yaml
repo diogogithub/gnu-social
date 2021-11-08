@@ -1,0 +1,3 @@
+parameters:
+  posting:
+    use_short_language_display: true

@@ -109,15 +109,17 @@ class Language extends Entity
 
     public static function getLanguageChoices(): array
     {
-        return Cache::getList(
-            'languages', // TODO replace with F\transform
-            fn () => array_merge(...F\map(DB::dql('select l from language l'), fn ($e) => $e->toChoiceFormat())),
+        $langs = Cache::getHashMap(
+            'languages',
+            fn () => F\reindex(DB::dql('select l from language l'), fn (self $l) => $l->getLocale())
         );
+
+        return array_merge(...F\map(array_values($langs), fn ($l) => $l->toChoiceFormat()));
     }
 
     public function toChoiceFormat(): array
     {
-        return [_m($this->getLongDisplay()) => $this->getShortDisplay()];
+        return [_m($this->getLongDisplay()) => $this->getLocale()];
     }
 
     public static function schemaDef(): array

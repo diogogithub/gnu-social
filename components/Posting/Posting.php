@@ -92,10 +92,18 @@ class Posting extends Component
         Event::handle('PostingAvailableContentTypes', [&$available_content_types]);
 
         $context_actor              = null; // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
-        $preferred_language_choices = $actor->getPreferredLanguageChoices($context_actor);
         $language_choices           = Language::getLanguageChoices();
+        $preferred_language_choices = $actor->getPreferredLanguageChoices($context_actor);
+        ksort($language_choices);
 
-        // TODO short display
+        if (Common::config('posting', 'use_short_language_display')) {
+            $key    = array_key_first($preferred_language_choices);
+            $locale = $preferred_language_choices[$key];
+            unset($preferred_language_choices[$key], $language_choices[$key]);
+            $short_display                              = Cache::getHashMapKey('languages', $locale)->getShortDisplay();
+            $preferred_language_choices[$short_display] = trim($locale);
+            $language_choices[$short_display]           = trim($locale);
+        }
 
         $request     = $vars['request'];
         $form_params = [
