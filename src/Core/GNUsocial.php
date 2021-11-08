@@ -236,16 +236,17 @@ class GNUsocial implements EventSubscriberInterface
         // Load .local
         $loader->load($local_file);
         $locals = $container->getParameter('locals');
+        $container->getParameterBag()->remove('locals');
 
         // Load normal config
         $loader->load(INSTALLDIR . '/social' . Kernel::CONFIG_EXTS, 'glob');
-        $container->setParameter('gnusocial_defaults', $container->getParameter('gnusocial'));
+        $defaults = $container->getParameter('gnusocial');
 
         // Load module config
-        $parameters = ModuleManager::configureContainer($container, $loader);
+        $module_configs = ModuleManager::configureContainer($container, $loader);
 
         // Merge parameter $from with values already set in $to
-        $merge_config = function ($from, $to = null) use ($container, $locals) {
+        $merge_local_config = function ($from, $to = null) use ($container, $locals) {
             $to ??= $from;
             $wrapper = $container->hasParameter($to) ? $container->getParameter($to) : [];
             $content = [$from => $container->getParameter($from)];
@@ -257,11 +258,15 @@ class GNUsocial implements EventSubscriberInterface
 
         // Override and merge any of the previous settings from the locals
         if (\is_array($locals)) {
-            $merge_config('gnusocial');
-            foreach ($parameters as $mod => $type) {
-                $merge_config($mod, $type);
+            $merge_local_config('gnusocial');
+            foreach ($module_configs as $mod => $type) {
+                $loader->load(INSTALLDIR . \PATH_SEPARATOR . $type . \PATH_SEPARATOR . ucfirst($mod) . 'config' . Kernel::CONFIG_EXTS, 'glob');
+                $defaults[$mod] = $container->getParameter($mod);
+                $merge_local_config($mod, $type); // TODO likely broken
             }
         }
+        $container->setParameter('gnusocial_defaults', $defaults);
+        $container->setParameter('gnusocial', $defaults);
     }
 
     /**

@@ -196,18 +196,18 @@ class ModuleManager
         }
         $container->loadFromExtension('twig', ['paths' => $templates]);
 
-        $modules    = array_merge(glob(INSTALLDIR . '/components/*'), glob(INSTALLDIR . '/plugins/*'));
-        $parameters = [];
+        $modules        = array_merge(glob(INSTALLDIR . '/components/*'), glob(INSTALLDIR . '/plugins/*'));
+        $module_configs = [];
         foreach ($modules as $mod) {
             $path = "{$mod}/config" . Kernel::CONFIG_EXTS;
             $loader->load($path, 'glob'); // Is supposed to, but doesn't return anything that would let us identify if loading worked
             foreach (explode(',', mb_substr(Kernel::CONFIG_EXTS, 2, -1)) as $ext) {
                 if (file_exists("{$mod}/config.{$ext}")) {
-                    $parameters[basename(mb_strtolower($mod))] = basename(\dirname(mb_strtolower($mod)));
+                    $module_configs[basename(mb_strtolower($mod))] = basename(\dirname(mb_strtolower($mod)));
                     break;
                 }
             }
         }
-        return $parameters;
+        return $module_configs;
     }
 }
