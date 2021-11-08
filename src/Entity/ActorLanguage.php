@@ -85,8 +85,8 @@ class ActorLanguage extends Entity
             'name'        => 'actor_language',
             'description' => 'join table where one actor can have many languages',
             'fields'      => [
-                'actor_id'    => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to many', 'not null' => true, 'description' => 'the actor this language entry refers to'],
-                'language_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'many to many', 'not null' => true, 'description' => 'the language this entry refers to'],
+                'actor_id'    => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to many', 'description' => 'the actor this language entry refers to'],
+                'language_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'many to many', 'description' => 'the language this entry refers to'],
                 'order'       => ['type' => 'int', 'not null' => true, 'description' => 'the order in which a user\'s language options should be displayed'],
             ],
             'primary key' => ['actor_id', 'language_id'],
