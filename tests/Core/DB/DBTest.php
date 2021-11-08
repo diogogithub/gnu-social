@@ -44,7 +44,7 @@ class DBTest extends GNUsocialTestCase
     public function testSql()
     {
         static::bootKernel();
-        $actor = DB::sql('select {select} from actor a where a.nickname = :nickname', ['a' => 'App\Entity\Actor'], ['nickname' => 'taken_user']);
+        $actor = DB::sql('select {select} from actor a where a.nickname = :nickname', ['nickname' => 'taken_user']);
         static::assertIsArray($actor);
         static::assertTrue($actor[0] instanceof Actor);
     }

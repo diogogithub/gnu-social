@@ -162,16 +162,16 @@ class Note extends Entity
         return $this->conversation;
     }
 
-/*    public function setRepeatOf(?int $repeat_of): self
-    {
-        $this->repeat_of = $repeat_of;
-        return $this;
-    }
+    /*    public function setRepeatOf(?int $repeat_of): self
+        {
+            $this->repeat_of = $repeat_of;
+            return $this;
+        }
 
-    public function getRepeatOf(): ?int
-    {
-        return $this->repeat_of;
-    }*/
+        public function getRepeatOf(): ?int
+        {
+            return $this->repeat_of;
+        }*/
 
     public function setScope(int $scope): self
     {
@@ -251,14 +251,15 @@ class Note extends Entity
         return Avatar::getAvatarUrl($this->getActorId(), $size);
     }
 
-    public static function getAllNotes(int $noteScope): array
+    public static function getAllNotes(int $note_scope): array
     {
         return DB::sql(
-            'select * from note n '
-                       . 'where n.reply_to is null and (n.scope & :notescope) <> 0 '
-                       . 'order by n.created DESC',
-            ['n'         => 'App\Entity\Note'],
-            ['notescope' => $noteScope],
+            <<<'EOF'
+                select * from note n
+                where (n.scope & :notescope) <> 0
+                order by n.created DESC
+                EOF,
+            ['notescope' => $note_scope],
         );
     }
 
@@ -361,7 +362,7 @@ class Note extends Entity
                 'note_created_id_is_local_idx'    => ['created', 'is_local'],
                 'note_actor_created_idx'          => ['actor_id', 'created'],
                 'note_is_local_created_actor_idx' => ['is_local', 'created', 'actor_id'],
-//                'note_repeat_of_created_idx'      => ['repeat_of', 'created'],
+                'note_repeat_of_created_idx'      => ['repeat_of', 'created'],
                 'note_conversation_created_idx'   => ['conversation', 'created'],
                 'note_reply_to_idx'               => ['reply_to'],
             ],

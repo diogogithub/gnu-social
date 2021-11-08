@@ -100,7 +100,7 @@ class Network extends Controller
                         note.scope <> {$this->message_scope}
                     order by note.modified DESC
             END;
-        $notes = DB::sql($query, ['note' => 'App\Entity\Note'], ['target_actor_id' => $target->getId()]);
+        $notes = DB::sql($query, ['target_actor_id' => $target->getId()]);
 
         $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
