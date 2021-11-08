@@ -31,6 +31,7 @@ use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
 use Functional as F;
 use InvalidArgumentException;
+use NotImplementedException;
 use Redis;
 use RedisCluster;
 use Symfony\Component\Cache\Adapter;
@@ -152,6 +153,8 @@ abstract class Cache
     /**
      * Retrieve a list from the cache, with a different implementation
      * for redis and others, trimming to $max_count if given
+     *
+     * @param callable(?Item $item, bool &$save): string|object|array<int,mixed> $calculate
      */
     public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, ?int $left = null, ?int $right = null, float $beta = 1.0): array
     {
@@ -243,6 +246,76 @@ abstract class Cache
             return self::$redis[$pool]->del($key) == 1;
         } else {
             return self::delete($key, $pool);
+        }
+    }
+
+    /**
+     * Retrieve a hashmap from the cache, with a different implementation
+     * for redis and others. Different from lists, works with string map_keys
+     *
+     * @param callable(?Item $item, bool &$save): string|object|array<string,mixed> $calculate
+     * @TODO cleanup
+     */
+    public static function getHashMap(string $map_key, callable $calculate, string $pool = 'default', float $beta = 1.0): array
+    {
+        if (isset(self::$redis[$pool])) {
+            if (!($recompute = $beta === \INF || !(self::$redis[$pool]->exists($map_key)))) {
+                if (\is_float($er = Common::config('cache', 'early_recompute'))) {
+                    $recompute = (mt_rand() / mt_getrandmax() > $er);
+                    Log::info('Item "{map_key}" elected for early recomputation', ['key' => $map_key]);
+                } else {
+                    if ($recompute = ($idletime = self::$redis[$pool]->object('idletime', $map_key) ?? false) && ($expiry = self::$redis[$pool]->ttl($map_key) ?? false) && $expiry <= $idletime / 1000 * $beta * log(random_int(1, \PHP_INT_MAX) / \PHP_INT_MAX)) {
+                        // @codeCoverageIgnoreStart
+                        Log::info('Item "{key}" elected for early recomputation {delta}s before its expiration', [
+                            'key'   => $map_key,
+                            'delta' => sprintf('%.1f', $expiry - microtime(true)),
+                        ]);
+                        // @codeCoverageIgnoreEnd
+                    }
+                }
+            }
+            if ($recompute) {
+                $save = true; // Pass by reference
+                $res  = $calculate(null, $save);
+                if ($save) {
+                    self::setHashMap($map_key, $res, $pool, $beta);
+                    return $res;
+                }
+            }
+            return self::$redis[$pool]->hGetAll($map_key);
+        } else {
+            throw new NotImplementedException();
+        }
+    }
+
+    /**
+     * Set the list
+     */
+    public static function setHashMap(string $map_key, array $value, string $pool = 'default', float $beta = 1.0): void
+    {
+        if (isset(self::$redis[$pool])) {
+            if (empty($value)) {
+                self::$redis[$pool]->del($map_key); // Redis doesn't support empty lists
+            } else {
+                self::$redis[$pool] // Ensure atomic
+                    ->multi(Redis::MULTI)
+                    ->del($map_key);
+                foreach ($value as $field_key => $field_value) {
+                    self::$redis[$pool]->hSet($map_key, $field_key, $field_value);
+                }
+                self::$redis[$pool]->exec();
+            }
+        } else {
+            self::set($map_key, \array_slice($value, 0, $max_count), $pool);
+        }
+    }
+
+    public static function getHashMapKey(string $map_key, string $key, string $pool = 'default')
+    {
+        if (isset(self::$redis[$pool])) {
+            return self::$redis[$pool]->hget($map_key, $key);
+        } else {
+            throw new NotImplementedException;
         }
     }
 
