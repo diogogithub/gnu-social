@@ -111,7 +111,7 @@ class Language extends Entity
     {
         $langs = Cache::getHashMap(
             'languages',
-            fn () => F\reindex(DB::dql('select l from language l'), fn (self $l) => $l->getLocale())
+            fn () => F\reindex(DB::dql('select l from language l'), fn (self $l) => $l->getLocale()),
         );
 
         return array_merge(...F\map(array_values($langs), fn ($l) => $l->toChoiceFormat()));
@@ -129,7 +129,7 @@ class Language extends Entity
             'description' => 'all known languages',
             'fields'      => [
                 'id'            => ['type' => 'serial',  'not null' => true, 'description' => 'unique identifier'],
-                'locale'        => ['type' => 'char',    'length' => 64, 'description' => 'The locale identifier for the language of a note. 2-leter-iso-language-code_4-leter-script-code_2-leter-iso-country-code, but kept longer in case we get a different format'],
+                'locale'        => ['type' => 'varchar', 'length' => 64, 'description' => 'The locale identifier for the language of a note. 2-leter-iso-language-code_4-leter-script-code_2-leter-iso-country-code, but kept longer in case we get a different format'],
                 'long_display'  => ['type' => 'varchar', 'length' => 64, 'description' => 'The long display string for the language, in english (translated later)'],
                 'short_display' => ['type' => 'varchar', 'length' => 12,  'description' => 'The short display string for the language (used for the first option)'],
                 'created'       => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
