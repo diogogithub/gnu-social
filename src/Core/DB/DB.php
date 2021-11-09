@@ -43,6 +43,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
+use Exception;
 use Functional as F;
 
 /**
@@ -114,10 +115,12 @@ class DB
      * from table aliases to class names. Replaces '{select}' in
      * $query with the appropriate select list
      */
-    public static function sql(string $query// , array $entities
-                               , array $params = [], )
+    public static function sql(string $query, array $params = [])
     {
-        $rsm     = new ResultSetMappingBuilder(self::$em, ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT);
+        if ($_ENV['APP_ENV'] === 'dev' && str_starts_with($query, 'select *')) {
+            throw new Exception('Cannot use `select *`, use `select {select}` (see ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT)');
+        }
+        $rsmb    = new ResultSetMappingBuilder(self::$em, ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT);
         $matches = [];
         preg_match_all(self::$table_entity_pattern, $query, $matches);
         $entities = [];
@@ -125,10 +128,10 @@ class DB
             $entities[$alias] = self::$table_map[$table];
         }
         foreach ($entities as $alias => $entity) {
-            $rsm->addRootEntityFromClassMetadata($entity, $alias);
+            $rsmb->addRootEntityFromClassMetadata($entity, $alias);
         }
-        $query = preg_replace('/{select}/', $rsm->generateSelectClause(), $query);
-        $q     = self::$em->createNativeQuery($query, $rsm);
+        $query = preg_replace('/{select}/', $rsmb->generateSelectClause(), $query);
+        $q     = self::$em->createNativeQuery($query, $rsmb);
         foreach ($params as $k => $v) {
             $q->setParameter($k, $v);
         }
