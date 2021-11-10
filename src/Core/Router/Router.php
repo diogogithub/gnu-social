@@ -63,13 +63,11 @@ abstract class Router
      */
     public const NETWORK_PATH = UrlGeneratorInterface::NETWORK_PATH;
 
-    public static ?SymfonyRouter $router          = null;
-    public static ?UrlGeneratorInterface $url_gen = null;
+    public static ?SymfonyRouter $router = null;
 
-    public static function setServices($rtr, $gen): void
+    public static function setRouter($rtr): void
     {
-        self::$router  = $rtr;
-        self::$url_gen = $gen;
+        self::$router = $rtr;
     }
 
     public static function isAbsolute(string $url)
@@ -84,7 +82,7 @@ abstract class Router
      */
     public static function url(string $id, array $args = [], int $type = self::ABSOLUTE_PATH): string
     {
-        return self::$url_gen->generate($id, $args, $type);
+        return self::$router->generate($id, $args, $type);
     }
 
     /**

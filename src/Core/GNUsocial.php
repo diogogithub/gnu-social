@@ -70,7 +70,6 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Security as SSecurity;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
@@ -92,7 +91,6 @@ class GNUsocial implements EventSubscriberInterface
     protected TranslatorInterface $translator;
     protected EntityManagerInterface $entity_manager;
     protected RouterInterface $router;
-    protected UrlGeneratorInterface $url_generator;
     protected FormFactoryInterface $form_factory;
     protected MessageBusInterface $message_bus;
     protected EventDispatcherInterface $event_dispatcher;
@@ -116,7 +114,6 @@ class GNUsocial implements EventSubscriberInterface
         TranslatorInterface $trans,
         EntityManagerInterface $em,
         RouterInterface $router,
-        UrlGeneratorInterface $url_gen,
         FormFactoryInterface $ff,
         MessageBusInterface $mb,
         EventDispatcherInterface $ed,
@@ -136,7 +133,6 @@ class GNUsocial implements EventSubscriberInterface
         $this->translator            = $trans;
         $this->entity_manager        = $em;
         $this->router                = $router;
-        $this->url_generator         = $url_gen;
         $this->form_factory          = $ff;
         $this->message_bus           = $mb;
         $this->event_dispatcher      = $ed;
@@ -174,7 +170,7 @@ class GNUsocial implements EventSubscriberInterface
             Form::setFactory($this->form_factory);
             Queue::setMessageBus($this->message_bus);
             Security::setHelper($this->security, $this->sanitizer);
-            Router::setServices($this->router, $this->url_generator);
+            Router::setRouter($this->router);
             HTTPClient::setClient($this->client);
             Formatting::setTwig($this->twig);
             Cache::setupCache();
