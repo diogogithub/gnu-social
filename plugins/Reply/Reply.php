@@ -79,40 +79,35 @@ class Reply extends NoteHandlerPlugin
     public function onAppendCardNote(array $vars, array &$result) {
         // if note is the original, append on end "user replied to this"
         // if note is the reply itself: append on end "in response to user in conversation"
-        $actor = $vars['actor'];
         $note = $vars['note'];
 
-        if ($actor !== null) {
-            try {
-                try {
-                    $complementary_info = '';
-                    $note_replies[] = NoteReply::getNoteReplies($note);
+        $complementary_info = '';
+        $reply_actor = [];
+        $note_replies = NoteReply::getNoteReplies($note);
 
-                    if (isEmpty($note_replies)) {
-                        return Event::next;
-                    }
-
-                    dd($note_replies);
-
-                    foreach ($note_replies as $reply) {
-                        $reply_actor = Actor::getWithPK($reply['actor_id']);
-                        $reply_actor_url = $reply_actor->getUrl();
-                        $reply_actor_nickname = $reply_actor->getNickname();
-                        $complementary_info .= "<a href={$reply_actor_url}>{$reply_actor_nickname}</a>, ";
-                    }
-
-                    $complementary_info = rtrim(trim($complementary_info), ',');
-                    $complementary_info .= ' replied to this note.';
-                    $result[] = Formatting::twigRenderString($complementary_info, []);
-                } catch (NotFoundException $e) {
-                    return Event::next;
-                }
-            } catch (NotFoundException $e) {
-                return Event::next;
-            }
+        // Get actors who replied
+        foreach ($note_replies as $reply) {
+            $reply_actor[] = Actor::getWithPK($reply->getActorId());
+        }
+        if (count($reply_actor) < 1) {
+            return null;
         }
 
-        return Event::next;
+        // Filter out multiple replies from the same actor
+        $reply_actor = array_unique($reply_actor, SORT_REGULAR);
+
+        // Add to complementary info
+        foreach ($reply_actor as $actor) {
+            $reply_actor_url = $actor->getUrl();
+            $reply_actor_nickname = $actor->getNickname();
+            $complementary_info .= "<a href={$reply_actor_url}>{$reply_actor_nickname}</a>, ";
+        }
+
+        $complementary_info = rtrim(trim($complementary_info), ',');
+        $complementary_info .= ' replied to this note.';
+        $result[] = Formatting::twigRenderString($complementary_info, []);
+
+        return $result;
     }
 
     public function onAddRoute($r)

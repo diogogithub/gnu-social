@@ -324,7 +324,6 @@ class Note extends Entity
                 'note_actor_created_idx'          => ['actor_id', 'created'],
                 'note_is_local_created_actor_idx' => ['is_local', 'created', 'actor_id'],
                 'note_conversation_created_idx' => ['conversation', 'created'],
-                'note_reply_to_idx'             => ['reply_to'],
             ],
             'fulltext indexes' => ['notice_fulltext_idx' => ['content']], // TODO make this configurable
         ];

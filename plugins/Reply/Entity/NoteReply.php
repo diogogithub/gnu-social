@@ -40,19 +40,19 @@ use function PHPUnit\Framework\isEmpty;
  */
 class NoteReply extends Entity
 {
-    private int $id;
+    private int $note_id;
     private int $actor_id;
     private int $reply_to;
 
-    public function setId(int $id): self
+    public function setNoteId(int $note_id): self
     {
-        $this->id = $id;
+        $this->note_id = $note_id;
         return $this;
     }
 
-    public function getId(): int
+    public function getNoteId(): int
     {
-        return $this->id;
+        return $this->note_id;
     }
 
     public function setActorId(int $actor_id): self
@@ -72,22 +72,29 @@ class NoteReply extends Entity
         return $this;
     }
 
-    public function getReplyTo(): self
+    public function getReplyTo(): int
     {
         return $this->reply_to;
     }
 
     public static function getNoteReplies(Note $note): array
     {
-        return DB::sql("select n.id from note n cross join note_reply nr where n.id = :note_id",
-            ['n'         => 'App\Entity\Note', 'note_id' => $note->getId()],
+        return DB::sql(
+            <<<'EOF'
+                select {select} from note n
+                inner join note_reply nr
+                on nr.note_id = n.id
+                where reply_to = :note_id
+                order by n.created DESC
+                EOF,
+            ['note_id' => $note->getId()]
         );
     }
 
     public static function getReplyToNote(Note $note): ?int
     {
         $result = DB::dql('select nr.reply_to from note_reply nr '
-            . 'where nr.id = :note_id', ['note_id' => $note->getId()]);
+            . 'where nr.note_id = :note_id', ['note_id' => $note->getId()]);
 
         if (!isEmpty($result)) {
             return $result['reply_to'];
@@ -101,17 +108,18 @@ class NoteReply extends Entity
         return [
             'name' => 'note_reply',
             'fields' => [
-                'id' => ['type' => 'int', 'not null' => true, 'description' => 'The id of the reply itself'],
+                'note_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'The id of the reply itself'],
                 'actor_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'description' => 'Who made this reply'],
                 'reply_to' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'Note this is a reply of'],
             ],
-            'primary key'  => ['id'],
+            'primary key'  => ['note_id'],
             'foreign keys' => [
+                'note_id_to_id_fkey' => ['note', ['note_id' => 'id']],
                 'note_reply_to_id_fkey' => ['note', ['reply_to' => 'id']],
                 'actor_reply_to_id_fkey' => ['actor', ['actor_id' => 'id']],
             ],
             'indexes'     => [
-                'note_reply_to_idx'               => ['reply_to'],
+                'note_reply_to_idx' => ['reply_to'],
             ],
         ];
     }

@@ -96,7 +96,7 @@ class Reply extends Controller
                 // Add it to note_repeat table
                 if (!is_null($reply_id)) {
                     DB::persist(NoteReply::create([
-                        'id' => $reply_id,
+                        'note_id' => $reply_id,
                         'actor_id' => $actor_id,
                         'reply_to' => $og_id
                     ]));

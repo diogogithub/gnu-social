@@ -272,7 +272,8 @@ embed header {
     -webkit-border-radius: 0 0 var(--smaller) var(--smaller);
     -moz-border-radius: 0 0 var(--smaller) var(--smaller);
     border-radius: 0 0 var(--smaller) var(--smaller);
-    padding: var(--default)
+    padding-top: var(--default);
+    padding-bottom: var(--default);
 }
 
 .note-text {
@@ -315,3 +316,15 @@ embed header {
     margin-bottom: var(--smaller)
 }
 
+.note-complementary {
+    border-left: 2px solid var(--accent);
+    padding-left: var(--smaller);
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: var(--smaller);
+    background: var(--gradient) !important;
+}
+
+.note-complementary a {
+    font-weight: bold;
+}

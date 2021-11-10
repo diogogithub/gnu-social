@@ -96,7 +96,7 @@
                 {{ block('note_links') }}
             </section>
 
-            {% for block in handle_event('AppendCardNote', {'note': note, 'actor': actor}) %}
+            {% for block in handle_event('AppendCardNote', {'note': note, 'actor': note.getActor() }) %}
                 <aside class="note-complementary">
                     {{ block | raw }}
                 </aside>
