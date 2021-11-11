@@ -356,20 +356,26 @@ class Actor extends Entity
      * Get the most appropraite language for $this to use when
      * referring to $context (a reply or a group, for instance)
      *
-     * @return string[] the Languages as string (save space in cache)
+     * @return Language[]
      */
     public function getPreferredLanguageChoices(?self $context = null): array
     {
-        $id = $context?->getId() ?? $this->getId();
-        return Cache::getHashMap(
-            'actor-' . $this->getId() . '-langs' . (!\is_null($context) ? '-' . $context->getId() : ''),
-            fn () => array_merge( // TODO replace with F\transform
-                ...F\map(DB::dql(
+        $id    = $context?->getId() ?? $this->getId();
+        $key   = 'actor-' . $this->getId() . '-langs' . (!\is_null($context) ? '-' . $context->getId() : '');
+        $langs = Cache::getHashMap(
+            $key,
+            fn () => F\reindex(
+                DB::dql(
                     'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.order ASC',
                     ['id' => $id],
-                ), fn ($l) => $l->toChoiceFormat()),
-            ) ?: Cache::getHashMapKey('languages', Common::config('site', 'language'))->toChoiceFormat(),
-        );
+                ),
+                fn (Language $l) => $l->getLocale(),
+            ),
+        ) ?: [
+            Common::config('site', 'language') => (Cache::getHashMapKey('languages', Common::config('site', 'language'))
+                                                   ?: DB::findOneBy('language', ['locale' => Common::config('site', 'language')])),
+        ];
+        return array_merge(...F\map(array_values($langs), fn ($l) => $l->toChoiceFormat()));
     }
 
     public static function schemaDef(): array
