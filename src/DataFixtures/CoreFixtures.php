@@ -6,12 +6,12 @@ namespace App\DataFixtures;
 
 use App\Core\VisibilityScope;
 use App\Entity\Actor;
-use App\Entity\Subscription;
 use App\Entity\GroupInbox;
 use App\Entity\GroupMember;
 use App\Entity\LocalGroup;
 use App\Entity\LocalUser;
 use App\Entity\Note;
+use App\Entity\Subscription;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -41,9 +41,10 @@ class CoreFixtures extends Fixture
 
         $n = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some content']);
         $manager->persist($n);
-        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some other content', 'reply_to' => $n->getId()]);
-        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'private note', 'scope' => VisibilityScope::SUBSCRIBER]);
-        $notes[] = $group_note = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP]);
+        $notes   = [];
+        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some other content', 'reply_to' => $n->getId(), 'content_type' => 'text/plain']);
+        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'private note', 'scope' => VisibilityScope::SUBSCRIBER, 'content_type' => 'text/plain']);
+        $notes[] = $group_note = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP, 'content_type' => 'text/plain']);
         foreach ($notes as $note) {
             $manager->persist($note);
         }
