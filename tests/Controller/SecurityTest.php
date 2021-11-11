@@ -33,12 +33,12 @@ class SecurityTest extends GNUsocialTestCase
     {
         // This calls static::bootKernel(), and creates a "client" that is acting as the browser
         $client  = static::createClient();
-        $crawler = $client->request('GET', '/login');
+        $crawler = $client->request('GET', '/main/login');
         $this->assertResponseIsSuccessful();
         // $form = $crawler->selectButton('Sign in')->form();
         $crawler = $client->submitForm('Sign in', [
-            'nickname' => $nickname,
-            'password' => $password,
+            'nickname_or_email' => $nickname,
+            'password'          => $password,
         ]);
         $this->assertResponseStatusCodeSame(302);
         $crawler = $client->followRedirect();
@@ -51,13 +51,13 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
         $this->assertRouteSame('main_all');
-        $this->assertSelectorTextContains('#user-nickname', $nickname);
+        $this->assertSelectorTextContains('.profile-info .profile-info-nickname', $nickname);
     }
 
     public function testLoginAttemptAlreadyLoggedIn()
     {
         [$client] = self::testLogin('taken_user', 'foobar'); // Normal login
-        $crawler  = $client->request('GET', '/login'); // attempt to login again
+        $crawler  = $client->request('GET', '/main/login'); // attempt to login again
         $client->followRedirect();
         $this->assertRouteSame('main_all');
     }
@@ -77,7 +77,7 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
         $this->assertRouteSame('main_all');
-        $this->assertSelectorTextContains('#user-nickname', 'taken_user');
+        $this->assertSelectorTextContains('.profile-info .profile-info-nickname', 'taken_user');
     }
 
     // --------- Register --------------
@@ -85,7 +85,7 @@ class SecurityTest extends GNUsocialTestCase
     private function testRegister(string $nickname, string $email, string $password)
     {
         $client  = static::createClient();
-        $crawler = $client->request('GET', '/register');
+        $crawler = $client->request('GET', '/main/register');
         $this->assertResponseIsSuccessful();
         $crawler = $client->submitForm('Register', [
             'register[nickname]'         => $nickname,
@@ -104,13 +104,13 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
         $this->assertRouteSame('main_all');
-        $this->assertSelectorTextContains('#user-nickname', 'new_nickname');
+        $this->assertSelectorTextContains('.profile-info .profile-info-nickname', 'new_nickname');
     }
 
     public function testRegisterDifferentPassword()
     {
         $client  = static::createClient();
-        $crawler = $client->request('GET', '/register');
+        $crawler = $client->request('GET', '/main/register');
         $this->assertResponseIsSuccessful();
         $crawler = $client->submitForm('Register', [
             'register[nickname]'         => 'new_user',

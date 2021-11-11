@@ -23,23 +23,21 @@ namespace Plugin\Repeat;
 
 use App\Core\DB\DB;
 use App\Core\Event;
+use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
+use App\Entity\Note;
+use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
-use App\Core\Modules\NoteHandlerPlugin;
-use App\Entity\Note;
-use App\Util\Common;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
-use App\Util\Formatting;
 use Symfony\Component\HttpFoundation\Request;
 
 class Repeat extends NoteHandlerPlugin
 {
-
     /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
@@ -52,7 +50,7 @@ class Repeat extends NoteHandlerPlugin
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
-        if (is_null($user = Common::user())) {
+        if (\is_null($user = Common::user())) {
             return Event::next;
         }
 
@@ -68,22 +66,24 @@ class Repeat extends NoteHandlerPlugin
 
         $is_repeat = DB::count('note_repeat', ['id' => $note->getId()]) >= 1;
 
-
         // Generating URL for repeat action route
-        $args = ['id' => $note->getId()];
-        $type = Router::ABSOLUTE_PATH;
-        $repeat_action_url = $is_repeat ?
-            Router::url('repeat_remove', $args, $type) :
-            Router::url('repeat_add', $args, $type);
+        $args              = ['id' => $note->getId()];
+        $type              = Router::ABSOLUTE_PATH;
+        $repeat_action_url = $is_repeat
+            ? Router::url('repeat_remove', $args, $type)
+            : Router::url('repeat_add', $args, $type);
 
+        // TODO clean this up
+        // SECURITY: open redirect?
+        $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
-        $repeat_action_url .= '?from=' . substr($request->getQueryString(), 2);
+        $repeat_action_url .= !\is_null($query_string) ? '?from=' . mb_substr($query_string, 2) : '';
 
-        $extra_classes =  $is_repeat ? "note-actions-set" : "note-actions-unset";
+        $extra_classes = $is_repeat ? 'note-actions-set' : 'note-actions-unset';
         $repeat_action = [
-            "url" => $repeat_action_url,
-            "classes" => "button-container repeat-button-container $extra_classes",
-            "id" => "repeat-button-container-" . $note->getId()
+            'url'     => $repeat_action_url,
+            'classes' => "button-container repeat-button-container {$extra_classes}",
+            'id'      => 'repeat-button-container-' . $note->getId(),
         ];
 
         $actions[] = $repeat_action;

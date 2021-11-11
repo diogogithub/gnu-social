@@ -37,7 +37,6 @@ use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Formatting;
 use App\Util\Nickname;
-use phpDocumentor\Reflection\PseudoTypes\NumericString;
 use Symfony\Component\HttpFoundation\Request;
 
 class Favourite extends NoteHandlerPlugin
@@ -54,29 +53,30 @@ class Favourite extends NoteHandlerPlugin
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
-        if (is_null($user = Common::user())) {
+        if (\is_null($user = Common::user())) {
             return Event::next;
         }
 
         // If note is favourite, "is_favourite" is 1
-        $opts     = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
-        $is_favourite   = DB::find('favourite', $opts) !== null;
+        $opts         = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
+        $is_favourite = DB::find('favourite', $opts) !== null;
 
         // Generating URL for favourite action route
-        $args = ['id' => $note->getId()];
-        $type = Router::ABSOLUTE_PATH;
-        $favourite_action_url = $is_favourite ?
-            Router::url('favourite_remove', $args, $type) :
-            Router::url('favourite_add', $args, $type);
+        $args                 = ['id' => $note->getId()];
+        $type                 = Router::ABSOLUTE_PATH;
+        $favourite_action_url = $is_favourite
+            ? Router::url('favourite_remove', $args, $type)
+            : Router::url('favourite_add', $args, $type);
 
+        $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
-        $favourite_action_url .= '?from=' . substr($request->getQueryString(), 2);
+        $favourite_action_url .= !\is_null($query_string) ? '?from=' . mb_substr($query_string, 2) : '';
 
-        $extra_classes =  $is_favourite ? "note-actions-set" : "note-actions-unset";
+        $extra_classes    = $is_favourite ? 'note-actions-set' : 'note-actions-unset';
         $favourite_action = [
-            "url" => $favourite_action_url,
-            "classes" => "button-container favourite-button-container $extra_classes",
-            "id" => "favourite-button-container-" . $note->getId()
+            'url'     => $favourite_action_url,
+            'classes' => "button-container favourite-button-container {$extra_classes}",
+            'id'      => 'favourite-button-container-' . $note->getId(),
         ];
 
         $actions[] = $favourite_action;

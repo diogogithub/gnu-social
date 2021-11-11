@@ -12,9 +12,9 @@ use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\VisibilityScope;
 use App\Entity\Actor;
-use App\Entity\Subscription;
 use App\Entity\LocalUser;
 use App\Entity\Note;
+use App\Entity\Subscription;
 use App\Security\Authenticator;
 use App\Security\EmailVerifier;
 use App\Util\Common;
@@ -61,7 +61,6 @@ class Security extends Controller
             '_template'     => 'security/login.html.twig',
             'last_login_id' => $last_login_id,
             'error'         => $error,
-            'notes_fn'      => fn ()      => Note::getAllNotes(VisibilityScope::$instance_scope),
         ];
     }
 
@@ -92,8 +91,7 @@ class Security extends Controller
         Request $request,
         GuardAuthenticatorHandler $guard_handler,
         Authenticator $authenticator,
-    ): array|Response|null
-    {
+    ): array|Response|null {
         $form = Form::create([
             ['nickname', TextType::class, [
                 'label'       => _m('Nickname'),
