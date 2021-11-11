@@ -44,15 +44,27 @@ class GNUsocialTestCase extends WebTestCase
     /**
      * Provide our own initialization for testing
      */
+    public static function createClient(array $options = [], array $server = [])
+    {
+        $client = parent::createClient($options, $server);
+        self::do_setup();
+        return $client;
+    }
+
     public static function bootKernel(array $options = [])
     {
-        $kernel    = parent::bootKernel($options);
+        $kernel = parent::bootKernel();
+        self::do_setup();
+        return $kernel;
+    }
+
+    private static function do_setup()
+    {
         $container = self::$kernel->getContainer()->get('test.service_container');
         $services  = F\map(
             (new ReflectionClass(GNUsocial::class))->getMethod('__construct')->getParameters(),
             fn ($p) => $container->get((string) $p->getType()),
         );
         self::$social = new GNUsocial(...$services);
-        return $kernel;
     }
 }
