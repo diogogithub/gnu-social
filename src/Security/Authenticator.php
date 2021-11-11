@@ -26,8 +26,7 @@ use App\Core\Router\Router;
 use App\Entity\LocalUser;
 use App\Entity\User;
 use App\Util\Exception\NoSuchActorException;
-use App\Util\Nickname;
-use Exception;
+use App\Util\Exception\NotFoundException;
 use Stringable;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -103,13 +102,13 @@ class Authenticator extends AbstractFormLoginAuthenticator
             if (filter_var($credentials['nickname_or_email'], \FILTER_VALIDATE_EMAIL) !== false) {
                 $user = LocalUser::getByEmail($credentials['nickname_or_email']);
             } else {
-                $user = LocalUser::getByNickname(Nickname::normalize($credentials['nickname_or_email'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: false));
+                $user = LocalUser::getByNickname($credentials['nickname_or_email']);
             }
             if ($user === null) {
                 throw new NoSuchActorException('No such local user.');
             }
             $credentials['nickname'] = $user->getNickname();
-        } catch (Exception) {
+        } catch (NotFoundException) {
             throw new CustomUserMessageAuthenticationException(
                 _m('Invalid login credentials.'),
             );
