@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -59,6 +61,12 @@ class AttachmentThumbnail extends Entity
     public const SIZE_MEDIUM = 1;
     public const SIZE_BIG    = 2;
 
+    public const SIZE_MAP = [
+        'small'  => self::SIZE_SMALL,
+        'medium' => self::SIZE_MEDIUM,
+        'big'    => self::SIZE_BIG,
+    ];
+
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
@@ -67,7 +75,7 @@ class AttachmentThumbnail extends Entity
     private string $filename;
     private int $width;
     private int $height;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
     {
@@ -149,6 +157,17 @@ class AttachmentThumbnail extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public static function sizeIntToStr(?int $size): string
+    {
+        $map = array_flip(self::SIZE_MAP);
+        return $map[$size] ?? $map[self::SIZE_SMALL];
+    }
+
+    public static function sizeStrToInt(string $size)
+    {
+        return self::SIZE_MAP[$size] ?? self::SIZE_MAP[self::SIZE_SMALL];
+    }
+
     private ?Attachment $attachment = null;
 
     public function setAttachment(?Attachment $attachment)
@@ -158,17 +177,20 @@ class AttachmentThumbnail extends Entity
 
     public function getAttachment()
     {
-        if (isset($this->attachment) && !is_null($this->attachment)) {
+        if (isset($this->attachment) && !\is_null($this->attachment)) {
             return $this->attachment;
         } else {
             return $this->attachment = DB::findOneBy('attachment', ['id' => $this->attachment_id]);
         }
     }
 
+    public static function getCacheKey(int $id, int $size)
+    {
+        return "thumb-{$id}-{$size}";
+    }
+
     /**
-     * @param Attachment $attachment
-     * @param ?string    $size       'small'|'medium'|'big'
-     * @param bool       $crop
+     * @param ?string $size 'small'|'medium'|'big'
      *
      * @throws ClientException
      * @throws NotFoundException
@@ -178,26 +200,23 @@ class AttachmentThumbnail extends Entity
      */
     public static function getOrCreate(Attachment $attachment, ?string $size = null, bool $crop = false): ?self
     {
-        $size     = $size ?? Common::config('thumbnail', 'default_size');
-        $size_int = match ($size) {
-            'medium' => self::SIZE_MEDIUM,
-            'big'    => self::SIZE_BIG,
-            default  => self::SIZE_SMALL,
-        };
+        $size ??= Common::config('thumbnail', 'default_size');
+        $size_int = self::sizeStrToInt($size);
         try {
-            return Cache::get('thumb-' . $attachment->getId() . "-{$size}",
-                function () use ($attachment, $size_int) {
-                    return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'size' => $size_int]);
-                });
+            return Cache::get(
+                self::getCacheKey($attachment->getId(), $size_int),
+                fn () => DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'size' => $size_int]),
+            );
         } catch (NotFoundException) {
-            if (is_null($attachment->getWidth()) || is_null($attachment->getHeight())) {
+            if (\is_null($attachment->getWidth()) || \is_null($attachment->getHeight())) {
                 return null;
             }
             [$predicted_width, $predicted_height] = self::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $size, $crop);
             if (!file_exists($attachment->getPath())) {
                 // Before we quit, check if there's any other thumb
                 $alternative_thumbs = DB::findBy('attachment_thumbnail', ['attachment_id' => $attachment->getId()]);
-                if ($alternative_thumbs === []) {
+                usort($alternative_thumbs, fn ($l, $r) => $r->getSize() <=> $l->getSize());
+                if (empty($alternative_thumbs)) {
                     throw new NotStoredLocallyException();
                 } else {
                     return $alternative_thumbs[0];
@@ -237,12 +256,12 @@ class AttachmentThumbnail extends Entity
 
     public function getPath()
     {
-        return Common::config('thumbnail', 'dir') . DIRECTORY_SEPARATOR . $this->getFilename();
+        return Common::config('thumbnail', 'dir') . \DIRECTORY_SEPARATOR . $this->getFilename();
     }
 
     public function getUrl()
     {
-        return Router::url('attachment_thumbnail', ['id' => $this->getAttachmentId(), 'size' => $this->getSize()]);
+        return Router::url('attachment_thumbnail', ['id' => $this->getAttachmentId(), 'size' => self::sizeIntToStr($this->getSize())]);
     }
 
     /**
@@ -258,6 +277,7 @@ class AttachmentThumbnail extends Entity
                 // @codeCoverageIgnoreEnd
             }
         }
+        Cache::delete(self::getCacheKey($this->getAttachmentId(), $this->getSize()));
         DB::remove($this);
         if ($flush) {
             DB::flush();
@@ -270,10 +290,8 @@ class AttachmentThumbnail extends Entity
      * Values will scale _up_ to fit max values if cropping is enabled!
      * With cropping disabled, the max value of each axis will be respected.
      *
-     * @param int    $existing_width  Original width
-     * @param int    $existing_height Original height
-     * @param string $requested_size
-     * @param bool   $crop
+     * @param int $existing_width  Original width
+     * @param int $existing_height Original height
      *
      * @return array [predicted width, predicted height]
      */
@@ -281,7 +299,7 @@ class AttachmentThumbnail extends Entity
         int $existing_width,
         int $existing_height,
         string $requested_size,
-        bool $crop
+        bool $crop,
     ): array {
         /**
          * 1:1   => Square
@@ -318,7 +336,7 @@ class AttachmentThumbnail extends Entity
 
         // Binary search the closer allowed aspect ratio
         $left  = 0;
-        $right = count($allowed_aspect_ratios) - 1;
+        $right = \count($allowed_aspect_ratios) - 1;
         while ($left < $right) {
             $mid = floor($left + ($right - $left) / 2);
 
