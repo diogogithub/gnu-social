@@ -39,11 +39,11 @@ use App\Entity\Actor;
 
 class EmailTakenException extends EmailException
 {
-    public ?Actor $profile = null;    // the Actor which occupies the email
+    public ?Actor $actor = null;    // the Actor which occupies the email
 
-    public function __construct(?Actor $profile = null, ?string $msg = null, int $code = 400)
+    public function __construct(?Actor $actor = null, ?string $msg = null, int $code = 400)
     {
-        $this->profile = $profile;
+        $this->profile = $actor;
         parent::__construct($msg, $code);
     }
 

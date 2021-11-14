@@ -48,11 +48,11 @@ use App\Entity\Actor;
 
 class NicknameTakenException extends NicknameException
 {
-    public ?Actor $profile = null;    // the Actor which occupies the nickname
+    public ?Actor $actor = null;    // the Actor which occupies the nickname
 
-    public function __construct(?Actor $profile = null, ?string $msg = null, int $code = 400)
+    public function __construct(?Actor $actor = null, ?string $msg = null, int $code = 400)
     {
-        $this->profile = $profile;
+        $this->profile = $actor;
         parent::__construct($msg, $code);
     }
 

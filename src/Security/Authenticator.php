@@ -25,8 +25,10 @@ use function App\Core\I18n\_m;
 use App\Core\Router\Router;
 use App\Entity\LocalUser;
 use App\Entity\User;
+use App\Util\Common;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Exception\NotFoundException;
+use App\Util\Nickname;
 use Stringable;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -99,9 +101,9 @@ class Authenticator extends AbstractFormLoginAuthenticator
         }
         $user = null;
         try {
-            if (filter_var($credentials['nickname_or_email'], \FILTER_VALIDATE_EMAIL) !== false) {
+            if (Common::isValidEmail($credentials['nickname_or_email'])) {
                 $user = LocalUser::getByEmail($credentials['nickname_or_email']);
-            } else {
+            } elseif (Nickname::isValid($credentials['nickname_or_email'])) {
                 $user = LocalUser::getByNickname($credentials['nickname_or_email']);
             }
             if ($user === null) {

@@ -39,6 +39,8 @@ use App\Core\Security;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Exception\NoLoggedInUser;
+use Egulias\EmailValidator\EmailValidator;
+use Egulias\EmailValidator\Validation\RFCValidation as RFCEmailValidation;
 use Functional as F;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -291,6 +293,11 @@ abstract class Common
         $regex = $ensure_secure ? '/^https$/' : '/^https?$/';
         return filter_var($url, \FILTER_VALIDATE_URL) !== false
             && preg_match($regex, parse_url($url, \PHP_URL_SCHEME));
+    }
+
+    public static function isValidEmail(string $email): bool
+    {
+        return (new EmailValidator())->isValid($email, new RFCEmailValidation());
     }
 
     /**

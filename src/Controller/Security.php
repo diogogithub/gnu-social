@@ -26,6 +26,7 @@ use App\Util\Exception\NicknameInvalidException;
 use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use App\Util\Nickname;
@@ -126,10 +127,24 @@ class Security extends Controller
             $data             = $form->getData();
             $data['password'] = $form->get('password')->getData();
 
-            // TODO: ensure there's no user with this email registered already
-
             // Already used is checked below
-            $sanitized_nickname = Nickname::normalize($data['nickname'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: false);
+            $sanitized_nickname = null;
+            if (Event::handle('SanitizeNickname', [$data['nickname'], &$sanitized_nickname]) != Event::stop) {
+                $sanitized_nickname = $data['nickname'];
+                // $sanitized_nickname = Nickname::normalize($data['nickname'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: false);
+            }
+
+            try {
+                $found_user = DB::findOneBy('local_user', ['or' => ['nickname' => $sanitized_nickname, 'outgoing_email' => $data['email']]]);
+                if ($found_user->getNickname() === $sanitized_nickname) {
+                    throw new NicknameTakenException($found_user->getActor());
+                } elseif ($found_user->getOutgoingEmail() === $data['email']) {
+                    throw new EmailTakenException($found_user->getActor());
+                }
+                unset($found_user);
+            } catch (NotFoundException) {
+                // continue
+            }
 
             try {
                 // This already checks if the nickname is being used
@@ -153,9 +168,9 @@ class Security extends Controller
                 // @codeCoverageIgnoreStart
             } catch (UniqueConstraintViolationException $e) {
                 // _something_ was duplicated, but since we already check if nickname is in use, we can't tell what went wrong
-                $e = 'An error occurred while trying to register';
-                Log::critical($e . " with nickname: '{$sanitized_nickname}' and email '{$data['email']}'");
-                throw new ServerException(_m($e));
+                $m = 'An error occurred while trying to register';
+                Log::critical($m . " with nickname: '{$sanitized_nickname}' and email '{$data['email']}'");
+                throw new ServerException(_m($m), previous: $e);
             }
             // @codeCoverageIgnoreEnd
 

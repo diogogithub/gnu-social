@@ -66,9 +66,8 @@ class SecurityTest extends GNUsocialTestCase
     {
         self::testLogin('taken_user', 'wrong password');
         $this->assertResponseIsSuccessful();
-        // TODO(eliseu) Login page doesn't have this error
-        // $this->assertSelectorTextContains('.alert', 'Invalid login credentials');
-        $this->assertRouteSame('login');
+        $this->assertSelectorTextContains('.alert', 'Invalid login credentials');
+        $this->assertRouteSame('security_login');
     }
 
     public function testLoginEmail()
@@ -120,7 +119,7 @@ class SecurityTest extends GNUsocialTestCase
         ]);
         $this->assertSelectorTextContains('form[name=register] ul li', 'The password fields must match');
         $this->assertResponseStatusCodeSame(200);
-        $this->assertRouteSame('register');
+        $this->assertRouteSame('security_register');
     }
 
     private function testRegisterPasswordLength(string $password, string $error)
@@ -128,7 +127,7 @@ class SecurityTest extends GNUsocialTestCase
         self::testRegister('new_nickname', 'email@provider', $password);
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('.help-block > ul > li', $error);
-        $this->assertRouteSame('register');
+        $this->assertRouteSame('security_register');
     }
 
     public function testRegisterPasswordEmpty()
@@ -151,7 +150,7 @@ class SecurityTest extends GNUsocialTestCase
         self::testRegister('new_nickname', '', 'foobar');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('.help-block > ul > li', 'Please enter an email');
-        $this->assertRouteSame('register');
+        $this->assertRouteSame('security_register');
     }
 
     private function testRegisterNicknameLength(string $nickname, string $error)
@@ -159,17 +158,12 @@ class SecurityTest extends GNUsocialTestCase
         self::testRegister($nickname, 'email@provider', 'foobar');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('.help-block > ul > li', $error);
-        $this->assertRouteSame('register');
+        $this->assertRouteSame('security_register');
     }
 
     public function testRegisterNicknameEmpty()
     {
         self::testRegisterNicknameLength('', error: 'Please enter a nickname');
-    }
-
-    public function testRegisterNicknameShort()
-    {
-        self::testRegisterNicknameLength('f', error: 'Your nickname must be at least');
     }
 
     public function testRegisterNicknameLong()

@@ -362,7 +362,8 @@ class LocalUser extends Entity implements UserInterface
      */
     public static function getByEmail(string $email): ?self
     {
-        return Cache::get("user-email-{$email}", fn () => DB::findOneBy('local_user', ['or' => ['outgoing_email' => $email, 'incoming_email' => $email]]));
+        $key = str_replace('@', '-', $email);
+        return Cache::get("user-email-{$key}", fn () => DB::findOneBy('local_user', ['or' => ['outgoing_email' => $email, 'incoming_email' => $email]]));
     }
 
     public static function schemaDef(): array
@@ -371,22 +372,22 @@ class LocalUser extends Entity implements UserInterface
             'name'        => 'local_user',
             'description' => 'local users, bots, etc',
             'fields'      => [
-                'id'                => ['type' => 'int',          'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
-                'nickname'          => ['type' => 'varchar',      'not null' => true,    'length' => 64, 'description' => 'nickname or username, foreign key to actor'],
-                'password'          => ['type' => 'varchar',      'length' => 191,       'description' => 'salted password, can be null for users with federated authentication'],
-                'outgoing_email'    => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for password recovery, notifications, etc.'],
-                'incoming_email'    => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for post-by-email'],
-                'is_email_verified' => ['type' => 'bool',         'default' => false,    'description' => 'Whether the user opened the comfirmation email'],
-                'timezone'          => ['type' => 'varchar',      'length' => 50,        'description' => 'timezone'],
-                'phone_number'      => ['type' => 'phone_number', 'description' => 'phone number'],
-                'sms_carrier'       => ['type' => 'int',          'foreign key' => true, 'target' => 'SmsCarrier.id', 'multiplicity' => 'one to one', 'description' => 'foreign key to sms_carrier'],
-                'sms_email'         => ['type' => 'varchar',      'length' => 191,       'description' => 'built from sms and carrier (see sms_carrier)'],
-                'uri'               => ['type' => 'varchar',      'length' => 191,       'description' => 'universally unique identifier, usually a tag URI'],
-                'auto_subscribe_back'  => ['type' => 'bool',         'default' => false,    'description' => 'automatically subscribe to users who subscribed us'],
-                'subscription_policy'     => ['type' => 'int',          'size' => 'tiny',      'default' => 0, 'description' => '0 = anybody can subscribe; 1 = require approval'],
-                'is_stream_private' => ['type' => 'bool',         'default' => false,    'description' => 'whether to limit all notices to subscribers only'],
-                'created'           => ['type' => 'datetime',     'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'          => ['type' => 'timestamp',    'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'                  => ['type' => 'int',          'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
+                'nickname'            => ['type' => 'varchar',      'not null' => true,    'length' => 64, 'description' => 'nickname or username, foreign key to actor'],
+                'password'            => ['type' => 'varchar',      'length' => 191,       'description' => 'salted password, can be null for users with federated authentication'],
+                'outgoing_email'      => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for password recovery, notifications, etc.'],
+                'incoming_email'      => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for post-by-email'],
+                'is_email_verified'   => ['type' => 'bool',         'default' => false,    'description' => 'Whether the user opened the comfirmation email'],
+                'timezone'            => ['type' => 'varchar',      'length' => 50,        'description' => 'timezone'],
+                'phone_number'        => ['type' => 'phone_number', 'description' => 'phone number'],
+                'sms_carrier'         => ['type' => 'int',          'foreign key' => true, 'target' => 'SmsCarrier.id', 'multiplicity' => 'one to one', 'description' => 'foreign key to sms_carrier'],
+                'sms_email'           => ['type' => 'varchar',      'length' => 191,       'description' => 'built from sms and carrier (see sms_carrier)'],
+                'uri'                 => ['type' => 'varchar',      'length' => 191,       'description' => 'universally unique identifier, usually a tag URI'],
+                'auto_subscribe_back' => ['type' => 'bool',         'default' => false,    'description' => 'automatically subscribe to users who subscribed us'],
+                'subscription_policy' => ['type' => 'int',          'size' => 'tiny',      'default' => 0, 'description' => '0 = anybody can subscribe; 1 = require approval'],
+                'is_stream_private'   => ['type' => 'bool',         'default' => false,    'description' => 'whether to limit all notices to subscribers only'],
+                'created'             => ['type' => 'datetime',     'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'            => ['type' => 'timestamp',    'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [
