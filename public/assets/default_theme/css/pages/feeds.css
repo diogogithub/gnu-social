@@ -1,5 +1,4 @@
 
-
 .notes hr {
     margin-top: var(--smaller)
 }
@@ -182,12 +181,15 @@ embed header {
     -ms-grid-row-align: center;
     align-self: center
 }
+
 .note-author-fullname {
     font-weight: bold;
 }
+
 .note-author-nickname {
     opacity: 0.5;
 }
+
 .note-author-nickname::before {
     content: '@';
 }
@@ -311,7 +313,7 @@ embed header {
     margin-right: var(--smaller)
 }
 
-.note-attachments-unit>figure figcaption {
+.note-attachments-unit > figure figcaption {
     display: -webkit-box;
     display: -webkit-flex;
     display: -moz-box;

@@ -1,12 +1,113 @@
 input {
     all: unset;
 }
-input + label {
+
+input+label {
     -webkit-align-self: center;
     -ms-flex-item-align: center;
     -ms-grid-row-align: center;
     align-self: center;
 }
+
+input[type=checkbox],input[type=radio] {
+    all: unset;
+    display: inline-block;
+    cursor: pointer !important;
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+input[type=checkbox]:not(:hover,:focus),input[type=radio]:not(:hover,:focus) {
+    opacity: 75%;
+}
+
+input[type=radio] {
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    border-radius: 50% !important;
+    margin: 3px 3px 0 5px !important;
+}
+
+input[type=file] {
+    all: unset;
+    display: block;
+    width: 100%;
+    font-family: 'Open Sans',sans-serif !important;
+    font-weight: normal !important;
+    padding: unset !important;
+    -webkit-border-radius: .6rem;
+    -moz-border-radius: .6rem;
+    border-radius: .6rem;
+    background: var(--gradient) !important;
+}
+
+input[type=radio] {
+    border: solid .25em !important;
+}
+
+input[type=checkbox] {
+    -webkit-background-size: 100%;
+    -moz-background-size: 100%;
+    -o-background-size: 100%;
+    background-size: 100%;
+    margin-right: 2px;
+    -webkit-mask-image: url("../../icons/check-off.svg") !important;
+    -o-mask-image: url("../../icons/check-off.svg") !important;
+    -moz-mask-image: url("../../icons/check-off.svg") !important;
+    mask-image: url("../../icons/check-off.svg") !important;
+}
+
+input[type=checkbox]:checked {
+    -webkit-mask-image: url("../../icons/check-on.svg") !important;
+    -o-mask-image: url("../../icons/check-on.svg") !important;
+    -moz-mask-image: url("../../icons/check-on.svg") !important;
+    mask-image: url("../../icons/check-on.svg") !important;
+}
+
+input[type=color] {
+    border: unset;
+    padding: 2px;
+    width: 100%;
+    height: 3rem;
+}
+
+::-webkit-file-upload-button {
+    cursor: pointer;
+    background-color: unset;
+    border: unset;
+    font-family: 'Open Sans',sans-serif !important;
+    font-weight: bold !important;
+    color: var(--foreground);
+    fill: var(--foreground);
+    margin: 3px;
+}
+
+::file-selector-button {
+    cursor: pointer;
+    background-color: unset;
+    border: unset;
+    font-family: 'Open Sans',sans-serif !important;
+    font-weight: bold !important;
+    color: var(--foreground);
+    fill: var(--foreground);
+    margin: 3px;
+}
+
+::file-selector-button {
+    cursor: pointer;
+    background-color: unset;
+    border: unset;
+    font-family: 'Open Sans',sans-serif !important;
+    font-weight: bold !important;
+    color: var(--foreground);
+    fill: var(--foreground);
+    margin: 3px;
+}
+
+*|*::-moz-button-content {
+    all: unset !important;
+}
+
 button {
     cursor: pointer !important;
     float: right !important;
@@ -15,63 +116,14 @@ button {
     -ms-grid-row-align: end !important;
     align-self: end !important;
 }
-*|*::-moz-button-content {
-    all: unset !important;
-}
-input[type=checkbox],
-input[type=radio] {
-    all: unset;
-    display: inline-block;
-    cursor: pointer !important;
-    width: 1rem !important;
-    height: 1rem !important;
-}
-input[type=checkbox]:not(:hover, :focus),
-input[type=radio]:not(:hover, :focus) {
-    opacity: 75%;
-}
-input[type=radio] {
-    -webkit-border-radius: 50% !important;
-    -moz-border-radius: 50% !important;
-    border-radius: 50% !important;
-    margin: 3px 3px 0 5px !important;
-}
-input[type=file] {
-    all: unset;
-    display: block;
-    width: 100%;
-    -webkit-border-radius: 0.6rem !important;
-    -moz-border-radius: 0.6rem !important;
-    border-radius: 0.6rem !important;
-}
-::-webkit-file-upload-button {
-    cursor: pointer;
-    background-color: unset;
-    border: unset;
-    margin: 3px;
-}
-::file-selector-button {
-    cursor: pointer;
-    background-color: unset;
-    border: unset;
-    margin: 3px;
-}
-::file-selector-button {
-    cursor: pointer;
-    background-color: unset;
-    border: unset;
-    margin: 3px;
-}
-button,
-label {
-    font-family: 'Poppins', sans-serif;
+
+button,label {
+    font-family: 'Poppins',sans-serif;
     font-weight: bold !important;
     color: currentColor;
 }
-button,
-input,
-select,
-textarea {
+
+button,input,select,textarea {
     display: -webkit-inline-box !important;
     display: -webkit-inline-flex !important;
     display: -ms-inline-flexbox !important;
@@ -80,9 +132,9 @@ textarea {
     overflow: hidden;
     font-size: inherit !important;
     padding: 6px 8px !important;
-    -webkit-border-radius: 0.6rem;
-    -moz-border-radius: 0.6rem;
-    border-radius: 0.6rem;
+    -webkit-border-radius: .6rem;
+    -moz-border-radius: .6rem;
+    border-radius: .6rem;
     background: var(--gradient) !important;
     border: 2px solid var(--border) !important;
     -webkit-box-shadow: var(--shadow);
@@ -95,70 +147,17 @@ select {
     -moz-appearance: none !important;
     cursor: pointer;
     background-repeat: no-repeat;
-    -webkit-border-radius: 0.6rem;
-    -moz-border-radius: 0.6rem;
-    border-radius: 0.6rem;
+    -webkit-border-radius: .6rem;
+    -moz-border-radius: .6rem;
+    border-radius: .6rem;
     max-width: 100% !important;
 }
-select > option {
+
+select>option {
     width: 1px;
 }
-input[type=radio] {
-    border: solid 0.25em !important;
-}
-input[type=checkbox] {
-    -webkit-background-size: 100%;
-    -moz-background-size: 100%;
-    -o-background-size: 100%;
-    background-size: 100%;
-    margin-right: 2px;
-    -webkit-mask-image: url("../../icons/check-off.svg") !important;
-    -o-mask-image: url("../../icons/check-off.svg") !important;
-    -moz-mask-image: url("../../icons/check-off.svg") !important;
-    mask-image: url("../../icons/check-off.svg") !important;
-}
-input[type=color] {
-    border: unset;
-    padding: 2px;
-    width: 100%;
-    height: 3rem;
-}
-input[type=checkbox]:checked {
-    -webkit-mask-image: url("../../icons/check-on.svg") !important;
-    -o-mask-image: url("../../icons/check-on.svg") !important;
-    -moz-mask-image: url("../../icons/check-on.svg") !important;
-    mask-image: url("../../icons/check-on.svg") !important;
-}
-input[type=file] {
-    font-family: 'Open Sans', sans-serif !important;
-    font-weight: normal !important;
-    padding: unset !important;
-    -webkit-border-radius: 0.6rem;
-    -moz-border-radius: 0.6rem;
-    border-radius: 0.6rem;
-    background: var(--gradient) !important;
-}
-::-webkit-file-upload-button {
-    font-family: 'Open Sans', sans-serif !important;
-    font-weight: bold !important;
-    color: var(--foreground);
-    fill: var(--foreground);
-}
-::file-selector-button {
-    font-family: 'Open Sans', sans-serif !important;
-    font-weight: bold !important;
-    color: var(--foreground);
-    fill: var(--foreground);
-}
-::file-selector-button {
-    font-family: 'Open Sans', sans-serif !important;
-    font-weight: bold !important;
-    color: var(--foreground);
-    fill: var(--foreground);
-}
 
-input[type=checkbox],
-input[type=radio] {
+input[type=checkbox],input[type=radio] {
     border: unset !important;
 }
 
@@ -170,14 +169,7 @@ input[type=checkbox] {
     background-color: var(--border) !important;
 }
 
-button:focus,
-button:hover,
-input:focus,
-input:hover,
-select:focus,
-select:hover,
-textarea:focus,
-textarea:hover {
+button:focus,button:hover,input:focus,input:hover,select:focus,select:hover,textarea:focus,textarea:hover {
     -webkit-box-shadow: var(--shadow-inset-accent) !important;
     -moz-box-shadow: var(--shadow-inset-accent) !important;
     box-shadow: var(--shadow-inset-accent) !important;
