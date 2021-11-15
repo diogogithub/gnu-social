@@ -12,6 +12,7 @@
 
 .section-settings,
 .section-settings ul {
+    border: 2px solid var(--border) !important;
     background-color: var(--background-card) !important;
 }
 

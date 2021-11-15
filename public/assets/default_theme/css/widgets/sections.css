@@ -8,6 +8,9 @@
     border-radius: 0.6rem;
     padding: 0.6rem;
     background: var(--gradient) !important;
+    -webkit-box-shadow: var(--shadow);
+    -moz-box-shadow: var(--shadow);
+    box-shadow: var(--shadow);
 }
 .profile *[class*="profile-info-"] {
     flex: 1;
@@ -45,6 +48,7 @@
     margin-bottom: 1.3rem;
     background-color: var(--background-card) !important;
     box-shadow: var(--shadow);
+    border: 2px solid var(--border) !important;
 }
 .section-widget hr {
     margin-bottom: 0.6rem

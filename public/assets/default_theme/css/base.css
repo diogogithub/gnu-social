@@ -2,7 +2,6 @@
 @import url("../fonts/opensans/opensans.css");
 @import url("widgets/buttons.css");
 @import url("widgets/sections.css");
-@import url("colors.css");
 
 /* Sizes vars */
 :root {
@@ -14,6 +13,29 @@
 }
 
 /* RESET START */
+* {
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+}
+
+body,
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-attachment: fixed;
+    font-family: 'Open Sans', sans-serif;
+    font-size: var(--default);
+}
+
+body,
+input,
+textarea,
+select {
+    color: var(--foreground);
+    fill: var(--foreground);
+}
+
 :link,
 :visited {
     text-decoration: none;
@@ -27,6 +49,7 @@ hr {
     all: unset;
     display: block;
     height: 1px;
+    background-color: var(--border) !important;
 }
 
 ol,
@@ -86,21 +109,6 @@ details > summary::-webkit-details-marker {
 
 [hidden] {
     display: none;
-}
-
-* {
-    -webkit-box-sizing: border-box !important;
-    -moz-box-sizing: border-box !important;
-    box-sizing: border-box !important;
-}
-
-body,
-html {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-attachment: fixed;
-    font-family: 'Open Sans', sans-serif;
-    font-size: var(--default);
 }
 
 h1,
@@ -187,10 +195,6 @@ li {
 -moz-box-shadow: var(--shadow-inset-accent);
 box-shadow: var(--shadow-inset-accent);
 }
-
-hr {
-    background-color: var(--border) !important;
-}
 /* RESET END */
 
 /* DARK AND LIGHT COLOUR SCHEMES START */
@@ -249,22 +253,22 @@ hr {
 /* DARK AND LIGHT COLOUR SCHEMES END */
 
 /* MISCELLANEOUS START */
-    /* Align all icon .svg to center */
-    .icon {
-        align-self: center;
-    }
+/* Align all icon .svg to center */
+.icon {
+    align-self: center;
+}
 
-    /* All active links should pop up, the user should be aware where it is */
-    .active {
-        font-weight: bold;
-    }
+/* All active links should pop up, the user should be aware where it is */
+.active {
+    font-weight: bold;
+}
 
-    /* Hide all anchors used for accesskey shortcuts */
-    .anchor-hidden {
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-    }
+/* Hide all anchors used for accesskey shortcuts */
+.anchor-hidden {
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
 /* MISCELLANEOUS END */
 
 /* Background image and noise (Firefox-based browsers present banding without it) */
@@ -368,6 +372,7 @@ html {
 .markdown-blocks {
     border-radius: 0 0 var(--smaller) var(--smaller);
     padding: var(--smaller);
+    background-color: var(--background-card) !important;
 }
 
 .markdown-blocks ul {
@@ -383,6 +388,7 @@ html {
     border-radius: var(--smaller) var(--smaller) 0 0;
     border-bottom: none;
     padding: var(--smaller);
+    background-color: var(--background-card) !important;
 }
 
 .doc-navigation ul {
@@ -398,6 +404,7 @@ html {
     display: flex;
     flex-direction: column;
     font-size: var(--default);
+    background-color: var(--background-card) !important;
 }
 
 #replyform textarea {

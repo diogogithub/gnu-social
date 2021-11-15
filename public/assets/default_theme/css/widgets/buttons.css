@@ -84,7 +84,12 @@ textarea {
     -moz-border-radius: 0.6rem;
     border-radius: 0.6rem;
     background: var(--gradient) !important;
+    border: 2px solid var(--border) !important;
+    -webkit-box-shadow: var(--shadow);
+    -moz-box-shadow: var(--shadow);
+    box-shadow: var(--shadow);
 }
+
 select {
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
@@ -131,18 +136,25 @@ input[type=file] {
     -webkit-border-radius: 0.6rem;
     -moz-border-radius: 0.6rem;
     border-radius: 0.6rem;
+    background: var(--gradient) !important;
 }
 ::-webkit-file-upload-button {
     font-family: 'Open Sans', sans-serif !important;
     font-weight: bold !important;
+    color: var(--foreground);
+    fill: var(--foreground);
 }
 ::file-selector-button {
     font-family: 'Open Sans', sans-serif !important;
     font-weight: bold !important;
+    color: var(--foreground);
+    fill: var(--foreground);
 }
 ::file-selector-button {
     font-family: 'Open Sans', sans-serif !important;
     font-weight: bold !important;
+    color: var(--foreground);
+    fill: var(--foreground);
 }
 
 input[type=checkbox],

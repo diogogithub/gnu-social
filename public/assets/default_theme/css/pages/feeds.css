@@ -45,6 +45,13 @@
     margin-top: var(--smaller)
 }
 
+.h-entry:not(embed) {
+    border: 2px solid var(--border) !important;
+    -webkit-box-shadow: var(--shadow);
+    -moz-box-shadow: var(--shadow);
+    box-shadow: var(--shadow);
+}
+
 .h-entry img {
     background: repeating-conic-gradient(#ffffff66 0deg 90deg, #ffffff33 0deg 180deg) 0 0/40px 40px round;
 }
@@ -112,6 +119,7 @@
     -webkit-border-radius: var(--smaller);
     -moz-border-radius: var(--smaller);
     border-radius: var(--smaller);
+    background-color: var(--background-card) !important;
 }
 
 .h-entry figure {
@@ -197,10 +205,6 @@ embed header {
     opacity: 1 !important;
 }
 
-.note-actions .form-group {
-    all: unset
-}
-
 .button-container {
     border: none !important;
     -webkit-border-radius: unset !important;
@@ -219,8 +223,9 @@ embed header {
 
 .button-container:hover,
 .button-container:focus {
-    border: none;
+    border: none !important;
     opacity: 1;
+    background-color: var(--accent);
 }
 
 .favourite-button-container {
