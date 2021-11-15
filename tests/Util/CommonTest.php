@@ -120,7 +120,8 @@ class CommonTest extends GNUsocialTestCase
     {
         static::bootKernel();
 
-        static::assertTrue(Common::isSystemPath('login'));
+        static::assertTrue(Common::isSystemPath('main/login'));
+        static::assertTrue(Common::isSystemPath('main/all'));
         static::assertFalse(Common::isSystemPath('non-existent-path'));
     }
 
@@ -170,7 +171,7 @@ class CommonTest extends GNUsocialTestCase
         // These limits can only be set in the config files
         // $post_max_size       = ini_set('post_max_size', Common::sizeStrToInt('6M'));
         // $upload_max_filesize = ini_set('upload_max_filesize', Common::sizeStrToInt('1M'));
-        $memory_limit = ini_set('memory_limit', Common::sizeStrToInt('128M'));
+        $memory_limit = ini_set('memory_limit', (string) Common::sizeStrToInt('128M'));
 
         // 2M is the default for upload_max_filesize, the lowest considered
         static::assertSame(Common::sizeStrToInt('2M'), Common::getPreferredPhpUploadLimit());

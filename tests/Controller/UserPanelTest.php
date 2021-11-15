@@ -21,7 +21,7 @@ declare(strict_types = 1);
 
 // }}}
 
-namespace App\Tests\Core;
+namespace App\Tests\Controller;
 
 use App\Core\DB\DB;
 use App\Util\GNUsocialTestCase;
@@ -83,7 +83,6 @@ class UserPanelTest extends GNUsocialTestCase
             'save_account_info[old_password]'     => 'some password',
             'save_account_info[password][first]'  => 'this is some test password',
             'save_account_info[password][second]' => 'this is some test password',
-            'save_account_info[language]'         => 'pt',
             'save_account_info[phone_number]'     => '+351908555842', // from fakenumber.net
         ]);
 
@@ -129,20 +128,20 @@ class UserPanelTest extends GNUsocialTestCase
         $client->request('GET', '/settings');
         $this->assertResponseIsSuccessful();
         $crawler = $client->submitForm('Save notification settings for Email', [
-            'save_email[activity_by_followed]' => false,
-            'save_email[mention]'              => true,
-            'save_email[reply]'                => false,
-            'save_email[follow]'               => true,
-            'save_email[favorite]'             => false,
-            'save_email[nudge]'                => true,
-            'save_email[dm]'                   => false,
-            'save_email[enable_posting]'       => true,
+            'save_email[activity_by_subscribed]' => false,
+            'save_email[mention]'                => true,
+            'save_email[reply]'                  => false,
+            'save_email[subscription]'           => true,
+            'save_email[favorite]'               => false,
+            'save_email[nudge]'                  => true,
+            'save_email[dm]'                     => false,
+            'save_email[enable_posting]'         => true,
         ]);
         $settings = DB::findOneBy('user_notification_prefs', ['user_id' => $user->getId(), 'transport' => 'email']);
-        static::assertSame($settings->getActivityByFollowed(), false);
+        static::assertSame($settings->getActivityBySubscribed(), false);
         static::assertSame($settings->getMention(), true);
         static::assertSame($settings->getReply(), false);
-        static::assertSame($settings->getFollow(), true);
+        static::assertSame($settings->getSubscription(), true);
         static::assertSame($settings->getFavorite(), false);
         static::assertSame($settings->getNudge(), true);
         static::assertSame($settings->getDm(), false);

@@ -57,7 +57,7 @@ class NoteTest extends GNUsocialTestCase
         static::assertFalse($note_visible_to_1->isVisibleTo($actor2));
         static::assertFalse($note_visible_to_1->isVisibleTo($actor3));
 
-        $note_public = DB::findBy('note', ['actor_id' => $actor1->getId(), 'content' => 'some content', 'reply_to' => null], limit: 1)[0];
+        $note_public = DB::findBy('note', ['actor_id' => $actor1->getId(), 'content' => 'some content'], limit: 1)[0];
         static::assertTrue($note_public->isVisibleTo($actor1));
         static::assertTrue($note_public->isVisibleTo($actor2));
         static::assertTrue($note_public->isVisibleTo($actor3));

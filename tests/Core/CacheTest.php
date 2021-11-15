@@ -128,13 +128,14 @@ class CacheTest extends KernelTestCase
         self::doTest(['file' => 'filesystem://test'], ['file' => \Symfony\Component\Cache\Adapter\FilesystemAdapter::class]);
 
         $key = 'test' . time();
-        Cache::setList("{$key}-other", ['foo', 'bar'], pool: 'file');
-        static::assertSame(['foo', 'bar'], Cache::getList("{$key}-other", function ($i) { $this->assertFalse('should not be called'); }, pool: 'file'));
+        static::assertSame([], Cache::getList($key . '0', fn ($i) => [], pool: 'file'));
+        static::assertSame(['foo'], Cache::getList($key . '1', fn ($i) => ['foo'], pool: 'file'));
         static::assertSame(['foo', 'bar'], Cache::getList($key, fn ($i) => ['foo', 'bar'], pool: 'file'));
+        static::assertSame(['foo', 'bar'], Cache::getList($key, function () { $this->assertFalse('should not be called'); }, pool: 'file')); // Repeat to test no recompute lrange
         Cache::pushList($key, 'quux', pool: 'file');
-        static::assertSame(['foo', 'bar', 'quux'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }, pool: 'file'));
-        Cache::pushList($key, 'foobar', pool: 'file', max_count: 2);
-        static::assertSame(['quux', 'foobar'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }, pool: 'file'));
+        static::assertSame(['quux', 'foo', 'bar'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }, pool: 'file'));
+        Cache::pushList($key, 'foobar', max_count: 2, pool: 'file');
+        static::assertSame(['foobar', 'quux'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }, pool: 'file'));
         static::assertTrue(Cache::deleteList($key, pool: 'file'));
     }
 }

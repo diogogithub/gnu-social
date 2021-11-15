@@ -24,7 +24,6 @@ namespace App\Tests\Entity;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Entity\AttachmentThumbnail;
-use App\Util\Exception\ClientException;
 use App\Util\Exception\NotStoredLocallyException;
 use App\Util\GNUsocialTestCase;
 use Functional as F;
@@ -48,7 +47,6 @@ class AttachmentThumbnailTest extends GNUsocialTestCase
         $thumbs = [
             AttachmentThumbnail::getOrCreate($attachment, 'small', crop: false),
             AttachmentThumbnail::getOrCreate($attachment, 'medium', crop: false),
-            AttachmentThumbnail::getOrCreate($attachment, 'medium', crop: false),
             $thumb = AttachmentThumbnail::getOrCreate($attachment, 'big', crop: false),
         ];
 
@@ -66,52 +64,105 @@ class AttachmentThumbnailTest extends GNUsocialTestCase
 
         $attachment->deleteStorage();
 
-        // This was deleted earlier, and the backed storage as well, so we can't generate another thumbnail
+        foreach (array_reverse($thumbs) as $t) {
+            // Since we still have thumbnails, those will be used as the new thumbnail, even though we don't have the original
+            $new = AttachmentThumbnail::getOrCreate($attachment, 'big', crop: false);
+            static::assertSame([$t->getFilename(), $t->getSize()], [$new->getFilename(), $new->getSize()]);
+            $t->delete(flush: true);
+        }
+
+        // Since the backed storage was deleted and we don't have any more previous thumnbs, we can't generate another thumbnail
         static::assertThrows(NotStoredLocallyException::class, fn () => AttachmentThumbnail::getOrCreate($attachment, 'big', crop: false));
 
         $attachment->kill();
+        // static::assertThrows(NotStoredLocallyException::class, fn () => AttachmentThumbnail::getOrCreate($attachment, 'big', crop: false));
     }
 
     public function testInvalidThumbnail()
     {
         parent::bootKernel();
-
         $file = new SplFileInfo(INSTALLDIR . '/tests/sample-uploads/spreadsheet.ods');
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
-
-        static::assertThrows(ClientException::class, fn () => AttachmentThumbnail::getOrCreate($attachment, 'small', crop: false));
+        static::assertNull(AttachmentThumbnail::getOrCreate($attachment, 'small', crop: false));
     }
 
-    // public function testPredictScalingValues()
-    // {
-    //     // Test without cropping
-    //     static::assertSame([100, 50],  AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'small', crop: false));
-    //     static::assertSame([200, 100], AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'small', crop: false));
-    //     static::assertSame([300, 150], AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'medium', crop: false));
-    //     static::assertSame([400, 200], AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'medium', crop: false));
-    //     static::assertSame([400, 200], AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'big', crop: false));
+    public function testPredictScalingValues()
+    {
+        parent::bootKernel();
+        // TODO test with cropping
 
-    //     // Test with cropping
-    //     static::assertSame([100, 100], AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'small', crop: true));
-    //     static::assertSame([200, 200], AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'small', crop: true));
-    //     static::assertSame([300, 200], AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'medium', crop: true));
-    //     static::assertSame([400, 200], AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'medium', crop: true));
-    //     static::assertSame([400, 200], AttachmentThumbnail::predictScalingValues(existing_width: 400, existing_height: 200, requested_size: 'big', crop: true));
-    // }
+        $inputs = [
+            [100, 100],
+            [400, 200],
+            [800, 400],
+            [1600, 800],
+            [1600, 1600],
+            // 16:9 video
+            [854,  480],
+            [1280, 720],
+            [1920, 1080],
+            [2560, 1440],
+            [3840, 2160],
+        ];
 
-    // TODO re-enable test
-    // public function testGetHTMLAttributes()
-    // {
-    //     parent::bootKernel();
-    //     $attachment = DB::findBy('attachment', ['mimetype' => 'image/png'], limit: 1)[0];
-    //     $w          = $attachment->getWidth();
-    //     $h          = $attachment->getHeight();
-    //     $thumb      = AttachmentThumbnail::getOrCreate($attachment, width: $w, height: $h, crop: false);
-    //     $id         = $attachment->getId();
-    //     $url        = "/attachment/{$id}/thumbnail?w={$w}&h={$h}";
-    //     static::assertSame($url, $thumb->getUrl());
-    //     static::assertSame(['height' => $h, 'width' => $w, 'src' => $url], $thumb->getHTMLAttributes());
-    // }
+        $outputs = [
+            'small' => [
+                [100, 100],
+                [400, 200],
+                [32, 14],
+                [32, 14],
+                [32, 32],
+                // 16:9 video
+                [32, 21],
+                [32, 21],
+                [32, 21],
+                [32, 21],
+                [32, 21],
+            ],
+            'medium' => [
+                [100, 100],
+                [400, 200],
+                [256, 116],
+                [256, 116],
+                [256, 256],
+                // 16:9 video
+                [256, 170],
+                [256, 170],
+                [256, 170],
+                [256, 170],
+                [256, 170],
+            ],
+            'big' => [
+                [100, 100],
+                [400, 200],
+                [496, 225],
+                [496, 225],
+                [496, 496],
+                // 16:9 video
+                [496, 330],
+                [496, 330],
+                [496, 330],
+                [496, 330],
+                [496, 330],
+            ],
+        ];
+
+        foreach (['small', 'medium', 'big'] as $size) {
+            foreach (F\zip($inputs, $outputs[$size]) as [$existing, $results]) {
+                static::assertSame($results, AttachmentThumbnail::predictScalingValues(existing_width: $existing[0], existing_height: $existing[1], requested_size: $size, crop: false));
+            }
+        }
+    }
+
+    public function testGetUrl()
+    {
+        parent::bootKernel();
+        $attachment = DB::findBy('attachment', ['mimetype' => 'image/png'], limit: 1)[0];
+        $thumb      = AttachmentThumbnail::getOrCreate($attachment, 'big', crop: false);
+        $id         = $attachment->getId();
+        $url        = "/attachment/{$id}/thumbnail/big";
+        static::assertSame($url, $thumb->getUrl());
+    }
 }

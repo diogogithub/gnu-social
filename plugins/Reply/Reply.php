@@ -62,8 +62,9 @@ class Reply extends NoteHandlerPlugin
         $type             = Router::ABSOLUTE_PATH;
         $reply_action_url = Router::url('reply_add', $args, $type);
 
+        $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
-        $reply_action_url .= '?from=' . mb_substr($request->getQueryString(), 2);
+        $reply_action_url .= !\is_null($query_string) ? '?from=' . mb_substr($query_string, 2) : '';
 
         $reply_action = [
             'url'     => $reply_action_url,
