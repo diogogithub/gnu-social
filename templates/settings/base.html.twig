@@ -13,7 +13,7 @@
         <h2>Settings</h2>
         <ul>
             <li>
-                <details class="section-title-settings">
+                <details class="section-title-settings" {{ open_details(open_details_query, ['profile', 'personal_info']) }} id="profile-details">
                 <summary>
                     <h3>Profile {{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
                     <em>Personal Information, Avatar and Profile</em>
@@ -23,7 +23,7 @@
                     <nav class='section-settings-nav'>
                         <ul>
                             <li>
-                            <details class="section-title-settings">
+                            <details class="section-title-settings" {{ open_details(open_details_query, ['personal_info']) }} id="perosnal-info-details">
                                 <summary>
                                     <h3>Personal Info{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
                                     <em>Nickname, Homepage, Bio, Self Tags and more.</em>
@@ -38,7 +38,7 @@
                         {% set profile_tabs = handle_event('PopulateProfileSettingsTabs', app.request) %}
                         {% for tab in profile_tabs %}
                             <li>
-                                <details class="section-title-settings">
+                                <details class="section-title-settings"> {# TODO add ID and open_details and to parent #}
                                 <summary>
                                     <h3>{{ tab['title'] }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
                                     <em>{{ tab['desc'] }}</em>
@@ -63,7 +63,7 @@
             <hr>
 
             <li>
-                <details class="section-title-settings">
+                <details class="section-title-settings" {{ open_details(open_details_query, ['account']) }} id="account-details">
                     <summary>
                         <h3>Account{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
                         <em>Email, Password and Language</em>
@@ -80,7 +80,7 @@
             <hr>
 
             <li>
-                <details class="section-title-settings">
+                <details class="section-title-settings" {{ open_details(open_details_query, ['notifications']) }} id="notifications-details">
                     <summary>
                         <h3>Notifications{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
                         <em>Enable/disable notifications (Email, XMPP, Replies...)</em>

@@ -37,6 +37,7 @@ namespace App\Controller;
 
 // {{{ Imports
 
+use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
@@ -64,7 +65,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 // }}} Imports
 
-class UserPanel extends AbstractController
+class UserPanel extends Controller
 {
     /**
      * Return main settings page forms
@@ -82,6 +83,7 @@ class UserPanel extends AbstractController
             'prof'                => $personal_form->createView(),
             'acc'                 => $account_form->createView(),
             'tabbed_forms_notify' => $notifications_form_array,
+            'open_details_query'  => $this->string('open')
         ];
     }
 

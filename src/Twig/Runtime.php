@@ -134,6 +134,11 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $result;
     }
 
+    public function openDetails(?string $query, array $ids)
+    {
+        return in_array($query, $ids) ? 'open=""' : '';
+    }
+
     // ----------------------------------------------------------
 
     /**

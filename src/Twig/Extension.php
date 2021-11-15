@@ -70,6 +70,7 @@ class Extension extends AbstractExtension
             new TwigFunction('icon', [Runtime::class, 'embedSvgIcon'], ['needs_environment' => true]),
             new TwigFunction('is_firefox', [Runtime::class, 'isFirefox']),
             new TwigFunction('handle_override_template_import', [Runtime::class, 'handleOverrideTemplateImport']),
+            new TwigFunction('open_details', [Runtime::class, 'openDetails']),
         ];
     }
 }
