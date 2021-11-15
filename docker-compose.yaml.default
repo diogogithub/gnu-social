@@ -55,7 +55,25 @@ services:
             - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
             # Main files
             - .:/var/www/social
-            - /var/www/social/docker
+            - /var/www/social/docker # don't map docker folder
+        env_file:
+            - ./docker/social/social.env
+            - ./docker/db/db.env
+        command: /entrypoint.sh
+
+    worker:
+        build: docker/php
+        restart: always
+        tty: true
+        volumes:
+            # Entrypoint
+            - ./docker/php/entrypoint.sh:/entrypoint.sh
+            - ./docker/db/wait_for_db.sh:/wait_for_db.sh
+            - ./docker/social/install.sh:/var/entrypoint.d/10_social_install.sh
+            - ./docker/social/worker.sh:/var/entrypoint.d/20_social_worker.sh
+            # Main files
+            - .:/var/www/social
+            - /var/www/social/docker # don't map docker folder
         env_file:
             - ./docker/social/social.env
             - ./docker/db/db.env
