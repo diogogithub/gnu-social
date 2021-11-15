@@ -18,6 +18,7 @@
     -webkit-box-sizing: border-box !important;
     -moz-box-sizing: border-box !important;
     box-sizing: border-box !important;
+    max-width: 100%;
 }
 
 body,html {
@@ -57,6 +58,10 @@ blockquote,body,fieldset,form,html,input,pre,textarea {
     margin: 0;
     padding: 0;
     border: 0;
+}
+
+fieldset {
+    all: unset;
 }
 
 :link img,:visited img,a img {
@@ -147,10 +152,6 @@ p:first-line {
 p:not(:first-line) {
     margin-top: 10px;
     margin-bottom: 10px;
-}
-
-label {
-    max-width: 100%;
 }
 
 input[type=password],input[type=text],textarea {

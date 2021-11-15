@@ -15,10 +15,18 @@ input[type=checkbox],input[type=radio] {
     cursor: pointer !important;
     width: 1rem !important;
     height: 1rem !important;
+    background: var(--accent) !important;
 }
 
 input[type=checkbox]:not(:hover,:focus),input[type=radio]:not(:hover,:focus) {
-    opacity: 75%;
+    background: var(--foreground) !important;
+}
+
+input[type=checkbox],input[type=radio] {
+    border: unset !important;
+}
+input[type=radio] {
+    background: var(--background-hard) !important;
 }
 
 input[type=radio] {
@@ -31,7 +39,6 @@ input[type=radio] {
 input[type=file] {
     all: unset;
     display: block;
-    width: 100%;
     font-family: 'Open Sans',sans-serif !important;
     font-weight: normal !important;
     padding: unset !important;
@@ -135,11 +142,18 @@ button,input,select,textarea {
     -webkit-border-radius: .6rem;
     -moz-border-radius: .6rem;
     border-radius: .6rem;
-    background: var(--gradient) !important;
     border: 2px solid var(--border) !important;
     -webkit-box-shadow: var(--shadow);
     -moz-box-shadow: var(--shadow);
     box-shadow: var(--shadow);
+    width: inherit;
+    max-width: border-box !important;
+}
+button, select, textarea {
+    background: var(--gradient) !important;
+}
+button,input:not([type=checkbox], [type=radio]) {
+    background: var(--gradient) !important;
 }
 
 select {
@@ -155,18 +169,6 @@ select {
 
 select>option {
     width: 1px;
-}
-
-input[type=checkbox],input[type=radio] {
-    border: unset !important;
-}
-
-input[type=radio] {
-    background-color: var(--background-hard) !important;
-}
-
-input[type=checkbox] {
-    background-color: var(--border) !important;
 }
 
 button:focus,button:hover,input:focus,input:hover,select:focus,select:hover,textarea:focus,textarea:hover {
