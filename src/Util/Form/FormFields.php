@@ -5,7 +5,10 @@ declare(strict_types = 1);
 namespace App\Util\Form;
 
 use function App\Core\I18n\_m;
+use App\Entity\Actor;
+use App\Entity\Language;
 use App\Util\Common;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Validator\Constraints\Length;
@@ -15,6 +18,13 @@ abstract class FormFields
 {
     public static function repeated_password(array $options = []): array
     {
+        $constraints = $options['required']
+        ? [
+            new NotBlank(['message' => _m('Please enter a password')]),
+            new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
+                'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'], ['count' => Common::config('password', 'max_length')]), ]),
+        ] : [];
+
         return [
             'password', RepeatedType::class,
             [
@@ -22,19 +32,17 @@ abstract class FormFields
                 'first_options' => [
                     'label'       => _m('Password'),
                     'label_attr'  => ['class' => 'section-form-label'],
-                    'attr'        => ['placeholder' => '********'],
-                    'constraints' => [
-                        new NotBlank(['message' => _m('Please enter a password')]),
-                        new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
-                            'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'], ['count' => Common::config('password', 'max_length')]), ]),
-                    ],
-                    'help' => _m('Write a password with at least {min_length} characters, and a maximum of {max_length}.', ['min_length' => Common::config('password', 'min_length'), 'max_length' => Common::config('password', 'max_length')]),
+                    'attr'        => ['placeholder' => _m('********'), 'required' => $options['required'] ?? true],
+                    'constraints' => $constraints,
+                    'help'        => _m('Write a password with at least {min_length} characters, and a maximum of {max_length}.', ['min_length' => Common::config('password', 'min_length'), 'max_length' => Common::config('password', 'max_length')]),
                 ],
                 'second_options' => [
-                    'label'      => _m('Repeat Password'),
-                    'label_attr' => ['class' => 'section-form-label'],
-                    'attr'       => ['placeholder' => '********'],
-                    'help'       => _m('Confirm your password.'),
+                    'label'       => _m('Repeat Password'),
+                    'label_attr'  => ['class' => 'section-form-label'],
+                    'attr'        => ['placeholder' => _m('********')],
+                    'help'        => _m('Confirm your password.'),
+                    'required'    => $options['required'] ?? true,
+                    'constraints' => $constraints,
                 ],
                 'mapped'          => false,
                 'required'        => $options['required'] ?? true,
@@ -60,6 +68,23 @@ abstract class FormFields
                     new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
                         'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'], ['count' => Common::config('password', 'max_length')]), ]),
                 ], ],
+        ];
+    }
+
+    public static function language(Actor $actor, ?Actor $context_actor, string $label, string $help, bool $multiple = false, bool $required = true, ?bool $use_short_display = null): array
+    {
+        [$language_choices, $preferred_language_choices] = Language::getSortedLanguageChoices($actor, $context_actor, use_short_display: $use_short_display);
+        return [
+            'language' . ($multiple ? 's' : ''),
+            ChoiceType::class,
+            [
+                'label'             => _m($label),
+                'preferred_choices' => $preferred_language_choices,
+                'choices'           => $language_choices,
+                'required'          => $required,
+                'multiple'          => $multiple,
+                'help'              => _m($help),
+            ],
         ];
     }
 }
