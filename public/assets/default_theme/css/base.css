@@ -212,8 +212,8 @@ li {
         --shadow: 0 0 12px 0 #24243416;
         --shadow-inset-accent: inset 0 0 0 2px var(--accent);
         --background-checkerboard: repeating-conic-gradient(#ffffff66 0 90deg,#ffffff33 0 180deg) 0 0/40px 40px round;
-        --gradient: linear-gradient(290deg,var(--border) 0,transparent 60%) !important;
-        --gradient-backwards: linear-gradient(290deg,var(--border) 0,var(--background-card) 100%) !important;
+        --gradient: linear-gradient(10deg,var(--background-hard) 0,transparent 60%) !important;
+        --gradient-backwards: linear-gradient(290deg,var(--background-hard) 0,var(--background-card) 100%) !important;
     }
 
     .background-image {
