@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Plugin\Repeat\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Entity\Note;
 
 /**
  * Entity for notices
@@ -37,19 +39,19 @@ use App\Core\Entity;
  */
 class NoteRepeat extends Entity
 {
-    private int $id;
+    private int $note_id;
     private int $actor_id;
     private int $repeat_of;
 
-    public function setId(int $id): self
+    public function setNoteId(int $note_id): self
     {
-        $this->id = $id;
+        $this->note_id = $note_id;
         return $this;
     }
 
-    public function getId(): int
+    public function getNoteId(): int
     {
-        return $this->id;
+        return $this->note_id;
     }
 
     public function setActorId(int $actor_id): self
@@ -74,18 +76,37 @@ class NoteRepeat extends Entity
         return $this->repeat_of;
     }
 
+    public static function getNoteRepeats(Note $note): array
+    {
+        return DB::sql(
+            <<<'EOF'
+                select {select} from note n
+                inner join note_repeat nr
+                on nr.note_id = n.id
+                where repeat_of = :note_id
+                order by n.created DESC
+                EOF,
+            ['note_id' => $note->getId()]
+        );
+    }
+
     public static function schemaDef(): array
     {
         return [
             'name' => 'note_repeat',
             'fields' => [
-                'id' => ['type' => 'int', 'not null' => true, 'description' => 'The id of the repeat itself'],
+                'note_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'The id of the repeat itself'],
                 'actor_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'description' => 'Who made this repeat'],
                 'repeat_of' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'Note this is a repeat of'],
             ],
-            'primary key'  => ['id'],
+            'primary key'  => ['note_id'],
             'foreign keys' => [
+                'note_id_to_id_fkey' => ['note', ['note_id' => 'id']],
                 'note_repeat_of_id_fkey' => ['note', ['repeat_of' => 'id']],
+                'actor_reply_to_id_fkey' => ['actor', ['actor_id' => 'id']],
+            ],
+            'indexes'     => [
+                'note_repeat_of_idx' => ['repeat_of'],
             ],
         ];
     }

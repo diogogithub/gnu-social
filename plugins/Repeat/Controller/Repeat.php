@@ -97,7 +97,7 @@ class Repeat extends Controller
                 // Add it to note_repeat table
                 if (!is_null($repeat_id)) {
                     DB::persist(NoteRepeat::create([
-                        'id' => $repeat_id,
+                        'note_id' => $repeat_id,
                         'actor_id' => $actor_id,
                         'repeat_of' => $og_id
                     ]));
