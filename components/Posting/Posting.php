@@ -35,13 +35,13 @@ use App\Entity\Actor;
 use App\Entity\ActorToAttachment;
 use App\Entity\Attachment;
 use App\Entity\AttachmentToNote;
-use App\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
+use App\Util\Form\FormFields;
 use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -49,6 +49,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Length;
 
 class Posting extends Component
@@ -61,7 +62,7 @@ class Posting extends Component
      * @throws RedirectException
      * @throws ServerException
      */
-    public function onAppendRightPostingBlock(array $vars, array &$res): bool
+    public function onAppendRightPostingBlock(Request $request, array &$res): bool
     {
         if (($user = Common::user()) === null) {
             return Event::next;
@@ -91,27 +92,13 @@ class Posting extends Component
         ];
         Event::handle('PostingAvailableContentTypes', [&$available_content_types]);
 
-        $context_actor              = null; // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
-        $language_choices           = Language::getLanguageChoices();
-        $preferred_language_choices = $actor->getPreferredLanguageChoices($context_actor);
-        ksort($language_choices);
-
-        if (Common::config('posting', 'use_short_language_display')) {
-            $key    = array_key_first($preferred_language_choices);
-            $locale = $preferred_language_choices[$key];
-            unset($preferred_language_choices[$key], $language_choices[$key]);
-            $short_display                              = Cache::getHashMapKey('languages', $locale)->getShortDisplay();
-            $preferred_language_choices[$short_display] = trim($locale);
-            $language_choices[$short_display]           = trim($locale);
-        }
-
-        $request     = $vars['request'];
-        $form_params = [
+        $context_actor = null; // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
+        $form_params   = [
             ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
             ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
             ['content',     TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]],
             ['attachments', FileType::class,     ['label' => _m('Attachments:'), 'multiple' => true, 'required' => false, 'invalid_message' => _m('Attachment not valid.')]],
-            ['language',    ChoiceType::class,   ['label' => _m('Note language:'), 'preferred_choices' => $preferred_language_choices, 'choices' => $language_choices, 'required' => true, 'multiple' => false]],
+            FormFields::language($actor, $context_actor, label: 'Note language:', help: 'The language in which you wrote this note, so others can see it'),
         ];
 
         if (\count($available_content_types) > 1) {
@@ -142,7 +129,7 @@ class Posting extends Component
             }
         }
 
-        $res = $form->createView();
+        $res['post_form'] = $form->createView();
 
         return Event::next;
     }

@@ -6,8 +6,8 @@
     <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <aside class="panel-content accessibility-target">
 
-        {% set post_form = handle_event('AppendRightPostingBlock', {'request': request}) %}
-        {% if post_form is defined %}
+        {% set blocks = handle_event('AppendRightPostingBlock', request) %}
+        {% if blocks['post_form'] is defined %}
             <section class="section-widget" title={{ 'Create a new note.' | trans }}>
                 <details class="section-title-details" title={{ 'Expand if you want to access more options.' | trans }}>
                     <summary class="section-title-summary">
@@ -17,7 +17,7 @@
 
                 <div class="section-form">
                     <fieldset>
-                        {{ form(post_form) }}
+                        {{ form(blocks['post_form']) }}
                     </fieldset>
                 </div>
             </section>
