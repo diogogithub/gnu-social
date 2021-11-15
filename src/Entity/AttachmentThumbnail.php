@@ -212,7 +212,7 @@ class AttachmentThumbnail extends Entity
                 return null;
             }
             [$predicted_width, $predicted_height] = self::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $size, $crop);
-            if (!file_exists($attachment->getPath())) {
+            if (\is_null($attachment->getPath()) || !file_exists($attachment->getPath())) {
                 // Before we quit, check if there's any other thumb
                 $alternative_thumbs = DB::findBy('attachment_thumbnail', ['attachment_id' => $attachment->getId()]);
                 usort($alternative_thumbs, fn ($l, $r) => $r->getSize() <=> $l->getSize());
