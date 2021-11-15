@@ -318,10 +318,14 @@ abstract class Cache
         }
     }
 
-    public static function getHashMapKey(string $map_key, string $key, string $pool = 'default')
+    public static function getHashMapKey(string $map_key, string|array $key, string $pool = 'default')
     {
         if (isset(self::$redis[$pool])) {
-            return self::$redis[$pool]->hget($map_key, $key);
+            if (\is_string($key)) {
+                return self::$redis[$pool]->hget($map_key, $key);
+            } else {
+                return self::$redis[$pool]->hmget($map_key, $key);
+            }
         } else {
             throw new NotImplementedException;
         }
