@@ -31,6 +31,7 @@ use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
@@ -92,10 +93,19 @@ class Repeat extends NoteHandlerPlugin
         return Event::next;
     }
 
+    /**
+     * @throws \App\Util\Exception\NoLoggedInUser
+     */
     public function onAppendCardNote(array $vars, array &$result) {
         // if note is the original and user isn't the one who repeated, append on end "user repeated this"
         // if user is the one who repeated, append on end "you repeated this, remove repeat?"
-        $current_actor_id = (Common::actor())->getId();
+        $check_user = true;
+        try {
+            $user = Common::ensureLoggedIn();
+        } catch (NoLoggedInUser $e) {
+            $check_user = false;
+        }
+
         $note = $vars['note'];
 
         $complementary_info = '';
@@ -118,7 +128,7 @@ class Repeat extends NoteHandlerPlugin
             $repeat_actor_url = $actor->getUrl();
             $repeat_actor_nickname = $actor->getNickname();
 
-            if ($actor->getId() === $current_actor_id) {
+            if ($check_user && $actor->getId() === (Common::actor())->getId()) {
                 // If the repeat is yours
                 $prepend = "<a href={$repeat_actor_url}>You</a>, " . ($prepend = &$complementary_info);
                 $complementary_info = $prepend;
