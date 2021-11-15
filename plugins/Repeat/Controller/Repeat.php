@@ -150,7 +150,14 @@ class Repeat extends Controller
         $form_remove_repeat->handleRequest($request);
         if ($form_remove_repeat->isSubmitted()) {
             if ($remove_repeat_note) {
+                // Remove the note itself
                 DB::remove($remove_repeat_note);
+                DB::flush();
+
+                // Remove from the note_repeat table
+                $opts = ['note_id' => $id];
+                $remove_note_repeat = DB::find('note_repeat', $opts);
+                DB::remove($remove_note_repeat);
                 DB::flush();
             }
 
