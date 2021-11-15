@@ -361,12 +361,12 @@ class Actor extends Entity
     public function getPreferredLanguageChoices(?self $context = null): array
     {
         $id    = $context?->getId() ?? $this->getId();
-        $key   = 'actor-' . $this->getId() . '-langs' . (!\is_null($context) ? '-' . $context->getId() : '');
+        $key   = ActorLanguage::collectionCacheKey($this); // TODO handle language context
         $langs = Cache::getHashMap(
             $key,
             fn () => F\reindex(
                 DB::dql(
-                    'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.order ASC',
+                    'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.ordering ASC',
                     ['id' => $id],
                 ),
                 fn (Language $l) => $l->getLocale(),

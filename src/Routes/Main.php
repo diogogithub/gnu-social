@@ -72,6 +72,7 @@ abstract class Main
             $r->connect('doc_' . $s, '/doc/' . $s, C\TemplateController::class, ['template' => 'doc/' . $s . '.html.twig']);
         }
 
-        $r->connect('settings', '/settings', [C\UserPanel::class, 'all_settings']);
+        $r->connect('settings', '/settings', [C\UserPanel::class, 'allSettings']);
+        $r->connect('settings_sort_languages', '/settings/sort_languages', [C\UserPanel::class, 'sortLanguages']);
     }
 }

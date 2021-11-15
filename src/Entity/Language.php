@@ -27,6 +27,7 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use function App\Core\I18n\_m;
+use App\Util\Common;
 use DateTimeInterface;
 use Functional as F;
 
@@ -120,6 +121,26 @@ class Language extends Entity
     public function toChoiceFormat(): array
     {
         return [_m($this->getLongDisplay()) => $this->getLocale()];
+    }
+
+    /**
+     * Get all the available languages as well as the languages $actor
+     * prefers and are appropriate for posting in/to $context_actor
+     */
+    public static function getSortedLanguageChoices(Actor $actor, ?Actor $context_actor, ?bool $use_short_display): array
+    {
+        $language_choices           = self::getLanguageChoices();
+        $preferred_language_choices = $actor->getPreferredLanguageChoices($context_actor);
+        ksort($language_choices);
+        if ($use_short_display ?? Common::config('posting', 'use_short_language_display')) {
+            $key    = array_key_first($preferred_language_choices);
+            $locale = $preferred_language_choices[$key];
+            unset($preferred_language_choices[$key], $language_choices[$key]);
+            $short_display                              = Cache::getHashMapKey('languages', $locale)->getShortDisplay();
+            $preferred_language_choices[$short_display] = trim($locale);
+            $language_choices[$short_display]           = trim($locale);
+        }
+        return [$language_choices, $preferred_language_choices];
     }
 
     public static function schemaDef(): array

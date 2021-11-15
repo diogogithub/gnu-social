@@ -37,15 +37,18 @@ namespace App\Controller;
 
 // {{{ Imports
 
+use App\Core\Cache;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
+use App\Entity\ActorLanguage;
 use App\Entity\UserNotificationPrefs;
 use App\Util\Common;
 use App\Util\Exception\AuthenticationException;
+use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\ActorArrayTransformer;
 use App\Util\Form\ArrayTransformer;
@@ -55,9 +58,8 @@ use Doctrine\DBAL\Types\Types;
 use Exception;
 use Functional as F;
 use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\LocaleType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -72,7 +74,7 @@ class UserPanel extends Controller
      *
      * @throws Exception
      */
-    public function all_settings(Request $request): array
+    public function allSettings(Request $request): array
     {
         $account_form             = $this->account($request);
         $personal_form            = $this->personal_info($request);
@@ -83,7 +85,7 @@ class UserPanel extends Controller
             'prof'                => $personal_form->createView(),
             'acc'                 => $account_form->createView(),
             'tabbed_forms_notify' => $notifications_form_array,
-            'open_details_query'  => $this->string('open')
+            'open_details_query'  => $this->string('open'),
         ];
     }
 
@@ -92,7 +94,7 @@ class UserPanel extends Controller
      */
     public function personal_info(Request $request)
     {
-        $user            = Common::user();
+        $user            = Common::ensureLoggedIn();
         $actor           = $user->getActor();
         $extra           = ['self_tags' => $actor->getSelfTags()];
         $form_definition = [
@@ -106,7 +108,9 @@ class UserPanel extends Controller
         ];
         $extra_step = function ($data, $extra_args) use ($user, $actor) {
             $user->setNickname($data['nickname']);
-            if (!$data['full_name'] && !$actor->getFullname()) { $actor->setFullname($data['nickname']); }
+            if (!$data['full_name'] && !$actor->getFullname()) {
+                $actor->setFullname($data['nickname']);
+            }
         };
         return Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
     }
@@ -116,30 +120,54 @@ class UserPanel extends Controller
      */
     public function account(Request $request)
     {
-        $user = Common::user();
+        $user = Common::ensureLoggedIn();
         // TODO Add support missing settings
+
         $form = Form::create([
             ['outgoing_email', TextType::class,        ['label' => _m('Outgoing email'), 'required' => false,  'help' => _m('Change the email we use to contact you')]],
             ['incoming_email', TextType::class,        ['label' => _m('Incoming email'), 'required' => false,  'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
             ['old_password',   TextType::class,        ['label' => _m('Old password'),   'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
             FormFields::repeated_password(['required' => false]),
-            ['language',       LocaleType::class,      ['label' => _m('Language'),       'required' => false, 'help' => _m('Your preferred language')]],
-            ['phone_number',   PhoneNumberType::class, ['label' => _m('Phone number'),   'required' => false, 'help' => _m('Your phone number'),                        'data_class' => null]],
-            ['save_account_info',           SubmitType::class,      ['label' => _m('Save account info')]],
+            FormFields::language($user->getActor(), context_actor: null, label: 'Languages', help: 'The languages you understand, so you can see primarily content in those', multiple: true, required: false),
+            ['phone_number', PhoneNumberType::class, ['label' => _m('Phone number'), 'required' => false, 'help' => _m('Your phone number'), 'data_class' => null]],
+            ['save_account_info', SubmitType::class, ['label' => _m('Save account info')]],
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-
             if (!\is_null($data['old_password'])) {
                 $data['password'] = $form->get('password')->getData();
                 if (!($user->changePassword($data['old_password'], $data['password']))) {
                     throw new AuthenticationException(_m('The provided password is incorrect'));
                 }
             }
-
             unset($data['old_password'], $data['password']);
+
+            $redirect_to_language_sorting = false;
+            if (!\is_null($data['languages'])) {
+                $selected_langs = DB::findBy('language', ['locale' => $data['languages']]);
+                $existing_langs = DB::dql(
+                    'select l from language l join actor_language al with l.id = al.language_id where al.actor_id = :actor_id',
+                    ['actor_id' => $user->getId()],
+                );
+                $new_langs      = array_udiff($selected_langs, $existing_langs, fn ($l, $r) => $l->getId() <=> $r->getId());
+                $removing_langs = array_udiff($existing_langs, $selected_langs, fn ($l, $r) => $l->getId() <=> $r->getId());
+                foreach ($new_langs as $l) {
+                    DB::persist(ActorLanguage::create(['actor_id' => $user->getId(), 'language_id' => $l->getId(), 'ordering' => 0]));
+                }
+                if (!empty($removing_langs)) {
+                    $actor_langs_to_remove = DB::findBy('actor_language', ['actor_id' => $user->getId(), 'language_id' => F\map($removing_langs, fn ($l) => $l->getId())]);
+                    foreach ($actor_langs_to_remove as $lang) {
+                        DB::remove($lang);
+                    }
+                }
+                Cache::delete(ActorLanguage::collectionCacheKey($user));
+                DB::flush();
+                ActorLanguage::normalizeOrdering($user); // In case the user doesn't submit the other page
+                unset($data['languages']);
+                $redirect_to_language_sorting = true;
+            }
 
             foreach ($data as $key => $val) {
                 $method = 'set' . ucfirst(Formatting::snakeCaseToCamelCase($key));
@@ -148,9 +176,54 @@ class UserPanel extends Controller
                 }
             }
             DB::flush();
+
+            if ($redirect_to_language_sorting) {
+                throw new RedirectException('settings_sort_languages', ['_fragment' => null]); // TODO doesn't clear fragment
+            }
         }
 
         return $form;
+    }
+
+    public function sortLanguages(Request $request)
+    {
+        $user = Common::ensureLoggedIn();
+
+        $langs = DB::dql('select l.locale, l.long_display, al.ordering from language l join actor_language al with l.id = al.language_id where al.actor_id = :id order by al.ordering ASC', ['id' => $user->getId()]);
+
+        $form_entries = [];
+        foreach ($langs as $l) {
+            $form_entries[] = [$l['locale'], IntegerType::class, ['label' => _m($l['long_display']), 'data' => $l['ordering']]];
+        }
+
+        $form_entries[] = ['save_language_order', SubmitType::class, []];
+        $form_entries[] = ['go_back',             SubmitType::class, ['label' => _m('Return to settings page')]];
+        $form           = Form::create($form_entries);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $go_back = $form->get('go_back')->isClicked();
+            $data    = $form->getData();
+            asort($data); // Sort by the order value
+            $data = array_keys($data); // This keeps the order and gives us a unique number for each
+            foreach ($data as $order => $locale) {
+                $lang       = Cache::getHashMapKey('languages', $locale);
+                $actor_lang = DB::getReference('actor_language', ['actor_id' => $user->getId(), 'language_id' => $lang->getId()]);
+                $actor_lang->setOrdering($order + 1);
+            }
+            DB::flush();
+            if (!$go_back) {
+                // Stay on same page, but force update and prevent resubmission
+                throw new RedirectException('settings_sort_languages');
+            } else {
+                throw new RedirectException('settings', ['open' => 'account', '_fragment' => 'save_account_info_languages']);
+            }
+        }
+
+        return [
+            '_template' => 'settings/sort_languages.html.twig',
+            'form'      => $form->createView(),
+        ];
     }
 
     /**
@@ -158,7 +231,7 @@ class UserPanel extends Controller
      */
     public function notifications(Request $request)
     {
-        $user      = Common::user();
+        $user      = Common::ensureLoggedIn();
         $schema    = DB::getConnection()->getSchemaManager();
         $platform  = $schema->getDatabasePlatform();
         $columns   = Common::arrayRemoveKeys($schema->listTableColumns('user_notification_prefs'), ['user_id', 'transport', 'created', 'modified']);
