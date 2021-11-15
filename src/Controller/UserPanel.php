@@ -166,7 +166,7 @@ class UserPanel extends Controller
         foreach ($columns as $name => $col) {
             $type     = $col->getType();
             $val      = $type->convertToPHPValue($col->getDefault(), $platform);
-            $type_str = lcfirst(mb_substr((string) $type, 1));
+            $type_str = $type->getName();
             $label    = str_replace('_', ' ', ucfirst($name));
 
             $labels = [
@@ -198,8 +198,8 @@ class UserPanel extends Controller
                 break;
             default:
                 // @codeCoverageIgnoreStart
-                throw new ServerException(_m('Internal server error'));
                 Log::critical("Structure of table user_notification_prefs changed in a way not accounted to in notification settings ({$name}): " . $type_str);
+                throw new ServerException(_m('Internal server error'));
                 // @codeCoverageIgnoreEnd
             }
         }
