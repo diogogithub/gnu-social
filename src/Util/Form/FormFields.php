@@ -18,12 +18,13 @@ abstract class FormFields
 {
     public static function repeated_password(array $options = []): array
     {
-        $constraints = (array_key_exists('required', $options) && $options['required'] === false) ? []
-            : [
-                new NotBlank(['message' => _m('Please enter a password')]),
-                new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
-                    'max' => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'], ['count' => Common::config('password', 'max_length')]),]),
-            ];
+        $constraints = ($options['required'] ?? true)
+        ? [
+            new NotBlank(['message' => _m('Please enter a password')]),
+            new Length([
+                'min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
+                'max' => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'], ['count' => Common::config('password', 'max_length')]), ]),
+        ] : [];
 
         return [
             'password', RepeatedType::class,
