@@ -44,14 +44,15 @@ use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
+use NotImplementedException;
 use Symfony\Component\HttpFoundation\Request;
 
 class Network extends Controller
 {
     // Can't have constants inside herestring
-    private $public_scope   = VisibilityScope::PUBLIC;
-    private $instance_scope = VisibilityScope::PUBLIC | VisibilityScope::SITE;
-    private $message_scope  = VisibilityScope::MESSAGE;
+    private $public_scope     = VisibilityScope::PUBLIC;
+    private $instance_scope   = VisibilityScope::PUBLIC | VisibilityScope::SITE;
+    private $message_scope    = VisibilityScope::MESSAGE;
     private $subscriber_scope = VisibilityScope::PUBLIC | VisibilityScope::SUBSCRIBER;
 
     public function public(Request $request)
@@ -76,6 +77,7 @@ class Network extends Controller
             throw new ClientException(_m('User {nickname} doesn\'t exist', ['{nickname}' => $nickname]));
         }
 
+        // TODO Handle replies in home stream
         $query = <<<END
                     -- Select notes from:
                     select note.* from note left join -- left join ensures all returned notes' ids are not null
@@ -85,8 +87,8 @@ class Network extends Controller
                             where f.subscriber = :target_actor_id
                         union all
                         -- Replies to notes by target
-                        select n.id from note n inner join note nr on nr.id = nr.reply_to
-                        union all
+                        -- select n.id from note n inner join note nr on nr.id = nr.reply_to
+                        -- union all
                         -- Notifications to target
                         select a.activity_id from notification a inner join note n on a.activity_id = n.id
                         union all
@@ -128,6 +130,8 @@ class Network extends Controller
 
     public function replies(Request $request)
     {
+        // TODO replies
+        throw new NotImplementedException;
         $actor_id = Common::ensureLoggedIn()->getId();
         $notes    = DB::dql('select n from App\Entity\Note n '
                          . 'where n.reply_to is not null and n.actor_id = :id '
