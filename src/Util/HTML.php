@@ -34,17 +34,25 @@ use InvalidArgumentException;
 
 abstract class HTML
 {
-    public const ALLOWED_TAGS         = ['p', 'br', 'a', 'span'];
+    /**
+     * Tags whose content is sensitive to indentation, so we shouldn't indent them
+     */
+    public const NO_INDENT_TAGS = ['a', 'b', 'em', 'i', 'q', 's', 'p', 'sub', 'sup', 'u'];
+
+    public const ALLOWED_TAGS = ['p', 'br', 'a', 'span', 'div'];
+
     public const FORBIDDEN_ATTRIBUTES = [
         'onerror', 'form', 'onforminput', 'onbeforescriptexecute', 'formaction', 'onfocus', 'onload',
         'data', 'event', 'autofocus', 'onactivate', 'onanimationstart', 'onwebkittransitionend', 'onblur', 'poster',
         'onratechange', 'ontoggle', 'onscroll', 'actiontype', 'dirname', 'srcdoc',
     ];
 
+    public const SELF_CLOSING_TAG = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+
     /**
      * Creates an HTML tag without attributes
      */
-    public static function tag(string $tag, mixed $attrs = null, mixed $content = null, array $options = []): array
+    public static function tag(string $tag, mixed $attrs = null, mixed $content = null, array $options = []): string
     {
         return self::attr_tag($tag, $attrs ?? '', $content ?? '', $options);
     }
@@ -52,20 +60,20 @@ abstract class HTML
     /**
      * Create tag, possibly with attributes and indentation
      */
-    private static function attr_tag(string $tag, mixed $attrs, mixed $content = '', array $options = []): array
+    private static function attr_tag(string $tag, mixed $attrs, mixed $content = '', array $options = []): string
     {
         $html = '<' . $tag . (\is_string($attrs) ? ($attrs ? ' ' : '') . $attrs : self::attr($attrs, $options));
-        if ($options['empty'] ?? false) {
-            $html .= '/>';
+        if (\in_array($tag, self::SELF_CLOSING_TAG)) {
+            $html .= '>';
         } else {
-            if ($options['indent'] ?? true) {
+            if (!\in_array($tag, self::NO_INDENT_TAGS) && ($options['indent'] ?? true)) {
                 $inner = Formatting::indent($content);
                 $html .= ">\n" . ($inner == '' ? '' : $inner . "\n") . "</{$tag}>";
             } else {
                 $html .= ">{$content}</{$tag}>";
             }
         }
-        return explode("\n", $html);
+        return $html;
     }
 
     /**
@@ -73,32 +81,29 @@ abstract class HTML
      */
     private static function attr(array $attrs, array $options = []): string
     {
-        return ' ' . implode(
-            ' ',
-            F\map(
-                $attrs,
-                                   /**
-                                    * Convert an attr ($key), $val pair to an HTML attribute, but validate to exclude some vectors of injection
-                                    */
-                                   function (string $val, string $key, array $_): string {
-                                       if (\in_array($key, array_merge($options['forbidden_attributes'] ?? [], self::FORBIDDEN_ATTRIBUTES))
-                                           || str_starts_with($val, 'javascript:')) {
-                                           throw new InvalidArgumentException("HTML::html: Attribute {$key} is not allowed");
-                                       }
-                                       if (!($options['raw'] ?? false)) {
-                                           $val = htmlspecialchars($val, flags: \ENT_QUOTES | \ENT_SUBSTITUTE, double_encode: false);
-                                       }
-                                       return "{$key}=\"{$val}\"";
-                                   },
-            ),
-        );
+        return ' ' . implode(' ', F\map($attrs, [self::class, '_process_attribute']));
+    }
+
+    /**
+     * Convert an attr ($key), $val pair to an HTML attribute, but validate to exclude some vectors of injection
+     */
+    public static function _process_attribute(string $val, string $key): string
+    {
+        if (\in_array($key, array_merge($options['forbidden_attributes'] ?? [], self::FORBIDDEN_ATTRIBUTES))
+            || str_starts_with($val, 'javascript:')) {
+            throw new InvalidArgumentException("HTML::html: Attribute {$key} is not allowed");
+        }
+        if (!($options['raw'] ?? false)) {
+            $val = htmlspecialchars($val, flags: \ENT_QUOTES | \ENT_SUBSTITUTE, double_encode: false);
+        }
+        return "{$key}=\"{$val}\"";
     }
 
     /**
      * @param array|string $html    The input to convert to HTML
      * @param array        $options = [] ['allowed_tags' => string[], 'forbidden_attributes' => string[], 'raw' => bool, 'indent' => bool]
      */
-    public static function html(string|array $html, array $options = [], int $indent = 1): string
+    public static function html(string|array $html, array $options = []): string
     {
         if (\is_string($html)) {
             if ($options['raw'] ?? false) {
@@ -109,18 +114,18 @@ abstract class HTML
         } else {
             $out = '';
             foreach ($html as $tag => $contents) {
-                if ($contents['empty'] ?? false) {
-                    $out .= "<{$tag}/>";
+                if (\in_array($tag, self::SELF_CLOSING_TAG)) {
+                    $out .= "<{$tag}>";
                 } else {
                     $attrs  = isset($contents['attrs']) ? self::attr(array_shift($contents), $options) : '';
-                    $is_tag = is_string($tag) && preg_match('/[A-Za-z][A-Za-z0-9]*/', $tag);
-                    $inner  = self::html($contents, $options, $indent + 1);
+                    $is_tag = \is_string($tag) && preg_match('/[A-Za-z][A-Za-z0-9]*/', $tag);
+                    $inner  = self::html($contents, $options);
                     if ($is_tag) {
                         if (!\in_array($tag, array_merge($options['allowed_tags'] ?? [], self::ALLOWED_TAGS))) {
                             throw new InvalidArgumentException("HTML::html: Tag {$tag} is not allowed");
                         }
-                        if (!empty($inner)) {
-                            $inner = ($options['indent'] ?? true) ? ("\n" . Formatting::indent($inner, $indent) . "\n") : $inner;
+                        if (!empty($inner) && !\in_array($tag, self::NO_INDENT_TAGS) && ($options['indent'] ?? true)) {
+                            $inner = "\n" . Formatting::indent($inner) . "\n";
                         }
                         $out .= "<{$tag}{$attrs}>{$inner}</{$tag}>";
                     } else {
