@@ -354,7 +354,8 @@ class LocalUser extends Entity implements UserInterface
 
     public static function getByNickname(string $nickname): ?self
     {
-        return Cache::get("user-nickname-{$nickname}", fn () => DB::findOneBy('local_user', ['nickname' => $nickname]));
+        $key = str_replace('_', '-', $nickname);
+        return Cache::get("user-nickname-{$key}", fn () => DB::findOneBy('local_user', ['nickname' => $nickname]));
     }
 
     /**
