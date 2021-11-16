@@ -82,9 +82,9 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
     public function getCredentials(Request $request): array
     {
         return [
-            'nickname_or_email' => $request->request->get('nickname_or_email'),
-            'password' => $request->request->get('password'),
-            'csrf_token' => $request->request->get('_csrf_token'),
+            'nickname_or_email' => $request->request->get('_username'),
+            'password'          => $request->request->get('_password'),
+            'csrf_token'        => $request->request->get('_csrf_token'),
         ];
     }
 
@@ -161,7 +161,21 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
         return new RedirectResponse(Router::url('main_all'));
     }
 
-    protected function getLoginUrl(): string
+    public function authenticate(Request $request): PassportInterface
+    {
+        $nickname = $request->request->get('nickname', '');
+        $request->getSession()->set(Security::LAST_USERNAME, $nickname);
+
+        return new Passport(
+            new UserBadge($nickname),
+            new PasswordCredentials($request->request->get('password', '')),
+            [
+                new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
+            ],
+        );
+    }
+
+    protected function getLoginUrl()
     {
         return Router::url(self::LOGIN_ROUTE);
     }

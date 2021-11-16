@@ -3,8 +3,8 @@ security:
     password_hashers:
         App\Entity\LocalUser:
             algorithm: auto
-    providers:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
         local_user:
             chain:
                 providers: [local_user_by_nickname, local_user_by_email]
