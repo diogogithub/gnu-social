@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -21,13 +21,12 @@ declare(strict_types = 1);
 
 namespace App\Security;
 
-use function App\Core\I18n\_m;
 use App\Core\Router\Router;
 use App\Entity\LocalUser;
-use App\Entity\User;
 use App\Util\Common;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Exception\NotFoundException;
+use App\Util\Exception\ServerException;
 use App\Util\Nickname;
 use Stringable;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -41,7 +40,9 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
+use Symfony\Component\Security\Guard\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
+use function App\Core\I18n\_m;
 
 /**
  * User authenticator
@@ -53,13 +54,13 @@ use Symfony\Component\Security\Http\Util\TargetPathTrait;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Authenticator extends AbstractFormLoginAuthenticator
+class Authenticator extends AbstractFormLoginAuthenticator implements AuthenticatorInterface
 {
     use TargetPathTrait;
 
     public const LOGIN_ROUTE = 'security_login';
 
-    private $csrfTokenManager;
+    private CsrfTokenManagerInterface $csrfTokenManager;
 
     public function __construct(CsrfTokenManagerInterface $csrfTokenManager)
     {
@@ -67,9 +68,10 @@ class Authenticator extends AbstractFormLoginAuthenticator
     }
 
     /**
+     * @param Request $request
      * @return bool
      */
-    public function supports(Request $request)
+    public function supports(Request $request): bool
     {
         return self::LOGIN_ROUTE === $request->attributes->get('_route') && $request->isMethod('POST');
     }
@@ -77,12 +79,12 @@ class Authenticator extends AbstractFormLoginAuthenticator
     /**
      * @return array<string, string>
      */
-    public function getCredentials(Request $request)
+    public function getCredentials(Request $request): array
     {
         return [
             'nickname_or_email' => $request->request->get('nickname_or_email'),
-            'password'          => $request->request->get('password'),
-            'csrf_token'        => $request->request->get('_csrf_token'),
+            'password' => $request->request->get('password'),
+            'csrf_token' => $request->request->get('_csrf_token'),
         ];
     }
 
@@ -90,10 +92,12 @@ class Authenticator extends AbstractFormLoginAuthenticator
      * Get a user given credentials and a CSRF token
      *
      * @param array<string, string> $credentials result of self::getCredentials
-     *
+     * @param UserProviderInterface $userProvider
      * @return ?LocalUser
+     * @throws NoSuchActorException
+     * @throws ServerException
      */
-    public function getUser($credentials, UserProviderInterface $userProvider)
+    public function getUser($credentials, UserProviderInterface $userProvider): ?LocalUser
     {
         $token = new CsrfToken('authenticate', $credentials['csrf_token']);
         if (!$this->csrfTokenManager->isTokenValid($token)) {
@@ -106,11 +110,11 @@ class Authenticator extends AbstractFormLoginAuthenticator
             } elseif (Nickname::isValid($credentials['nickname_or_email'])) {
                 $user = LocalUser::getByNickname($credentials['nickname_or_email']);
             }
-            if ($user === null) {
+            if (is_null($user)) {
                 throw new NoSuchActorException('No such local user.');
             }
             $credentials['nickname'] = $user->getNickname();
-        } catch (NotFoundException) {
+        } catch (NoSuchActorException|NotFoundException) {
             throw new CustomUserMessageAuthenticationException(
                 _m('Invalid login credentials.'),
             );
@@ -120,9 +124,11 @@ class Authenticator extends AbstractFormLoginAuthenticator
 
     /**
      * @param array<string, string> $credentials result of self::getCredentials
-     * @param LocalUser             $user
+     * @param LocalUser $user
+     * @return bool
+     * @throws ServerException
      */
-    public function checkCredentials($credentials, $user)
+    public function checkCredentials($credentials, $user): bool
     {
         if (!$user->checkPassword($credentials['password'])) {
             throw new CustomUserMessageAuthenticationException(_m('Invalid login credentials.'));
@@ -134,13 +140,13 @@ class Authenticator extends AbstractFormLoginAuthenticator
     /**
      * After a successful login, redirect user to the path saved in their session or to the root of the website
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey): RedirectResponse
     {
         $nickname = $token->getUser();
         if ($nickname instanceof Stringable) {
-            $nickname = (string) $nickname;
+            $nickname = (string)$nickname;
         } elseif ($nickname instanceof UserInterface) {
-            $nickname = $nickname->getUsername();
+            $nickname = $nickname->getUserIdentifier();
         }
 
         $request->getSession()->set(
@@ -155,7 +161,7 @@ class Authenticator extends AbstractFormLoginAuthenticator
         return new RedirectResponse(Router::url('main_all'));
     }
 
-    protected function getLoginUrl()
+    protected function getLoginUrl(): string
     {
         return Router::url(self::LOGIN_ROUTE);
     }

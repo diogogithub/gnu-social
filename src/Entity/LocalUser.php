@@ -31,6 +31,7 @@ use App\Util\Common;
 use DateTimeInterface;
 use Exception;
 use libphonenumber\PhoneNumber;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -47,7 +48,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class LocalUser extends Entity implements UserInterface
+class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUserInterface
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
@@ -301,7 +302,7 @@ class LocalUser extends Entity implements UserInterface
         return false;
     }
 
-    public static function hashPassword(string $password)
+    public static function hashPassword(string $password): string
     {
         $algorithm = self::algoNameToConstant(Common::config('security', 'algorithm'));
         $options   = Common::config('security', 'options');
@@ -329,6 +330,29 @@ class LocalUser extends Entity implements UserInterface
             throw new Exception('Unsupported or unsafe hashing algorithm requested');
         }
     }
+
+    /**
+     * Returns the username used to authenticate the user.
+     * Part of the Symfony UserInterface
+     *
+     * @return string
+     *
+     * @deprecated since Symfony 5.3, use getUserIdentifier() instead
+     */
+    public function getUsername(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
+    /**
+     * returns the identifier for this user (e.g. its nickname)
+     * Part of the Symfony UserInterface
+     * @return string
+     */
+    public function getUserIdentifier(): string
+    {
+        return $this->getNickname();
+    }
     // }}} Authentication
 
     public function getActor()
@@ -342,14 +366,6 @@ class LocalUser extends Entity implements UserInterface
     public function getRoles()
     {
         return UserRoles::toArray($this->getActor()->getRoles());
-    }
-
-    /**
-     * Returns the username used to authenticate the user. Part of the Symfony UserInterface
-     */
-    public function getUsername()
-    {
-        return $this->nickname;
     }
 
     public static function getByNickname(string $nickname): ?self

@@ -4,109 +4,56 @@ declare(strict_types = 1);
 
 namespace App\Security;
 
-use App\Controller\ResetPassword;
-use App\Core\DB\DB;
-use function App\Core\I18n\_m;
-use App\Entity\LocalUser;
-use App\Util\Common;
-use App\Util\Exception\NotFoundException;
-use App\Util\Exception\RedirectException;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
-use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
-use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
-abstract class EmailVerifier
+class EmailVerifier
 {
-    private static ?MailerInterface $mailer_helper;
-    private static ?VerifyEmailHelperInterface $verify_email_helper;
-    private static ?ResetPasswordHelperInterface $reset_password_helper;
+    private $verifyEmailHelper;
+    private $mailer;
+    private $entityManager;
 
-    public static function setEmailHelpers(MailerInterface $mailer, VerifyEmailHelperInterface $email_helper, ResetPasswordHelperInterface $reset_helper)
+    public function __construct(VerifyEmailHelperInterface $helper, MailerInterface $mailer, EntityManagerInterface $manager)
     {
-        self::$mailer_helper         = $mailer;
-        self::$verify_email_helper   = $email_helper;
-        self::$reset_password_helper = $reset_helper;
+        $this->verifyEmailHelper = $helper;
+        $this->mailer            = $mailer;
+        $this->entityManager     = $manager;
     }
 
-    public static function validateTokenAndFetchUser(string $token)
+    public function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email): void
     {
-        return self::$reset_password_helper->validateTokenAndFetchUser($token);
-    }
-
-    public static function removeResetRequest(string $token): void
-    {
-        self::$reset_password_helper->removeResetRequest($token);
-    }
-
-    public static function sendEmailConfirmation(LocalUser $user): void
-    {
-        $email = (new TemplatedEmail())
-            ->from(new Address(Common::config('site', 'email'), Common::config('site', 'nickname')))
-            ->to($user->getOutgoingEmail())
-            ->subject(_m('Please Confirm your Email'))
-            ->htmlTemplate('security/confirmation_email.html.twig');
-
-        $signatureComponents = self::$verify_email_helper->generateSignature(
-            'verify_email',
+        $signatureComponents = $this->verifyEmailHelper->generateSignature(
+            $verifyEmailRouteName,
             $user->getId(),
             $user->getOutgoingEmail(),
+            ['id' => $user->getId()],
         );
 
-        $context              = $email->getContext();
-        $context['signedUrl'] = $signatureComponents->getSignedUrl();
-        $context['expiresAt'] = $signatureComponents->getExpiresAt();
+        $context                         = $email->getContext();
+        $context['signedUrl']            = $signatureComponents->getSignedUrl();
+        $context['expiresAtMessageKey']  = $signatureComponents->getExpirationMessageKey();
+        $context['expiresAtMessageData'] = $signatureComponents->getExpirationMessageData();
 
         $email->context($context);
 
-        self::send($email);
-    }
-
-    public static function send($email): void
-    {
-        self::$mailer_helper->send($email);
+        $this->mailer->send($email);
     }
 
     /**
      * @throws VerifyEmailExceptionInterface
      */
-    public function handleEmailConfirmation(Request $request, LocalUser $user): void
+    public function handleEmailConfirmation(Request $request, UserInterface $user): void
     {
-        self::$verify_email_helper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getOutgoingEmail());
-        $user->setIsEmailVerified(true);
-        DB::persist($user);
-        DB::flush();
-    }
+        $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getOutgoingEmail());
 
-    public static function processSendingPasswordResetEmail(string $emailFormData, ResetPassword $controller)
-    {
-        try {
-            $user        = DB::findOneBy('local_user', ['outgoing_email' => $emailFormData]);
-            $reset_token = self::$reset_password_helper->generateResetToken($user);
-            // Found a user
-        } catch (NotFoundException|ResetPasswordExceptionInterface) {
-            // Not found, do not reveal whether a user account was found or not.
-            throw new RedirectException('check_email');
-        }
+        $user->setIsVerified(true);
 
-        $email = (new TemplatedEmail())
-            ->from(new Address('foo@email.com', 'FOO NAME'))
-            ->to($user->getOutgoingEmail())
-            ->subject('Your password reset request')
-            ->htmlTemplate('reset_password/email.html.twig')
-            ->context([
-                'resetToken' => $reset_token,
-            ]);
-
-        self::send($email);
-
-        // Store the token object in session for retrieval in check-email route.
-        $controller->setInSession($reset_token);
-
-        throw new RedirectException('check_email');
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
     }
 }

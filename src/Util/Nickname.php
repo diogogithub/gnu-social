@@ -24,6 +24,7 @@ declare(strict_types = 1);
 namespace App\Util;
 
 use App\Core\DB\DB;
+use App\Core\Log;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
@@ -184,9 +185,11 @@ class Nickname
      */
     public static function normalize(string $nickname, bool $check_already_used = false, int $which = self::CHECK_LOCAL_USER, bool $check_is_allowed = true): string
     {
+        // Nicknames are lower case and without trailing spaces, it's not offensive to sanitize that to the user
         $nickname = trim($nickname);
         $nickname = mb_strtolower($nickname);
-        // We could do UTF-8 normalization (å to a, etc.) with something like Normalizer::normalize($nickname, Normalizer::FORM_C)
+        // Anything else would likely be very confusing
+        // We could, e.g., do UTF-8 normalization (å to a, etc.) with something like Normalizer::normalize($nickname, Normalizer::FORM_C)
         // We won't as it could confuse tremendously the user, he must know what is valid and should fix his own input
 
         if (!self::validate(nickname: $nickname, check_already_used: $check_already_used, which: $which, check_is_allowed: $check_is_allowed) || !self::isCanonical($nickname)) {

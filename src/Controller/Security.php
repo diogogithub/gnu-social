@@ -8,12 +8,9 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
-use function App\Core\I18n\_m;
 use App\Core\Log;
-use App\Core\VisibilityScope;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
-use App\Entity\Note;
 use App\Entity\Subscription;
 use App\Security\Authenticator;
 use App\Security\EmailVerifier;
@@ -37,10 +34,12 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use function App\Core\I18n\_m;
 
 class Security extends Controller
 {
@@ -49,6 +48,7 @@ class Security extends Controller
      */
     public function login(AuthenticationUtils $authenticationUtils)
     {
+        // Skip if already logged in
         if ($this->getUser()) {
             return $this->redirectToRoute('main_all');
         }
@@ -90,9 +90,10 @@ class Security extends Controller
      */
     public function register(
         Request $request,
-        GuardAuthenticatorHandler $guard_handler,
+        UserPasswordHasherInterface $user_password_hasher,
         Authenticator $authenticator,
-    ): array|Response|null {
+        GuardAuthenticatorHandler $guard,
+    ): array|Response {
         $form = Form::create([
             ['nickname', TextType::class, [
                 'label'       => _m('Nickname'),
@@ -100,10 +101,9 @@ class Security extends Controller
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a nickname')]),
                     new Length([
-                        'min'        => 1,
-                        'minMessage' => _m(['Your nickname must be at least # characters long'], ['count' => 1]),
                         'max'        => Nickname::MAX_LEN,
-                        'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]), ]),
+                        'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]),
+                    ]),
                 ],
                 'block_name'      => 'nickname',
                 'label_attr'      => ['class' => 'section-form-label'],
@@ -116,8 +116,9 @@ class Security extends Controller
                 'block_name'      => 'email',
                 'label_attr'      => ['class' => 'section-form-label'],
                 'invalid_message' => _m('Email not valid. Please provide a valid email.'),
+                'attr'            => ['autocomplete' => 'email'],
             ]],
-            FormFields::repeated_password(),
+            FormFields::repeated_password(['attr' => ['autocomplete' => 'new-password']]),
             ['register', SubmitType::class, ['label' => _m('Register')]],
         ], form_options: ['block_prefix' => 'register']);
 
@@ -128,15 +129,11 @@ class Security extends Controller
             $data['password'] = $form->get('password')->getData();
 
             // Already used is checked below
-            $sanitized_nickname = null;
-            if (Event::handle('SanitizeNickname', [$data['nickname'], &$sanitized_nickname]) != Event::stop) {
-                $sanitized_nickname = $data['nickname'];
-                // $sanitized_nickname = Nickname::normalize($data['nickname'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: false);
-            }
+            $nickname = Nickname::normalize($data['nickname'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: false);
 
             try {
-                $found_user = DB::findOneBy('local_user', ['or' => ['nickname' => $sanitized_nickname, 'outgoing_email' => $data['email']]]);
-                if ($found_user->getNickname() === $sanitized_nickname) {
+                $found_user = DB::findOneBy('local_user', ['or' => ['nickname' => $nickname, 'outgoing_email' => $data['email']]]);
+                if ($found_user->getNickname() === $nickname) {
                     throw new NicknameTakenException($found_user->getActor());
                 } elseif ($found_user->getOutgoingEmail() === $data['email']) {
                     throw new EmailTakenException($found_user->getActor());
@@ -148,13 +145,13 @@ class Security extends Controller
 
             try {
                 // This already checks if the nickname is being used
-                $actor = Actor::create(['nickname' => $sanitized_nickname, 'is_local' => true]);
+                $actor = Actor::create(['nickname' => $nickname, 'is_local' => true]);
                 $user  = LocalUser::create([
-                    'nickname'       => $sanitized_nickname,
+                    'nickname'       => $nickname,
                     'outgoing_email' => $data['email'],
                     'incoming_email' => $data['email'],
-                    'password'       => LocalUser::hashPassword($data['password']),
                 ]);
+                $user->setPassword($user_password_hasher->hashPassword($user, $data['password']));
                 DB::persistWithSameId(
                     $actor,
                     $user,
@@ -169,7 +166,7 @@ class Security extends Controller
             } catch (UniqueConstraintViolationException $e) {
                 // _something_ was duplicated, but since we already check if nickname is in use, we can't tell what went wrong
                 $m = 'An error occurred while trying to register';
-                Log::critical($m . " with nickname: '{$sanitized_nickname}' and email '{$data['email']}'");
+                Log::critical($m . " with nickname: '{$nickname}' and email '{$data['email']}'");
                 throw new ServerException(_m($m), previous: $e);
             }
             // @codeCoverageIgnoreEnd
@@ -177,24 +174,24 @@ class Security extends Controller
             // generate a signed url and email it to the user
             if ($_ENV['APP_ENV'] !== 'dev' && Common::config('site', 'use_email')) {
                 // @codeCoverageIgnoreStart
-                EmailVerifier::sendEmailConfirmation($user);
+                // TODO: Implement send confirmation email
+                // (new EmailVerifier())->sendEmailConfirmation($user);
             // @codeCoverageIgnoreEnd
             } else {
                 $user->setIsEmailVerified(true);
             }
 
-            return $guard_handler->authenticateUserAndHandleSuccess(
+            return $guard->authenticateUserAndHandleSuccess(
                 $user,
                 $request,
                 $authenticator,
-                'main', // firewall name in security.yaml
+                'main',
             );
         }
 
         return [
             '_template'         => 'security/register.html.twig',
             'registration_form' => $form->createView(),
-            'notes_fn'          => fn ()          => Note::getAllNotes(VisibilityScope::$instance_scope),
         ];
     }
 }

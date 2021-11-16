@@ -1,6 +1,10 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    enable_authenticator_manager: true
+    password_hashers:
+        App\Entity\LocalUser:
+            algorithm: auto
     providers:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
         local_user:
             chain:
                 providers: [local_user_by_nickname, local_user_by_email]
@@ -11,18 +15,21 @@ security:
         local_user_by_email:
             entity:
                 class: 'App\Entity\LocalUser'
-                property: 'email'
+                property: 'outgoing_email'
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: true
-            lazy: true
-            provider: local_user
+            entry_point: App\Security\Authenticator
             guard:
-                authenticators:
-                    - App\Security\Authenticator
+              authenticators:
+                - App\Security\Authenticator
+            provider: local_user
+            form_login:
+                login_path: security_login
+                check_path: security_login
+                enable_csrf: true
             logout:
                 path: security_logout
                 # where to redirect after logout
