@@ -145,9 +145,7 @@ class ActivitypubRsa extends Entity
         $apRSA = self::getWithPK(['actor_id' => ($actor_id = $gsactor->getId())]);
         if (!$apRSA instanceof self) {
             // Nonexistent key pair for this profile
-            try {
-                // throws exception if remote
-                $gsactor->getLocalUser();
+            if ($gsactor->getIsLocal()) {
 
                 self::generateKeys($private_key, $public_key);
 
@@ -155,7 +153,7 @@ class ActivitypubRsa extends Entity
                 $apRSA->setActorId($actor_id);
                 $apRSA->setPrivateKey($private_key);
                 $apRSA->setPublicKey($public_key);
-            } catch (Exception) {
+            } else {
                 // ASSERT: This should never happen, but try to recover!
                 Log::error("Activitypub_rsa: An impossible thing has happened... Please let the devs know.");
                 if ($fetch) {

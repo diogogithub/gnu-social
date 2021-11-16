@@ -30,6 +30,7 @@ use App\Core\Router\Router;
 use App\Core\UserRoles;
 use App\Util\Common;
 use App\Util\Exception\NicknameException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Nickname;
 use Component\Avatar\Avatar;
 use DateTimeInterface;
@@ -56,7 +57,7 @@ class Actor extends Entity
     private int $id;
     private string $nickname;
     private ?string $fullname = null;
-    private int $roles        = 4;
+    private int $roles = 4;
     private ?string $homepage;
     private ?string $bio;
     private ?string $location;
@@ -64,6 +65,7 @@ class Actor extends Entity
     private ?float $lon;
     private ?int $location_id;
     private ?int $location_service;
+    private bool $is_local;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -191,6 +193,17 @@ class Actor extends Entity
         return $this->location_service;
     }
 
+    public function setIsLocal(bool $is_local): self
+    {
+        $this->is_local = $is_local;
+        return $this;
+    }
+
+    public function getIsLocal(): bool
+    {
+        return $this->is_local;
+    }
+
     public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
@@ -218,7 +231,11 @@ class Actor extends Entity
 
     public function getLocalUser()
     {
-        return DB::findOneBy('local_user', ['id' => $this->getId()]);
+        if ($this->getIsLocal()) {
+            return DB::findOneBy('local_user', ['id' => $this->getId()]);
+        } else {
+            throw new NotFoundException('This is a remote actor.');
+        }
     }
 
     public function getAvatarUrl(string $size = 'full')
@@ -353,7 +370,7 @@ class Actor extends Entity
     }
 
     /**
-     * Get the most appropraite language for $this to use when
+     * Get the most appropriate language for $this to use when
      * referring to $context (a reply or a group, for instance)
      *
      * @return Language[]
@@ -395,6 +412,7 @@ class Actor extends Entity
                 'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
                 'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
                 'location_service' => ['type' => 'int', 'description' => 'service used to obtain location id'],
+                'is_local'         => ['type' => 'bool',      'not null' => true, 'description' => 'Does this actor have a LocalUser associated'],
                 'created'          => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

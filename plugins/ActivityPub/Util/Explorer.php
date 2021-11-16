@@ -239,6 +239,7 @@ class Explorer
             'created'  => new DateTime($res['published'] ?? 'now'),
             'bio'      => isset($res['summary']) ? mb_substr(Security::sanitize($res['summary']), 0, 1000) : null,
             'homepage' => $res['url'] ?? $res['id'],
+            'is_local' => false,
             'modified' => new DateTime(),
         ];
 

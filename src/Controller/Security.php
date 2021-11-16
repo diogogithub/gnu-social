@@ -148,7 +148,7 @@ class Security extends Controller
 
             try {
                 // This already checks if the nickname is being used
-                $actor = Actor::create(['nickname' => $sanitized_nickname]);
+                $actor = Actor::create(['nickname' => $sanitized_nickname, 'is_local' => true]);
                 $user  = LocalUser::create([
                     'nickname'       => $sanitized_nickname,
                     'outgoing_email' => $data['email'],
