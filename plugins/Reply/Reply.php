@@ -23,8 +23,8 @@ declare(strict_types = 1);
 
 namespace Plugin\Reply;
 
-use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\Router;
 use App\Entity\Actor;
@@ -32,13 +32,12 @@ use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
-use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Plugin\Reply\Controller\Reply as ReplyController;
 use Plugin\Reply\Entity\NoteReply;
 use Symfony\Component\HttpFoundation\Request;
-use function PHPUnit\Framework\isEmpty;
 
 class Reply extends NoteHandlerPlugin
 {
@@ -54,53 +53,74 @@ class Reply extends NoteHandlerPlugin
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
-        if (is_null(Common::user())) {
+        if (\is_null(Common::user())) {
             return Event::next;
         }
 
         // Generating URL for repeat action route
-        $args = ['id' => $note->getId()];
-        $type = Router::ABSOLUTE_PATH;
+        $args             = ['id' => $note->getId()];
+        $type             = Router::ABSOLUTE_PATH;
         $reply_action_url = Router::url('reply_add', $args, $type);
 
         // Concatenating get parameter to redirect the user to where he came from
-        $reply_action_url .= '?from=' . substr($request->getQueryString(), 2);
+        $reply_action_url .= '?from=' . mb_substr($request->getQueryString(), 2);
 
         $reply_action = [
-            "url" => $reply_action_url,
-            "classes" => "button-container reply-button-container note-actions-unset",
-            "id" => "reply-button-container-" . $note->getId()
+            'url'     => $reply_action_url,
+            'classes' => 'button-container reply-button-container note-actions-unset',
+            'id'      => 'reply-button-container-' . $note->getId(),
         ];
 
         $actions[] = $reply_action;
         return Event::next;
     }
 
-    public function onAppendCardNote(array $vars, array &$result) {
+    /**
+     * Append on note information about user actions
+     *
+     * @return array|bool
+     */
+    public function onAppendCardNote(array $vars, array &$result)
+    {
         // if note is the original, append on end "user replied to this"
         // if note is the reply itself: append on end "in response to user in conversation"
-        $note = $vars['note'];
+        $check_user = !\is_null(Common::user());
+        $note       = $vars['note'];
 
         $complementary_info = '';
-        $reply_actor = [];
-        $note_replies = NoteReply::getNoteReplies($note);
+        $reply_actor        = [];
+        $note_replies       = NoteReply::getNoteReplies($note);
 
         // Get actors who replied
         foreach ($note_replies as $reply) {
             $reply_actor[] = Actor::getWithPK($reply->getActorId());
         }
-        if (count($reply_actor) < 1) {
-            return null;
+        if (\count($reply_actor) < 1) {
+            return Event::next;
         }
 
         // Filter out multiple replies from the same actor
-        $reply_actor = array_unique($reply_actor, SORT_REGULAR);
+        $reply_actor = array_unique($reply_actor, \SORT_REGULAR);
 
         // Add to complementary info
         foreach ($reply_actor as $actor) {
-            $reply_actor_url = $actor->getUrl();
+            $reply_actor_url      = $actor->getUrl();
             $reply_actor_nickname = $actor->getNickname();
-            $complementary_info .= "<a href={$reply_actor_url}>{$reply_actor_nickname}</a>, ";
+
+            if ($check_user && $actor->getId() === (Common::actor())->getId()) {
+                // If the reply is yours
+                try {
+                    $you_translation = _m('You');
+                } catch (ServerException $e) {
+                    $you_translation = 'You';
+                }
+
+                $prepend            = "<a href={$reply_actor_url}>{$you_translation}</a>, " . ($prepend = &$complementary_info);
+                $complementary_info = $prepend;
+            } else {
+                // If the repeat is from someone else
+                $complementary_info .= "<a href={$reply_actor_url}>{$reply_actor_nickname}</a>, ";
+            }
         }
 
         $complementary_info = rtrim(trim($complementary_info), ',');

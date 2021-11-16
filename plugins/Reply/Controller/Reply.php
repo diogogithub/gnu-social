@@ -29,18 +29,18 @@ namespace Plugin\Reply\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
-use App\Entity\Actor;
-use Component\Posting\Posting;
-use Plugin\Reply\Entity\NoteReply;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
+use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
+use Component\Posting\Posting;
+use Plugin\Reply\Entity\NoteReply;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -50,6 +50,15 @@ class Reply extends Controller
 {
     /**
      * Controller for the note reply non-JS page
+     *
+     * @throws \App\Util\Exception\NoLoggedInUser
+     * @throws \App\Util\Exception\ServerException
+     * @throws ClientException
+     * @throws InvalidFormException
+     * @throws NoSuchNoteException
+     * @throws RedirectException
+     *
+     * @return array
      */
     public function replyAddNote(Request $request, int $id)
     {
@@ -57,19 +66,19 @@ class Reply extends Controller
         $actor_id = $user->getId();
 
         $note = Note::getWithPK($id);
-        if (is_null($note) || !$note->isVisibleTo($user)) {
+        if (\is_null($note) || !$note->isVisibleTo($user)) {
             throw new NoSuchNoteException();
         }
 
         $form = Form::create([
-            ['content',     TextareaType::class, [
+            ['content', TextareaType::class, [
                 'label'      => _m('Reply'),
                 'label_attr' => ['class' => 'section-form-label'],
                 'help'       => _m('Please input your reply.'),
             ],
             ],
-            ['attachments', FileType::class,     ['label' => ' ', 'multiple' => true, 'required' => false]],
-            ['replyform',   SubmitType::class,   ['label' => _m('Submit')]],
+            ['attachments', FileType::class, ['label' => ' ', 'multiple' => true, 'required' => false]],
+            ['replyform', SubmitType::class, ['label' => _m('Submit')]],
         ]);
 
         $form->handleRequest($request);
@@ -84,40 +93,41 @@ class Reply extends Controller
                     content_type: 'text/plain', // TODO
                     attachments: $data['attachments'],
                 );
-                DB::persist($reply);
 
                 // Update DB
+                DB::persist($reply);
                 DB::flush();
 
                 // Find the id of the note we just created
                 $reply_id = $reply->getId();
-                $og_id = $note->getId();
+                $og_id    = $note->getId();
 
                 // Add it to note_repeat table
-                if (!is_null($reply_id)) {
+                if (!\is_null($reply_id)) {
                     DB::persist(NoteReply::create([
-                        'note_id' => $reply_id,
+                        'note_id'  => $reply_id,
                         'actor_id' => $actor_id,
-                        'reply_to' => $og_id
+                        'reply_to' => $og_id,
                     ]));
                 }
 
                 // Update DB one last time
                 DB::flush();
 
-                if (array_key_exists('from', $get_params = $this->params())) {
-                    // Prevent open redirect
+                // Redirect user to where they came from
+                // Prevent open redirect
+                if (\array_key_exists('from', (array) $get_params = $this->params())) {
                     if (Router::isAbsolute($get_params['from'])) {
                         Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$get_params['from']})");
                         throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
                     } else {
-                        # TODO anchor on element id
+                        // TODO anchor on element id
                         throw new RedirectException($get_params['from']);
                     }
                 } else {
-                    throw new RedirectException('root'); // If we don't have a URL to return to, go to the instance root
+                    // If we don't have a URL to return to, go to the instance root
+                    throw new RedirectException('root');
                 }
-
             } else {
                 throw new InvalidFormException();
             }
