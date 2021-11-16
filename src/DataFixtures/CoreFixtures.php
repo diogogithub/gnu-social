@@ -24,6 +24,7 @@ class CoreFixtures extends Fixture
         foreach ([
             'taken_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('foobar'), 'outgoing_email' => 'email@provider']],
             'some_user' => [LocalUser::class, 'setId', []],
+            'local_user_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('foobar')]],
             'form_personal_info_test_user' => [LocalUser::class, 'setId', []],
             'form_account_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('some password')]],
             'taken_group' => [LocalGroup::class, 'setGroupId', []],

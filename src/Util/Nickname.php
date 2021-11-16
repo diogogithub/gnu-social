@@ -23,14 +23,15 @@ declare(strict_types = 1);
 
 namespace App\Util;
 
-use App\Entity\LocalUser;
+use App\Core\DB\DB;
+use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\NicknameInvalidException;
 use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
-use App\Util\Exception\NicknameTooShortException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\NotImplementedException;
 use Functional as F;
 use InvalidArgumentException;
@@ -58,7 +59,7 @@ class Nickname
     /**
      * Maximum number of characters in a canonical-form nickname. Changes must validate regexs
      */
-    const MAX_LEN = 64;
+    public const MAX_LEN = 64;
 
     /**
      * Regex fragment for pulling a formated nickname *OR* ID number.
@@ -69,8 +70,6 @@ class Nickname
      * if you just need to check if it's properly formatted.
      *
      * This, DISPLAY_FMT, and CANONICAL_FMT should not be enclosed in []s.
-     *
-     * @fixme would prefer to define in reference to the other constants
      */
     public const INPUT_FMT = '(?:[0-9]+|[0-9a-zA-Z_]{1,' . self::MAX_LEN . '})';
 
@@ -110,7 +109,8 @@ class Nickname
      *
      * This, INPUT_FMT and DISPLAY_FMT should not be enclosed in []s.
      */
-    const CANONICAL_FMT = '[0-9a-z]{1,' . self::MAX_LEN . '}';
+    // const CANONICAL_FMT = '[0-9A-Za-z_]{1,' . self::MAX_LEN . '}';
+    public const CANONICAL_FMT = self::DISPLAY_FMT;
 
     /**
      * Regex with non-capturing group that matches whitespace and some
@@ -128,11 +128,7 @@ class Nickname
     /**
      * Check if a nickname is valid or throw exceptions if it's not.
      * Can optionally check if the nickname is currently in use
-     * @param string $nickname
-     * @param bool $check_already_used
-     * @param int $which
-     * @param bool $check_is_allowed
-     * @return bool
+     *
      * @throws NicknameEmptyException
      * @throws NicknameNotAllowedException
      * @throws NicknameTakenException
@@ -152,9 +148,13 @@ class Nickname
             } elseif ($check_already_used) {
                 switch ($which) {
                     case self::CHECK_LOCAL_USER:
-                        $lu = LocalUser::getWithPK(['nickname' => $nickname]);
-                        if ($lu !== null) {
+                        try {
+                            $lu = DB::findOneBy('local_user', ['nickname' => $nickname]);
                             throw new NicknameTakenException($lu->getActor());
+                        } catch (NotFoundException) {
+                            // continue
+                        } catch (DuplicateFoundException) {
+                            Log::critial("Duplicate entry in `local_user` for nickname={$nickname}");
                         }
                         break;
                     // @codeCoverageIgnoreStart
@@ -176,7 +176,7 @@ class Nickname
      * The canonical form will be returned, or an exception thrown if invalid.
      *
      * @throws NicknameEmptyException
-     * @throws NicknameException         (base class)
+     * @throws NicknameException           (base class)
      * @throws NicknameInvalidException
      * @throws NicknameNotAllowedException
      * @throws NicknameTakenException
@@ -185,7 +185,6 @@ class Nickname
     public static function normalize(string $nickname, bool $check_already_used = false, int $which = self::CHECK_LOCAL_USER, bool $check_is_allowed = true): string
     {
         $nickname = trim($nickname);
-        $nickname = str_replace('_', '', $nickname);
         $nickname = mb_strtolower($nickname);
         // We could do UTF-8 normalization (å to a, etc.) with something like Normalizer::normalize($nickname, Normalizer::FORM_C)
         // We won't as it could confuse tremendously the user, he must know what is valid and should fix his own input
@@ -218,8 +217,6 @@ class Nickname
 
     /**
      * Is the given string a valid canonical nickname form?
-     * @param string $nickname
-     * @return bool
      */
     public static function isCanonical(string $nickname): bool
     {
@@ -228,8 +225,7 @@ class Nickname
 
     /**
      * Is the given string in our nickname blacklist?
-     * @param string $nickname
-     * @return bool
+     *
      * @throws NicknameEmptyException
      * @throws NicknameInvalidException
      * @throws NicknameNotAllowedException
@@ -242,8 +238,15 @@ class Nickname
         if (empty($reserved)) {
             return false;
         }
-        return in_array($nickname, array_merge($reserved, F\map($reserved, function ($n) {
-            return self::normalize($n, check_already_used: false, check_is_allowed: true);
-        })));
+        return \in_array(
+            $nickname,
+            array_merge(
+                $reserved,
+                F\map(
+                    $reserved,
+                    fn ($n) => self::normalize($n, check_already_used: false, check_is_allowed: false),
+                ),
+            ),
+        );
     }
 }

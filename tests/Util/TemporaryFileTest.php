@@ -45,7 +45,7 @@ class TemporaryFileTest extends WebTestCase
         $temp     = new TemporaryFile();
         $filepath = $temp->getRealPath();
         static::assertThrows(TemporaryFileException::class, fn () => $temp->commit($filepath));
-        static::assertThrows(TemporaryFileException::class, fn () => $temp->commit('/root/cannot_write_here'));
+        static::assertThrows(TemporaryFileException::class, fn () => $temp->commit('/root/not-a-folder/cannot_write_here'));
     }
 
     public function testCreateDirectory()

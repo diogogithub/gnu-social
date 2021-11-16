@@ -51,6 +51,6 @@ class RouterTest extends GNUsocialTestCase
     public function testURLGen()
     {
         parent::bootKernel();
-        static::assertSame('/thumbnail/1', Router::url('thumbnail', ['id' => 1]));
+        static::assertSame('/attachment/1/thumbnail/big', Router::url('attachment_thumbnail', ['id' => 1, 'size' => 'big']));
     }
 }

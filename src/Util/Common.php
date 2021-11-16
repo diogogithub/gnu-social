@@ -98,14 +98,18 @@ abstract class Common
 
     /**
      * Set sysadmin's configuration preferences for GNU social
+     *
+     * @param $transient keep this setting in memory only
      */
-    public static function setConfig(string $section, string $setting, $value): void
+    public static function setConfig(string $section, string $setting, $value, bool $transient = false): void
     {
         self::$config[$section][$setting] = $value;
-        $diff                             = self::arrayDiffRecursive(self::$config, self::$defaults);
-        $yaml                             = (new Yaml\Dumper(indentation: 2))->dump(['parameters' => ['locals' => ['gnusocial' => $diff]]], Yaml\Yaml::DUMP_OBJECT_AS_MAP);
-        rename(INSTALLDIR . '/social.local.yaml', INSTALLDIR . '/social.local.yaml.back');
-        file_put_contents(INSTALLDIR . '/social.local.yaml', $yaml);
+        if (!$transient) {
+            $diff = self::arrayDiffRecursive(self::$config, self::$defaults);
+            $yaml = (new Yaml\Dumper(indentation: 2))->dump(['parameters' => ['locals' => ['gnusocial' => $diff]]], Yaml\Yaml::DUMP_OBJECT_AS_MAP);
+            rename(INSTALLDIR . '/social.local.yaml', INSTALLDIR . '/social.local.yaml.back');
+            file_put_contents(INSTALLDIR . '/social.local.yaml', $yaml);
+        }
     }
 
     public static function getConfigDefaults()

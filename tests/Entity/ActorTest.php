@@ -34,7 +34,7 @@ class ActorTest extends GNUsocialTestCase
     public function testGetAvatarUrl()
     {
         $actor = DB::findOneBy('actor', ['nickname' => 'taken_user']);
-        static::assertSame("/{$actor->getId()}/avatar", $actor->getAvatarUrl());
+        static::assertSame('/avatar/default', $actor->getAvatarUrl());
     }
 
     public function testSelfTags()

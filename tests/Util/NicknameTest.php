@@ -30,7 +30,6 @@ use App\Util\Exception\NicknameTooLongException;
 use App\Util\GNUsocialTestCase;
 use App\Util\Nickname;
 use Jchook\AssertThrows\AssertThrows;
-use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class NicknameTest extends GNUsocialTestCase
 {
@@ -38,12 +37,8 @@ class NicknameTest extends GNUsocialTestCase
 
     public function testNormalize()
     {
-        $conf = ['nickname' => ['min_length' => 4, 'reserved' => ['this_nickname_is_reserved']]];
-        $cb   = $this->createMock(ContainerBagInterface::class);
-        static::assertTrue($cb instanceof ContainerBagInterface);
-        $cb->method('get')
-            ->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
-        Common::setupConfig($cb);
+        static::bootKernel();
+        Common::setConfig('nickname', 'blacklist', ['this_nickname_is_reserved'], transient: true);
 
         static::assertThrows(NicknameTooLongException::class, fn () => Nickname::normalize(str_repeat('longstring-', 128), check_already_used: false));
         static::assertThrows(NicknameInvalidException::class, fn () => Nickname::normalize('null\0', check_already_used: false));
@@ -55,7 +50,6 @@ class NicknameTest extends GNUsocialTestCase
         // static::assertThrows(NicknameInvalidException::class,  fn () => Nickname::normalize('FóóBár', check_already_used: false));
         static::assertThrows(NicknameNotAllowedException::class, fn () => Nickname::normalize('this_nickname_is_reserved', check_already_used: false));
 
-        static::bootKernel();
         static::assertSame('foobar', Nickname::normalize('foobar', check_already_used: true));
         static::assertThrows(NicknameTakenException::class, fn () => Nickname::normalize('taken_user', check_already_used: true));
     }
@@ -74,18 +68,13 @@ class NicknameTest extends GNUsocialTestCase
 
     public function testIsReserved()
     {
-        $conf = ['nickname' => ['min_length' => 4, 'reserved' => ['this_nickname_is_reserved']]];
-        $cb   = $this->createMock(ContainerBagInterface::class);
-        static::assertTrue($cb instanceof ContainerBagInterface);
-        $cb->method('get')->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
-        Common::setupConfig($cb);
+        static::bootKernel();
+        Common::setConfig('nickname', 'blacklist', ['this_nickname_is_reserved'], transient: true);
+
         static::assertTrue(Nickname::isBlacklisted('this_nickname_is_reserved'));
         static::assertFalse(Nickname::isBlacklisted('this_nickname_is_not_reserved'));
 
-        $conf = ['nickname' => ['min_length' => 4, 'reserved' => []]];
-        $cb   = $this->createMock(ContainerBagInterface::class);
-        $cb->method('get')->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
-        Common::setupConfig($cb);
+        Common::setConfig('nickname', 'blacklist', [], transient: true);
         static::assertFalse(Nickname::isBlacklisted('this_nickname_is_reserved'));
     }
 }
