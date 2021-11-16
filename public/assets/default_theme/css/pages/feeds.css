@@ -258,11 +258,6 @@ embed header {
     mask-image: url("../../icons/delete.svg");
 }
 
-#add_favourite,
-#remove_favourite {
-    margin-top: var(--smaller);
-}
-
 .note-content {
     display: -webkit-box;
     display: -webkit-flex;

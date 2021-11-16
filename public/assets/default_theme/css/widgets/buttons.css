@@ -122,6 +122,7 @@ button {
     -ms-flex-item-align: end !important;
     -ms-grid-row-align: end !important;
     align-self: end !important;
+    margin-top: var(--smaller);
 }
 
 button,label {

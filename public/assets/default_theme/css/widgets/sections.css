@@ -127,6 +127,10 @@
     margin-bottom: var(--smaller);
 }
 
+.form-group:last-of-type {
+    margin-bottom: unset;
+}
+
 .form-group textarea {
     height: 7rem;
     max-height: 100%;
