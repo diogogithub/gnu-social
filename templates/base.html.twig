@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     {% block meta %}
+        {# This is far from perfect. The response headers should already come with this. #}
+        {% if app.request.server.get('APP_ENV') not in ['test', 'dev'] %}<meta http-equiv="Content-Security-Policy" content="default-src https:">{% endif %}
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="home" href="/">
