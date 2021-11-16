@@ -23,18 +23,20 @@ namespace Plugin\Repeat;
 
 use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
-use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Plugin\Repeat\Entity\NoteRepeat;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,7 +49,7 @@ class Repeat extends NoteHandlerPlugin
      *
      * @throws InvalidFormException
      * @throws NoSuchNoteException
-     * @throws RedirectException
+     * @throws RedirectException*@throws ClientException*@throws DuplicateFoundException
      *
      * @return bool Event hook
      */
@@ -58,16 +60,14 @@ class Repeat extends NoteHandlerPlugin
         }
 
         // If note is repeated, "is_repeated" is 1
-        $opts = ['repeat_of' => $note->getId()];
+        $is_repeat = DB::count('note_repeat', ['note_id' => $note->getId()]) >= 1;
+
         try {
-            if (DB::findOneBy('note_repeat', $opts)) {
+            if (DB::findOneBy('note_repeat', ['repeat_of' => $note->getId()])) {
                 return Event::next;
             }
-        } catch (DuplicateFoundException $e) {
-        } catch (NotFoundException $e) {
+        } catch (DuplicateFoundException|NotFoundException $e) {
         }
-
-        $is_repeat = DB::count('note_repeat', ['note_id' => $note->getId()]) >= 1;
 
         // Generating URL for repeat action route
         $args              = ['id' => $note->getId()];
@@ -94,43 +94,47 @@ class Repeat extends NoteHandlerPlugin
     }
 
     /**
-     * @throws \App\Util\Exception\NoLoggedInUser
+     * Append on note information about user actions.
+     *
+     * @return array|bool
      */
-    public function onAppendCardNote(array $vars, array &$result) {
+    public function onAppendCardNote(array $vars, array &$result)
+    {
         // if note is the original and user isn't the one who repeated, append on end "user repeated this"
         // if user is the one who repeated, append on end "you repeated this, remove repeat?"
-        $check_user = true;
-        try {
-            $user = Common::ensureLoggedIn();
-        } catch (NoLoggedInUser $e) {
-            $check_user = false;
-        }
+        $check_user = !\is_null(Common::user());
 
         $note = $vars['note'];
 
         $complementary_info = '';
-        $repeat_actor = [];
-        $note_repeats = NoteRepeat::getNoteRepeats($note);
+        $repeat_actor       = [];
+        $note_repeats       = NoteRepeat::getNoteRepeats($note);
 
         // Get actors who replied
         foreach ($note_repeats as $reply) {
             $repeat_actor[] = Actor::getWithPK($reply->getActorId());
         }
-        if (count($repeat_actor) < 1) {
-            return null;
+        if (\count($repeat_actor) < 1) {
+            return Event::next;
         }
 
         // Filter out multiple replies from the same actor
-        $repeat_actor = array_unique($repeat_actor, SORT_REGULAR);
+        $repeat_actor = array_unique($repeat_actor, \SORT_REGULAR);
 
         // Add to complementary info
         foreach ($repeat_actor as $actor) {
-            $repeat_actor_url = $actor->getUrl();
+            $repeat_actor_url      = $actor->getUrl();
             $repeat_actor_nickname = $actor->getNickname();
 
             if ($check_user && $actor->getId() === (Common::actor())->getId()) {
                 // If the repeat is yours
-                $prepend = "<a href={$repeat_actor_url}>You</a>, " . ($prepend = &$complementary_info);
+                try {
+                    $you_translation = _m('You');
+                } catch (ServerException $e) {
+                    $you_translation = 'You';
+                }
+
+                $prepend            = "<a href={$repeat_actor_url}>{$you_translation}</a>, " . ($prepend = &$complementary_info);
                 $complementary_info = $prepend;
             } else {
                 // If the repeat is from someone else
