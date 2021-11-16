@@ -33,8 +33,8 @@ class UserPanelTest extends GNUsocialTestCase
     use AssertThrows;
 
     /**
-     * @covers \App\Controller\UserPanel::all_settings
-     * @covers \App\Controller\UserPanel::personal_info
+     * @covers \App\Controller\UserPanel::allSettings
+     * @covers \App\Controller\UserPanel::personalInfo
      */
     public function testPersonalInfo()
     {
@@ -67,7 +67,7 @@ class UserPanelTest extends GNUsocialTestCase
 
     /**
      * @covers \App\Controller\UserPanel::account
-     * @covers \App\Controller\UserPanel::all_settings
+     * @covers \App\Controller\UserPanel::allSettings
      */
     public function testAccount()
     {
@@ -90,13 +90,12 @@ class UserPanelTest extends GNUsocialTestCase
         static::assertSame($changed_user->getOutgoingEmail(), 'outgoing@provider');
         static::assertSame($changed_user->getIncomingEmail(), 'incoming@provider');
         static::assertTrue($changed_user->checkPassword('this is some test password'));
-        static::assertSame($changed_user->getLanguage(), 'pt');
         static::assertSame($changed_user->getPhoneNumber()->getNationalNumber(), '908555842');
     }
 
     /**
      * @covers \App\Controller\UserPanel::account
-     * @covers \App\Controller\UserPanel::all_settings
+     * @covers \App\Controller\UserPanel::allSettings
      */
     public function testAccountWrongPassword()
     {
@@ -116,7 +115,7 @@ class UserPanelTest extends GNUsocialTestCase
     }
 
     /**
-     * @covers \App\Controller\UserPanel::all_settings
+     * @covers \App\Controller\UserPanel::allSettings
      * @covers \App\Controller\UserPanel::notifications
      */
     public function testNotifications()

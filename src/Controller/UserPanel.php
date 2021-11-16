@@ -77,7 +77,7 @@ class UserPanel extends Controller
     public function allSettings(Request $request): array
     {
         $account_form             = $this->account($request);
-        $personal_form            = $this->personal_info($request);
+        $personal_form            = $this->personalInfo($request);
         $notifications_form_array = $this->notifications($request);
 
         return [
@@ -92,7 +92,7 @@ class UserPanel extends Controller
     /**
      * Local user personal information panel
      */
-    public function personal_info(Request $request)
+    public function personalInfo(Request $request)
     {
         $user            = Common::ensureLoggedIn();
         $actor           = $user->getActor();
