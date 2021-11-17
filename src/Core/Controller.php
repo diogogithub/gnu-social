@@ -37,6 +37,7 @@ use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -44,6 +45,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -107,6 +109,9 @@ abstract class Controller extends AbstractController implements EventSubscriberI
 
     /**
      * Symfony event when the controller result is not a Response object
+     *
+     * @throws ClientException
+     * @throws ServerException
      */
     public function onKernelView(ViewEvent $event)
     {
@@ -126,10 +131,9 @@ abstract class Controller extends AbstractController implements EventSubscriberI
         unset($this->vars['_template'], $response['_template']);
 
         // Respond in the most preferred acceptable content type
-        $route  = $request->get('_route');
-        $accept = $request->getAcceptableContentTypes() ?: ['text/html'];
-        $format = $request->getFormat($accept[0]);
-
+        $route              = $request->get('_route');
+        $accept             = $request->getAcceptableContentTypes() ?: ['text/html'];
+        $format             = $request->getFormat($accept[0]);
         $potential_response = null;
         if (Event::handle('ControllerResponseInFormat', [
             'route' => $route,
@@ -144,6 +148,15 @@ abstract class Controller extends AbstractController implements EventSubscriberI
             case 'html':
                 if ($template !== null) {
                     $event->setResponse($this->render($template, $this->vars));
+
+                    // Setting the Content-Security-Policy response header
+                    $policy = "default-src 'self' 'unsafe-inline';"
+                        . "script-src 'self' 'unsafe-inline'";
+                    $potential_response = $event->getResponse();
+                    $potential_response->headers->set('Content-Security-Policy', $policy);
+                    $potential_response->headers->set('X-Content-Security-Policy', $policy);
+                    $potential_response->headers->set('X-WebKit-CSP', $policy);
+
                     break;
                 } else {
                     // no break, goto default
