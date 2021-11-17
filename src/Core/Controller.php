@@ -126,7 +126,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
 
         $this->vars = array_merge_recursive($this->vars, $response);
 
-        $template = \array_key_exists('_template', $this->vars) ? $this->vars['_template'] : null;
+        $template = $this->vars['_template'] ?? null;
         Event::handle('OverrideTemplate', [$this->vars, &$template]); // Allow plugins to replace the template used for anything
         unset($this->vars['_template'], $response['_template']);
 
@@ -150,8 +150,9 @@ abstract class Controller extends AbstractController implements EventSubscriberI
                     $event->setResponse($this->render($template, $this->vars));
 
                     // Setting the Content-Security-Policy response header
-                    $policy = "default-src 'self' 'unsafe-inline';"
-                        . "script-src 'self' 'unsafe-inline'";
+                    $policy = "default-src 'self';"
+                        . "script-src 'strict-dynamic' https: http:;"
+                        . "object-src 'none'; base-uri 'none'";
                     $potential_response = $event->getResponse();
                     $potential_response->headers->set('Content-Security-Policy', $policy);
                     $potential_response->headers->set('X-Content-Security-Policy', $policy);
