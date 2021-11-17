@@ -124,7 +124,10 @@
 .h-entry figure {
     margin: unset;
     -o-object-fit: cover;
-    object-fit: cover
+    object-fit: cover;
+    padding: var(--smaller);
+    background: var(--gradient);
+    border-radius: var(--smaller);
 }
 
 .h-entry .replies .h-entry {
@@ -276,10 +279,16 @@ embed header {
     border-radius: 0 0 var(--smaller) var(--smaller);
     padding-top: var(--default);
     padding-bottom: var(--default);
+    padding-right: var(--default);
 }
 
 .note-text {
     margin-bottom: var(--smaller)
+}
+
+.note-attachments {
+    display: flex;
+    justify-items: flex-start;
 }
 
 .note-attachments-unit {
@@ -320,10 +329,13 @@ embed header {
 
 .note-complementary {
     border-left: 2px solid var(--accent);
+    border-end-start-radius: var(--smaller);
+    border-end-end-radius: var(--smaller);
     padding-left: var(--smaller);
     padding-top: 5px;
     padding-bottom: 5px;
     margin-bottom: var(--smaller);
+    margin-right: var(--smaller);
     background: var(--gradient) !important;
 }
 
