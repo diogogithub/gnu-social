@@ -26,6 +26,8 @@ namespace Plugin\Repeat\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
+use App\Entity\Actor;
+use Component\Posting\Posting;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
@@ -53,7 +55,9 @@ class Repeat extends Controller
     public function repeatAddNote(Request $request, int $id): bool|array
     {
         $user                  = Common::ensureLoggedIn();
-        $opts                  = ['actor_id' => $user->getId(), 'repeat_of' => $id];
+
+        $actor_id = $user->getId();
+        $opts                  = ['actor_id' => $actor_id, 'repeat_of' => $id];
         $note_already_repeated = DB::count('note_repeat', $opts) >= 1;
 
         // Before the form is rendered for the first time
@@ -76,26 +80,18 @@ class Repeat extends Controller
         $form_add_to_repeat->handleRequest($request);
         if ($form_add_to_repeat->isSubmitted()) {
             // If the user goes back to the form, again
-            if (DB::count('note_repeat', ['actor_id' => $user->getId(), 'repeat_of' => $id]) >= 1) {
+            if (DB::count('note_repeat', ['actor_id' => $actor_id, 'repeat_of' => $id]) >= 1) {
                 throw new ClientException(_m('Note already repeated!'));
             }
 
             if (!\is_null($note)) {
-                $actor_id = $user->getId();
-                $content  = $note->getContent();
-
                 // Create a new note with the same content as the original
-                $repeat = Note::create([
-                    'actor_id'     => $actor_id,
-                    'content'      => $content,
-                    'content_type' => $note->getContentType(),
-                    'rendered'     => $note->getRendered(),
-                    'is_local'     => true,
-                ]);
-
-                // Update DB
-                DB::persist($repeat);
-                DB::flush();
+                $repeat = Posting::storeLocalNote(
+                    actor: Actor::getById($actor_id),
+                    content:$note->getContent(),
+                    content_type: $note->getContentType(),
+                    processed_attachments: $note->getAttachmentsWithTitle()
+                );
 
                 // Find the id of the note we just created
                 $repeat_id = $repeat->getId();

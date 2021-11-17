@@ -241,6 +241,26 @@ class Note extends Entity
         });
     }
 
+    public function getAttachmentsWithTitle(): array
+    {
+        return Cache::get('note-attachments-with-title-' . $this->id, function () {
+            $from_db = DB::dql(
+                <<<'EOF'
+                    select att, atn.title
+                    from attachment att
+                    join attachment_to_note atn with atn.attachment_id = att.id
+                    where atn.note_id = :note_id
+                    EOF,
+                ['note_id' => $this->id],
+            );
+            $results = [];
+            foreach ($from_db as $fd) {
+                $results[] = [$fd[0], $fd['title']];
+            }
+            return $results;
+        });
+    }
+
     public function getLinks(): array
     {
         return Cache::get('note-links-' . $this->id, function () {
