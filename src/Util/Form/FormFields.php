@@ -31,18 +31,18 @@ abstract class FormFields
             [
                 'type' => PasswordType::class,
                 'first_options' => [
-                    'label' => _m('Password'),
-                    'label_attr' => ['class' => 'section-form-label'],
-                    'attr' => ['placeholder' => _m('********'), 'required' => $options['required'] ?? true],
+                    'label'       => _m('Password'),
+                    'label_attr'  => ['class' => 'section-form-label'],
+                    'attr'        => array_merge(['placeholder' => _m('********'), 'required' => $options['required'] ?? true], $options['attr'] ?? []),
                     'constraints' => $constraints,
                     'help' => _m('Write a password with at least {min_length} characters, and a maximum of {max_length}.', ['min_length' => Common::config('password', 'min_length'), 'max_length' => Common::config('password', 'max_length')]),
                 ],
                 'second_options' => [
-                    'label' => _m('Repeat Password'),
-                    'label_attr' => ['class' => 'section-form-label'],
-                    'attr' => ['placeholder' => _m('********')],
-                    'help' => _m('Confirm your password.'),
-                    'required' => $options['required'] ?? true,
+                    'label'       => _m('Repeat Password'),
+                    'label_attr'  => ['class' => 'section-form-label'],
+                    'attr'        => array_merge(['placeholder' => _m('********'), 'required' => $options['required'] ?? true], $options['attr'] ?? []),
+                    'help'        => _m('Confirm your password.'),
+                    'required'    => $options['required'] ?? true,
                     'constraints' => $constraints,
                 ],
                 'mapped' => false,
@@ -59,11 +59,11 @@ abstract class FormFields
     {
         return [
             'password', PasswordType::class, [
-                'label' => _m('Password'),
-                'label_attr' => ['class' => 'section-form-label'],
-                'attr' => ['placeholder' => '********'],
-                'required' => $options['required'] ?? true,
-                'mapped' => false,
+                'label'       => _m('Password'),
+                'label_attr'  => ['class' => 'section-form-label'],
+                'attr'        => ['placeholder' => '********', 'autocomplete' => 'current-password'],
+                'required'    => $options['required'] ?? true,
+                'mapped'      => false,
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a password')]),
                     new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
