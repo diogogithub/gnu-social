@@ -82,8 +82,8 @@ class UserPanel extends Controller
 
         return [
             '_template'           => 'settings/base.html.twig',
-            'prof'                => $personal_form->createView(),
-            'acc'                 => $account_form->createView(),
+            'profile'             => $personal_form->createView(),
+            'account'             => $account_form->createView(),
             'tabbed_forms_notify' => $notifications_form_array,
             'open_details_query'  => $this->string('open'),
         ];
