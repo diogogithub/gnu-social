@@ -131,15 +131,21 @@ button,label {
     color: currentColor;
 }
 
+select::-ms-expand {
+    display: none;
+}
 button,input,select,textarea {
-    display: -webkit-inline-box !important;
-    display: -webkit-inline-flex !important;
-    display: -ms-inline-flexbox !important;
-    display: -moz-inline-box !important;
-    display: inline-flex !important;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;/* For IE <= 11 */
+    display: -webkit-inline-box;
+    display: -webkit-inline-flex;
+    display: -ms-inline-flexbox;
+    display: -moz-inline-box;
+    display: inline-flex;
     overflow: hidden;
-    font-size: inherit !important;
-    padding: 6px 8px !important;
+    font-size: inherit;
+    padding: 6px 8px;
     -webkit-border-radius: .6rem;
     -moz-border-radius: .6rem;
     border-radius: .6rem;
