@@ -149,14 +149,14 @@ abstract class Controller extends AbstractController implements EventSubscriberI
                 if ($template !== null) {
                     $event->setResponse($this->render($template, $this->vars));
 
-                    // Setting the Content-Security-Policy response header
-                    $policy = "default-src 'self';"
-                        . "script-src 'strict-dynamic' https: http:;"
-                        . "object-src 'none'; base-uri 'none'";
-                    $potential_response = $event->getResponse();
-                    $potential_response->headers->set('Content-Security-Policy', $policy);
-                    $potential_response->headers->set('X-Content-Security-Policy', $policy);
-                    $potential_response->headers->set('X-WebKit-CSP', $policy);
+                    /*                    // Setting the Content-Security-Policy response header
+                                        $policy = "default-src 'self';"
+                                            . "script-src 'strict-dynamic' https: http:;"
+                                            . "object-src 'none'; base-uri 'none'";
+                                        $potential_response = $event->getResponse();
+                                        $potential_response->headers->set('Content-Security-Policy', $policy);
+                                        $potential_response->headers->set('X-Content-Security-Policy', $policy);
+                                        $potential_response->headers->set('X-WebKit-CSP', $policy);*/
 
                     break;
                 } else {

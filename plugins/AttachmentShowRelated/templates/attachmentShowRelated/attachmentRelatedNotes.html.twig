@@ -1,9 +1,11 @@
+{% import '/cards/note/view.html.twig' as noteView %}
+
 <section class="section-widget section-widget-padded">
     <div class="section-title">
         {{ 'Notes related' | trans }}
     </div>
 
     {% for note in related_notes %}
-        {% include '/cards/note/view.html.twig' with {'note' : note, 'hide_attachments': true, 'have_user': have_user} only %}
+        {{ noteView.macro_note_minimal(note) }}
     {% endfor %}
 </section>

@@ -8,13 +8,6 @@
     {% endif %}
 {% endblock note_actions %}
 
-{% block note_reply_to %}
-    {% set reply_to = note.getReplyToNickname()%}
-    {% if reply_to is not null %}
-        {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
-    {% endif %}
-{% endblock note_reply_to %}
-
 {% block note_replies %}
     {% if replies is defined and replies is not empty %}
         <div class="u-in-reply-to replies" tabindex="0" title="{{ 'Begin replies to ' | trans }} {{ nickname }}'s note!">

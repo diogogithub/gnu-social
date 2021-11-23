@@ -24,16 +24,9 @@
         {% endif %}
 
         {% set current_path = app.request.get('_route') %}
-
-        {% if right_panel_vars is defined %}
-            {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars}) %}
-                {{ block | raw }}
-            {% endfor %}
-        {% else %}
-            {% for block in handle_event('AppendRightPanelBlock', {'path': current_path}) %}
-                {{ block | raw }}
-            {% endfor %}
-        {% endif %}
+        {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars | default }) %}
+            {{ block | raw }}
+        {% endfor %}
 
     </aside>
 </div>
