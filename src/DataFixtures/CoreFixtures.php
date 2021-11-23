@@ -29,7 +29,7 @@ class CoreFixtures extends Fixture
             'form_account_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('some password')]],
             'taken_group' => [LocalGroup::class, 'setGroupId', []],
         ] as $nick => [$entity, $method, $extra_create]) {
-            $actor = Actor::create(['nickname' => $nick]);
+            $actor = Actor::create(['nickname' => $nick, 'is_local' => true]);
             $manager->persist($actor);
             $ent = $entity::create(array_merge(['nickname' => $nick], $extra_create)); // cannot use array spread for arrays with string keys
             $ent->{$method}($actor->getId());
@@ -40,12 +40,12 @@ class CoreFixtures extends Fixture
             $actors[$nick] = $actor;
         }
 
-        $n = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some content', 'content_type' => 'text/plain']);
+        $n = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some content', 'content_type' => 'text/plain', 'is_local' => true]);
         $manager->persist($n);
         $notes   = [];
-        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some other content', 'content_type' => 'text/plain']);
-        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'private note', 'scope' => VisibilityScope::SUBSCRIBER, 'content_type' => 'text/plain']);
-        $notes[] = $group_note = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP, 'content_type' => 'text/plain']);
+        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some other content', 'content_type' => 'text/plain', 'is_local' => true]);
+        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'private note', 'scope' => VisibilityScope::SUBSCRIBER, 'content_type' => 'text/plain', 'is_local' => false]);
+        $notes[] = $group_note = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP, 'content_type' => 'text/plain', 'is_local' => true]);
         foreach ($notes as $note) {
             $manager->persist($note);
         }
