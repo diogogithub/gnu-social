@@ -29,7 +29,9 @@ psql-shell: .PHONY
 	docker exec -it $(call translate-container-name,$(strip $(DIR))_db_1) sh -c "psql -U postgres social"
 
 database-force-nuke:
-	docker exec -it $(call translate-container-name,$(strip $(DIR))_php_1) sh -c "cd /var/www/social; bin/console doctrine:database:drop --force && bin/console doctrine:database:create && bin/console doctrine:schema:update --dump-sql --force && bin/console app:populate_initial_values"
+	docker stop $(call translate-container-name,$(strip $(DIR))_worker_1) \
+	&& docker exec -it $(call translate-container-name,$(strip $(DIR))_php_1) sh -c "cd /var/www/social; bin/console doctrine:database:drop --force && bin/console doctrine:database:create && bin/console doctrine:schema:update --dump-sql --force && bin/console app:populate_initial_values" \
+	&& docker-compose up -d
 
 database-force-schema-update:
 	docker exec -it $(call translate-container-name,$(strip $(DIR))_php_1) sh -c "/var/www/social/bin/console doctrine:schema:update --dump-sql --force"
