@@ -128,7 +128,7 @@ class UserPanel extends Controller
             ['incoming_email', TextType::class,        ['label' => _m('Incoming email'), 'required' => false,  'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
             ['old_password',   TextType::class,        ['label' => _m('Old password'),   'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
             FormFields::repeated_password(['required' => false]),
-            FormFields::language($user->getActor(), context_actor: null, label: 'Languages', help: 'The languages you understand, so you can see primarily content in those', multiple: true, required: false),
+            FormFields::language($user->getActor(), context_actor: null, label: 'Languages', help: 'The languages you understand, so you can see primarily content in those', multiple: true, required: false, use_short_display: false),
             ['phone_number', PhoneNumberType::class, ['label' => _m('Phone number'), 'required' => false, 'help' => _m('Your phone number'), 'data_class' => null]],
             ['save_account_info', SubmitType::class, ['label' => _m('Save account info')]],
         ]);
