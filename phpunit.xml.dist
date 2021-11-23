@@ -16,6 +16,7 @@
     </include>
     <exclude>
       <directory>src/Util/Exception</directory>
+      <directory>src/PHPStan</directory>
       <directory>src/Routes</directory>
       <directory>src/DataFixtures</directory> <!-- This is where the test data is loaded, it get's tested enough, me thinks -->
       <directory>src/Security</directory> <!-- TODO: Should be tested in the future -->
