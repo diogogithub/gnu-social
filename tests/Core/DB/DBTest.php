@@ -80,7 +80,7 @@ class DBTest extends GNUsocialTestCase
 
     public function testPersistWithSameId()
     {
-        $actor = Actor::create(['nickname' => 'test', 'bio' => 'some very interesting bio']);
+        $actor = Actor::create(['nickname' => 'test', 'bio' => 'some very interesting bio', 'is_local' => false]);
         $user  = LocalUser::create(['nickname' => 'test']);
         $id    = DB::persistWithSameId($actor, $user, fn ($id) => $id);
         static::assertTrue($id != 0);

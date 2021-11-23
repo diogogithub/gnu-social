@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace App\DataFixtures;
 
+use App\Core\UserRoles;
 use App\Core\VisibilityScope;
 use App\Entity\Actor;
 use App\Entity\GroupInbox;
@@ -22,14 +23,15 @@ class CoreFixtures extends Fixture
         $actors         = [];
         $local_entities = [];
         foreach ([
-            'taken_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('foobar'), 'outgoing_email' => 'email@provider']],
-            'some_user' => [LocalUser::class, 'setId', []],
-            'local_user_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('foobar')]],
-            'form_personal_info_test_user' => [LocalUser::class, 'setId', []],
-            'form_account_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('some password')]],
-            'taken_group' => [LocalGroup::class, 'setGroupId', []],
-        ] as $nick => [$entity, $method, $extra_create]) {
-            $actor = Actor::create(['nickname' => $nick, 'is_local' => true]);
+            'taken_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('foobar'), 'outgoing_email' => 'email@provider'], []],
+            'some_user' => [LocalUser::class, 'setId', [], []],
+            'admin' => [LocalUser::class, 'setId', [], ['roles' => UserRoles::ADMIN | UserRoles::USER]],
+            'local_user_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('foobar')], []],
+            'form_personal_info_test_user' => [LocalUser::class, 'setId', [], []],
+            'form_account_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('some password')], []],
+            'taken_group' => [LocalGroup::class, 'setGroupId', [], []],
+        ] as $nick => [$entity, $method, $extra_create, $extra_create_actor]) {
+            $actor = Actor::create(array_merge(['nickname' => $nick, 'is_local' => true], $extra_create_actor));
             $manager->persist($actor);
             $ent = $entity::create(array_merge(['nickname' => $nick], $extra_create)); // cannot use array spread for arrays with string keys
             $ent->{$method}($actor->getId());

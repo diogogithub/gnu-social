@@ -21,8 +21,9 @@ declare(strict_types = 1);
 
 // }}}
 
-namespace App\Tests\Core;
+namespace App\Tests\Controller;
 
+use App\Core\DB\DB;
 use App\Util\Common;
 use App\Util\Formatting;
 use App\Util\GNUsocialTestCase;
@@ -36,6 +37,7 @@ class AdminTest extends GNUsocialTestCase
     private function test(array $setting, callable $get_value)
     {
         $client = static::createClient();
+        $client->loginUser(DB::findOneBy('local_user', ['nickname' => 'admin']));
         copy(INSTALLDIR . '/social.local.yaml', INSTALLDIR . '/social.local.yaml.back');
         $old   = Common::config(...$setting);
         $value = $get_value();

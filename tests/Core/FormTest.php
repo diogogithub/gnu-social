@@ -118,7 +118,7 @@ class FormTest extends GNUsocialTestCase
         $ret = Form::handle(form_definition: [/* not normal usage */], request: $mock_request, target: null, extra_args: [], extra_step: null, create_args: [], testing_only_form: $mock_form);
         static::assertSame($data, $ret);
 
-        $actor = Actor::create(['nickname' => 'form_testing_new_user']);
+        $actor = Actor::create(['nickname' => 'form_testing_new_user', 'is_local' => false]);
         DB::persist($actor);
         $ret = Form::handle(form_definition: [/* not normal usage */], request: $mock_request, target: $actor, extra_args: [], extra_step: null, create_args: [], testing_only_form: $mock_form);
         static::assertSame($mock_form, $ret);

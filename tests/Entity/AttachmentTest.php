@@ -106,7 +106,7 @@ class AttachmentTest extends GNUsocialTestCase
         $attachment->setFilename($filename);
 
         $actor = DB::findOneBy('actor', ['nickname' => 'taken_user']);
-        DB::persist($note = Note::create(['actor_id' => $actor->getId(), 'content' => 'attachment: some content', 'content_type' => 'text/plain']));
+        DB::persist($note = Note::create(['actor_id' => $actor->getId(), 'content' => 'attachment: some content', 'content_type' => 'text/plain', 'is_local' => true]));
         DB::persist(AttachmentToNote::create(['attachment_id' => $attachment->getId(), 'note_id' => $note->getId(), 'title' => 'A title']));
         DB::flush();
 

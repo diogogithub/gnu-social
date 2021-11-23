@@ -37,8 +37,8 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         // $form = $crawler->selectButton('Sign in')->form();
         $crawler = $client->submitForm('Sign in', [
-            'nickname_or_email' => $nickname,
-            'password'          => $password,
+            '_username' => $nickname,
+            '_password' => $password,
         ]);
         $this->assertResponseStatusCodeSame(302);
         $crawler = $client->followRedirect();
