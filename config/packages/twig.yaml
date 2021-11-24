@@ -1,2 +1,2 @@
 twig:
-  form_themes: ['bootstrap_3_layout.html.twig']
+  form_themes: ['tailwind_2_layout.html.twig']

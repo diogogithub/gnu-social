@@ -120,34 +120,27 @@
     font-size: 1.62rem;
 }
 
-.form-group {
+div[class^="mb-"] {
     display: flex;
     flex-direction: column;
     flex-basis: border-box;
     margin-bottom: var(--smaller);
 }
 
-.form-group:last-of-type {
+div[class^="mb-"]:last-of-type {
     margin-bottom: unset;
 }
 
-.form-group textarea {
+div[class^="mb-"] textarea {
     height: 7rem;
     max-height: 100%;
 }
 
-.help-block {
-    margin-bottom: 6px;
-}
-
-.help-text {
+.alert,.alert-danger {
+    display: inline-block;
     font-style: italic;
     font-size: 1rem;
-    margin-bottom: 6px;
-}
 
-.help-block>.list-unstyled,.alert,.alert-danger {
-    display: inline-block;
     border: solid 2px #ff6347;
     background-color: #FF634733;
     border-radius: .6rem;
