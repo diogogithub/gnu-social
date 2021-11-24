@@ -299,7 +299,7 @@ abstract class Cache
     /**
      * Set the list
      */
-    public static function setHashMap(string $map_key, array $value, string $pool = 'default', float $beta = 1.0): void
+    public static function setHashMap(string $map_key, array $value, string $pool = 'default'): void
     {
         if (isset(self::$redis[$pool])) {
             if (empty($value)) {
@@ -309,7 +309,7 @@ abstract class Cache
                     ->multi(Redis::MULTI)
                     ->del($map_key);
                 foreach ($value as $field_key => $field_value) {
-                    self::$redis[$pool]->hSet($map_key, $field_key, $field_value);
+                    self::$redis[$pool]->hSet($map_key, (string) $field_key, $field_value);
                 }
                 self::$redis[$pool]->exec();
             }
@@ -318,14 +318,22 @@ abstract class Cache
         }
     }
 
-    public static function getHashMapKey(string $map_key, string|array $key, string $pool = 'default')
+    public static function getHashMapKey(string $map_key, string|array $key, callable $calculate_map, string $pool = 'default')
     {
         if (isset(self::$redis[$pool])) {
-            if (\is_string($key)) {
-                return self::$redis[$pool]->hget($map_key, $key);
-            } else {
-                return self::$redis[$pool]->hmget($map_key, $key);
+            $get = function () use ($key, $map_key, $pool) {
+                if (\is_string($key)) {
+                    return self::$redis[$pool]->hget($map_key, $key);
+                } else {
+                    return self::$redis[$pool]->hmget($map_key, $key);
+                }
+            };
+            $res = $get();
+            if (\is_null($res)) {
+                self::setHashMap($map_key, $calculate_map(), $pool);
+                $res = $get();
             }
+            return $res;
         } else {
             throw new NotImplementedException;
         }
