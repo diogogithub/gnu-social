@@ -28,6 +28,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Core\Router\Router;
+use App\Entity\Language;
 use App\Entity\Note;
 use App\Entity\NoteTag;
 use App\Util\Formatting;
@@ -64,8 +65,8 @@ class Tag extends Component
         $processed_tags = false;
         preg_match_all(self::TAG_REGEX, $content, $matched_tags, \PREG_SET_ORDER);
         foreach ($matched_tags as $match) {
-            $tag           = $match[2];
-            $canonical_tag = self::canonicalTag($tag);
+            $tag           = self::ensureLength($match[2]);
+            $canonical_tag = self::canonicalTag($tag, Language::getFromId($note->getLanguageId())->getLocale());
             DB::persist(NoteTag::create(['tag' => $tag, 'canonical' => $canonical_tag, 'note_id' => $note->getId()]));
             Cache::pushList("tag-{$canonical_tag}", $note);
             $processed_tags = true;
@@ -75,21 +76,32 @@ class Tag extends Component
         }
     }
 
-    public function onRenderContent(string &$text)
+    public function onRenderContent(string &$text, string $language)
     {
-        $text = preg_replace_callback(self::TAG_REGEX, fn ($m) => $m[1] . $this->tagLink($m[2]), $text);
+        $text = preg_replace_callback(self::TAG_REGEX, fn ($m) => $m[1] . self::tagLink($m[2], $language), $text);
     }
 
-    private function tagLink(string $tag): string
+    private static function tagLink(string $tag, string $language): string
     {
-        $canonical = self::canonicalTag($tag);
-        $url       = Router::url('tag', ['tag' => $canonical]);
+        $tag       = self::ensureLength($tag);
+        $canonical = self::canonicalTag($tag, $language);
+        $url       = Router::url('tag', ['tag' => $canonical, 'lang' => $language]);
         return HTML::html(['a' => ['attrs' => ['href' => $url, 'title' => $tag, 'rel' => 'tag'], $tag]], options: ['indent' => false]);
     }
 
-    public static function canonicalTag(string $tag): string
+    public static function ensureLength(string $tag): string
     {
-        return mb_substr(Formatting::slugify($tag), 0, self::MAX_TAG_LENGTH);
+        return mb_substr($tag, 0, self::MAX_TAG_LENGTH);
+    }
+
+    public static function canonicalTag(string $tag, string $language): string
+    {
+        $result = '';
+        if (Event::handle('StemWord', [$language, $tag, &$result]) !== Event::stop) {
+            $result = Formatting::slugify($tag);
+        }
+        $result = str_replace('#', '', $result);
+        return self::ensureLength($result);
     }
 
     /**

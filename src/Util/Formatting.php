@@ -230,14 +230,14 @@ abstract class Formatting
     /**
      * Render a plain text note content into HTML, extracting links and tags
      */
-    public static function renderPlainText(string $text): string
+    public static function renderPlainText(string $text, ?string $language = null): string
     {
         $text = self::quoteAndRemoveControlCodes($text);
 
         // Split \n\n into paragraphs, process each paragrah and merge
-        return implode("\n", F\map(explode("\n\n", $text), function (string $paragraph) {
+        return implode("\n", F\map(explode("\n\n", $text), function (string $paragraph) use ($language) {
             $paragraph = nl2br($paragraph, use_xhtml: false);
-            Event::handle('RenderContent', [&$paragraph]);
+            Event::handle('RenderContent', [&$paragraph, $language]);
 
             return HTML::html(['p' => [$paragraph]], options: ['raw' => true, 'indent' => false]);
         }));
@@ -458,7 +458,7 @@ abstract class Formatting
      *
      * @return string partially-rendered HTML
      */
-    public static function linkifyMentions(string $text, Actor $author, ?Note $parent = null): string
+    public static function linkifyMentions(string $text, Actor $author, string $language, ?Note $parent = null): string
     {
         $mentions = self::findMentions($text, $author, $parent);
 

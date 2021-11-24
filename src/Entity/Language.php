@@ -108,6 +108,24 @@ class Language extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public static function getFromId(int $id): self
+    {
+        return Cache::getHashMapKey(
+            'languages-id',
+            (string) $id,
+            calculate_map: fn () => F\reindex(DB::dql('select l from language l'), fn (self $l) => (string) $l->getId()),
+        );
+    }
+
+    public static function getFromLocale(string $locale): self
+    {
+        return Cache::getHashMapKey(
+            'languages',
+            $locale,
+            calculate_map: fn () => F\reindex(DB::dql('select l from language l'), fn (self $l) => $l->getLocale()),
+        );
+    }
+
     public static function getLanguageChoices(): array
     {
         $langs = Cache::getHashMap(
@@ -136,7 +154,7 @@ class Language extends Entity
             $key    = array_key_first($preferred_language_choices);
             $locale = $preferred_language_choices[$key];
             unset($preferred_language_choices[$key], $language_choices[$key]);
-            $short_display                              = Cache::getHashMapKey('languages', $locale)->getShortDisplay();
+            $short_display                              = self::getFromLocale($locale)->getShortDisplay();
             $preferred_language_choices[$short_display] = trim($locale);
             $language_choices[$short_display]           = trim($locale);
         }

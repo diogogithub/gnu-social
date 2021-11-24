@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 
@@ -28,12 +28,14 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\GSFile;
+use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Security;
 use App\Entity\Actor;
 use App\Entity\ActorToAttachment;
 use App\Entity\Attachment;
 use App\Entity\AttachmentToNote;
+use App\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -50,8 +52,6 @@ use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Length;
-use function App\Core\I18n\_m;
-use function count;
 
 class Posting extends Component
 {
@@ -69,15 +69,15 @@ class Posting extends Component
             return Event::next;
         }
 
-        $actor = $user->getActor();
+        $actor    = $user->getActor();
         $actor_id = $user->getId();
-        $to_tags = [];
-        $tags = Cache::get(
+        $to_tags  = [];
+        $tags     = Cache::get(
             "actor-circle-{$actor_id}",
-            fn() => DB::dql('select c.tag from App\Entity\ActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]),
+            fn () => DB::dql('select c.tag from App\Entity\ActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]),
         );
         foreach ($tags as $t) {
-            $t = $t['tag'];
+            $t           = $t['tag'];
             $to_tags[$t] = $t;
         }
 
@@ -94,7 +94,7 @@ class Posting extends Component
         Event::handle('PostingAvailableContentTypes', [&$available_content_types]);
 
         $context_actor = null; // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
-        $form_params = [
+        $form_params   = [
             ['to', ChoiceType::class, ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
             ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
             ['content', TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]],
@@ -102,25 +102,25 @@ class Posting extends Component
             FormFields::language($actor, $context_actor, label: 'Note language:', help: 'The language in which you wrote this note, so others can see it'),
         ];
 
-        if (count($available_content_types) > 1) {
+        if (\count($available_content_types) > 1) {
             $form_params[] = ['content_type', ChoiceType::class,
                 [
-                    'label' => _m('Text format:'), 'multiple' => false, 'expanded' => false,
-                    'data' => $available_content_types[array_key_first($available_content_types)],
+                    'label'   => _m('Text format:'), 'multiple' => false, 'expanded' => false,
+                    'data'    => $available_content_types[array_key_first($available_content_types)],
                     'choices' => $available_content_types,
                 ],
             ];
         }
         $form_params[] = ['post_note', SubmitType::class, ['label' => _m('Post')]];
-        $form = Form::create($form_params);
+        $form          = Form::create($form_params);
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             try {
                 if ($form->isValid()) {
-                    $data = $form->getData();
+                    $data         = $form->getData();
                     $content_type = $data['content_type'] ?? $available_content_types[array_key_first($available_content_types)];
-                    self::storeLocalNote($user->getActor(), $data['content'], $content_type, $data['attachments']);
+                    self::storeLocalNote($user->getActor(), $data['content'], $content_type, $data['language'], $data['attachments']);
                     throw new RedirectException();
                 }
             } catch (FormSizeFileException $sizeFileException) {
@@ -140,35 +140,35 @@ class Posting extends Component
      * $actor_id, possibly as a reply to note $reply_to and with flag
      * $is_local. Sanitizes $content and $attachments
      *
-     * @param Actor $actor
-     * @param string $content
-     * @param string $content_type
-     * @param array $attachments Array of UploadedFile to be stored as GSFiles associated to this note
+     * @param array $attachments           Array of UploadedFile to be stored as GSFiles associated to this note
      * @param array $processed_attachments Array of [Attachment, Attachment's name] to be associated to this $actor and Note
-     * @return \App\Core\Entity|mixed
+     *
+     * @throws \App\Util\Exception\DuplicateFoundException
      * @throws ClientException
      * @throws ServerException
-     * @throws \App\Util\Exception\DuplicateFoundException
+     *
+     * @return \App\Core\Entity|mixed
      */
-    public static function storeLocalNote(Actor $actor, string $content, string $content_type, array $attachments = [], $processed_attachments = [])
+    public static function storeLocalNote(Actor $actor, string $content, string $content_type, string $language, array $attachments = [], $processed_attachments = [])
     {
         $rendered = null;
-        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor]);
+        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $language]);
         $note = Note::create([
-            'actor_id' => $actor->getId(),
-            'content' => $content,
+            'actor_id'     => $actor->getId(),
+            'content'      => $content,
             'content_type' => $content_type,
-            'rendered' => $rendered,
-            'is_local' => true,
+            'rendered'     => $rendered,
+            'language_id'  => Language::getFromLocale($language)->getId(),
+            'is_local'     => true,
         ]);
 
         /** @var UploadedFile[] $attachments */
         foreach ($attachments as $f) {
-            $filesize = $f->getSize();
+            $filesize      = $f->getSize();
             $max_file_size = Common::getUploadLimit();
             if ($max_file_size < $filesize) {
                 throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. '
-                    . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize],));
+                    . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize], ));
             }
             Event::handle('EnforceUserFileQuota', [$filesize, $actor->getId()]);
             $processed_attachments[] = [GSFile::storeFileAsAttachment($f), $f->getClientOriginalName()];
@@ -193,12 +193,12 @@ class Posting extends Component
         return $note;
     }
 
-    public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, Actor $author, ?Note $reply_to = null)
+    public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, Actor $author, string $language, ?Note $reply_to = null)
     {
         switch ($content_type) {
             case 'text/plain':
-                $rendered = Formatting::renderPlainText($content);
-                $rendered = Formatting::linkifyMentions($rendered, $author, $reply_to);
+                $rendered = Formatting::renderPlainText($content, $language);
+                $rendered = Formatting::linkifyMentions($rendered, $author, $language, $reply_to);
                 return Event::stop;
             case 'text/html':
                 // TODO: It has to linkify and stuff as well

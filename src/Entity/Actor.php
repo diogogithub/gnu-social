@@ -57,7 +57,7 @@ class Actor extends Entity
     private int $id;
     private string $nickname;
     private ?string $fullname = null;
-    private int $roles = 4;
+    private int $roles        = 4;
     private ?string $homepage;
     private ?string $bio;
     private ?string $location;
@@ -389,8 +389,7 @@ class Actor extends Entity
                 fn (Language $l) => $l->getLocale(),
             ),
         ) ?: [
-            Common::config('site', 'language') => (Cache::getHashMapKey('languages', Common::config('site', 'language'))
-                                                   ?: DB::findOneBy('language', ['locale' => Common::config('site', 'language')])),
+            Common::config('site', 'language') => Language::getFromLocale(Common::config('site', 'language')),
         ];
         return array_merge(...F\map(array_values($langs), fn ($l) => $l->toChoiceFormat()));
     }
