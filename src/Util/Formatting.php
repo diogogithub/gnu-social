@@ -267,13 +267,13 @@ abstract class Formatting
             $str = mb_convert_case($str, \MB_CASE_LOWER, 'UTF-8');
             return mb_substr($str, 0, $length);
         }
-        $str = transliterator_transliterate('Any-Latin;'                  // any charset to latin compatible
+        $str = transliterator_transliterate('Any-Latin;'                    // any charset to latin compatible
                                             . 'NFD;'                        // decompose
                                             . '[:Nonspacing Mark:] Remove;' // remove nonspacing marks (accents etc.)
                                             . 'NFC;'                        // composite again
                                             . '[:Punctuation:] Remove;'     // remove punctuation (.,¿? etc.)
                                             . 'Lower();'                    // turn into lowercase
-                                            . 'Latin-ASCII;',                 // get ASCII equivalents (ð to d for example)
+                                            . 'Latin-ASCII;',               // get ASCII equivalents (ð to d for example)
                                             $str, );
         return mb_substr(preg_replace('/[^\pL\pN]/u', '', $str), 0, $length);
     }
@@ -503,5 +503,13 @@ abstract class Formatting
         }
 
         return $output;
+    }
+
+    /**
+     * Split words by `-`, `_` or lower to upper case transitions
+     */
+    public static function splitWords(string $words): array
+    {
+        return preg_split('/-|_|(?<=\p{Ll})(?=\p{Lu})/u', $words);
     }
 }

@@ -29,7 +29,7 @@ use Wamania\Snowball\StemmerFactory;
 
 class StemWord extends Plugin
 {
-    public function onStemWord(string $language, string $word, string &$out)
+    public function onStemWord(string $language, string $word, ?string &$out)
     {
         $out = StemmerFactory::create($language)->stem($word);
         return Event::stop;

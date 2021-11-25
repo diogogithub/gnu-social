@@ -97,10 +97,13 @@ class Tag extends Component
     public static function canonicalTag(string $tag, string $language): string
     {
         $result = '';
-        if (Event::handle('StemWord', [$language, $tag, &$result]) !== Event::stop) {
-            $result = Formatting::slugify($tag);
+        foreach (Formatting::splitWords(str_replace('#', '', $tag)) as $word) {
+            $temp_res = null;
+            if (Event::handle('StemWord', [$language, $word, &$temp_res]) !== Event::stop) {
+                $temp_res = $word;
+            }
+            $result .= Formatting::slugify($temp_res);
         }
-        $result = str_replace('#', '', $result);
         return self::ensureLength($result);
     }
 
