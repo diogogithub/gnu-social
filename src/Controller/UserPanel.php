@@ -187,6 +187,9 @@ class UserPanel extends Controller
         return $form;
     }
 
+    /**
+     * Controller for defining the ordering of a users's languages
+     */
     public function sortLanguages(Request $request)
     {
         $user = Common::ensureLoggedIn();

@@ -16,6 +16,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 abstract class FormFields
 {
+    /**
+     * Create a form field for asking for a new password twice (ensuring they're the same)
+     */
     public static function repeated_password(array $options = []): array
     {
         $constraints = ($options['required'] ?? true)
@@ -53,6 +56,8 @@ abstract class FormFields
     }
 
     /**
+     * Create a form field for asking for an existing password
+     *
      * @codeCoverageIgnore
      */
     public static function password(array $options = []): array
@@ -72,6 +77,9 @@ abstract class FormFields
         ];
     }
 
+    /**
+     * Create a from field for `select`ing a language for $actor, in reply or related to $context_actor
+     */
     public static function language(Actor $actor, ?Actor $context_actor, string $label, ?string $help = null, bool $multiple = false, bool $required = true, ?bool $use_short_display = null): array
     {
         [$language_choices, $preferred_language_choices] = Language::getSortedLanguageChoices($actor, $context_actor, use_short_display: $use_short_display);

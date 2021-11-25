@@ -320,6 +320,11 @@ abstract class Cache
         }
     }
 
+    /**
+     * Fetch the value(s) for key $key in the hashmap identified by
+     * $map_key. If not found, use $calculate_map to calculate the
+     * _entire_ hashmap (not just those in $key)
+     */
     public static function getHashMapKey(string $map_key, string|array $key, callable $calculate_map, string $pool = 'default')
     {
         if (isset(self::$redis[$pool])) {
