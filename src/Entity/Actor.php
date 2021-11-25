@@ -334,8 +334,8 @@ class Actor extends Entity
             fn () => DB::dql(
                 <<<'EOF'
                     select a from actor a where 
-                    a.id in (select fa.subscibed from subscription fa join actor aa with fa.subscibed = aa.id where fa.subsciber = :actor_id and aa.nickname = :nickname) or 
-                    a.id in (select fb.subsciber from subscription fb join actor ab with fb.subsciber = ab.id where fb.subscibed = :actor_id and ab.nickname = :nickname) or 
+                    a.id in (select fa.subscribed from subscription fa join actor aa with fa.subscribed = aa.id where fa.subscriber = :actor_id and aa.nickname = :nickname) or 
+                    a.id in (select fb.subscriber from subscription fb join actor ab with fb.subscriber = ab.id where fb.subscribed = :actor_id and ab.nickname = :nickname) or 
                     a.nickname = :nickname
                     EOF,
                 ['nickname' => $nickname, 'actor_id' => $this->getId()],
