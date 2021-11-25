@@ -24,7 +24,7 @@ declare(strict_types = 1);
 namespace App\Util;
 
 use App\Core\DB\DB;
-use App\Core\Log;
+use App\Util\Exception\BugFoundException;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
@@ -155,7 +155,7 @@ class Nickname
                         } catch (NotFoundException) {
                             // continue
                         } catch (DuplicateFoundException) {
-                            Log::critial("Duplicate entry in `local_user` for nickname={$nickname}");
+                            throw new BugFoundException("Duplicate entry in `local_user` for nickname={$nickname}");
                         }
                         break;
                     // @codeCoverageIgnoreStart

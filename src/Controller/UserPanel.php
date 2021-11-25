@@ -45,6 +45,7 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Entity\ActorLanguage;
+use App\Entity\Language;
 use App\Entity\UserNotificationPrefs;
 use App\Util\Common;
 use App\Util\Exception\AuthenticationException;
@@ -63,6 +64,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 
 // }}} Imports
@@ -202,12 +204,14 @@ class UserPanel extends Controller
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $go_back = $form->get('go_back')->isClicked();
+            /** @var SubmitButton $button */
+            $button  = $form->get('go_back');
+            $go_back = $button->isClicked();
             $data    = $form->getData();
             asort($data); // Sort by the order value
             $data = array_keys($data); // This keeps the order and gives us a unique number for each
             foreach ($data as $order => $locale) {
-                $lang       = Cache::getHashMapKey('languages', $locale);
+                $lang       = Language::getFromLocale($locale);
                 $actor_lang = DB::getReference('actor_language', ['actor_id' => $user->getId(), 'language_id' => $lang->getId()]);
                 $actor_lang->setOrdering($order + 1);
             }

@@ -99,7 +99,7 @@ abstract class Common
     /**
      * Set sysadmin's configuration preferences for GNU social
      *
-     * @param $transient keep this setting in memory only
+     * @param bool $transient keep this setting in memory only
      */
     public static function setConfig(string $section, string $setting, $value, bool $transient = false): void
     {

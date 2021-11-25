@@ -22,7 +22,8 @@ declare(strict_types = 1);
 // }}}
 
 /**
- * Email taken exception
+ * Class for 'assertion' exceptions. Logs when an unexpected state is found and is treated as a ServerException downstream
+ * HTTP code 500
  *
  * @category  Exception
  * @package   GNUsocial
@@ -34,22 +35,15 @@ declare(strict_types = 1);
 
 namespace App\Util\Exception;
 
-use function App\Core\I18n\_m;
-use App\Entity\Actor;
+use App\Core\Log;
+use Throwable;
 
-class EmailTakenException extends EmailException
+class BugFoundException extends ServerException
 {
-    public ?Actor $actor = null;    // the Actor which occupies the email
-
-    public function __construct(?Actor $actor = null, ?string $msg = null, int $code = 400)
+    public function __construct(string $log_message, string $message = '', int $code = 500, ?Throwable $previous = null)
     {
-        $this->actor = $actor;
-        parent::__construct($msg, $code);
-    }
-
-    protected function defaultMessage(): string
-    {
-        // TRANS: Validation error in form for registration, actor and group settings, etc.
-        return _m('Email is already in use on this server.');
+        parent::__construct($message, $code, $previous);
+        $frame = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, limit: 2)[1];
+        Log::critical("{$log_message} in {$frame['file']}:{$frame['line']}");
     }
 }

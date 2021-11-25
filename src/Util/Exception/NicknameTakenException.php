@@ -52,13 +52,13 @@ class NicknameTakenException extends NicknameException
 
     public function __construct(?Actor $actor = null, ?string $msg = null, int $code = 400)
     {
-        $this->profile = $actor;
+        $this->actor = $actor;
         parent::__construct($msg, $code);
     }
 
     protected function defaultMessage(): string
     {
-        // TRANS: Validation error in form for registration, profile and group settings, etc.
+        // TRANS: Validation error in form for registration, actor and group settings, etc.
         return _m('Nickname is already in use on this server.');
     }
 }

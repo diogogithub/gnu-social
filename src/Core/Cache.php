@@ -29,13 +29,14 @@ use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
+use App\Util\Exception\NotImplementedException;
 use Functional as F;
 use InvalidArgumentException;
-use NotImplementedException;
 use Redis;
 use RedisCluster;
 use Symfony\Component\Cache\Adapter;
 use Symfony\Component\Cache\Adapter\ChainAdapter;
+use Symfony\Component\Cache\CacheItem;
 
 abstract class Cache
 {
@@ -154,7 +155,7 @@ abstract class Cache
      * Retrieve a list from the cache, with a different implementation
      * for redis and others, trimming to $max_count if given
      *
-     * @param callable(?Item $item, bool &$save): string|object|array<int,mixed> $calculate
+     * @param callable(?CacheItem $item, bool &$save): (string|object|array<int,mixed>) $calculate
      */
     public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, ?int $left = null, ?int $right = null, float $beta = 1.0): array
     {
@@ -191,7 +192,8 @@ abstract class Cache
             return self::$redis[$pool]->lRange($key, $left ?? 0, ($right ?? $max_count ?? 0) - 1);
         } else {
             return self::get($key, function () use ($calculate, $max_count) {
-                $res = $calculate(null);
+                $save = true;
+                $res = $calculate(null, $save);
                 if ($max_count != -1) {
                     $res = \array_slice($res, 0, $max_count);
                 }
@@ -261,7 +263,7 @@ abstract class Cache
      * Retrieve a hashmap from the cache, with a different implementation
      * for redis and others. Different from lists, works with string map_keys
      *
-     * @param callable(?Item $item, bool &$save): string|object|array<string,mixed> $calculate
+     * @param callable(?CacheItem $item, bool &$save): (string|object|array<string,mixed>) $calculate
      * @TODO cleanup
      */
     public static function getHashMap(string $map_key, callable $calculate, string $pool = 'default', float $beta = 1.0): array
@@ -286,7 +288,7 @@ abstract class Cache
                 $save = true; // Pass by reference
                 $res  = $calculate(null, $save);
                 if ($save) {
-                    self::setHashMap($map_key, $res, $pool, $beta);
+                    self::setHashMap($map_key, $res, $pool);
                     return $res;
                 }
             }
@@ -314,7 +316,7 @@ abstract class Cache
                 self::$redis[$pool]->exec();
             }
         } else {
-            self::set($map_key, \array_slice($value, 0, $max_count), $pool);
+            self::set($map_key, $value, $pool);
         }
     }
 

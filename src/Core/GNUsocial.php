@@ -49,6 +49,7 @@ use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
 use App\Kernel;
+use App\Security\EmailVerifier;
 use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
 use App\Util\Formatting;
@@ -172,6 +173,7 @@ class GNUsocial implements EventSubscriberInterface
             Router::setRouter($this->router);
             HTTPClient::setClient($this->client);
             Formatting::setTwig($this->twig);
+            EmailVerifier::setHelpers($this->email_verify_helper, $this->mailer_helper);
             Cache::setupCache();
 
             DB::initTableMap();

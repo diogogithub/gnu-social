@@ -165,7 +165,7 @@ class AttachmentThumbnail extends Entity
 
     public static function sizeStrToInt(string $size)
     {
-        return self::SIZE_MAP[$size] ?? self::SIZE_MAP[self::SIZE_SMALL];
+        return self::SIZE_MAP[$size] ?? self::SIZE_SMALL;
     }
 
     private ?Attachment $attachment = null;

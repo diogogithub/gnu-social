@@ -39,6 +39,7 @@ use App\Util\Exception\ClientException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
+use App\Util\Form\FormFields;
 use Component\Posting\Posting;
 use Plugin\Reply\Entity\NoteReply;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -70,13 +71,10 @@ class Reply extends Controller
             throw new NoSuchNoteException();
         }
 
+        // TODO shouldn't this be the posting form?
         $form = Form::create([
-            ['content', TextareaType::class, [
-                'label'      => _m('Reply'),
-                'label_attr' => ['class' => 'section-form-label'],
-                'help'       => _m('Please input your reply.'),
-            ],
-            ],
+            ['content', TextareaType::class, ['label' => _m('Reply'), 'label_attr' => ['class' => 'section-form-label'], 'help' => _m('Please input your reply.')]],
+            FormFields::language($user->getActor(), context_actor: $note->getActor(), label: 'Note language', help: null),
             ['attachments', FileType::class, ['label' => ' ', 'multiple' => true, 'required' => false]],
             ['replyform', SubmitType::class, ['label' => _m('Submit')]],
         ]);
@@ -91,6 +89,7 @@ class Reply extends Controller
                     actor: Actor::getWithPK($actor_id),
                     content: $data['content'],
                     content_type: 'text/plain', // TODO
+                    language: $data['language'],
                     attachments: $data['attachments'],
                 );
 
@@ -116,13 +115,13 @@ class Reply extends Controller
 
                 // Redirect user to where they came from
                 // Prevent open redirect
-                if (\array_key_exists('from', (array) $get_params = $this->params())) {
-                    if (Router::isAbsolute($get_params['from'])) {
-                        Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$get_params['from']})");
+                if (!\is_null($from = $this->string('from'))) {
+                    if (Router::isAbsolute($from)) {
+                        Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
                         throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
                     } else {
                         // TODO anchor on element id
-                        throw new RedirectException($get_params['from']);
+                        throw new RedirectException($from);
                     }
                 } else {
                     // If we don't have a URL to return to, go to the instance root

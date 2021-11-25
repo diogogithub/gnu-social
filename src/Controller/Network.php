@@ -44,7 +44,7 @@ use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
-use NotImplementedException;
+use App\Util\Exception\NotImplementedException;
 use Symfony\Component\HttpFoundation\Request;
 
 class Network extends Controller

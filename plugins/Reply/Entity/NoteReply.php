@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 
@@ -26,7 +26,6 @@ namespace Plugin\Reply\Entity;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Entity\Note;
-use function PHPUnit\Framework\isEmpty;
 
 /**
  * Entity for notices
@@ -87,16 +86,16 @@ class NoteReply extends Entity
                 where reply_to = :note_id
                 order by n.created DESC
                 EOF,
-            ['note_id' => $note->getId()]
+            ['note_id' => $note->getId()],
         );
     }
 
     public static function getReplyToNote(Note $note): ?int
     {
         $result = DB::dql('select nr.reply_to from note_reply nr '
-            . 'where nr.note_id = :note_id', ['note_id' => $note->getId()]);
+            . 'where nr.note_id = :note_id', ['note_id' => $note->getId()], );
 
-        if (!isEmpty($result)) {
+        if (!empty($result)) {
             return $result['reply_to'];
         }
 
@@ -106,19 +105,19 @@ class NoteReply extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name' => 'note_reply',
+            'name'   => 'note_reply',
             'fields' => [
-                'note_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'The id of the reply itself'],
+                'note_id'  => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'The id of the reply itself'],
                 'actor_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'description' => 'Who made this reply'],
                 'reply_to' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'Note this is a reply of'],
             ],
             'primary key'  => ['note_id'],
             'foreign keys' => [
-                'note_id_to_id_fkey' => ['note', ['note_id' => 'id']],
-                'note_reply_to_id_fkey' => ['note', ['reply_to' => 'id']],
+                'note_id_to_id_fkey'     => ['note', ['note_id' => 'id']],
+                'note_reply_to_id_fkey'  => ['note', ['reply_to' => 'id']],
                 'actor_reply_to_id_fkey' => ['actor', ['actor_id' => 'id']],
             ],
-            'indexes'     => [
+            'indexes' => [
                 'note_reply_to_idx' => ['reply_to'],
             ],
         ];

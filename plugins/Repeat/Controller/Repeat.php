@@ -26,17 +26,18 @@ namespace Plugin\Repeat\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
-use App\Entity\Actor;
-use Component\Posting\Posting;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
+use App\Entity\Actor;
+use App\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
+use Component\Posting\Posting;
 use Plugin\Repeat\Entity\NoteRepeat;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,9 +55,9 @@ class Repeat extends Controller
      */
     public function repeatAddNote(Request $request, int $id): bool|array
     {
-        $user                  = Common::ensureLoggedIn();
+        $user = Common::ensureLoggedIn();
 
-        $actor_id = $user->getId();
+        $actor_id              = $user->getId();
         $opts                  = ['actor_id' => $actor_id, 'repeat_of' => $id];
         $note_already_repeated = DB::count('note_repeat', $opts) >= 1;
 
@@ -88,9 +89,10 @@ class Repeat extends Controller
                 // Create a new note with the same content as the original
                 $repeat = Posting::storeLocalNote(
                     actor: Actor::getById($actor_id),
-                    content:$note->getContent(),
+                    content: $note->getContent(),
                     content_type: $note->getContentType(),
-                    processed_attachments: $note->getAttachmentsWithTitle()
+                    language: Language::getFromId($note->getLanguageId())->getLocale(),
+                    processed_attachments: $note->getAttachmentsWithTitle(),
                 );
 
                 // Find the id of the note we just created
@@ -112,13 +114,13 @@ class Repeat extends Controller
 
             // Redirect user to where they came from
             // Prevent open redirect
-            if (\array_key_exists('from', (array) $get_params = $this->params())) {
-                if (Router::isAbsolute($get_params['from'])) {
-                    Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$get_params['from']})");
+            if (!\is_null($from = $this->string('from'))) {
+                if (Router::isAbsolute($from)) {
+                    Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
                 } else {
                     // TODO anchor on element id
-                    throw new RedirectException($get_params['from']);
+                    throw new RedirectException($from);
                 }
             } else {
                 // If we don't have a URL to return to, go to the instance root
@@ -143,6 +145,7 @@ class Repeat extends Controller
     public function repeatRemoveNote(Request $request, int $id): array
     {
         $user               = Common::ensureLoggedIn();
+        $actor_id           = $user->getId();
         $opts               = ['id' => $id];
         $remove_repeat_note = DB::find('note', $opts);
         if (\is_null($remove_repeat_note)) {
@@ -176,16 +179,17 @@ class Repeat extends Controller
 
             // Redirect user to where they came from
             // Prevent open redirect
-            if (\array_key_exists('from', (array) $get_params = $this->params())) {
-                if (Router::isAbsolute($get_params['from'])) {
-                    Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$get_params['from']})");
+            if (!\is_null($from = $this->string('from'))) {
+                if (Router::isAbsolute($from)) {
+                    Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
                 } else {
                     // TODO anchor on element id
-                    throw new RedirectException($get_params['from']);
+                    throw new RedirectException($from);
                 }
             } else {
-                throw new RedirectException('root'); // If we don't have a URL to return to, go to the instance root
+                // If we don't have a URL to return to, go to the instance root
+                throw new RedirectException('root');
             }
         }
 

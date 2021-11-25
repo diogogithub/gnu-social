@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use function App\Core\I18n\_m;
 use App\Core\Router\Router;
 use App\Entity\LocalUser;
 use App\Util\Common;
@@ -41,8 +42,12 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
 use Symfony\Component\Security\Guard\AuthenticatorInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
+use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
-use function App\Core\I18n\_m;
 
 /**
  * User authenticator
@@ -67,10 +72,6 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
         $this->csrfTokenManager = $csrfTokenManager;
     }
 
-    /**
-     * @param Request $request
-     * @return bool
-     */
     public function supports(Request $request): bool
     {
         return self::LOGIN_ROUTE === $request->attributes->get('_route') && $request->isMethod('POST');
@@ -92,10 +93,11 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
      * Get a user given credentials and a CSRF token
      *
      * @param array<string, string> $credentials result of self::getCredentials
-     * @param UserProviderInterface $userProvider
-     * @return ?LocalUser
+     *
      * @throws NoSuchActorException
      * @throws ServerException
+     *
+     * @return ?LocalUser
      */
     public function getUser($credentials, UserProviderInterface $userProvider): ?LocalUser
     {
@@ -110,7 +112,7 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
             } elseif (Nickname::isValid($credentials['nickname_or_email'])) {
                 $user = LocalUser::getByNickname($credentials['nickname_or_email']);
             }
-            if (is_null($user)) {
+            if (\is_null($user)) {
                 throw new NoSuchActorException('No such local user.');
             }
             $credentials['nickname'] = $user->getNickname();
@@ -124,8 +126,8 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
 
     /**
      * @param array<string, string> $credentials result of self::getCredentials
-     * @param LocalUser $user
-     * @return bool
+     * @param LocalUser             $user
+     *
      * @throws ServerException
      */
     public function checkCredentials($credentials, $user): bool
@@ -144,7 +146,7 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
     {
         $nickname = $token->getUser();
         if ($nickname instanceof Stringable) {
-            $nickname = (string)$nickname;
+            $nickname = (string) $nickname;
         } elseif ($nickname instanceof UserInterface) {
             $nickname = $nickname->getUserIdentifier();
         }

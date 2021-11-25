@@ -22,6 +22,7 @@ declare(strict_types = 1);
 namespace App\Util;
 
 use function App\Core\I18n\_m;
+use App\Util\Exception\BugFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Exception\TemporaryFileException;
 use LogicException;
@@ -129,7 +130,7 @@ class TemporaryFile extends SplFileInfo
         if (!\is_null($this->resource) && $this->resource !== false) {
             $path = $this->getRealPath();
             if ($path === false) {
-                throw new BugFoundException();
+                throw new BugFoundException('Tried to cleanup a file but it\'s real path is false, while resource isn\'t');
             }
             $this->close();
             if (file_exists($path)) {

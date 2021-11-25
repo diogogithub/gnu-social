@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 
@@ -27,8 +27,11 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use function App\Core\I18n\_m;
+use App\Core\Log;
 use App\Core\Router\Router;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
@@ -36,24 +39,23 @@ use App\Util\Exception\RedirectException;
 use Plugin\Favourite\Entity\Favourite as FavouriteEntity;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
 class Favourite extends Controller
 {
-
     /**
-     * @throws RedirectException
-     * @throws NoSuchNoteException
-     * @throws InvalidFormException
      * @throws \App\Util\Exception\ServerException
+     * @throws InvalidFormException
      * @throws NoLoggedInUser
+     * @throws NoSuchNoteException
+     * @throws RedirectException
      */
     public function favouriteAddNote(Request $request, int $id): bool|array
     {
-        $user = Common::ensureLoggedIn();
-        $opts = ['id' => $id];
+        $user               = Common::ensureLoggedIn();
+        $actor_id           = $user->getId();
+        $opts               = ['id' => $id];
         $add_favourite_note = DB::find('note', $opts);
-        if (is_null($add_favourite_note)) {
+        if (\is_null($add_favourite_note)) {
             throw new NoSuchNoteException();
         }
 
@@ -62,7 +64,7 @@ class Favourite extends Controller
                 [
                     'label' => _m('Favourite note!'),
                     'attr'  => [
-                        'title' => _m('Favourite this note!')
+                        'title' => _m('Favourite this note!'),
                     ],
                 ],
             ],
@@ -71,41 +73,52 @@ class Favourite extends Controller
         $form_add_to_favourite->handleRequest($request);
 
         if ($form_add_to_favourite->isSubmitted()) {
-            $opts = ['note_id' => $id, 'actor_id' => $user->getId()];
+            $opts                    = ['note_id' => $id, 'actor_id' => $user->getId()];
             $note_already_favourited = DB::find('favourite', $opts);
 
-            if (is_null($note_already_favourited)) {
+            if (\is_null($note_already_favourited)) {
                 $opts = ['note_id' => $id, 'actor_id' => $user->getId()];
                 DB::persist(FavouriteEntity::create($opts));
                 DB::flush();
             }
 
-            if (array_key_exists('from', $get_params = $this->params())) {
-                # TODO anchor on element id
-                throw new RedirectException($get_params['from']);
+            // Redirect user to where they came from
+            // Prevent open redirect
+            if (!\is_null($from = $this->string('from'))) {
+                if (Router::isAbsolute($from)) {
+                    Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
+                    throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
+                } else {
+                    // TODO anchor on element id
+                    throw new RedirectException($from);
+                }
+            } else {
+                // If we don't have a URL to return to, go to the instance root
+                throw new RedirectException('root');
             }
         }
 
         return [
-            '_template'         => 'favourite/add_to_favourites.html.twig',
-            'note'              => $add_favourite_note,
-            'add_favourite'     => $form_add_to_favourite->createView(),
+            '_template'     => 'favourite/add_to_favourites.html.twig',
+            'note'          => $add_favourite_note,
+            'add_favourite' => $form_add_to_favourite->createView(),
         ];
     }
 
     /**
-     * @throws RedirectException
-     * @throws NoSuchNoteException
-     * @throws InvalidFormException
      * @throws \App\Util\Exception\ServerException
+     * @throws InvalidFormException
      * @throws NoLoggedInUser
+     * @throws NoSuchNoteException
+     * @throws RedirectException
      */
     public function favouriteRemoveNote(Request $request, int $id): array
     {
-        $user = Common::ensureLoggedIn();
-        $opts = ['note_id' => $id, 'actor_id' => $user->getId()];
+        $user                  = Common::ensureLoggedIn();
+        $actor_id              = $user->getId();
+        $opts                  = ['note_id' => $id, 'actor_id' => $user->getId()];
         $remove_favourite_note = DB::find('favourite', $opts);
-        if (is_null($remove_favourite_note)) {
+        if (\is_null($remove_favourite_note)) {
             throw new NoSuchNoteException();
         }
 
@@ -114,7 +127,7 @@ class Favourite extends Controller
                 [
                     'label' => _m('Remove favourite'),
                     'attr'  => [
-                        'title' => _m('Remove note from favourites.')
+                        'title' => _m('Remove note from favourites.'),
                     ],
                 ],
             ],
@@ -127,17 +140,27 @@ class Favourite extends Controller
                 DB::flush();
             }
 
-            if (array_key_exists('from', $get_params = $this->params())) {
-                # TODO anchor on element id
-                throw new RedirectException($get_params['from']);
+            // Redirect user to where they came from
+            // Prevent open redirect
+            if (!\is_null($from = $this->string('from'))) {
+                if (Router::isAbsolute($from)) {
+                    Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
+                    throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
+                } else {
+                    // TODO anchor on element id
+                    throw new RedirectException($from);
+                }
+            } else {
+                // If we don't have a URL to return to, go to the instance root
+                throw new RedirectException('root');
             }
         }
 
         $note = DB::find('note', ['id' => $id]);
         return [
-            '_template'         => 'favourite/remove_from_favourites.html.twig',
-            'note'              => $note,
-            'remove_favourite'  => $form_remove_favourite->createView(),
+            '_template'        => 'favourite/remove_from_favourites.html.twig',
+            'note'             => $note,
+            'remove_favourite' => $form_remove_favourite->createView(),
         ];
     }
 
@@ -155,8 +178,8 @@ class Favourite extends Controller
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template' => 'network/feed.html.twig',
-            'notes' => $notes_out,
+            '_template'  => 'network/feed.html.twig',
+            'notes'      => $notes_out,
             'page_title' => 'Favourites timeline.',
         ];
     }
@@ -170,9 +193,9 @@ class Favourite extends Controller
     /**
      *  Reverse favourites stream
      *
-     * @return array template
      * @throws NoLoggedInUser user not logged in
      *
+     * @return array template
      */
     public function reverseFavouritesByActorId(Request $request, int $id): array
     {
@@ -189,8 +212,8 @@ class Favourite extends Controller
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template' => 'network/feed.html.twig',
-            'notes' => $notes,
+            '_template'  => 'network/feed.html.twig',
+            'notes'      => $notes,
             'page_title' => 'Reverse favourites timeline.',
         ];
     }
