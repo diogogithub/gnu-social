@@ -7,6 +7,9 @@ parameters:
         - tests
         - components
         - plugins
+    excludePaths:
+        - plugins/ActivityPub
+        - components/FreeNetwork
     earlyTerminatingMethodCalls:
         App\Core\Log:
             - unexpected_exception
