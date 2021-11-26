@@ -79,9 +79,9 @@ class ActorLanguage extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public static function collectionCacheKey(LocalUser|Actor $actor)
+    public static function collectionCacheKey(LocalUser|Actor $actor, ?Actor $content = null)
     {
-        return 'actor-' . $actor->getId() . '-langs';
+        return 'actor-' . $actor->getId() . '-langs' . (!\is_null($content) ? '-cxt-' . $content->getId() : '');
     }
 
     public static function normalizeOrdering(LocalUser|Actor $actor)

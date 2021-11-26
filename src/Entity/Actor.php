@@ -378,7 +378,7 @@ class Actor extends Entity
     public function getPreferredLanguageChoices(?self $context = null): array
     {
         $id    = $context?->getId() ?? $this->getId();
-        $key   = ActorLanguage::collectionCacheKey($this); // TODO handle language context
+        $key   = ActorLanguage::collectionCacheKey($this, $context);
         $langs = Cache::getHashMap(
             $key,
             fn () => F\reindex(
