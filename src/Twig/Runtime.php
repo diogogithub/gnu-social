@@ -33,6 +33,8 @@ declare(strict_types = 1);
 namespace App\Twig;
 
 use App\Core\Event;
+use App\Entity\Actor;
+use App\Entity\Feed;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Formatting;
@@ -143,9 +145,14 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $result;
     }
 
-    public function openDetails(?string $query, array $ids)
+    public function openDetails(?string $query, array $ids): string
     {
-        return in_array($query, $ids) ? 'open=""' : '';
+        return \in_array($query, $ids) ? 'open=""' : '';
+    }
+
+    public function getFeeds(Actor $actor): array
+    {
+        return Feed::getFeeds($actor);
     }
 
     // ----------------------------------------------------------

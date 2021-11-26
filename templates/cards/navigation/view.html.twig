@@ -16,13 +16,11 @@
           </li>
         </ul>
       {% else %} {# User custom feeds #}
-        <a href="{{ path('edit_feeds') }}">{{ icon('edit', 'icon') }}</a>
+        <a href="{{ path('edit_feeds') }}">{{ icon('edit', 'icon') | raw }}</a>
         <ul>
-          {% for link in handle_event('GetLeftNavigationFeeds', {'actor': current_actor}) %}
+          {% for link in get_feeds(current_actor) %}
             <li>
-              <a href="{{ link['path'] }}" class='{{ active(link['path_id']) }}'>
-                {{ link['title'] }}
-              </a>
+              <a href="{{ link.getUrl() }}" class='{{ active(link.getRoute()) }}'>{{ link.getTitle() }}</a>
             </li>
           {% endfor %}
         </ul>

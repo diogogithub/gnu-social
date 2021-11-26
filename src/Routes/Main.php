@@ -59,7 +59,7 @@ abstract class Main
         $r->connect('main_all', '/main/all', [C\Feeds::class, 'network']);
         $r->connect('home_all', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/all', [C\Feeds::class, 'home']);
         $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [C\Feeds::class, 'replies']);
-        $r->connect('edit_feeds', '/edit-feeds', [C\Feeds::class, 'replies']);
+        $r->connect('edit_feeds', '/edit-feeds', [C\Feeds::class, 'edit_feeds']);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);

@@ -73,6 +73,7 @@ class Extension extends AbstractExtension
             new TwigFunction('handle_override_stylesheet', [Runtime::class, 'handleOverrideStylesheet']),
 
             new TwigFunction('open_details', [Runtime::class, 'openDetails']),
+            new TwigFunction('get_feeds', [Runtime::class, 'getFeeds']),
         ];
     }
 }

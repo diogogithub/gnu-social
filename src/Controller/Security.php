@@ -8,8 +8,10 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Entity\Actor;
+use App\Entity\Feed;
 use App\Entity\LocalUser;
 use App\Entity\Subscription;
 use App\Security\Authenticator;
@@ -39,7 +41,6 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use function App\Core\I18n\_m;
 
 class Security extends Controller
 {
@@ -155,8 +156,11 @@ class Security extends Controller
                 DB::persistWithSameId(
                     $actor,
                     $user,
-                    // Self subscription
-                    fn (int $id) => DB::persist(Subscription::create(['subscriber' => $id, 'subscribed' => $id])),
+                    function (int $id) use ($user) {
+                        // Self subscription
+                        DB::persist(Subscription::create(['subscriber' => $id, 'subscribed' => $id]));
+                        Feed::createDefaultFeeds($id, $user);
+                    },
                 );
 
                 Event::handle('SuccessfulLocalUserRegistration', [$actor, $user]);
