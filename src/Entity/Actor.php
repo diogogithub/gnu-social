@@ -379,19 +379,16 @@ class Actor extends Entity
     {
         $id    = $context?->getId() ?? $this->getId();
         $key   = ActorLanguage::collectionCacheKey($this, $context);
-        $langs = Cache::getHashMap(
+        $langs = Cache::getList(
             $key,
-            fn () => F\reindex(
-                DB::dql(
-                    'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.ordering ASC',
-                    ['id' => $id],
-                ),
-                fn (Language $l) => $l->getLocale(),
+            fn () => DB::dql(
+                'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.ordering ASC',
+                ['id' => $id],
             ),
         ) ?: [
-            Common::config('site', 'language') => Language::getFromLocale(Common::config('site', 'language')),
+            Language::getFromLocale(Common::config('site', 'language')),
         ];
-        return array_merge(...F\map(array_values($langs), fn ($l) => $l->toChoiceFormat()));
+        return array_merge(...F\map($langs, fn ($l) => $l->toChoiceFormat()));
     }
 
     public static function schemaDef(): array
