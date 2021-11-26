@@ -47,7 +47,7 @@ use App\Util\Exception\NotFoundException;
 use App\Util\Exception\NotImplementedException;
 use Symfony\Component\HttpFoundation\Request;
 
-class Network extends Controller
+class Feeds extends Controller
 {
     // Can't have constants inside herestring
     private $public_scope     = VisibilityScope::PUBLIC;
@@ -63,7 +63,7 @@ class Network extends Controller
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template'  => 'network/feed.html.twig',
+            '_template'  => 'feeds/feed.html.twig',
             'notes'      => $notes_out,
             'page_title' => 'Public feed',
         ];
@@ -108,7 +108,7 @@ class Network extends Controller
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template'  => 'network/feed.html.twig',
+            '_template'  => 'feeds/feed.html.twig',
             'notes'      => $notes_out,
             'page_title' => 'Home feed',
         ];
@@ -122,7 +122,7 @@ class Network extends Controller
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template'  => 'network/feed.html.twig',
+            '_template'  => 'feeds/feed.html.twig',
             'notes'      => $notes_out,
             'page_title' => 'Network feed',
         ];
@@ -141,7 +141,7 @@ class Network extends Controller
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template'  => 'network/feed.html.twig',
+            '_template'  => 'feeds/feed.html.twig',
             'notes'      => $notes_out,
             'page_title' => 'Replies feed',
         ];

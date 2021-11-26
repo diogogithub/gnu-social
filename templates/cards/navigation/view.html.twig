@@ -1,76 +1,35 @@
 {% block feeds %}
-    <section class="section-widget section-widget-padded">
-    <h2 class="section-title">{{ icon('logo', 'icon icon-logo') | raw }} {{ 'Feeds' | trans }} </h2>
+  <section class="section-widget section-widget-padded">
+    <h2 class="section-title">{{ icon('logo', 'icon icon-logo') | raw }} {{ 'Feeds' | trans }}</h2>
     <nav class='sec-nav' tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
+      {% if not app.user %} {# Default feeds #}
         <ul>
-            <li>
-                <a href="{{ path('main_public') }}" class='{{ active('main_public') }}'>
-                    Public
-                </a>
-            </li>
-            <li>
-                {% if app.user %}
-                    <a href="{{ path("home_all", {'nickname' : current_actor.getNickname()}) }}" class='{{ active("home_all") }}'>
-                        Home
-                    </a>
-                {% endif %}
-            </li>
-            <li>
-                <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>
-                    Network
-                </a>
-            </li>
-
-            {% if app.user %}
-                {% for link in handle_event('AddMainNavigationItem', {'nickname': current_actor.getNickname()}) %}
-                    <li>
-                        <a href="{{ link['path'] }}" class='{{ active(link['path_id']) }}'>
-                            {{ link['title'] }}
-                        </a>
-                    </li>
-                {% endfor %}
-            {% endif %}
+          <li>
+            <a href="{{ path('main_public') }}" class='{{ active('main_public') }}'>
+              Public
+            </a>
+          </li>
+          <li>
+            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>
+              Network
+            </a>
+          </li>
         </ul>
+      {% else %} {# User custom feeds #}
+        <a href="{{ path('edit_feeds') }}">{{ icon('edit', 'icon') }}</a>
+        <ul>
+          {% for link in handle_event('GetLeftNavigationFeeds', {'actor': current_actor}) %}
+            <li>
+              <a href="{{ link['path'] }}" class='{{ active(link['path_id']) }}'>
+                {{ link['title'] }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </nav>
-    </section>
+  </section>
 {% endblock feeds %}
-
-{% block group %}
-    <section class="section-widget section-widget-padded">
-        <h2 class="section-title">{{ icon('logo', 'icon icon-logo') | raw }} Group</h2>
-        <nav class='sec-nav' tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
-            <ul>
-                <li>
-                    <a href="{{ path('main_public') }}" class='{{ active('main_public') }}'>
-                        Public
-                    </a>
-                </li>
-                <li>
-                    {% if app.user %}
-                        <a href="{{ path("home_all", {'nickname' : current_actor.getNickname()}) }}" class='{{ active("home_all") }}'>
-                            Home
-                        </a>
-                    {% endif %}
-                </li>
-                <li>
-                    <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>
-                        Network
-                    </a>
-                </li>
-
-                {% if app.user %}
-                    {% for link in handle_event('AddMainNavigationItem', {'nickname': current_actor.getNickname()}) %}
-                        <li>
-                            <a href="{{ link['path'] }}" class='{{ active(link['path_id']) }}'>
-                                {{ link['title'] }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                {% endif %}
-            </ul>
-        </nav>
-    </section>
-{% endblock group %}
 
 {% block profile_current_actor %}
 <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">

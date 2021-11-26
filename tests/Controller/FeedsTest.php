@@ -23,7 +23,7 @@ declare(strict_types = 1);
 
 namespace App\Tests\Controller;
 
-use App\Controller\Network;
+use App\Controller\Feeds;
 use App\Core\DB\DB;
 use App\Core\Security;
 use App\Core\VisibilityScope;
@@ -36,7 +36,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Security as SSecurity;
 
-class NetworkTest extends GNUsocialTestCase
+class FeedsTest extends GNUsocialTestCase
 {
     use AssertThrows;
 
@@ -50,7 +50,7 @@ class NetworkTest extends GNUsocialTestCase
         $this->testRoute('home', fn ($vis) => !$vis->message, ['taken_user']);
     }
 
-    public function testNetwork()
+    public function testFeeds()
     {
         $this->testRoute('network', fn ($vis) => $vis->public);
     }
@@ -74,12 +74,12 @@ class NetworkTest extends GNUsocialTestCase
         }
         $req       = $this->createMock(Request::class);
         $req_stack = $this->createMock(RequestStack::class);
-        $network   = new Network($req_stack);
+        $feeds     = new Feeds($req_stack);
         if ($route == 'home') {
-            static::assertThrows(ClientException::class, fn () => $network->home($req, 'username_not_taken'));
+            static::assertThrows(ClientException::class, fn () => $feeds->home($req, 'username_not_taken'));
         }
-        $result = $network->{$route}($req, ...$extra_args);
-        static::assertSame($result['_template'], 'network/feed.html.twig');
+        $result = $feeds->{$route}($req, ...$extra_args);
+        static::assertSame($result['_template'], 'feeds/feed.html.twig');
         foreach ($result['notes'] as $n) {
             static::assertIsArray($n['replies']);
         }

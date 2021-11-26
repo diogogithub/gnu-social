@@ -178,7 +178,7 @@ class Favourite extends Controller
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template'  => 'network/feed.html.twig',
+            '_template'  => 'feeds/feed.html.twig',
             'notes'      => $notes_out,
             'page_title' => 'Favourites feed.',
         ];
@@ -212,7 +212,7 @@ class Favourite extends Controller
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
-            '_template'  => 'network/feed.html.twig',
+            '_template'  => 'feeds/feed.html.twig',
             'notes'      => $notes,
             'page_title' => 'Reverse favourites feed.',
         ];

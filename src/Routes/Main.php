@@ -55,10 +55,11 @@ abstract class Main
         $r->connect('security_recover_password_token', '/main/recover-password/{token?}', [C\ResetPassword::class, 'reset']);
 
         $r->connect('root', '/', RedirectController::class, ['defaults' => ['route' => 'main_all']]);
-        $r->connect('main_public', '/main/public', [C\Network::class, 'public']);
-        $r->connect('main_all', '/main/all', [C\Network::class, 'network']);
-        $r->connect('home_all', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/all', [C\Network::class, 'home']);
-        $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [C\Network::class, 'replies']);
+        $r->connect('main_public', '/main/public', [C\Feeds::class, 'public']);
+        $r->connect('main_all', '/main/all', [C\Feeds::class, 'network']);
+        $r->connect('home_all', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/all', [C\Feeds::class, 'home']);
+        $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [C\Feeds::class, 'replies']);
+        $r->connect('edit_feeds', '/edit-feeds', [C\Feeds::class, 'replies']);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);
