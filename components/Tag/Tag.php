@@ -52,7 +52,8 @@ class Tag extends Component
 
     public function onAddRoute($r): bool
     {
-        $r->connect('tag', '/tag/{tag<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'tag']);
+        $r->connect('single_tag', '/tag/{tag<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_tag']);
+        $r->connect('multiple_tags', '/tags/{tags<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_tags']);
         return Event::next;
     }
 
