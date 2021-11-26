@@ -156,7 +156,7 @@ especially if you've previously installed PHP packages.
 {{#include bin-configure.md}}
   
  7. You should now be able to navigate to your social site's main directory
-    and see the "Public Timeline", which will probably be empty. You can
+    and see the "Public Feed", which will probably be empty. You can
     now register new user, post some notices, edit your profile, etc.
 
 ### Fancy URLs

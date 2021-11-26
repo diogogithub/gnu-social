@@ -65,7 +65,7 @@ class Network extends Controller
         return [
             '_template'  => 'network/feed.html.twig',
             'notes'      => $notes_out,
-            'page_title' => 'Public timeline',
+            'page_title' => 'Public feed',
         ];
     }
 
@@ -110,7 +110,7 @@ class Network extends Controller
         return [
             '_template'  => 'network/feed.html.twig',
             'notes'      => $notes_out,
-            'page_title' => 'Home timeline',
+            'page_title' => 'Home feed',
         ];
     }
 
@@ -124,7 +124,7 @@ class Network extends Controller
         return [
             '_template'  => 'network/feed.html.twig',
             'notes'      => $notes_out,
-            'page_title' => 'Network timeline',
+            'page_title' => 'Network feed',
         ];
     }
 
@@ -143,7 +143,7 @@ class Network extends Controller
         return [
             '_template'  => 'network/feed.html.twig',
             'notes'      => $notes_out,
-            'page_title' => 'Replies timeline',
+            'page_title' => 'Replies feed',
         ];
     }
 }

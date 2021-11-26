@@ -491,7 +491,7 @@ For configuring the public stream.
     some kind of automated poster, testing bots, etc.
 
 * `exclude_sources` (array, default []): Sources of notices that should be kept off of
-    the public timeline (because they're from automatic posters, for instance).
+    the public feed (because they're from automatic posters, for instance).
 
 
 throttle

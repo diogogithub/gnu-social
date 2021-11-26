@@ -1,4 +1,4 @@
-# Timelines
+# Feeds
 
 Communication became cheap. Everyone wants to share information.
 However, people aren't interested in consuming everyone's information.

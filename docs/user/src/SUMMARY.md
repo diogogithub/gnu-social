@@ -2,7 +2,7 @@
 
 - [What is GNU social](./what_is.md)
 - [The IndieWeb](./indieweb.md)
-- [Timelines](./timelines.md)
+- [Feeds](./feeds.md)
 - [Getting Started]()
   - [Choosing an instance](./getting_started/choosing_an_instance.md)
   - [Registering an account](./getting_started/register.md)

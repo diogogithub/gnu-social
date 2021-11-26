@@ -180,7 +180,7 @@ class Favourite extends Controller
         return [
             '_template'  => 'network/feed.html.twig',
             'notes'      => $notes_out,
-            'page_title' => 'Favourites timeline.',
+            'page_title' => 'Favourites feed.',
         ];
     }
 
@@ -214,7 +214,7 @@ class Favourite extends Controller
         return [
             '_template'  => 'network/feed.html.twig',
             'notes'      => $notes,
-            'page_title' => 'Reverse favourites timeline.',
+            'page_title' => 'Reverse favourites feed.',
         ];
     }
 

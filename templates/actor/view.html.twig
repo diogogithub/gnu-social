@@ -5,7 +5,7 @@
 {% block body %}
 {% block profile_view %}{% include 'cards/profile/view.html.twig' %}{% endblock profile_view %}
 
-<main class="timeline" tabindex="0" role="feed">
+<main class="feed" tabindex="0" role="feed">
     <div class="h-feed hfeed notes">
         {% if notes is defined and notes is not empty %}
             {% for conversation in notes %}

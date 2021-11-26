@@ -8,13 +8,13 @@
     padding: var(--unit-size);
 }
 
-.nav-content .timeline .groups > div {
+.nav-content .feed .groups > div {
     margin: var(--unit-size) var(--unit-size) 0 var(--unit-size);
     border-radius: var(--unit-size);
     width: 100%;
 }
 
-.nav-content .timeline .groups > div:last-child {
+.nav-content .feed .groups > div:last-child {
     margin: var(--unit-size) var(--unit-size) var(--unit-size) var(--unit-size);
 }
 

@@ -1,7 +1,7 @@
-{% block timeline %}
+{% block feeds %}
     <section class="section-widget section-widget-padded">
-    <h2 class="section-title">{{ icon('logo', 'icon icon-logo') | raw }} Timeline</h2>
-    <nav class='sec-nav' tabindex="0" title="{{ 'Navigate through each timeline.' | trans }}">
+    <h2 class="section-title">{{ icon('logo', 'icon icon-logo') | raw }} {{ 'Feeds' | trans }} </h2>
+    <nav class='sec-nav' tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
         <ul>
             <li>
                 <a href="{{ path('main_public') }}" class='{{ active('main_public') }}'>
@@ -33,12 +33,12 @@
         </ul>
     </nav>
     </section>
-{% endblock timeline %}
+{% endblock feeds %}
 
 {% block group %}
     <section class="section-widget section-widget-padded">
         <h2 class="section-title">{{ icon('logo', 'icon icon-logo') | raw }} Group</h2>
-        <nav class='sec-nav' tabindex="0" title="{{ 'Navigate through each timeline.' | trans }}">
+        <nav class='sec-nav' tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
             <ul>
                 <li>
                     <a href="{{ path('main_public') }}" class='{{ active('main_public') }}'>

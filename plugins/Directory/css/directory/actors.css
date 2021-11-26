@@ -4,13 +4,13 @@
     flex-wrap: wrap;
 }
 
-.nav-content .timeline .actors > div {
+.nav-content .feed .actors > div {
     margin: var(--unit-size) var(--unit-size) 0 var(--unit-size);
     border-radius: var(--unit-size);
     width: 100%;
 }
 
-.nav-content .timeline .actors > div:last-child {
+.nav-content .feed .actors > div:last-child {
     margin: var(--unit-size) var(--unit-size) var(--unit-size) var(--unit-size);
 }
 

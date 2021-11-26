@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -44,8 +46,8 @@ class ActorCircle extends Entity
     private string $tag;
     private ?string $description;
     private ?bool $private;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setTagger(int $tagger): self
     {
@@ -120,7 +122,7 @@ class ActorCircle extends Entity
     {
         return [
             'name'        => 'actor_circle',
-            'description' => 'a actor can have lists of actors, to separate their timeline',
+            'description' => 'a actor can have lists of actors, to separate their feed',
             'fields'      => [
                 'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
                 'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is

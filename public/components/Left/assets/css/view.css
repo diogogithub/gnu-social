@@ -21,25 +21,25 @@
 }
 
 
-/* TIMELINE NAVIGATION / PLUGINS */
-.timeline-nav {
+/* FEED NAVIGATION / PLUGINS */
+.feed-nav {
     margin-bottom: var(--medium);
 }
 
-.timeline-nav a {
+.feed-nav a {
     display: flex;
 }
 
-.timeline-nav hr {
+.feed-nav hr {
     flex: 1;
     background: linear-gradient(90deg, var(--accent), transparent);
 }
 
-.timeline-nav a {
+.feed-nav a {
     color: var(--foreground);
 }
 
-.timeline-nav .active {
+.feed-nav .active {
     color: var(--foreground);
 }
 

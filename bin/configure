@@ -226,7 +226,7 @@ PROFILE=$(${WHIPTAIL} --title 'GNU social site profile' --clear --backtitle 'GNU
                       public 'Make this node publicly accessible, with open registration' \
                       community 'Make this node publicly accessible, but with invite-only registration' \
                       isolated 'Make this node publicly accessible, with open registration but do not federate' \
-                      private 'Make this node publicly accessible, but with invite-only registration, only registered users can see timelines' \
+                      private 'Make this node publicly accessible, but with invite-only registration, only registered users can see feeds' \
                       single_user 'Like public, but only allows registering one user' \
                       3>&1 1>&2 2>&3)
 validate_exit $?

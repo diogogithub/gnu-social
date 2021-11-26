@@ -72,7 +72,7 @@
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
         <a id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access instance\'s main page.' | trans }}"></a>
-        <a class="accessibility-target header-instance" href="{{ path('main_public') }}" tabindex="0" title="{{ 'This instance\'s name. Access public timeline.' | trans }}">
+        <a class="accessibility-target header-instance" href="{{ path('main_public') }}" tabindex="0" title="{{ 'This instance\'s name. Access public feed.' | trans }}">
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }}</h1>
         </a>
 

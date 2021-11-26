@@ -91,7 +91,7 @@ class Poll extends NoteHandlerPlugin
     }
 
     /**
-     * Output our note content to the timeline
+     * Output our note content to the feed
      *
      * @param array $otherContent content
      *

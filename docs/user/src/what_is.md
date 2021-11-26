@@ -2,7 +2,7 @@
 
 GNU social is a social network platform for communities. It enables you to publish
 short notes including URLs and pictures. If you're interested in what someone has
-to say you can subscribe them. When you log in to your account you see a timeline
+to say you can subscribe them. When you log in to your account you see a feed
 containing all the notes from people, groups and tags you subscribed.
 You can have a conversation with another person by replying to each other's notes.
 
