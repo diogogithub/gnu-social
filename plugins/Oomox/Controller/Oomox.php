@@ -71,39 +71,39 @@ class Oomox
         $form = Form::create([
             ['colour_foreground',   ColorType::class, [
                 'html5' => true,
-                'data'  => $current_oomox_settings ? $current_oomox_settings->getColourForeground() : '#09090d',
-                'label' => _m('Profile background color'),
-                'help'  => _m('Choose your Profile background color'), ],
+                'data'  => $current_oomox_settings?->getColourForeground(),
+                'label' => _m('Foreground colour'),
+                'help'  => _m('Choose the foreground colour'), ],
             ],
             ['colour_background_hard',   ColorType::class, [
                 'html5' => true,
-                'data'  => $current_oomox_settings ? $current_oomox_settings->getColourBackgroundHard() : '#ebebeb',
-                'label' => _m('Profile foreground color'),
-                'help'  => _m('Choose your Profile foreground color'), ],
+                'data'  => $current_oomox_settings?->getColourBackgroundHard(),
+                'label' => _m('Background colour'),
+                'help'  => _m('Choose the background colour'), ],
             ],
             ['colour_background_card',   ColorType::class, [
                 'html5' => true,
-                'data'  => $current_oomox_settings ? $current_oomox_settings->getColourBackgroundCard() : '#f0f0f0',
-                'label' => _m('Profile background color'),
-                'help'  => _m('Choose your Profile background color'), ],
+                'data'  => $current_oomox_settings?->getColourBackgroundCard(),
+                'label' => _m('Card background colour'),
+                'help'  => _m('Choose the card background colour'), ],
             ],
             ['colour_border',   ColorType::class, [
                 'html5' => true,
-                'data'  => $current_oomox_settings ? $current_oomox_settings->getColourBorder() : '#d5d5d5',
-                'label' => _m('Profile foreground color'),
-                'help'  => _m('Choose your Profile foreground color'), ],
+                'data'  => $current_oomox_settings?->getColourBorder(),
+                'label' => _m('Border colour'),
+                'help'  => _m('Choose colour of borders'), ],
             ],
             ['colour_accent',   ColorType::class, [
                 'html5' => true,
-                'data'  => $current_oomox_settings ? $current_oomox_settings->getColourAccent() : '#a22430',
-                'label' => _m('Profile foreground color'),
-                'help'  => _m('Choose your Profile foreground color'), ],
+                'data'  => $current_oomox_settings?->getColourAccent(),
+                'label' => _m('Accent colour'),
+                'help'  => _m('Choose the accent colour'), ],
             ],
             ['colour_shadow',   ColorType::class, [
                 'html5' => true,
-                'data'  => $current_oomox_settings ? $current_oomox_settings->getColourShadow() : '#24243416',
-                'label' => _m('Profile foreground color'),
-                'help'  => _m('Choose your Profile foreground color'), ],
+                'data'  => $current_oomox_settings?->getColourShadow(),
+                'label' => _m('Shadow colour'),
+                'help'  => _m('Choose color of shadows'), ],
             ],
             ['hidden', HiddenType::class, []],
             ['save_oomox_colours',   SubmitType::class, ['label' => _m('Submit')]],
@@ -132,7 +132,7 @@ class Oomox
             DB::merge($current_oomox_settings);
             DB::flush();
 
-            Cache::delete(\Plugin\Oomox\Oomox::cacheKey($user));
+            Cache::set(\Plugin\Oomox\Oomox::cacheKey($user), $current_oomox_settings);
 
             throw new RedirectException();
         }
