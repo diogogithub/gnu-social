@@ -17,10 +17,8 @@
         <link rel="stylesheet" type='text/css' href="{{ asset('assets/default_theme/css/root.css') }}">
         <link rel="stylesheet" type='text/css' href="{{ asset('assets/default_theme/css/base.css') }}">
 
-        {% set root_override = handle_override_stylesheet('assets/default_theme/css/root.css') %}
-
         {% for stylesheet in show_stylesheets(app.request.get('_route')) %}
-            <link rel="preload" {{ preload(asset(stylesheet), { as: 'style', nopush: true }) }}>
+            <link rel="preload" href="{{ preload(asset(stylesheet), { as: 'style', nopush: true }) }}">
             <link rel='stylesheet' type='text/css' href="{{ asset(stylesheet) }}">
         {% endfor %}
     {% endblock %}

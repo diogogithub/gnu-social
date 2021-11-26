@@ -22,10 +22,14 @@ declare(strict_types = 1);
 
 namespace Plugin\Oomox;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
+use App\Core\Router\Router;
+use App\Entity\Actor;
+use App\Entity\LocalUser;
 use App\Util\Common;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
@@ -53,7 +57,8 @@ class Oomox extends Plugin
      */
     public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect('settings_oomox', 'settings/oomox', [Controller\Oomox::class, 'oomoxSettings']);
+        $r->connect('oomox_settings', 'settings/oomox', [Controller\Oomox::class, 'oomoxSettings']);
+        $r->connect('oomox_css', 'plugins/oomox/colours', [Controller\Oomox::class, 'oomoxCSS']);
         return Event::next;
     }
 
@@ -72,23 +77,15 @@ class Oomox extends Plugin
         return Event::next;
     }
 
-    public function onOverrideStylesheet(string $original_stylesheet, string &$response)
+    public static function cacheKey(LocalUser $user) :string {
+        return "oomox-css-{$user->getId()}";
+    }
+    public function onEndShowStyles(array &$styles, string $route)
     {
-        $check_user = !\is_null(Common::user());
-
-        if ($check_user && $original_stylesheet === 'assets/default_theme/css/root.css') {
-            $actor_id = Common::actor()->getId();
-
-            try {
-                $oomox_table = DB::findOneBy('oomox', ['actor_id' => $actor_id]);
-            } catch (NotFoundException $e) {
-                return Event::next;
-            }
-
-            $res[] = Formatting::twigRenderFile('/oomox/root_override.css.twig', ['oomox' => $oomox_table]);
-            return Event::stop;
+        $user = Common::user();
+        if (!is_null($user) && !is_null(Cache::get(self::cacheKey($user), fn() => null))) {
+            $styles[] = Router::url('oomox_css');
         }
-
         return Event::next;
     }
 }

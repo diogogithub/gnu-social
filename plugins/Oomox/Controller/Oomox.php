@@ -23,13 +23,20 @@ declare(strict_types = 1);
 
 namespace Plugin\Oomox\Controller;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
+use App\Core\Event;
 use App\Core\Form;
+use App\Util\Exception\ClientException;
+use App\Util\Exception\NotFoundException;
+use App\Util\Formatting;
+use http\Client\Curl\User;
+use Symfony\Component\HttpFoundation\Response;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use Plugin\ProfileColor\Entity;
+use Plugin\Oomox\Entity;
 use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -52,11 +59,12 @@ class Oomox
      *
      * @throws RedirectException
      * @throws ServerException
+     * @throws \App\Util\Exception\NoLoggedInUser
      */
     public static function oomoxSettings(Request $request): array
     {
-        $actor    = Common::actor();
-        $actor_id = $actor->getId();
+        $user    = Common::ensureLoggedIn();
+        $actor_id = $user->getId();
 
         $current_oomox_settings = DB::find('profile_color', ['actor_id' => $actor_id]);
 
@@ -121,12 +129,28 @@ class Oomox
                     'colour_shadow' => $data['colour_shadow'],
                 ]
             );
-            DB::persist($current_oomox_settings);
+            DB::merge($current_oomox_settings);
             DB::flush();
+
+            Cache::delete(\Plugin\Oomox\Oomox::cacheKey($user));
 
             throw new RedirectException();
         }
 
         return ['_template' => 'oomox/oomoxSettings.html.twig', 'oomox' => $form->createView()];
+    }
+
+    public function oomoxCSS() {
+        $user = Common::ensureLoggedIn();
+        $actor_id = $user->getId();
+
+        try {
+            $oomox_table = Cache::get("oomox-css-{$actor_id}", fn() => DB::findOneBy('oomox', ['actor_id' => $actor_id]));
+        } catch (NotFoundException $e) {
+            throw new ClientException(_m('No custom colours defined.'),404, $e);
+        }
+
+        $content = Formatting::twigRenderFile('/oomox/root_override.css.twig', ['oomox' => $oomox_table]);
+        return new Response($content, status: 200, headers: ['content-type' => 'text/css']);
     }
 }

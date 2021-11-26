@@ -41,10 +41,14 @@ class Oomox extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private ?string $color;
-    private ?string $background;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private ?string $colour_foreground;
+    private ?string $colour_background_hard;
+    private ?string $colour_background_card;
+    private ?string $colour_border;
+    private ?string $colour_accent;
+    private ?string $colour_shadow;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setActorId(int $actor_id): self
     {
@@ -57,49 +61,94 @@ class Oomox extends Entity
         return $this->actor_id;
     }
 
-    public function setColor(string $color): self
+    public function setColourForeground(?string $colour_foreground): self
     {
-        $this->color = $color;
+        $this->colour_foreground = $colour_foreground;
         return $this;
     }
 
-    public function getColor(): ?string
+    public function getColourForeground(): ?string
     {
-        return $this->color;
+        return $this->colour_foreground;
     }
 
-    public function setBackground(string $background): self
+    public function setColourBackgroundHard(?string $colour_background_hard): self
     {
-        $this->background = $background;
+        $this->colour_background_hard = $colour_background_hard;
         return $this;
     }
 
-    public function getBackground(): ?string
+    public function getColourBackgroundHard(): ?string
     {
-        return $this->background;
+        return $this->colour_background_hard;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setColourBackgroundCard(?string $colour_background_card): self
+    {
+        $this->colour_background_card = $colour_background_card;
+        return $this;
+    }
+
+    public function getColourBackgroundCard(): ?string
+    {
+        return $this->colour_background_card;
+    }
+
+    public function setColourBorder(?string $colour_border): self
+    {
+        $this->colour_border = $colour_border;
+        return $this;
+    }
+
+    public function getColourBorder(): ?string
+    {
+        return $this->colour_border;
+    }
+
+    public function setColourAccent(?string $colour_accent): self
+    {
+        $this->colour_accent = $colour_accent;
+        return $this;
+    }
+
+    public function getColourAccent(): ?string
+    {
+        return $this->colour_accent;
+    }
+
+    public function setColourShadow(?string $colour_shadow): self
+    {
+        $this->colour_shadow = $colour_shadow;
+        return $this;
+    }
+
+    public function getColourShadow(): ?string
+    {
+        return $this->colour_shadow;
+    }
+
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }
+
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode

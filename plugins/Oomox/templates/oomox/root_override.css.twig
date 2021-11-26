@@ -8,12 +8,12 @@
 
 @media(prefers-color-scheme:dark) {
     :root {
-        --foreground: {{ oomox.getColourForeground() | default('#f0f6f6') }};
-        --background-hard: {{ oomox.getColourBackgroundHard() | default('#141216') }};
-        --background-card: {{ oomox.getColourBackgroundCard() | default('#131217') }};
-        --border: {{ oomox.getColourBorder() | default('#201f25') }};
-        --accent: {{ oomox.getColourAccent() | default('#5ddbcf') }};
-        --shadow: 0 0 12px 0 {{ oomox.getColourShadow() | default('#01010166') }};
+        --foreground: {{ oomox.getColourForeground() | default('#f0f6f6') | raw }} !important;
+        --background-hard: {{ oomox.getColourBackgroundHard() | default('#141216') | raw }};
+        --background-card: {{ oomox.getColourBackgroundCard() | default('#131217') | raw }};
+        --border: {{ oomox.getColourBorder() | default('#201f25') | raw }};
+        --accent: {{ oomox.getColourAccent() | default('#5ddbcf') | raw }};
+        --shadow: 0 0 12px 0 {{ oomox.getColourShadow() | default('#01010166') | raw }};
 
         --shadow-inset-accent: inset 0 0 0 2px var(--accent);
         --background-checkerboard: repeating-conic-gradient(#ffffff66 0 90deg,#ffffff33 0 180deg) 0 0/40px 40px round;
@@ -24,12 +24,12 @@
 
 @media(prefers-color-scheme:light) {
     :root {
-        --foreground: {{ oomox.getColourForeground() | default('#09090d') }};
-        --background-hard: {{ oomox.getColourBackgroundHard() | default('#ebebeb') }};
-        --background-card: {{ oomox.getColourBackgroundCard() | default('#f0f0f0') }};
-        --border: {{ oomox.getColourBorder() | default('#d5d5d5') }};
-        --accent: {{ oomox.getColourAccent() | default('#a22430') }};
-        --shadow: 0 0 12px 0 {{ oomox.getColourShadow() | default('#24243416') }};
+        --foreground: {{ oomox.getColourForeground() | default('#09090d') | raw }};
+        --background-hard: {{ oomox.getColourBackgroundHard() | default('#ebebeb') | raw }};
+        --background-card: {{ oomox.getColourBackgroundCard() | default('#f0f0f0') | raw }};
+        --border: {{ oomox.getColourBorder() | default('#d5d5d5') | raw }};
+        --accent: {{ oomox.getColourAccent() | default('#a22430') | raw }};
+        --shadow: 0 0 12px 0 {{ oomox.getColourShadow() | default('#24243416') | raw }};
 
         --shadow-inset-accent: inset 0 0 0 2px var(--accent);
         --background-checkerboard: repeating-conic-gradient(#ffffff66 0 90deg,#ffffff33 0 180deg) 0 0/40px 40px round;
