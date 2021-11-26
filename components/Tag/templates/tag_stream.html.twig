@@ -1,7 +1,12 @@
-{% for note in notes %}
-  <div>
-    {{ note.getRendered() | raw }}
-  </div>
-{% endfor %}
+{% extends 'base.html.twig' %}
+{% import '/cards/note/view.html.twig' as noteView %}
 
-{{ "Page: " ~ page }}
+{% block body %}
+  {% for note in notes %}
+    {% block current_note %}
+      {{ noteView.macro_note(note) }}
+    {% endblock current_note %}
+  {% endfor %}
+
+  {{ "Page: " ~ page }}
+{% endblock %}
