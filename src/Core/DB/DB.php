@@ -193,17 +193,17 @@ class DB
      * `['and' => ['lt' => ['foo' => 4], 'gte' => ['bar' => 2]]]` or
      * `['in' => ['foo', 'bar']]`
      */
-    public static function findBy(string $table, array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
+    public static function findBy(string $table, array $criteria, ?array $order_by = null, ?int $limit = null, ?int $offset = null): array
     {
         $criteria = array_change_key_case($criteria, \CASE_LOWER);
         $ops      = array_intersect(array_keys($criteria), self::$find_by_ops);
         /** @var EntityRepository */
         $repo = self::getRepository($table);
         if (empty($ops)) {
-            return $repo->findBy($criteria, $orderBy, $limit, $offset);
+            return $repo->findBy($criteria, $order_by, $limit, $offset);
         } else {
             $eb       = Criteria::expr();
-            $criteria = new Criteria($eb->andX(...self::buildExpression($eb, $criteria)), $orderBy, $offset, $limit);
+            $criteria = new Criteria($eb->andX(...self::buildExpression($eb, $criteria)), $order_by, $offset, $limit);
             return $repo->matching($criteria)->toArray(); // Always work with array or it becomes really complicated
         }
     }
@@ -211,9 +211,9 @@ class DB
     /**
      * Return the first element of the result of @see self::findBy
      */
-    public static function findOneBy(string $table, array $criteria, ?array $orderBy = null, ?int $offset = null)
+    public static function findOneBy(string $table, array $criteria, ?array $order_by = null, ?int $offset = null)
     {
-        $res = self::findBy($table, $criteria, $orderBy, 2, $offset); // Use limit 2 to check for consistency
+        $res = self::findBy($table, $criteria, $order_by, 2, $offset); // Use limit 2 to check for consistency
         switch (\count($res)) {
         case 0:
             throw new NotFoundException("No value in table {$table} matches the requested criteria");
