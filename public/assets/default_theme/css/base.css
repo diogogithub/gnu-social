@@ -6,13 +6,13 @@
 
 @import url("widgets/sections.css");
 
-:root {
-    --smaller: .6rem;
-    --default: 1rem;
-    --small: 1.3rem;
-    --medium: 1.62rem;
-    --big: 3rem;
-}
+/*:root {*/
+/*    --smaller: .6rem;*/
+/*    --default: 1rem;*/
+/*    --small: 1.3rem;*/
+/*    --medium: 1.62rem;*/
+/*    --big: 3rem;*/
+/*}*/
 
 * {
     -webkit-box-sizing: border-box !important;
@@ -179,18 +179,18 @@ li {
 }
 
 @media(prefers-color-scheme:dark) {
-    :root {
-        --foreground: #f0f6f6;
-        --background-hard: #141216;
-        --background-card: #131217;
-        --border: #201f25;
-        --accent: #5ddbcf;
-        --shadow: 0 0 12px 0 #01010166;
-        --shadow-inset-accent: inset 0 0 0 2px var(--accent);
-        --background-checkerboard: repeating-conic-gradient(#ffffff66 0 90deg,#ffffff33 0 180deg) 0 0/40px 40px round;
-        --gradient: linear-gradient(10deg,var(--border) 0,transparent 90%) !important;
-        --gradient-backwards: linear-gradient(290deg,var(--border) 0,var(--background-card) 100%) !important;
-    }
+    /*:root {*/
+    /*    --foreground: #f0f6f6;*/
+    /*    --background-hard: #141216;*/
+    /*    --background-card: #131217;*/
+    /*    --border: #201f25;*/
+    /*    --accent: #5ddbcf;*/
+    /*    --shadow: 0 0 12px 0 #01010166;*/
+    /*    --shadow-inset-accent: inset 0 0 0 2px var(--accent);*/
+    /*    --background-checkerboard: repeating-conic-gradient(#ffffff66 0 90deg,#ffffff33 0 180deg) 0 0/40px 40px round;*/
+    /*    --gradient: linear-gradient(10deg,var(--border) 0,transparent 90%) !important;*/
+    /*    --gradient-backwards: linear-gradient(290deg,var(--border) 0,var(--background-card) 100%) !important;*/
+    /*}*/
 
     .background-image {
         background-color: var(--background-hard);
@@ -203,18 +203,18 @@ li {
 }
 
 @media(prefers-color-scheme:light) {
-    :root {
-        --foreground: #09090d;
-        --background-hard: #ebebeb;
-        --background-card: #f0f0f0;
-        --border: #d5d5d5;
-        --accent: #a22430;
-        --shadow: 0 0 12px 0 #24243416;
-        --shadow-inset-accent: inset 0 0 0 2px var(--accent);
-        --background-checkerboard: repeating-conic-gradient(#ffffff66 0 90deg,#ffffff33 0 180deg) 0 0/40px 40px round;
-        --gradient: linear-gradient(10deg,var(--background-hard) 0,transparent 60%) !important;
-        --gradient-backwards: linear-gradient(290deg,var(--background-hard) 0,var(--background-card) 100%) !important;
-    }
+    /*:root {*/
+    /*    --foreground: #09090d;*/
+    /*    --background-hard: #ebebeb;*/
+    /*    --background-card: #f0f0f0;*/
+    /*    --border: #d5d5d5;*/
+    /*    --accent: #a22430;*/
+    /*    --shadow: 0 0 12px 0 #24243416;*/
+    /*    --shadow-inset-accent: inset 0 0 0 2px var(--accent);*/
+    /*    --background-checkerboard: repeating-conic-gradient(#ffffff66 0 90deg,#ffffff33 0 180deg) 0 0/40px 40px round;*/
+    /*    --gradient: linear-gradient(10deg,var(--background-hard) 0,transparent 60%) !important;*/
+    /*    --gradient-backwards: linear-gradient(290deg,var(--background-hard) 0,var(--background-card) 100%) !important;*/
+    /*}*/
 
     .background-image {
         background-color: var(--background-hard);

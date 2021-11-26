@@ -14,7 +14,10 @@
     </title>
 
     {% block stylesheets %}
+        <link rel="stylesheet" type='text/css' href="{{ asset('assets/default_theme/css/root.css') }}">
         <link rel="stylesheet" type='text/css' href="{{ asset('assets/default_theme/css/base.css') }}">
+
+        {% set root_override = handle_override_stylesheet('assets/default_theme/css/root.css') %}
 
         {% for stylesheet in show_stylesheets(app.request.get('_route')) %}
             <link rel="preload" {{ preload(asset(stylesheet), { as: 'style', nopush: true }) }}>
@@ -30,9 +33,9 @@
     {% endfor %}
 </head>
 
-<body class="background-image set-background-color-1">
+<body class="background-image">
 
-<aside class="accessibility-menu set-background-color-1">
+<aside class="accessibility-menu">
     <h2 class="accessibility-menu-title" tabindex="0">{{ 'Accessibility menu.' | trans }}</h2>
     <p tabindex="0">{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</p>
     <p tabindex="0">{{ 'Provided the following keyboard shortcut, the link is targeted.' | trans }}</p>

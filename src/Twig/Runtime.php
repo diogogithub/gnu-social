@@ -134,6 +134,15 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $result;
     }
 
+    public function handleOverrideStylesheet(string $original_asset_path): string
+    {
+        $result = '';
+        if (Event::handle('OverrideStylesheet', [$original_asset_path, &$result]) !== Event::stop) {
+            $result = $original_asset_path;
+        }
+        return $result;
+    }
+
     public function openDetails(?string $query, array $ids)
     {
         return in_array($query, $ids) ? 'open=""' : '';
