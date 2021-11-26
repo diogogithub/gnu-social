@@ -151,6 +151,11 @@ abstract class Cache
         return self::$pools[$pool]->delete($key);
     }
 
+    public static function exists(string $key, string $pool = 'default'): bool
+    {
+        return self::$pools[$pool]->hasItem($key);
+    }
+
     /**
      * Retrieve a list from the cache, with a different implementation
      * for redis and others, trimming to $max_count if given

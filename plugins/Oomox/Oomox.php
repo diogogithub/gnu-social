@@ -31,12 +31,14 @@ use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Plugin\Oomox\Controller as C;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 /**
  * Profile Color plugin main class
@@ -80,10 +82,20 @@ class Oomox extends Plugin
     public static function cacheKey(LocalUser $user) :string {
         return "oomox-css-{$user->getId()}";
     }
+
+    public static function getEntity(LocalUser $user): ?Entity\Oomox
+    {
+        try {
+            return Cache::get(self::cacheKey($user), fn() => DB::findOneBy('oomox', ['actor_id' => $user->getId()]));
+        } catch (NotFoundException $e) {
+            return null;
+        }
+    }
+
     public function onEndShowStyles(array &$styles, string $route)
     {
         $user = Common::user();
-        if (!is_null($user) && !is_null(Cache::get(self::cacheKey($user), fn() => null))) {
+        if (!is_null($user) && !is_null(Cache::get(self::cacheKey($user), fn () => self::getEntity($user)))) {
             $styles[] = Router::url('oomox_css');
         }
         return Event::next;

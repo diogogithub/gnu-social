@@ -140,14 +140,17 @@ class Oomox
         return ['_template' => 'oomox/oomoxSettings.html.twig', 'oomox' => $form->createView()];
     }
 
+    /**
+     * @throws ClientException
+     * @throws \App\Util\Exception\NoLoggedInUser
+     * @throws ServerException
+     */
     public function oomoxCSS() {
         $user = Common::ensureLoggedIn();
-        $actor_id = $user->getId();
 
-        try {
-            $oomox_table = Cache::get("oomox-css-{$actor_id}", fn() => DB::findOneBy('oomox', ['actor_id' => $actor_id]));
-        } catch (NotFoundException $e) {
-            throw new ClientException(_m('No custom colours defined.'),404, $e);
+        $oomox_table = \Plugin\Oomox\Oomox::getEntity($user);
+        if (is_null($oomox_table)) {
+            throw new ClientException(_m('No custom colors defined', 404));
         }
 
         $content = Formatting::twigRenderFile('/oomox/root_override.css.twig', ['oomox' => $oomox_table]);
