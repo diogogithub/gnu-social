@@ -19,6 +19,8 @@
 
 namespace App\Entity;
 
+use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
 
@@ -97,7 +99,7 @@ class ActorTag extends Entity
         return [
             'name'   => 'actor_tag',
             'fields' => [
-                'tagger'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
+                'tagger'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagger_fkey', 'not null' => true, 'description' => 'actor making the tag'],
                 'tagged'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'not null' => true, 'description' => 'actor tagged'],
                 'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],

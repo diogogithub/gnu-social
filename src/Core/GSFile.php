@@ -199,11 +199,11 @@ class GSFile
      * Throw a client exception if the cache key $id doesn't contain
      * exactly one entry
      */
-    public static function error($except, $id, array $res)
+    public static function error($exception, $id, array $res)
     {
         switch (\count($res)) {
             case 0:
-                throw new $except();
+                throw new $exception();
             case 1:
                 return $res[0];
             default:

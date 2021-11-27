@@ -21,6 +21,8 @@ declare(strict_types = 1);
 
 namespace App\Entity;
 
+use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
 
@@ -35,6 +37,7 @@ use DateTimeInterface;
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
  * @author    Hugo Sales <hugo@hsal.es>
+ * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -42,12 +45,24 @@ class ActorCircle extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
+    private int $id;
     private int $tagger;
     private string $tag;
     private ?string $description;
     private ?bool $private;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
+
+    public function setId(int $id): ActorCircle
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
     public function setTagger(int $tagger): self
     {
@@ -118,12 +133,32 @@ class ActorCircle extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public function getSubscribedActors(?int $offset = null, ?int $limit = null): array
+    {
+        return Cache::get(
+            "circle-{$this->getId()}",
+            fn() => DB::dql(
+                <<< EOQ
+                    SELECT actor
+                    FROM App\Entity\Actor actor
+                    JOIN App\Entity\ActorCircleSubscription subscription
+                        WITH actor.id = subscription.actor_id
+                    ORDER BY subscription.created DESC, actor.id DESC
+                    EOQ,
+                options:
+                ['offset' => $offset,
+                    'limit' => $limit]
+            )
+        );
+    }
+
     public static function schemaDef(): array
     {
         return [
             'name'        => 'actor_circle',
             'description' => 'a actor can have lists of actors, to separate their feed',
             'fields'      => [
+                'id'          => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
                 'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
                 'description' => ['type' => 'text',      'description' => 'description of the people tag'],
@@ -131,12 +166,17 @@ class ActorCircle extends Entity
                 'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['tagger', 'tag'],
+            'primary key' => ['id'],
             'indexes'     => [
                 'actor_list_modified_idx'   => ['modified'],
                 'actor_list_tag_idx'        => ['tag'],
                 'actor_list_tagger_tag_idx' => ['tagger', 'tag'],
             ],
         ];
+    }
+
+    public function __toString()
+    {
+        return $this->getTag();
     }
 }

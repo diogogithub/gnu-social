@@ -42,11 +42,10 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
-use function App\Core\I18n\_m;
 use App\Core\Log;
+use App\Entity\ActorCircle;
 use App\Entity\ActorLanguage;
 use App\Entity\Language;
-use App\Entity\UserNotificationPrefs;
 use App\Util\Common;
 use App\Util\Exception\AuthenticationException;
 use App\Util\Exception\RedirectException;
@@ -55,6 +54,7 @@ use App\Util\Form\ActorArrayTransformer;
 use App\Util\Form\ArrayTransformer;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;
+use Component\Notification\Entity\UserNotificationPrefs;
 use Doctrine\DBAL\Types\Types;
 use Exception;
 use Functional as F;
@@ -66,6 +66,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 // }}} Imports
 
@@ -110,9 +111,6 @@ class UserPanel extends Controller
         ];
         $extra_step = function ($data, $extra_args) use ($user, $actor) {
             $user->setNickname($data['nickname']);
-            if (!$data['full_name'] && !$actor->getFullname()) {
-                $actor->setFullname($data['nickname']);
-            }
         };
         return Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
     }

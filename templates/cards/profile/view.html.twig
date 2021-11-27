@@ -29,7 +29,7 @@
         <nav class="profile-info-tags">
             {% if actor_tags %}
                 {% for tag in actor_tags %}
-                    <a href='#'><em>#{{ tag }}</em></a>
+                    <a href='#'><em>#{{ tag.getTag() }}</em></a>
                 {% endfor %}
             {% else %}
                 {{ '(No tags)' | trans }}

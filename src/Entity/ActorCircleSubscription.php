@@ -23,7 +23,7 @@ use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for actor Tag Subscription
+ * Entity for actor circle subscriptions
  *
  * @category  DB
  * @package   GNUsocial
@@ -33,17 +33,18 @@ use DateTimeInterface;
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
  * @author    Hugo Sales <hugo@hsal.es>
+ * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ActorTagSubscription extends Entity
+class ActorCircleSubscription extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private int $actor_tag;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private int $circle_id;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setActorId(int $actor_id): self
     {
@@ -56,15 +57,15 @@ class ActorTagSubscription extends Entity
         return $this->actor_id;
     }
 
-    public function setActorTag(int $actor_tag): self
+    public function setCircleid(int $circle_id): self
     {
-        $this->actor_tag = $actor_tag;
+        $this->circle_id = $circle_id;
         return $this;
     }
 
-    public function getActorTag(): int
+    public function getCircleid(): int
     {
-        return $this->actor_tag;
+        return $this->circle_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -95,18 +96,17 @@ class ActorTagSubscription extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'actor_tag_subscription',
+            'name' => 'actor_tag_subscription',
             'fields' => [
-                'actor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_subscription_actor_id_fkey', 'not null' => true, 'description' => 'foreign key to actor table'],
-                'actor_tag' => ['type' => 'int',       // 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'one to one', // tag can't unique, but doctrine doesn't understand this
-                    'name'             => 'actor_tag_subscription_actor_tag_fkey', 'not null' => true, 'description' => 'foreign key to actor_tag', ],
-                'created'  => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'actor_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_circle_subscription_actor_id_fkey', 'not null' => true, 'description' => 'foreign key to actor table'],
+                'circle_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'ActorCircle.id', 'multiplicity' => 'one to one', 'name' => 'actor_circle_subscription_actor_circle_fkey', 'not null' => true, 'description' => 'foreign key to actor_circle'],
+                'created'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'  => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['actor_tag_id', 'actor_id'],
-            'indexes'     => [
-                'actor_tag_subscription_actor_id_idx' => ['actor_id'],
-                'actor_tag_subscription_created_idx'  => ['created'],
+            'primary key' => ['circle_id', 'actor_id'],
+            'indexes' => [
+                'actor_circle_subscription_actor_id_idx' => ['actor_id'],
+                'actor_circle_subscription_created_idx' => ['created'],
             ],
         ];
     }
