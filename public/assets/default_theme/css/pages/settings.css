@@ -1,83 +1,28 @@
 .section-settings {
+    border: 2px solid var(--border);
+}
+
+.section-settings,
+.section-title-settings {
+    background: var(--background-card);
     margin-bottom: .6rem;
     border-radius: .6rem;
     padding: .6rem;
     box-sizing: border-box;
+    box-shadow: var(--shadow);
+}
+
+.section-title-settings[open] > summary:first-child {
+    margin-bottom: var(--smaller);
+}
+
+.section-title-settings summary + form {
+    padding-left: var(--smaller);
 }
 
 .section-settings hr {
     margin-top: .6rem;
     margin-bottom: .6rem;
-}
-
-.section-settings,.section-settings ul {
-    border: 2px solid var(--border) !important;
-    background-color: var(--background-card) !important;
-}
-
-.section-settings ul {
-    border-radius: .6rem;
-    padding: .6rem;
-    box-sizing: border-box;
-}
-
-.section-settings ul li {
-    border-radius: .6rem;
-}
-
-.form {
-    display: flex;
-    border-radius: .6rem;
-    padding: .6rem;
-    box-sizing: border-box;
-}
-
-.form form {
-    width: 100%;
-}
-
-.form #save {
-    display: flex;
-    flex-direction: column;
-    padding: .6rem;
-    box-sizing: border-box;
-}
-
-.form #save div {
-    display: contents;
-}
-
-.form #save div label {
-    display: inline-block;
-    font-family: 'Poppins',sans-serif;
-}
-
-.form #save div input,.form #save div textarea {
-    display: inline-block;
-    position: relative;
-    border-radius: .6rem;
-    padding: .6rem;
-    box-sizing: border-box;
-}
-
-.form #save div textarea {
-    resize: vertical;
-}
-
-.form #save div p {
-    font-style: italic;
-}
-
-.form #save div:last-of-type {
-    text-align: end;
-}
-
-.section-title-settings section {
-    margin-top: .6rem;
-}
-
-.section-title-settings summary {
-    padding: .6rem 1rem;
 }
 
 .section-title-settings summary h3:first-letter ,.section-title-settings summary em:first-letter {

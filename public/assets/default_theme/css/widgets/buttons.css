@@ -116,12 +116,9 @@ input[type=color] {
 }
 
 button {
+    display: block !important;
     cursor: pointer !important;
-    float: right !important;
-    -webkit-align-self: end !important;
-    -ms-flex-item-align: end !important;
-    -ms-grid-row-align: end !important;
-    align-self: end !important;
+    margin-left: auto !important;
     margin-top: var(--smaller);
 }
 

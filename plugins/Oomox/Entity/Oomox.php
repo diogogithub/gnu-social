@@ -53,8 +53,8 @@ class Oomox extends Entity
     private ?string $colour_border_dark;
     private ?string $colour_accent_dark;
     private ?string $colour_shadow_dark;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setActorId(int $actor_id): self
     {
@@ -199,28 +199,27 @@ class Oomox extends Entity
         return $this->colour_shadow_dark;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
-
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
@@ -229,21 +228,21 @@ class Oomox extends Entity
         return [
             'name'   => 'oomox',
             'fields' => [
-                'actor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
-                'colour_foreground_light'         => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_background_hard_light'    => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_background_card_light'    => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_border_light'             => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_accent_light'             => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_shadow_light'             => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_foreground_dark'         => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_background_hard_dark'    => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_background_card_dark'    => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_border_dark'             => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_accent_dark'             => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_shadow_dark'             => ['type' => 'text',      'description' => 'color hex code'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
+                'actor_id'                     => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
+                'colour_foreground_light'      => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_background_hard_light' => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_background_card_light' => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_border_light'          => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_accent_light'          => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_shadow_light'          => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_foreground_dark'       => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_background_hard_dark'  => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_background_card_dark'  => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_border_dark'           => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_accent_dark'           => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_shadow_dark'           => ['type' => 'text',      'description' => 'color hex code'],
+                'created'                      => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
+                'modified'                     => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
             'primary key' => ['actor_id'],
         ];

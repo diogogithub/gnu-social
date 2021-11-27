@@ -80,6 +80,10 @@ address {
     border: 0;
 }
 
+details summary {
+    cursor: pointer !important;
+}
+
 details summary>* {
     margin: unset;
     padding: unset;
