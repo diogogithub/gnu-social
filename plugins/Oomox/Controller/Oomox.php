@@ -79,7 +79,6 @@ class Oomox
                     'colour_background_card_light' => $data['colour_background_card_light'],
                     'colour_border_light'          => $data['colour_border_light'],
                     'colour_accent_light'          => $data['colour_accent_light'],
-                    'colour_shadow_light'          => $data['colour_shadow_light'],
                 ],
             );
             DB::merge($current_oomox_settings);
@@ -119,7 +118,6 @@ class Oomox
                     'colour_background_card_dark' => $data['colour_background_card_dark'],
                     'colour_border_dark'          => $data['colour_border_dark'],
                     'colour_accent_dark'          => $data['colour_accent_dark'],
-                    'colour_shadow_dark'          => $data['colour_shadow_dark'],
                 ],
             );
             DB::merge($current_oomox_settings);
@@ -156,14 +154,12 @@ class Oomox
                 $current_background_card = $current_oomox_settings->getColourBackgroundCardLight() ?: '#f0f0f0';
                 $current_border          = $current_oomox_settings->getColourBorderLight() ?: '#d5d5d5';
                 $current_accent          = $current_oomox_settings->getColourAccentLight() ?: '#a22430';
-                $current_shadow          = $current_oomox_settings->getColourShadowLight() ?: '#24243416';
             } else {
                 $current_foreground      = $current_oomox_settings->getColourForegroundDark() ?: '#f0f6f6';
                 $current_background_hard = $current_oomox_settings->getColourBackgroundHardDark() ?: '#141216';
                 $current_background_card = $current_oomox_settings->getColourBackgroundCardDark() ?: '#131217';
                 $current_border          = $current_oomox_settings->getColourBorderDark() ?: '#201f25';
                 $current_accent          = $current_oomox_settings->getColourAccentDark() ?: '#5ddbcf';
-                $current_shadow          = $current_oomox_settings->getColourShadowDark() ?: '#01010166';
             }
         } else {
             $current_foreground      = $is_light ? '#09090d' : '#f0f6f6';
@@ -171,7 +167,6 @@ class Oomox
             $current_background_card = $is_light ? '#f0f0f0' : '#131217';
             $current_border          = $is_light ? '#d5d5d5' : '#201f25';
             $current_accent          = $is_light ? '#a22430' : '#5ddbcf';
-            $current_shadow          = $is_light ? '#24243416' : '#01010166';
         }
 
         return Form::create([
@@ -204,12 +199,6 @@ class Oomox
                 'data'  => $current_accent,
                 'label' => _m('Accent colour'),
                 'help'  => _m('Choose the accent colour'), ],
-            ],
-            [$shadow, ColorType::class, [
-                'html5' => true,
-                'data'  => $current_shadow,
-                'label' => _m('Shadow colour'),
-                'help'  => _m('Choose base colour of shadows'), ],
             ],
             ['hidden', HiddenType::class, []],
             [$save, SubmitType::class, ['label' => _m('Submit')]],

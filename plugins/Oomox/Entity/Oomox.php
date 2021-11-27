@@ -46,13 +46,11 @@ class Oomox extends Entity
     private ?string $colour_background_card_light;
     private ?string $colour_border_light;
     private ?string $colour_accent_light;
-    private ?string $colour_shadow_light;
     private ?string $colour_foreground_dark;
     private ?string $colour_background_hard_dark;
     private ?string $colour_background_card_dark;
     private ?string $colour_border_dark;
     private ?string $colour_accent_dark;
-    private ?string $colour_shadow_dark;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -122,17 +120,6 @@ class Oomox extends Entity
         return $this->colour_accent_light;
     }
 
-    public function setColourShadowLight(?string $colour_shadow_light): self
-    {
-        $this->colour_shadow_light = $colour_shadow_light;
-        return $this;
-    }
-
-    public function getColourShadowLight(): ?string
-    {
-        return $this->colour_shadow_light;
-    }
-
     public function setColourForegroundDark(?string $colour_foreground_dark): self
     {
         $this->colour_foreground_dark = $colour_foreground_dark;
@@ -188,17 +175,6 @@ class Oomox extends Entity
         return $this->colour_accent_dark;
     }
 
-    public function setColourShadowDark(?string $colour_shadow_dark): self
-    {
-        $this->colour_shadow_dark = $colour_shadow_dark;
-        return $this;
-    }
-
-    public function getColourShadowDark(): ?string
-    {
-        return $this->colour_shadow_dark;
-    }
-
     public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
@@ -234,13 +210,11 @@ class Oomox extends Entity
                 'colour_background_card_light' => ['type' => 'text',      'description' => 'color hex code'],
                 'colour_border_light'          => ['type' => 'text',      'description' => 'color hex code'],
                 'colour_accent_light'          => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_shadow_light'          => ['type' => 'text',      'description' => 'color hex code'],
                 'colour_foreground_dark'       => ['type' => 'text',      'description' => 'color hex code'],
                 'colour_background_hard_dark'  => ['type' => 'text',      'description' => 'color hex code'],
                 'colour_background_card_dark'  => ['type' => 'text',      'description' => 'color hex code'],
                 'colour_border_dark'           => ['type' => 'text',      'description' => 'color hex code'],
                 'colour_accent_dark'           => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_shadow_dark'           => ['type' => 'text',      'description' => 'color hex code'],
                 'created'                      => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
                 'modified'                     => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
