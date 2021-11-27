@@ -14,12 +14,12 @@
     </title>
 
     {% block stylesheets %}
-        <link rel="stylesheet" type='text/css' href="{{ asset('assets/default_theme/css/root.css') }}">
-        <link rel="stylesheet" type='text/css' href="{{ asset('assets/default_theme/css/base.css') }}">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/root.css') }}">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/base.css') }}">
 
         {% for stylesheet in show_stylesheets(app.request.get('_route')) %}
-            <link rel="preload" href="{{ preload(asset(stylesheet), { as: 'style', nopush: true }) }}">
-            <link rel='stylesheet' type='text/css' href="{{ asset(stylesheet) }}">
+            <link rel='preload' type='text/css' as='style' href="{{ preload(asset(stylesheet), { as: 'style' }) }}">
+            <link rel='stylesheet' type='text/css' as='style' href="{{ asset(stylesheet) }}">
         {% endfor %}
     {% endblock %}
 
