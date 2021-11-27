@@ -60,7 +60,7 @@ class Tag extends Component
     /**
      * Process note by extracting any tags present
      */
-    public function onProcessNoteContent(Note $note, string $content)
+    public function onProcessNoteContent(Note $note, string $content): bool
     {
         $matched_tags   = [];
         $processed_tags = false;
@@ -75,11 +75,15 @@ class Tag extends Component
         if ($processed_tags) {
             DB::flush();
         }
+        return Event::next;
     }
 
-    public function onRenderContent(string &$text, string $language)
+    public function onRenderPlainTextNoteContent(string &$text, ?string $language = null): bool
     {
-        $text = preg_replace_callback(self::TAG_REGEX, fn ($m) => $m[1] . self::tagLink($m[2], $language), $text);
+        if (!is_null($language)) {
+            $text = preg_replace_callback(self::TAG_REGEX, fn ($m) => $m[1] . self::tagLink($m[2], $language), $text);
+        }
+        return Event::next;
     }
 
     private static function tagLink(string $tag, string $language): string
@@ -113,7 +117,7 @@ class Tag extends Component
      *
      * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, &$note_expr, &$actor_expr)
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, &$note_expr, &$actor_expr): bool
     {
         $search_term     = str_contains($term, ':#') ? explode(':', $term)[1] : $term;
         $temp_note_expr  = $eb->eq('note_tag.tag', $search_term);
@@ -132,9 +136,10 @@ class Tag extends Component
         return Event::stop;
     }
 
-    public function onSeachQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb)
+    public function onSeachQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
         $note_qb->join('App\Entity\NoteTag', 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
         $actor_qb->join('App\Entity\ActorTag', 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id');
+        return Event::next;
     }
 }

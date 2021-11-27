@@ -25,6 +25,8 @@ namespace App\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use App\Core\Router\Router;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use function App\Core\I18n\_m;
 use App\Util\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +39,9 @@ class Actor extends Controller
     private function ActorById(int $id, callable $handle)
     {
         $actor = DB::findOneBy('actor', ['id' => $id]);
+        if ($actor->getIsLocal()) {
+            return new RedirectResponse(Router::url('actor_view_nickname', ['nickname' => $actor->getNickname()]));
+        }
         if (empty($actor)) {
             throw new ClientException(_m('No such actor.'), 404);
         } else {

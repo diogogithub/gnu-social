@@ -43,7 +43,8 @@ class ActivityPub extends Plugin
     ];
 
     // So that this isn't hardcoded everywhere
-    public const PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
+    public const PUBLIC_TO = [
+        'https://www.w3.org/ns/activitystreams#Public',
         'Public',
         'as:Public',
     ];
@@ -84,6 +85,28 @@ class ActivityPub extends Plugin
             options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]],
         );
         return Event::next;
+    }
+
+    public function onStartGetActorUri(Actor $actor, int $type, ?string &$uri):bool
+    {
+        if (
+            // Is remote?
+            !$actor->getIsLocal()
+            // Is in ActivityPub?
+            && !is_null($ap_actor = ActivitypubActor::getWithPK(['actor_id' => $actor->getId()]))
+            // We can only provide a full URL (anything else wouldn't make sense)
+            && $type === Router::ABSOLUTE_URL
+        ) {
+            $uri = $ap_actor->getUri();
+            return Event::stop;
+        }
+
+        return Event::next;
+    }
+
+    public function onStartGetActorUrl(Actor $actor, int $type, ?string &$url):bool
+    {
+        return $this->onStartGetActorUri($actor, $type, $url);
     }
 
     public static function getActorByUri(string $resource, ?bool $attempt_fetch = true): Actor

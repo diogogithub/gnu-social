@@ -38,7 +38,7 @@ class Link extends Component
     /**
      * Extract URLs from $content and create the appropriate Link and NoteToLink entities
      */
-    public function onProcessNoteContent(Note $note, string $content)
+    public function onProcessNoteContent(Note $note, string $content): bool
     {
         if (Common::config('attachments', 'process_links')) {
             $matched_urls = [];
@@ -56,9 +56,10 @@ class Link extends Component
         return Event::next;
     }
 
-    public function onRenderContent(string &$text)
+    public function onRenderPlainTextContent(string &$text): bool
     {
         $text = $this->replaceURLs($text);
+        return Event::next;
     }
 
     public function getURLRegex(): string

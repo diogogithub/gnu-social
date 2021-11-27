@@ -237,7 +237,7 @@ abstract class Formatting
         // Split \n\n into paragraphs, process each paragrah and merge
         return implode("\n", F\map(explode("\n\n", $text), function (string $paragraph) use ($language) {
             $paragraph = nl2br($paragraph, use_xhtml: false);
-            Event::handle('RenderContent', [&$paragraph, $language]);
+            Event::handle('onRenderPlainTextNoteContent', [&$paragraph, $language]);
 
             return HTML::html(['p' => [$paragraph]], options: ['raw' => true, 'indent' => false]);
         }));

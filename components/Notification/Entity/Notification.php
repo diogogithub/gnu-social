@@ -21,6 +21,7 @@ namespace Component\Notification\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Entity\Activity;
 use App\Entity\Actor;
 use DateTimeInterface;
 

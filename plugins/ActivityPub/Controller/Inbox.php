@@ -60,8 +60,9 @@ class Inbox extends Controller
         // TODO: Check if Actor has authority over payload
 
         // Store Activity
-        dd(AS2ToEntity::store(activity: $type->toArray(), source: 'ActivityPub'));
+        $ap_act = AS2ToEntity::store(activity: $type->toArray(), source: 'ActivityPub');
         DB::flush();
+        dd($ap_act, $act = $ap_act->getActivity(), $act->getActor(), $act->getObject());
 
         return new TypeResponse($type, status: 202);
     }

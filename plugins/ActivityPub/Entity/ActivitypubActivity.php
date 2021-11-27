@@ -25,6 +25,7 @@ namespace Plugin\ActivityPub\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Entity\Activity;
 use DateTimeInterface;
 
 /**
@@ -42,16 +43,23 @@ class ActivitypubActivity extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
+    private int $activity_id;
     private string $activity_uri;
-    private int $actor_id;
-    private string $verb;
-    private string $object_type;
-    private int $object_id;
     private string $object_uri;
     private bool $is_local;
-    private ?string $source;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
+
+    public function setActivityId(int $activity_id): self
+    {
+        $this->activity_id = $activity_id;
+        return $this;
+    }
+
+    public function getActivityId(): int
+    {
+        return $this->activity_id;
+    }
 
     public function getActivityUri(): string
     {
@@ -62,50 +70,6 @@ class ActivitypubActivity extends Entity
     {
         $this->activity_uri = $activity_uri;
         return $this;
-    }
-
-    public function setActorId(int $actor_id): self
-    {
-        $this->actor_id = $actor_id;
-        return $this;
-    }
-
-    public function getActorId(): int
-    {
-        return $this->actor_id;
-    }
-
-    public function setVerb(string $verb): self
-    {
-        $this->verb = $verb;
-        return $this;
-    }
-
-    public function getVerb(): string
-    {
-        return $this->verb;
-    }
-
-    public function setObjectType(string $object_type): self
-    {
-        $this->object_type = $object_type;
-        return $this;
-    }
-
-    public function getObjectType(): string
-    {
-        return $this->object_type;
-    }
-
-    public function setObjectId(int $object_id): self
-    {
-        $this->object_id = $object_id;
-        return $this;
-    }
-
-    public function getObjectId(): int
-    {
-        return $this->object_id;
     }
 
     public function getObjectUri(): string
@@ -128,17 +92,6 @@ class ActivitypubActivity extends Entity
     public function getIsLocal(): bool
     {
         return $this->is_local;
-    }
-
-    public function setSource(?string $source): self
-    {
-        $this->source = $source;
-        return $this;
-    }
-
-    public function getSource(): ?string
-    {
-        return $this->source;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -166,19 +119,20 @@ class ActivitypubActivity extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public function getActivity(): Activity
+    {
+        return DB::findOneBy('activity', ['id' => $this->getActivityId()]);
+    }
+
     public static function schemaDef(): array
     {
         return [
             'name'   => 'activitypub_activity',
             'fields' => [
-                'activity_uri' => ['type' => 'text',     'not null' => true, 'description' => 'Activity\'s URI'],
-                'actor_id'     => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'who made the note'],
-                'verb'         => ['type' => 'varchar',  'length' => 32,     'not null' => true, 'description' => 'internal activity verb, influenced by activity pub verbs'],
-                'object_type'  => ['type' => 'varchar',  'length' => 32, 'description' => 'the name of the table this object refers to'],
-                'object_id'    => ['type' => 'int',   'description' => 'id in the referenced table'],
-                'object_uri'   => ['type' => 'text',     'not null' => true, 'description' => 'Object\'s URI'],
-                'is_local'     => ['type' => 'bool',     'not null' => true, 'description' => 'whether this was a locally generated or an imported activity'],
-                'source'       => ['type' => 'varchar',  'length' => 32,     'description' => 'the source of this activity'],
+                'activity_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'Activity.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'activity_id to give attention'],
+                'activity_uri' => ['type' => 'text',      'not null' => true, 'description' => 'Activity\'s URI'],
+                'object_uri'   => ['type' => 'text',      'not null' => true, 'description' => 'Object\'s URI'],
+                'is_local'     => ['type' => 'bool',      'not null' => true, 'description' => 'whether this was a locally generated or an imported activity'],
                 'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

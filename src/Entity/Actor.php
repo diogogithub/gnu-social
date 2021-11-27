@@ -26,6 +26,7 @@ namespace App\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
 use App\Core\Router\Router;
 use App\Core\UserRoles;
 use App\Util\Common;
@@ -432,14 +433,28 @@ class Actor extends Entity
         );
     }
 
-    public function getUri(int $type = Router::ABSOLUTE_PATH): string
+    public function getUri(int $type = Router::ABSOLUTE_URL): string
     {
-        return Router::url('actor_view_id', ['id' => $this->getId()], $type);
+        $uri = null;
+        if (Event::handle('StartGetActorUri', [$this, $type, &$uri]) === Event::next) {
+            if ($this->getIsLocal()) {
+                $uri = Router::url('actor_view_id', ['id' => $this->getId()], $type);
+            }
+            Event::handle('EndGetActorUri', [$this, $type, &$uri]);
+        }
+        return $uri;
     }
 
-    public function getUrl(int $type = Router::ABSOLUTE_PATH): string
+    public function getUrl(int $type = Router::ABSOLUTE_URL): string
     {
-        return Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+        $url = null;
+        if (Event::handle('StartGetActorUrl', [$this, $type, &$url]) === Event::next) {
+            if ($this->getIsLocal()) {
+                $url = Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+            }
+            Event::handle('EndGetActorUrl', [$this, $type, &$url]);
+        }
+        return $url;
     }
 
     public function getAliases(): array

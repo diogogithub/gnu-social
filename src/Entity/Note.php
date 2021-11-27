@@ -55,7 +55,7 @@ class Note extends Entity
     private ?string $source;
     private int $scope = VisibilityScope::PUBLIC;
     private string $url;
-    private int $language_id;
+    private ?int $language_id = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -166,7 +166,7 @@ class Note extends Entity
         return $this->language_id;
     }
 
-    public function setLanguageId(int $language_id): self
+    public function setLanguageId(?int $language_id): self
     {
         $this->language_id = $language_id;
         return $this;

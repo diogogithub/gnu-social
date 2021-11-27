@@ -155,7 +155,7 @@ class Posting extends Component
     {
         $rendered = null;
         $mentions = [];
-        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, &$mentions, $actor, $language]);
+        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $language, &$mentions]);
         $note = Note::create([
             'actor_id'     => $actor->getId(),
             'content'      => $content,
@@ -216,7 +216,7 @@ class Posting extends Component
         return $note;
     }
 
-    public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, array &$mentions, Actor $author, string $language)
+    public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, Actor $author, ?string $language = null, array &$mentions = [])
     {
         switch ($content_type) {
             case 'text/plain':

@@ -62,7 +62,6 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
     private ?PhoneNumber $phone_number;
     private ?int $sms_carrier;
     private ?string $sms_email;
-    private ?string $uri;
     private ?bool $auto_subscribe_back;
     private ?int $subscription_policy;
     private ?bool $is_stream_private;
@@ -177,17 +176,6 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
     public function getSmsEmail(): ?string
     {
         return $this->sms_email;
-    }
-
-    public function setUri(?string $uri): self
-    {
-        $this->uri = $uri;
-        return $this;
-    }
-
-    public function getUri(): ?string
-    {
-        return $this->uri;
     }
 
     public function setAutoSubscribeBack(?bool $auto_subscribe_back): self
@@ -399,7 +387,6 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
                 'phone_number'        => ['type' => 'phone_number', 'description' => 'phone number'],
                 'sms_carrier'         => ['type' => 'int',          'foreign key' => true, 'target' => 'SmsCarrier.id', 'multiplicity' => 'one to one', 'description' => 'foreign key to sms_carrier'],
                 'sms_email'           => ['type' => 'varchar',      'length' => 191,       'description' => 'built from sms and carrier (see sms_carrier)'],
-                'uri'                 => ['type' => 'varchar',      'length' => 191,       'description' => 'universally unique identifier, usually a tag URI'],
                 'auto_subscribe_back' => ['type' => 'bool',         'default' => false,    'description' => 'automatically subscribe to users who subscribed us'],
                 'subscription_policy' => ['type' => 'int',          'size' => 'tiny',      'default' => 0, 'description' => '0 = anybody can subscribe; 1 = require approval'],
                 'is_stream_private'   => ['type' => 'bool',         'default' => false,    'description' => 'whether to limit all notices to subscribers only'],
@@ -412,7 +399,6 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
                 'user_outgoing_email_key' => ['outgoing_email'],
                 'user_incoming_email_key' => ['incoming_email'],
                 'user_phone_number_key'   => ['phone_number'],
-                'user_uri_key'            => ['uri'],
             ],
             'indexes' => [
                 'user_nickname_idx'  => ['nickname'],
