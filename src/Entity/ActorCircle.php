@@ -139,11 +139,11 @@ class ActorCircle extends Entity
             "circle-{$this->getId()}",
             fn() => DB::dql(
                 <<< EOQ
-                    SELECT actor
-                    FROM App\Entity\Actor actor
-                    JOIN App\Entity\ActorCircleSubscription subscription
-                        WITH actor.id = subscription.actor_id
-                    ORDER BY subscription.created DESC, actor.id DESC
+                    SELECT a
+                    FROM App\Entity\Actor a
+                    JOIN App\Entity\ActorCircleSubscription s
+                        WITH a.id = s.actor_id
+                    ORDER BY s.created DESC, a.id DESC
                     EOQ,
                 options:
                 ['offset' => $offset,

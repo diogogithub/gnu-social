@@ -17,9 +17,11 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Notification\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Entity\Actor;
 use DateTimeInterface;
 
 /**
@@ -41,7 +43,7 @@ class Notification extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $activity_id;
-    private int $actor_id;
+    private int $target_id;
     private ?string $reason;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
@@ -57,15 +59,15 @@ class Notification extends Entity
         return $this->activity_id;
     }
 
-    public function setActorId(int $actor_id): self
+    public function setTargetId(int $target_id): self
     {
-        $this->actor_id = $actor_id;
+        $this->target_id = $target_id;
         return $this;
     }
 
-    public function getActorId(): int
+    public function getTargetId(): int
     {
-        return $this->actor_id;
+        return $this->target_id;
     }
 
     public function setReason(?string $reason): self
@@ -104,6 +106,38 @@ class Notification extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    /**
+     * @return Actor
+     */
+    public function getTarget(): Actor
+    {
+        return Actor::getById($this->getActorId());
+    }
+
+    /**
+     * Pull the complete list of known activity context notifications for this activity.
+     *
+     * @return array of integer actor ids (also group profiles)
+     */
+    public static function getNotificationTargetIdsByActivity(int|Activity $activity_id): array
+    {
+        $notifications = DB::findBy('notification', ['activity_id' => is_int($activity_id) ? $activity_id : $activity_id->getId()]);
+        $targets = [];
+        foreach ($notifications as $notification) {
+            $targets[] = $notification->getTargetId();
+        }
+        return $targets;
+    }
+
+    /**
+     * @param int|Activity $activity_id
+     * @return array
+     */
+    public function getNotificationTargetsByActivity(int|Activity $activity_id): array
+    {
+        return DB::findBy('actor', ['id' => $this->getNotificationTargetIdsByActivity($activity_id)]);
+    }
+
     public static function schemaDef(): array
     {
         return [
@@ -111,15 +145,15 @@ class Notification extends Entity
             'description' => 'Activity notification for actors (that are not a mention and not result of a subscription)',
             'fields'      => [
                 'activity_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Activity.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'activity_id to give attention'],
-                'actor_id'    => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id',  'multiplicity' => 'one to one', 'not null' => true, 'description' => 'actor_id for feed receiver'],
+                'target_id'   => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id',  'multiplicity' => 'one to one', 'not null' => true, 'description' => 'actor_id for feed receiver'],
                 'reason'      => ['type' => 'varchar',   'length' => 191,       'description' => 'Optional reason why this was brought to the attention of actor_id'],
                 'created'     => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'    => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['activity_id', 'actor_id'],
+            'primary key' => ['activity_id', 'target_id'],
             'indexes'     => [
                 'attention_activity_id_idx' => ['activity_id'],
-                'attention_actor_id_idx'    => ['actor_id'],
+                'attention_target_id_idx'    => ['target_id'],
             ],
         ];
     }

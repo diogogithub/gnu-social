@@ -22,6 +22,7 @@ declare(strict_types = 1);
 namespace Component\FreeNetwork;
 
 use App\Core\Event;
+use App\Entity\Activity;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Component;
@@ -48,6 +49,9 @@ use Plugin\ActivityPub\Util\Response\TypeResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use XML_XRD_Element_Link;
+use function count;
+use function in_array;
+use const PREG_SET_ORDER;
 
 /**
  * Implements WebFinger (RFC7033) for GNU social, as well as Link-based Resource Descriptor Discovery based on RFC6415,
@@ -110,7 +114,7 @@ class FreeNetwork extends Component
         $profile = null;
         if (Discovery::isAcct($resource)) {
             $parts = explode('@', mb_substr(urldecode($resource), 5)); // 5 is strlen of 'acct:'
-            if (\count($parts) == 2) {
+            if (count($parts) == 2) {
                 [$nick, $domain] = $parts;
                 if ($domain !== $_ENV['SOCIAL_DOMAIN']) {
                     throw new ServerException(_m('Remote profiles not supported via WebFinger yet.'));
@@ -135,9 +139,9 @@ class FreeNetwork extends Component
                         $renick = '/\/@(' . Nickname::DISPLAY_FMT . ')\/?/m';
                         // actor_view_id
                         $reuri = '/\/actor\/(\d+)\/?/m';
-                        if (preg_match_all($renick, $str, $matches, \PREG_SET_ORDER, 0) === 1) {
+                        if (preg_match_all($renick, $str, $matches, PREG_SET_ORDER, 0) === 1) {
                             $profile = LocalUser::getWithPK(['nickname' => $matches[0][1]])->getActor();
-                        } elseif (preg_match_all($reuri, $str, $matches, \PREG_SET_ORDER, 0) === 1) {
+                        } elseif (preg_match_all($reuri, $str, $matches, PREG_SET_ORDER, 0) === 1) {
                             $profile = Actor::getById((int) $matches[0][1]);
                         }
                     }
@@ -230,7 +234,7 @@ class FreeNetwork extends Component
      */
     public function onControllerResponseInFormat(string $route, array $accept_header, array $vars, ?TypeResponse &$response = null): bool
     {
-        if (!\in_array($route, ['freenetwork_hostmeta', 'freenetwork_hostmeta_format', 'freenetwork_webfinger', 'freenetwork_webfinger_format', 'freenetwork_ownerxrd'])) {
+        if (!in_array($route, ['freenetwork_hostmeta', 'freenetwork_hostmeta_format', 'freenetwork_webfinger', 'freenetwork_webfinger_format', 'freenetwork_ownerxrd'])) {
             return Event::next;
         }
 
@@ -244,7 +248,7 @@ class FreeNetwork extends Component
          *                                       -- RFC 7033 (WebFinger)
          *                            http://tools.ietf.org/html/rfc7033
          */
-        $mimeType = \count($mimeType) !== 0 ? array_pop($mimeType) : $vars['default_mimetype'];
+        $mimeType = count($mimeType) !== 0 ? array_pop($mimeType) : $vars['default_mimetype'];
 
         $headers = [];
 
@@ -259,6 +263,12 @@ class FreeNetwork extends Component
             Discovery::JRD_MIMETYPE, Discovery::JRD_MIMETYPE_OLD => new JsonResponse(data: $vars['xrd']->to('json'), headers: $headers, json: true),
         };
         return Event::stop;
+    }
+
+    public static function notify(Actor $sender, Activity $activity, Actor $target, ?string $reason = null): bool
+    {
+        // TODO: implement
+        return false;
     }
 
     public function onPluginVersion(array &$versions): bool

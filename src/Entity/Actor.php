@@ -240,6 +240,12 @@ class Actor extends Entity
         }
     }
 
+    public function isGroup()
+    {
+        // TODO: implement
+        return false;
+    }
+
     public function getAvatarUrl(string $size = 'full')
     {
         return Avatar::getAvatarUrl($this->getId(), $size);

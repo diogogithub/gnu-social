@@ -17,7 +17,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Notification\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;

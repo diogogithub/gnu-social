@@ -135,7 +135,7 @@ abstract class Formatting
     /**
      * If $haystack ends with $needle, remove it from the end
      */
-    public static function removeSuffix(string $haystack, string $needle)
+    public static function removeSuffix(string $haystack, string $needle): string
     {
         return self::endsWith($haystack, $needle) && !empty($needle) ? mb_substr($haystack, 0, -mb_strlen($needle)) : $haystack;
     }
@@ -197,7 +197,7 @@ abstract class Formatting
     }
 
     /**
-     * Convert a user supplied string to array and return whether the conversion was successfull
+     * Convert a user supplied string to array and return whether the conversion was successful
      */
     public static function toArray(string $input, &$output, string $split_type = self::SPLIT_BY_COMMA): bool
     {
@@ -267,7 +267,7 @@ abstract class Formatting
             $str = mb_convert_case($str, \MB_CASE_LOWER, 'UTF-8');
             return mb_substr($str, 0, $length);
         }
-        $str = transliterator_transliterate('Any-Latin;'                    // any charset to latin compatible
+        $str = transliterator_transliterate('Any-Latin;'          // any charset to latin compatible
                                             . 'NFD;'                        // decompose
                                             . '[:Nonspacing Mark:] Remove;' // remove nonspacing marks (accents etc.)
                                             . 'NFC;'                        // composite again
@@ -287,27 +287,13 @@ abstract class Formatting
      * such. Should not be used directly; rather, call common_linkify_mentions().
      *
      * @param Actor $actor  the Actor that is sending the current text
-     * @param Note  $parent the Note this text is in reply to, if any
      */
-    public static function findMentions(string $text, Actor $actor, ?Note $parent = null): array
+    public static function findMentions(string $text, Actor $actor): array
     {
         $mentions = [];
         if (Event::handle('StartFindMentions', [$actor, $text, &$mentions])) {
-            // Get the context of the original notice, if any
-            $origMentions = [];
-            // Does it have a parent notice for context?
-            if ($parent instanceof Note) {
-                foreach ($parent->getAttentionProfiles() as $repliedTo) {
-                    if (!$repliedTo->isPerson()) {
-                        continue;
-                    }
-                    $origMentions[$repliedTo->getId()] = $repliedTo;
-                }
-            }
-
             $matches = self::findMentionsRaw($text, '@');
 
-            //dd($matches);
             foreach ($matches as $match) {
                 try {
                     $nickname = Nickname::normalize($match[0], check_already_used: false);
@@ -316,28 +302,7 @@ abstract class Formatting
                     continue;
                 }
 
-                // primarily mention the profiles mentioned in the parent
-                $mention_found_in_origMentions = false;
-                foreach ($origMentions as $origMentionsId => $origMention) {
-                    if ($origMention->getNickname() == $nickname) {
-                        $mention_found_in_origMentions = $origMention;
-                        // don't mention same twice! the parent might have mentioned
-                        // two users with same nickname on different instances
-                        unset($origMentions[$origMentionsId]);
-                        break;
-                    }
-                }
-
-                // Try to get a profile for this nickname.
-                // Start with parents mentions, then go to parents sender context
-                if ($mention_found_in_origMentions) {
-                    $mentioned = $mention_found_in_origMentions;
-                } elseif ($parent instanceof Note && $parent->getActorNickname() === $nickname) {
-                    $mentioned = $parent->getActor();
-                } else {
-                    // sets to null if no match
-                    $mentioned = $actor->findRelativeActor($nickname);
-                }
+                $mentioned = $actor->findRelativeActor($nickname);
 
                 if ($mentioned instanceof Actor) {
                     $url = $mentioned->getUri();    // prefer the URI as URL, if it is one.
@@ -411,7 +376,6 @@ abstract class Formatting
 
             Event::handle('EndFindMentions', [$actor, $text, &$mentions]);
         }
-        //dd($text,$mentions);
         return $mentions;
     }
 
@@ -425,14 +389,6 @@ abstract class Formatting
      */
     private static function findMentionsRaw(string $text, string $preMention = '@'): array
     {
-        $tmatches = [];
-        preg_match_all(
-            '/^T (' . Nickname::DISPLAY_FMT . ') /',
-            $text,
-            $tmatches,
-            \PREG_OFFSET_CAPTURE,
-        );
-
         $atmatches = [];
         // the regexp's "(?!\@)" makes sure it doesn't matches the single "@remote" in "@remote@server.com"
         preg_match_all(
@@ -441,9 +397,8 @@ abstract class Formatting
             $atmatches,
             \PREG_OFFSET_CAPTURE,
         );
-        //dd('/' . Nickname::BEFORE_MENTIONS . preg_quote($preMention, '/') . '(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/', $atmatches);
 
-        return array_merge($tmatches[1], $atmatches[1]);
+        return $atmatches[1];
     }
 
     /**
@@ -454,13 +409,12 @@ abstract class Formatting
      *
      * @param string $text   partially-rendered HTML
      * @param Actor  $author the Actor that is composing the current notice
-     * @param Note   $parent the Note this is sent in reply to, if any
      *
      * @return string partially-rendered HTML
      */
-    public static function linkifyMentions(string $text, Actor $author, string $language, ?Note $parent = null): string
+    public static function linkifyMentions(string $text, Actor $author, string $language): array
     {
-        $mentions = self::findMentions($text, $author, $parent);
+        $mentions = self::findMentions($text, $author);
 
         // We need to go through in reverse order by position,
         // so our positions stay valid despite our fudging with the
@@ -480,7 +434,7 @@ abstract class Formatting
             $text = substr_replace($text, $linkText, $position, $mention['length']);
         }
 
-        return $text;
+        return [$text, $mentions];
     }
 
     public static function linkifyMentionArray(array $mention)

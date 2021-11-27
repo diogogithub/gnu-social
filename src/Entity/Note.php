@@ -26,8 +26,10 @@ namespace App\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
 use App\Core\VisibilityScope;
 use Component\Avatar\Avatar;
+use Component\Notification\Entity\Notification;
 use DateTimeInterface;
 
 /**
@@ -296,6 +298,19 @@ class Note extends Entity
                         ['note_id' => $this->id, 'actor_id' => $a->getId()],
                     ))
             ));
+    }
+
+    public function getNotificationTargets(array $ids_already_known = []): array
+    {
+        $mentions = [];
+        Event::handle('RenderNoteContent', [$this->getContent(), $this->getContentType(), &$rendered, &$mentions, $this->getActor(), Language::getFromId($this->getLanguageId())->getLocale()]);
+        $mentioned = [];
+        foreach ($mentions as $mention) {
+            foreach ($mention['mentioned'] as $m) {
+                $mentioned[] = $m;
+            }
+        }
+        return $mentioned;
     }
 
     public static function schemaDef(): array

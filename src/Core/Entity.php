@@ -134,4 +134,13 @@ abstract class Entity
             return null;
         }
     }
+
+    /**
+     *
+     * @return array of Actors
+     */
+    public function getNotificationTargets(array $ids_already_known = []): array
+    {
+        return [];
+    }
 }

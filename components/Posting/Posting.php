@@ -28,6 +28,8 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\GSFile;
+use App\Core\Router\Router;
+use App\Entity\Activity;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Security;
@@ -152,7 +154,8 @@ class Posting extends Component
     public static function storeLocalNote(Actor $actor, string $content, string $content_type, string $language, array $attachments = [], $processed_attachments = [])
     {
         $rendered = null;
-        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $language]);
+        $mentions = [];
+        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, &$mentions, $actor, $language]);
         $note = Note::create([
             'actor_id'     => $actor->getId(),
             'content'      => $content,
@@ -177,6 +180,7 @@ class Posting extends Component
         DB::persist($note);
 
         // Need file and note ids for the next step
+        $note->setUrl(Router::url('note_view', ['id' => $note->getId()], Router::ABSOLUTE_URL));
         Event::handle('ProcessNoteContent', [$note, $content, $content_type]);
 
         if ($processed_attachments !== []) {
@@ -188,17 +192,36 @@ class Posting extends Component
             }
         }
 
+        $act = Activity::create([
+            'actor_id' => $actor->getId(),
+            'verb' => 'create',
+            'object_type' => 'note',
+            'object_id' => $note->getId(),
+            'is_local' => true,
+            'source' => 'web',
+        ]);
+        DB::persist($act);
+
         DB::flush();
+
+        $mentioned = [];
+        foreach ($mentions as $mention) {
+            foreach ($mention['mentioned'] as $m) {
+                $mentioned[] = $m->getId();
+            }
+        }
+
+        Event::handle('NewNotification', [$actor, $act, ['object' => $mentioned], "{$actor->getNickname()} created note {$note->getUrl()}", ]);
 
         return $note;
     }
 
-    public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, Actor $author, string $language, ?Note $reply_to = null)
+    public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, array &$mentions, Actor $author, string $language)
     {
         switch ($content_type) {
             case 'text/plain':
                 $rendered = Formatting::renderPlainText($content, $language);
-                $rendered = Formatting::linkifyMentions($rendered, $author, $language, $reply_to);
+                [$rendered, $mentions] = Formatting::linkifyMentions($rendered, $author, $language);
                 return Event::stop;
             case 'text/html':
                 // TODO: It has to linkify and stuff as well
