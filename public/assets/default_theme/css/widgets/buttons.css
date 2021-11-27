@@ -145,7 +145,7 @@ button,input,select,textarea {
     display: inline-flex;
     overflow: hidden;
     font-size: inherit;
-    padding: 6px 8px;
+    padding: 6px 8px !important;
     -webkit-border-radius: .6rem;
     -moz-border-radius: .6rem;
     border-radius: .6rem;

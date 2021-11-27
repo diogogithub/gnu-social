@@ -41,12 +41,18 @@ class Oomox extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private ?string $colour_foreground;
-    private ?string $colour_background_hard;
-    private ?string $colour_background_card;
-    private ?string $colour_border;
-    private ?string $colour_accent;
-    private ?string $colour_shadow;
+    private ?string $colour_foreground_light;
+    private ?string $colour_background_hard_light;
+    private ?string $colour_background_card_light;
+    private ?string $colour_border_light;
+    private ?string $colour_accent_light;
+    private ?string $colour_shadow_light;
+    private ?string $colour_foreground_dark;
+    private ?string $colour_background_hard_dark;
+    private ?string $colour_background_card_dark;
+    private ?string $colour_border_dark;
+    private ?string $colour_accent_dark;
+    private ?string $colour_shadow_dark;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -61,70 +67,136 @@ class Oomox extends Entity
         return $this->actor_id;
     }
 
-    public function setColourForeground(?string $colour_foreground): self
+    public function setColourForegroundLight(?string $colour_foreground_light): self
     {
-        $this->colour_foreground = $colour_foreground;
+        $this->colour_foreground_light = $colour_foreground_light;
         return $this;
     }
 
-    public function getColourForeground(): ?string
+    public function getColourForegroundLight(): ?string
     {
-        return $this->colour_foreground;
+        return $this->colour_foreground_light;
     }
 
-    public function setColourBackgroundHard(?string $colour_background_hard): self
+    public function setColourBackgroundHardLight(?string $colour_background_hard_light): self
     {
-        $this->colour_background_hard = $colour_background_hard;
+        $this->colour_background_hard_light = $colour_background_hard_light;
         return $this;
     }
 
-    public function getColourBackgroundHard(): ?string
+    public function getColourBackgroundHardLight(): ?string
     {
-        return $this->colour_background_hard;
+        return $this->colour_background_hard_light;
     }
 
-    public function setColourBackgroundCard(?string $colour_background_card): self
+    public function setColourBackgroundCardLight(?string $colour_background_card_light): self
     {
-        $this->colour_background_card = $colour_background_card;
+        $this->colour_background_card_light = $colour_background_card_light;
         return $this;
     }
 
-    public function getColourBackgroundCard(): ?string
+    public function getColourBackgroundCardLight(): ?string
     {
-        return $this->colour_background_card;
+        return $this->colour_background_card_light;
     }
 
-    public function setColourBorder(?string $colour_border): self
+    public function setColourBorderLight(?string $colour_border_light): self
     {
-        $this->colour_border = $colour_border;
+        $this->colour_border_light = $colour_border_light;
         return $this;
     }
 
-    public function getColourBorder(): ?string
+    public function getColourBorderLight(): ?string
     {
-        return $this->colour_border;
+        return $this->colour_border_light;
     }
 
-    public function setColourAccent(?string $colour_accent): self
+    public function setColourAccentLight(?string $colour_accent_light): self
     {
-        $this->colour_accent = $colour_accent;
+        $this->colour_accent_light = $colour_accent_light;
         return $this;
     }
 
-    public function getColourAccent(): ?string
+    public function getColourAccentLight(): ?string
     {
-        return $this->colour_accent;
+        return $this->colour_accent_light;
     }
 
-    public function setColourShadow(?string $colour_shadow): self
+    public function setColourShadowLight(?string $colour_shadow_light): self
     {
-        $this->colour_shadow = $colour_shadow;
+        $this->colour_shadow_light = $colour_shadow_light;
         return $this;
     }
 
-    public function getColourShadow(): ?string
+    public function getColourShadowLight(): ?string
     {
-        return $this->colour_shadow;
+        return $this->colour_shadow_light;
+    }
+
+    public function setColourForegroundDark(?string $colour_foreground_dark): self
+    {
+        $this->colour_foreground_dark = $colour_foreground_dark;
+        return $this;
+    }
+
+    public function getColourForegroundDark(): ?string
+    {
+        return $this->colour_foreground_dark;
+    }
+
+    public function setColourBackgroundHardDark(?string $colour_background_hard_dark): self
+    {
+        $this->colour_background_hard_dark = $colour_background_hard_dark;
+        return $this;
+    }
+
+    public function getColourBackgroundHardDark(): ?string
+    {
+        return $this->colour_background_hard_dark;
+    }
+
+    public function setColourBackgroundCardDark(?string $colour_background_card_dark): self
+    {
+        $this->colour_background_card_dark = $colour_background_card_dark;
+        return $this;
+    }
+
+    public function getColourBackgroundCardDark(): ?string
+    {
+        return $this->colour_background_card_dark;
+    }
+
+    public function setColourBorderDark(?string $colour_border_dark): self
+    {
+        $this->colour_border_dark = $colour_border_dark;
+        return $this;
+    }
+
+    public function getColourBorderDark(): ?string
+    {
+        return $this->colour_border_dark;
+    }
+
+    public function setColourAccentDark(?string $colour_accent_dark): self
+    {
+        $this->colour_accent_dark = $colour_accent_dark;
+        return $this;
+    }
+
+    public function getColourAccentDark(): ?string
+    {
+        return $this->colour_accent_dark;
+    }
+
+    public function setColourShadowDark(?string $colour_shadow_dark): self
+    {
+        $this->colour_shadow_dark = $colour_shadow_dark;
+        return $this;
+    }
+
+    public function getColourShadowDark(): ?string
+    {
+        return $this->colour_shadow_dark;
     }
 
     public function setCreated(\DateTimeInterface $created): self
@@ -158,12 +230,18 @@ class Oomox extends Entity
             'name'   => 'oomox',
             'fields' => [
                 'actor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to actor table'],
-                'colour_foreground'         => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_background_hard'    => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_background_card'    => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_border'             => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_accent'             => ['type' => 'text',      'description' => 'color hex code'],
-                'colour_shadow'             => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_foreground_light'         => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_background_hard_light'    => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_background_card_light'    => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_border_light'             => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_accent_light'             => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_shadow_light'             => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_foreground_dark'         => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_background_hard_dark'    => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_background_card_dark'    => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_border_dark'             => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_accent_dark'             => ['type' => 'text',      'description' => 'color hex code'],
+                'colour_shadow_dark'             => ['type' => 'text',      'description' => 'color hex code'],
                 'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
                 'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],

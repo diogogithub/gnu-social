@@ -71,9 +71,15 @@ class Oomox extends Plugin
     public function onPopulateProfileSettingsTabs(Request $request, array &$tabs): bool
     {
         $tabs[] = [
-            'title'      => 'Theme colours',
+            'title'      => 'Light theme colours',
             'desc'       => 'Change the theme colours.',
-            'controller' => C\Oomox::oomoxSettings($request),
+            'controller' => C\Oomox::oomoxSettingsLight($request),
+        ];
+
+        $tabs[] = [
+            'title'      => 'Dark theme colours',
+            'desc'       => 'Change the theme colours.',
+            'controller' => C\Oomox::oomoxSettingsDark($request),
         ];
 
         return Event::next;
