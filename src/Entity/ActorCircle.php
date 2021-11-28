@@ -53,7 +53,7 @@ class ActorCircle extends Entity
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setId(int $id): ActorCircle
+    public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
@@ -133,22 +133,29 @@ class ActorCircle extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public function getActorTag()
+    {
+        return Cache::get(
+            "actor-tag-{$this->getTag()}",
+            fn () => DB::findBy('actor_tag', ['tagger' => $this->getTagger(), 'canonical' => $this->getTag()], limit: 1)[0], // TODO jank
+        );
+    }
+
     public function getSubscribedActors(?int $offset = null, ?int $limit = null): array
     {
         return Cache::get(
             "circle-{$this->getId()}",
-            fn() => DB::dql(
-                <<< EOQ
+            fn () => DB::dql(
+                <<< 'EOQ'
                     SELECT a
                     FROM App\Entity\Actor a
                     JOIN App\Entity\ActorCircleSubscription s
                         WITH a.id = s.actor_id
                     ORDER BY s.created DESC, a.id DESC
                     EOQ,
-                options:
-                ['offset' => $offset,
-                    'limit' => $limit]
-            )
+                options: ['offset' => $offset,
+                    'limit'        => $limit, ],
+            ),
         );
     }
 
@@ -160,7 +167,7 @@ class ActorCircle extends Entity
             'fields'      => [
                 'id'          => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
-                'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
+                'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.canonical', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
                 'description' => ['type' => 'text',      'description' => 'description of the people tag'],
                 'private'     => ['type' => 'bool',      'default' => false, 'description' => 'is this tag private'],
                 'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],

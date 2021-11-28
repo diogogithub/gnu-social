@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  {% for actor in results %}
+    {% block profile_view %}{% include 'cards/profile/view.html.twig' %}{% endblock profile_view %}
+  {% endfor %}
+
+  {{ "Page: " ~ page }}
+{% endblock %}

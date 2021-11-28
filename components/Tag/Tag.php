@@ -52,8 +52,10 @@ class Tag extends Component
 
     public function onAddRoute($r): bool
     {
-        $r->connect('single_tag', '/tag/{tag<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_tag']);
-        $r->connect('multiple_tags', '/tags/{tags<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_tags']);
+        $r->connect('single_note_tag', '/note-tag/{tag<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_note_tag']);
+        $r->connect('multiple_note_tags', '/note-tags/{tags<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_note_tags']);
+        $r->connect('single_actor_tag', '/actor-tag/{tag<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_actor_tag']);
+        $r->connect('multiple_actor_tags', '/actor-tags/{tags<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_actor_tags']);
         return Event::next;
     }
 
@@ -80,17 +82,15 @@ class Tag extends Component
 
     public function onRenderPlainTextNoteContent(string &$text, ?string $language = null): bool
     {
-        if (!is_null($language)) {
-            $text = preg_replace_callback(self::TAG_REGEX, fn ($m) => $m[1] . self::tagLink($m[2], $language), $text);
-        }
+        $text = preg_replace_callback(self::TAG_REGEX, fn ($m) => $m[1] . self::tagLink($m[2], $language), $text);
         return Event::next;
     }
 
-    private static function tagLink(string $tag, string $language): string
+    private static function tagLink(string $tag, ?string $language): string
     {
         $tag       = self::ensureLength($tag);
         $canonical = self::canonicalTag($tag, $language);
-        $url       = Router::url('tag', ['tag' => $canonical, 'lang' => $language]);
+        $url       = Router::url('single_note_tag', !\is_null($language) ? ['tag' => $canonical, 'lang' => $language] : ['tag' => $canonical]);
         return HTML::html(['a' => ['attrs' => ['href' => $url, 'title' => $tag, 'rel' => 'tag'], $tag]], options: ['indent' => false]);
     }
 
@@ -99,12 +99,12 @@ class Tag extends Component
         return mb_substr($tag, 0, self::MAX_TAG_LENGTH);
     }
 
-    public static function canonicalTag(string $tag, string $language): string
+    public static function canonicalTag(string $tag, ?string $language): string
     {
         $result = '';
         foreach (Formatting::splitWords(str_replace('#', '', $tag)) as $word) {
             $temp_res = null;
-            if (Event::handle('StemWord', [$language, $word, &$temp_res]) !== Event::stop) {
+            if (\is_null($language) || Event::handle('StemWord', [$language, $word, &$temp_res]) !== Event::stop) {
                 $temp_res = $word;
             }
             $result .= Formatting::slugify($temp_res);

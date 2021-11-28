@@ -23,6 +23,7 @@ namespace App\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Router\Router;
 use Component\Tag\Tag;
 use DateTimeInterface;
 
@@ -108,6 +109,15 @@ class ActorTag extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public function getUrl(?Actor $actor = null): string
+    {
+        $params = ['tag' => $this->getCanonical()];
+        if (!\is_null($actor)) {
+            $params['lang'] = $actor->getTopLanguage()->getLocale();
+        }
+        return Router::url('single_actor_tag', $params);
+    }
+
     public static function schemaDef(): array
     {
         return [
@@ -119,11 +129,11 @@ class ActorTag extends Entity
                 'canonical' => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
                 'modified'  => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['tagger', 'tagged', 'tag'],
+            'primary key' => ['tagger', 'tagged', 'canonical'],
             'indexes'     => [
-                'actor_tag_modified_idx'   => ['modified'],
-                'actor_tag_tagger_tag_idx' => ['tagger', 'tag'], // For Circles
-                'actor_tag_tagged_idx'     => ['tagged'],
+                'actor_tag_modified_idx'         => ['modified'],
+                'actor_tag_tagger_canonical_idx' => ['tagger', 'canonical'], // For Circles
+                'actor_tag_tagged_idx'           => ['tagged'],
             ],
         ];
     }

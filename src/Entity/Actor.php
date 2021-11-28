@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 
@@ -29,15 +29,13 @@ use App\Core\Entity;
 use App\Core\Event;
 use App\Core\Router\Router;
 use App\Core\UserRoles;
-use App\Util\Common;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Nickname;
 use Component\Avatar\Avatar;
+use Component\Tag\Tag as TagComponent;
 use DateTimeInterface;
 use Functional as F;
-use function in_array;
-use function is_null;
 
 /**
  * Entity for actors
@@ -60,7 +58,7 @@ class Actor extends Entity
     private int $id;
     private string $nickname;
     private ?string $fullname = null;
-    private int $roles = 4;
+    private int $roles        = 4;
     private ?string $homepage;
     private ?string $bio;
     private ?string $location;
@@ -102,7 +100,7 @@ class Actor extends Entity
 
     public function getFullname(): ?string
     {
-        if (is_null($this->fullname)) {
+        if (\is_null($this->fullname)) {
             return null;
         }
         return $this->fullname;
@@ -254,17 +252,17 @@ class Actor extends Entity
 
     public static function getById(int $id): ?self
     {
-        return Cache::get('actor-id-' . $id, fn() => DB::find('actor', ['id' => $id]));
+        return Cache::get('actor-id-' . $id, fn () => DB::find('actor', ['id' => $id]));
     }
 
     public static function getNicknameById(int $id): string
     {
-        return Cache::get('actor-nickname-id-' . $id, fn() => self::getById($id)->getNickname());
+        return Cache::get('actor-nickname-id-' . $id, fn () => self::getById($id)->getNickname());
     }
 
     public static function getFullnameById(int $id): ?string
     {
-        return Cache::get('actor-fullname-id-' . $id, fn() => self::getById($id)->getFullname());
+        return Cache::get('actor-fullname-id-' . $id, fn () => self::getById($id)->getFullname());
     }
 
     /**
@@ -280,91 +278,92 @@ class Actor extends Entity
     /**
      * Get tags that other people put on this actor, in reverse-chron order
      *
-     * @param Actor|int|null $scoped Actor we are requesting as:
+     * @param null|Actor|int $scoped Actor we are requesting as:
      *                               - If null = All tags attributed to self by other actors (excludes self tags)
      *                               - If self = Same as getSelfTags
      *                               - otherwise = Tags that $scoped attributed to $this
-     * @param int|null $offset Offset from latest
-     * @param int|null $limit Max number to get
-     * @param bool $_test_force_recompute
+     * @param null|int       $offset Offset from latest
+     * @param null|int       $limit  Max number to get
+     *
      * @return [ActorCircle] resulting lists
      */
-    public function getOtherTags(Actor|int|null $scoped = null, ?int $offset = null, ?int $limit = null, bool $_test_force_recompute = false): array
+    public function getOtherTags(self|int|null $scoped = null, ?int $offset = null, ?int $limit = null, bool $_test_force_recompute = false): array
     {
-        if (is_null($scoped)) {
+        if (\is_null($scoped)) {
             return Cache::get(
                 "othertags-{$this->getId()}",
-                fn() => DB::dql(
-                    <<< EOQ
-                    SELECT circle
-                    FROM App\Entity\ActorTag tag
-                    JOIN App\Entity\ActorCircle circle
-                        WITH
-                            tag.tagger = circle.tagger
-                            AND tag.tag = circle.tag
-                    WHERE tag.tagged = :id
-                    ORDER BY tag.modified DESC, tag.tagged DESC
-                    EOQ,
+                fn () => DB::dql(
+                    <<< 'EOQ'
+                        SELECT circle
+                        FROM App\Entity\ActorTag tag
+                        JOIN App\Entity\ActorCircle circle
+                            WITH
+                                tag.tagger = circle.tagger
+                                AND tag.tag = circle.tag
+                        WHERE tag.tagged = :id
+                        ORDER BY tag.modified DESC, tag.tagged DESC
+                        EOQ,
                     ['id' => $this->getId()],
-                    ['offset' => $offset,
-                        'limit' => $limit])
+                    ['offset'   => $offset,
+                        'limit' => $limit, ],
+                ),
             );
         } else {
-            $scoped_id = is_int($scoped) ? $scoped : $scoped->getId();
+            $scoped_id = \is_int($scoped) ? $scoped : $scoped->getId();
             return Cache::get(
                 "othertags-{$this->getId()}-by-{$scoped_id}",
-                fn() => DB::dql(
-                    <<< EOQ
-                    SELECT circle
-                    FROM App\Entity\ActorTag tag
-                    JOIN App\Entity\ActorCircle circle
-                        WITH
-                            tag.tagger = circle.tagger
-                            AND tag.tag = circle.tag
-                    WHERE
-                        tag.tagged = :id
-                        AND ( circle.private != true
-                            OR ( circle.tagger = :scoped
-                                AND circle.private = true
-                               )
-                        )
-                    ORDER BY tag.modified DESC, tag.tagged DESC
-                    EOQ,
-                    ['id' => $this->getId(),
-                        'scoped' => $scoped_id],
-                    ['offset' => $offset,
-                        'limit' => $limit]
-                )
+                fn () => DB::dql(
+                    <<< 'EOQ'
+                        SELECT circle
+                        FROM App\Entity\ActorTag tag
+                        JOIN App\Entity\ActorCircle circle
+                            WITH
+                                tag.tagger = circle.tagger
+                                AND tag.tag = circle.tag
+                        WHERE
+                            tag.tagged = :id
+                            AND ( circle.private != true
+                                OR ( circle.tagger = :scoped
+                                    AND circle.private = true
+                                   )
+                            )
+                        ORDER BY tag.modified DESC, tag.tagged DESC
+                        EOQ,
+                    ['id'        => $this->getId(),
+                        'scoped' => $scoped_id, ],
+                    ['offset'    => $offset,
+                        'limit'  => $limit, ],
+                ),
             );
         }
     }
 
     /**
-     * @param array $tags array of strings to become self tags
-     * @param array|null $existing array of existing self tags (actor_circle[])
-     * @return $this
-     * @throws NotFoundException
+     * @param array      $tags     array of strings to become self tags
+     * @param null|array $existing array of existing self tags (actor_circle[])
+     *
      * @throws \App\Util\Exception\DuplicateFoundException
+     * @throws NotFoundException
+     *
+     * @return $this
      */
     public function setSelfTags(array $tags, ?array $existing = null): self
     {
-        if (is_null($existing)) {
+        if (\is_null($existing)) {
             $existing = $this->getSelfTags();
         }
-        $existing_actor_circles = F\map($existing, fn($actor_circle) => $actor_circle->getTag());
-        $tags_to_add = array_diff($tags, $existing_actor_circles);
-        $tags_to_remove = array_diff($existing_actor_circles, $tags);
-        $actor_circles_to_remove = F\filter($existing, fn($actor_circle) => in_array($actor_circle->getTag(), $tags_to_remove));
+        $existing_actor_circles  = F\map($existing, fn ($actor_circle) => $actor_circle->getTag());
+        $tags_to_add             = array_diff($tags, $existing_actor_circles);
+        $tags_to_remove          = array_diff($existing_actor_circles, $tags);
+        $actor_circles_to_remove = F\filter($existing, fn ($actor_circle) => \in_array($actor_circle->getTag(), $tags_to_remove));
         foreach ($tags_to_add as $tag) {
-            $actor_circle = ActorCircle::create(['tagger' => $this->getId(), 'tag' => $tag, 'private' => false]);
-            $actor_tag = ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag]);
-            DB::persist($actor_circle);
-            DB::persist($actor_tag);
+            $canonical_tag = TagComponent::canonicalTag($tag, $this->getTopLanguage()->getLocale());
+            DB::persist(ActorCircle::create(['tagger' => $this->getId(), 'tag' => $canonical_tag, 'private' => false]));
+            DB::persist(ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag, 'canonical' => $canonical_tag]));
         }
         foreach ($actor_circles_to_remove as $actor_circle) {
-            $actor_tag = DB::findOneBy('actor_tag', ['tagger' => $this->getId(), 'tagged' => $this->getId(), 'tag' => $actor_circle->getTag()]);
-            DB::persist($actor_tag);
-            DB::remove($actor_tag);
+            $canonical_tag = TagComponent::canonicalTag($actor_circle->getTag(), $this->getTopLanguage()->getLocale());
+            DB::removeBy('actor_tag', ['tagger' => $this->getId(), 'tagged' => $this->getId(), 'canonical' => $canonical_tag]);
             DB::removeBy('actor_circle', ['id' => $actor_circle->getId()]);
         }
         Cache::delete("selftags-{$this->getId()}");
@@ -378,9 +377,9 @@ class Actor extends Entity
             'subscribers-' . $this->id,
             function () {
                 return DB::dql(
-                        'select count(f) from App\Entity\Subscription f where f.subscribed = :subscribed',
-                        ['subscribed' => $this->id],
-                    )[0][1] - 1; // Remove self subscription
+                    'select count(f) from App\Entity\Subscription f where f.subscribed = :subscribed',
+                    ['subscribed' => $this->id],
+                )[0][1] - 1; // Remove self subscription
             },
         );
     }
@@ -391,9 +390,9 @@ class Actor extends Entity
             'subscribed-' . $this->id,
             function () {
                 return DB::dql(
-                        'select count(f) from App\Entity\Subscription f where f.subscriber = :subscriber',
-                        ['subscriber' => $this->id],
-                    )[0][1] - 1; // Remove self subscription
+                    'select count(f) from App\Entity\Subscription f where f.subscriber = :subscriber',
+                    ['subscriber' => $this->id],
+                )[0][1] - 1; // Remove self subscription
             },
         );
     }
@@ -419,16 +418,16 @@ class Actor extends Entity
         $nickname = Nickname::normalize($nickname, check_already_used: false);
         return Cache::get(
             'relative-nickname-' . $nickname . '-' . $this->getId(),
-            fn() => DB::dql(
-                    <<<'EOF'
+            fn () => DB::dql(
+                <<<'EOF'
                     select a from actor a where 
                     a.id in (select fa.subscribed from subscription fa join actor aa with fa.subscribed = aa.id where fa.subscriber = :actor_id and aa.nickname = :nickname) or 
                     a.id in (select fb.subscriber from subscription fb join actor ab with fb.subscriber = ab.id where fb.subscribed = :actor_id and ab.nickname = :nickname) or 
                     a.nickname = :nickname
                     EOF,
-                    ['nickname' => $nickname, 'actor_id' => $this->getId()],
-                    ['limit' => 1],
-                )[0] ?? null,
+                ['nickname' => $nickname, 'actor_id' => $this->getId()],
+                ['limit'    => 1],
+            )[0] ?? null,
         );
     }
 
@@ -471,6 +470,11 @@ class Actor extends Entity
         return $aliases;
     }
 
+    public function getTopLanguage(): Language
+    {
+        return ActorLanguage::getActorLanguages($this, context: null)[0];
+    }
+
     /**
      * Get the most appropriate language for $this to use when
      * referring to $context (a reply or a group, for instance)
@@ -479,43 +483,38 @@ class Actor extends Entity
      */
     public function getPreferredLanguageChoices(?self $context = null): array
     {
-        $id = $context?->getId() ?? $this->getId();
-        $key = ActorLanguage::collectionCacheKey($this, $context);
-        $langs = Cache::getList(
-            $key,
-            fn() => DB::dql(
-                'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.ordering ASC',
-                ['id' => $id],
-            ),
-        ) ?: [
-            Language::getFromLocale(Common::config('site', 'language')),
-        ];
-        return array_merge(...F\map($langs, fn($l) => $l->toChoiceFormat()));
+        $langs = ActorLanguage::getActorLanguages($this, context: $context);
+        return array_merge(...F\map($langs, fn ($l) => $l->toChoiceFormat()));
+    }
+
+    public function isVisibleTo(self $other): bool
+    {
+        return true; // TODO
     }
 
     public static function schemaDef(): array
     {
         return [
-            'name' => 'actor',
+            'name'        => 'actor',
             'description' => 'local and remote users, groups and bots are actors, for instance',
-            'fields' => [
-                'id' => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'nickname' => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
-                'fullname' => ['type' => 'text', 'description' => 'display name'],
-                'roles' => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this actor has'],
-                'homepage' => ['type' => 'text', 'description' => 'identifying URL'],
-                'bio' => ['type' => 'text', 'description' => 'descriptive biography'],
-                'location' => ['type' => 'text', 'description' => 'physical location'],
-                'lat' => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
-                'lon' => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
-                'location_id' => ['type' => 'int', 'description' => 'location id if possible'],
+            'fields'      => [
+                'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
+                'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
+                'fullname'         => ['type' => 'text', 'description' => 'display name'],
+                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this actor has'],
+                'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
+                'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
+                'location'         => ['type' => 'text', 'description' => 'physical location'],
+                'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
+                'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
+                'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
                 'location_service' => ['type' => 'int', 'description' => 'service used to obtain location id'],
-                'is_local' => ['type' => 'bool', 'not null' => true, 'description' => 'Does this actor have a LocalUser associated'],
-                'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'is_local'         => ['type' => 'bool', 'not null' => true, 'description' => 'Does this actor have a LocalUser associated'],
+                'created'          => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
-            'indexes' => [
+            'indexes'     => [
                 'actor_nickname_idx' => ['nickname'],
             ],
             'fulltext indexes' => [

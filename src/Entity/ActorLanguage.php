@@ -23,8 +23,10 @@ declare(strict_types = 1);
 
 namespace App\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Util\Common;
 
 /**
  * Entity for actor languages
@@ -79,9 +81,9 @@ class ActorLanguage extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public static function collectionCacheKey(LocalUser|Actor $actor, ?Actor $content = null)
+    public static function collectionCacheKey(LocalUser|Actor $actor, ?Actor $context = null)
     {
-        return 'actor-' . $actor->getId() . '-langs' . (!\is_null($content) ? '-cxt-' . $content->getId() : '');
+        return 'actor-' . $actor->getId() . '-langs' . (!\is_null($context) ? '-cxt-' . $context->getId() : '');
     }
 
     public static function normalizeOrdering(LocalUser|Actor $actor)
@@ -92,6 +94,21 @@ class ActorLanguage extends Entity
             $actor_lang = DB::getReference('actor_language', ['actor_id' => $actor->getId(), 'language_id' => $l['id']]);
             $actor_lang->setOrdering($order + 1);
         }
+    }
+
+    /**
+     * @return self[]
+     */
+    public static function getActorLanguages(LocalUser|Actor $actor, ?Actor $context): array
+    {
+        $id = $context?->getId() ?? $actor->getId();
+        return Cache::getList(
+            self::collectionCacheKey($actor, context: $context),
+            fn () => DB::dql(
+                'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.ordering ASC',
+                ['id' => $id],
+            ),
+        ) ?: [Language::getFromLocale(Common::config('site', 'language'))];
     }
 
     public static function schemaDef(): array

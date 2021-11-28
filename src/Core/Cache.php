@@ -372,7 +372,7 @@ abstract class Cache
             $per_page = Common::config('streams', 'notes_per_page');
         }
 
-        $filter_scope = fn (Note $n) => $n->isVisibleTo($actor);
+        $filter_scope = fn (Note|Actor $o) => $o->isVisibleTo($actor);
 
         $getter = fn (int $offset, int $length) => DB::dql($query, $query_args, options: ['offset' => $offset, 'limit' => $length]);
 

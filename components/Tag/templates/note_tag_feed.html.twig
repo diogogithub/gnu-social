@@ -2,7 +2,7 @@
 {% import '/cards/note/view.html.twig' as noteView %}
 
 {% block body %}
-  {% for note in notes %}
+  {% for note in results %}
     {% block current_note %}
       {{ noteView.macro_note(note) }}
     {% endblock current_note %}
