@@ -365,8 +365,7 @@ class Actor extends Entity
             $actor_tag = DB::findOneBy('actor_tag', ['tagger' => $this->getId(), 'tagged' => $this->getId(), 'tag' => $actor_circle->getTag()]);
             DB::persist($actor_tag);
             DB::remove($actor_tag);
-            // TODO: use DB::removeBy when implemented
-            DB::remove(DB::getReference('actor_circle', ['id' => $actor_circle->getId()]));
+            DB::removeBy('actor_circle', ['id' => $actor_circle->getId()]);
         }
         Cache::delete("selftags-{$this->getId()}");
         Cache::delete("othertags-{$this->getId()}-by-{$this->getId()}");
