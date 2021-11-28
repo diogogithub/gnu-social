@@ -237,7 +237,7 @@ abstract class Formatting
         // Split \n\n into paragraphs, process each paragrah and merge
         return implode("\n", F\map(explode("\n\n", $text), function (string $paragraph) use ($language) {
             $paragraph = nl2br($paragraph, use_xhtml: false);
-            Event::handle('onRenderPlainTextNoteContent', [&$paragraph, $language]);
+            Event::handle('RenderPlainTextNoteContent', [&$paragraph, $language]);
 
             return HTML::html(['p' => [$paragraph]], options: ['raw' => true, 'indent' => false]);
         }));
@@ -286,7 +286,7 @@ abstract class Formatting
      * Note the return data format is internal, to be used for building links and
      * such. Should not be used directly; rather, call common_linkify_mentions().
      *
-     * @param Actor $actor  the Actor that is sending the current text
+     * @param Actor $actor the Actor that is sending the current text
      */
     public static function findMentions(string $text, Actor $actor): array
     {
