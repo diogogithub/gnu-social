@@ -1,7 +1,20 @@
-{% for note in notes %}
-  {% include '/cards/note/view.html.twig' with {'note': note} %}
-{% endfor %}
+{% extends 'base.html.twig' %}
 
-{% for actor in actors %}
-  {% include 'actor/view.html.twig' with {'actor': actor} %}
-{% endfor %}
+{% import '/cards/note/view.html.twig' as noteView %}
+
+{% block body %}
+  {% for note in notes %}
+    {% block current_note %}
+      <div class="section-widget">
+        {{ noteView.macro_note(note) }}
+      </div>
+    {% endblock current_note %}
+  {% endfor %}
+
+  {% for actor in actors %}
+    {% include 'actor/view.html.twig' with {'actor': actor} %}
+  {% endfor %}
+
+  {{ "Page: " ~ page }}
+{% endblock %}
+

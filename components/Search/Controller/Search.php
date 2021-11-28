@@ -54,6 +54,7 @@ class Search extends Controller
             '_template' => 'search/show.html.twig',
             'notes'     => $notes,
             'actors'    => $actors,
+            'page'      => 1, // TODO paginate
         ];
     }
 }
