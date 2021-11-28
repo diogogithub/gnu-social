@@ -121,17 +121,19 @@ class DB
      * from table aliases to class names. Replaces '{select}' in
      * $query with the appropriate select list
      */
-    public static function sql(string $query, array $params = [])
+    public static function sql(string $query, array $params = [], ?array $entities = null)
     {
         if ($_ENV['APP_ENV'] === 'dev' && str_starts_with($query, 'select *')) {
             throw new Exception('Cannot use `select *`, use `select {select}` (see ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT)');
         }
-        $rsmb    = new ResultSetMappingBuilder(self::$em, ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT);
-        $matches = [];
-        preg_match_all(self::$table_entity_pattern, $query, $matches);
-        $entities = [];
-        foreach (F\zip($matches[1], $matches[2]) as [$table, $alias]) {
-            $entities[$alias] = self::$table_map[$table];
+        $rsmb = new ResultSetMappingBuilder(self::$em, ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT);
+        if (\is_null($entities)) {
+            $matches = [];
+            preg_match_all(self::$table_entity_pattern, $query, $matches);
+            $entities = [];
+            foreach (F\zip($matches[1], $matches[2]) as [$table, $alias]) {
+                $entities[$alias] = self::$table_map[$table];
+            }
         }
         foreach ($entities as $alias => $entity) {
             $rsmb->addRootEntityFromClassMetadata($entity, $alias);
