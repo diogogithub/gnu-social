@@ -341,7 +341,7 @@ abstract class Cache
                 }
             };
             $res = $get();
-            if (\is_null($res)) {
+            if (empty($res)) {
                 self::setHashMap($map_key, $calculate_map(), $pool);
                 $res = $get();
             }
