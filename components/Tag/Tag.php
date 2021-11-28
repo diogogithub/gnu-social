@@ -68,7 +68,7 @@ class Tag extends Component
         $processed_tags = false;
         preg_match_all(self::TAG_REGEX, $content, $matched_tags, \PREG_SET_ORDER);
         foreach ($matched_tags as $match) {
-            $tag           = self::ensureLength($match[2]);
+            $tag           = str_replace('#', '', self::ensureLength($match[2]));
             $canonical_tag = self::canonicalTag($tag, Language::getFromId($note->getLanguageId())->getLocale());
             DB::persist(NoteTag::create(['tag' => $tag, 'canonical' => $canonical_tag, 'note_id' => $note->getId()]));
             Cache::pushList("tag-{$canonical_tag}", $note);

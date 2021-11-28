@@ -28,8 +28,8 @@
 
         <nav class="profile-info-tags">
             {% if actor_tags %}
-                {% for tag in actor_tags %}
-                    <a href="{{ tag.getActorTag().getUrl(actor) }}"><em>#{{ tag.getTag() }}</em></a> 
+                {% for tag in actor_tags %} {# Actually a list of actor_circle #}
+                  {% include 'cards/tag/actor_tag.html.twig' with { 'tag': tag.getActorTag(), 'actor': actor } %}
                 {% endfor %}
             {% else %}
                 {{ '(No tags)' | trans }}

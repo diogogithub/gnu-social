@@ -2,9 +2,15 @@
 {% import '/cards/note/view.html.twig' as noteView %}
 
 {% block body %}
+  {% for pinned in handle_event('AddPinnedFeedContent', app.request) %}
+    {% include pinned['template'] with { 'note_tags': pinned['vars']} only %}
+  {% endfor %}
+
   {% for note in results %}
     {% block current_note %}
-      {{ noteView.macro_note(note) }}
+      <div class="section-widget">
+        {{ noteView.macro_note(note) }}
+      </div>
     {% endblock current_note %}
   {% endfor %}
 

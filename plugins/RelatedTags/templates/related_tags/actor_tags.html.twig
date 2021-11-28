@@ -1,0 +1,7 @@
+<div class="section-widget">
+  <p>Related tags:</p>
+  {% for at in actor_tags %}
+    {% include 'cards/tag/actor_tag.html.twig' with { 'tag': at, 'actor': null } %}
+  {% endfor %}
+</div>
+

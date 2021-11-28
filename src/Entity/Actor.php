@@ -487,7 +487,7 @@ class Actor extends Entity
         return array_merge(...F\map($langs, fn ($l) => $l->toChoiceFormat()));
     }
 
-    public function isVisibleTo(self $other): bool
+    public function isVisibleTo(null|LocalUser|self $other): bool
     {
         return true; // TODO
     }

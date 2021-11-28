@@ -1,6 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+  {% for pinned in handle_event('AddPinnedFeedContent', app.request) %}
+    {% include pinned['template'] with { 'actor_tags': pinned['vars']} only %}
+  {% endfor %}
+
   {% for actor in results %}
     {% block profile_view %}{% include 'cards/profile/view.html.twig' %}{% endblock profile_view %}
   {% endfor %}

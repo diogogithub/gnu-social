@@ -22,6 +22,7 @@ declare(strict_types = 1);
 namespace App\Entity;
 
 use App\Core\Entity;
+use App\Core\Router\Router;
 use Component\Tag\Tag;
 use DateTimeInterface;
 
@@ -94,6 +95,15 @@ class NoteTag extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public function getUrl(?Actor $actor = null): string
+    {
+        $params = ['tag' => $this->getCanonical()];
+        if (!\is_null($actor)) {
+            $params['lang'] = $actor->getTopLanguage()->getLocale();
+        }
+        return Router::url('single_note_tag', $params);
+    }
 
     public static function schemaDef(): array
     {
