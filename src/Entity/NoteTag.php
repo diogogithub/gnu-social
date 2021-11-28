@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License/
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -44,7 +46,7 @@ class NoteTag extends Entity
     private string $tag;
     private string $canonical;
     private int $note_id;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $created;
 
     public function setTag(string $tag): self
     {
@@ -100,7 +102,7 @@ class NoteTag extends Entity
             'description' => 'Hash tags on notes',
             'fields'      => [
                 'tag'       => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag associated with this note'],
-                'canonical' => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of hash tag'],
+                'canonical' => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
                 'note_id'   => ['type' => 'int',      'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to tagged note'],
                 'created'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

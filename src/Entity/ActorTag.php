@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -19,9 +21,9 @@
 
 namespace App\Entity;
 
-use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use Component\Tag\Tag;
 use DateTimeInterface;
 
 /**
@@ -45,7 +47,8 @@ class ActorTag extends Entity
     private int $tagger;
     private int $tagged;
     private string $tag;
-    private \DateTimeInterface $modified;
+    private string $canonical;
+    private DateTimeInterface $modified;
 
     public function setTagger(int $tagger): self
     {
@@ -80,6 +83,17 @@ class ActorTag extends Entity
         return $this->tag;
     }
 
+    public function setCanonical(string $canonical): self
+    {
+        $this->canonical = $canonical;
+        return $this;
+    }
+
+    public function getCanonical(): string
+    {
+        return $this->canonical;
+    }
+
     public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
@@ -99,10 +113,11 @@ class ActorTag extends Entity
         return [
             'name'   => 'actor_tag',
             'fields' => [
-                'tagger'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagger_fkey', 'not null' => true, 'description' => 'actor making the tag'],
-                'tagged'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'not null' => true, 'description' => 'actor tagged'],
-                'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'tagger'    => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagger_fkey', 'not null' => true, 'description' => 'actor making the tag'],
+                'tagged'    => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'not null' => true, 'description' => 'actor tagged'],
+                'tag'       => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag associated with this actor'],
+                'canonical' => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
+                'modified'  => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['tagger', 'tagged', 'tag'],
             'indexes'     => [

@@ -111,8 +111,8 @@ class Language extends Entity
     public static function getFromId(int $id): self
     {
         return Cache::getHashMapKey(
-            'languages-id',
-            (string) $id,
+            map_key: 'languages-id',
+            key: (string) $id,
             calculate_map: fn () => F\reindex(DB::dql('select l from language l'), fn (self $l) => (string) $l->getId()),
         );
     }
