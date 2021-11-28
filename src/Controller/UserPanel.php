@@ -42,8 +42,8 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Log;
-use App\Entity\ActorCircle;
 use App\Entity\ActorLanguage;
 use App\Entity\Language;
 use App\Util\Common;
@@ -66,7 +66,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
 // }}} Imports
 
@@ -109,7 +108,7 @@ class UserPanel extends Controller
             ['self_tags',  TextType::class,      ['label' => _m('Self Tags'), 'required' => false, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.'), 'transformer' => ArrayTransformer::class]],
             ['save_personal_info',       SubmitType::class,    ['label' => _m('Save personal info')]],
         ];
-        $extra_step = function ($data, $extra_args) use ($user, $actor) {
+        $extra_step = function ($data, $extra_args) use ($user) {
             $user->setNickname($data['nickname']);
         };
         return Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
@@ -128,7 +127,7 @@ class UserPanel extends Controller
             ['incoming_email', TextType::class,        ['label' => _m('Incoming email'), 'required' => false,  'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
             ['old_password',   TextType::class,        ['label' => _m('Old password'),   'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
             FormFields::repeated_password(['required' => false]),
-            FormFields::language($user->getActor(), context_actor: null, label: 'Languages', help: 'The languages you understand, so you can see primarily content in those', multiple: true, required: false, use_short_display: false),
+            FormFields::language($user->getActor(), context_actor: null, label: _m('Languages'), help: _m('The languages you understand, so you can see primarily content in those'), multiple: true, required: false, use_short_display: false),
             ['phone_number', PhoneNumberType::class, ['label' => _m('Phone number'), 'required' => false, 'help' => _m('Your phone number'), 'data_class' => null]],
             ['save_account_info', SubmitType::class, ['label' => _m('Save account info')]],
         ]);

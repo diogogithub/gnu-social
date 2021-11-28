@@ -87,12 +87,12 @@ abstract class FormFields
             'language' . ($multiple ? 's' : ''),
             ChoiceType::class,
             [
-                'label'             => _m($label),
+                'label'             => $label,
                 'preferred_choices' => $preferred_language_choices,
                 'choices'           => $language_choices,
                 'required'          => $required,
                 'multiple'          => $multiple,
-                'help'              => _m($help),
+                'help'              => $help,
             ],
         ];
     }

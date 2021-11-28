@@ -74,7 +74,7 @@ class Reply extends Controller
         // TODO shouldn't this be the posting form?
         $form = Form::create([
             ['content', TextareaType::class, ['label' => _m('Reply'), 'label_attr' => ['class' => 'section-form-label'], 'help' => _m('Please input your reply.')]],
-            FormFields::language($user->getActor(), context_actor: $note->getActor(), label: 'Note language', help: null),
+            FormFields::language($user->getActor(), context_actor: $note->getActor(), label: _m('Note language')),
             ['attachments', FileType::class, ['label' => ' ', 'multiple' => true, 'required' => false]],
             ['replyform', SubmitType::class, ['label' => _m('Submit')]],
         ]);

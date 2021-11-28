@@ -28,11 +28,11 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\GSFile;
-use App\Core\Router\Router;
-use App\Entity\Activity;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
+use App\Core\Router\Router;
 use App\Core\Security;
+use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\ActorToAttachment;
 use App\Entity\Attachment;
@@ -101,7 +101,7 @@ class Posting extends Component
             ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
             ['content', TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]],
             ['attachments', FileType::class, ['label' => _m('Attachments:'), 'multiple' => true, 'required' => false, 'invalid_message' => _m('Attachment not valid.')]],
-            FormFields::language($actor, $context_actor, label: 'Note language:', help: 'The language in which you wrote this note, so others can see it'),
+            FormFields::language($actor, $context_actor, label: _m('Note language:')),
         ];
 
         if (\count($available_content_types) > 1) {
@@ -193,12 +193,12 @@ class Posting extends Component
         }
 
         $act = Activity::create([
-            'actor_id' => $actor->getId(),
-            'verb' => 'create',
+            'actor_id'    => $actor->getId(),
+            'verb'        => 'create',
             'object_type' => 'note',
-            'object_id' => $note->getId(),
-            'is_local' => true,
-            'source' => 'web',
+            'object_id'   => $note->getId(),
+            'is_local'    => true,
+            'source'      => 'web',
         ]);
         DB::persist($act);
 
@@ -211,7 +211,7 @@ class Posting extends Component
             }
         }
 
-        Event::handle('NewNotification', [$actor, $act, ['object' => $mentioned], "{$actor->getNickname()} created note {$note->getUrl()}", ]);
+        Event::handle('NewNotification', [$actor, $act, ['object' => $mentioned], "{$actor->getNickname()} created note {$note->getUrl()}"]);
 
         return $note;
     }
@@ -220,7 +220,7 @@ class Posting extends Component
     {
         switch ($content_type) {
             case 'text/plain':
-                $rendered = Formatting::renderPlainText($content, $language);
+                $rendered              = Formatting::renderPlainText($content, $language);
                 [$rendered, $mentions] = Formatting::linkifyMentions($rendered, $author, $language);
                 return Event::stop;
             case 'text/html':
