@@ -3,9 +3,9 @@
     flex-direction: column;
     flex-wrap: wrap;
     font-family: 'Open Sans',sans-serif;
-    margin-bottom: .6rem;
-    border-radius: .6rem;
-    padding: .6rem;
+    margin-bottom: var(--smaller);
+    border-radius: var(--smaller);
+    padding: var(--smaller);
     background: var(--gradient) !important;
     -webkit-box-shadow: var(--shadow);
     -moz-box-shadow: var(--shadow);
@@ -23,7 +23,7 @@
 }
 
 .profile-info-nickname {
-    font-size: 1.3rem;
+    font-size: var(--small);
 }
 
 .profile-info-tags {
@@ -35,12 +35,12 @@
 }
 
 .profile-info-stats {
-    margin-top: .6rem;
+    margin-top: var(--smaller);
 }
 
 .profile-avatar {
     max-width: 4rem;
-    min-width: 3rem;
+    min-width: var(--big);
     width: 100%;
     height: auto;
     margin-right: 5px;
@@ -50,29 +50,29 @@
 .section-widget {
     display: flex;
     flex-direction: column;
-    border-radius: .6rem;
-    margin-bottom: 1.3rem;
+    border-radius: var(--smaller);
+    margin-bottom: var(--small);
     background-color: var(--background-card) !important;
     box-shadow: var(--shadow);
     border: 2px solid var(--border) !important;
 }
 
 .section-widget hr {
-    margin-bottom: .6rem;
+    margin-bottom: var(--smaller);
 }
 
 .section-widget-padded {
-    padding: .6rem;
+    padding: var(--smaller);
 }
 
 .section-title {
-    font-size: 1.3rem;
+    font-size: var(--small);
     font-weight: 700;
     margin: 0;
 }
 
 .section-widget-button-like {
-    border-radius: .6rem;
+    border-radius: var(--smaller);
     padding: 6px 10px;
     margin-top: 6px;
     cursor: pointer;
@@ -83,10 +83,10 @@
 }
 
 .section-title-details {
-    font-size: 1.3rem;
+    font-size: var(--small);
     font-weight: 700;
-    border-radius: .6rem;
-    padding: 6px 10px 6px 10px;
+    border-radius: var(--smaller);
+    padding: 6px 10px;
     background: var(--gradient) !important;
 }
 
@@ -110,14 +110,14 @@
     flex-direction: column;
     max-width: 100%;
     width: 100%;
-    padding: .6rem;
+    padding: var(--smaller);
 }
 
 .section-form-legend {
     margin-top: unset;
     margin-bottom: 10px;
     font-weight: bold;
-    font-size: 1.62rem;
+    font-size: var(--medium);
 }
 
 div[class^="mb-"] {
@@ -136,14 +136,14 @@ div[class^="mb-"] textarea {
     max-height: 100%;
 }
 
-.alert,.alert-danger {
+.alert,
+.alert-danger {
     display: inline-block;
     font-style: italic;
     font-size: 1rem;
-
     border: solid 2px #ff6347;
     background-color: #FF634733;
-    border-radius: .6rem;
+    border-radius: var(--smaller);
     padding: 2px 6px;
     margin-top: 6px;
     margin-bottom: 6px;
