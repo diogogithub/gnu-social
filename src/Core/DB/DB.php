@@ -127,7 +127,7 @@ class DB
         if ($_ENV['APP_ENV'] === 'dev' && str_starts_with($query, 'select *')) {
             throw new Exception('Cannot use `select *`, use `select {select}` (see ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT)');
         }
-        $rsmb = new ResultSetMappingBuilder(self::$em, ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT);
+        $rsmb = new ResultSetMappingBuilder(self::$em, \is_null($entities) ? ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT : ResultSetMappingBuilder::COLUMN_RENAMING_NONE);
         if (\is_null($entities)) {
             $matches = [];
             preg_match_all(self::$table_entity_pattern, $query, $matches);
