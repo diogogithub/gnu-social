@@ -186,7 +186,7 @@ li {
         background-color: var(--background-hard);
     }
 
-    select {
+    select:not([multiple]) {
         background: var(--gradient),url("../images/select_drop_dark.png") no-repeat center right 5px !important;
         background-size: cover,16px !important;
     }
@@ -197,7 +197,7 @@ li {
         background-color: var(--background-hard);
     }
 
-    select {
+    select:not([multiple]) {
         background: var(--gradient),url("../images/select_drop_light.png") no-repeat center right 5px !important;
         background-size: cover,16px !important;
         background-blend-mode: saturation;

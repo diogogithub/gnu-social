@@ -164,8 +164,9 @@ select {
     max-width: 100% !important;
 }
 
-select>option {
-    width: 1px;
+select[multiple] {
+    overflow-y: scroll;
+    height: 20rem;
 }
 
 button:focus,button:hover,input:focus,input:hover,select:focus,select:hover,textarea:focus,textarea:hover {
