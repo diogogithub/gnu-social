@@ -21,15 +21,12 @@ declare(strict_types=1);
 
 namespace Component\Notification;
 
-use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Log;
 use App\Core\Modules\Component;
 use App\Entity\Activity;
 use App\Entity\Actor;
 use Component\FreeNetwork\FreeNetwork;
-use DateTime;
-use DateTimeInterface;
 
 class Notification extends Component
 {
@@ -40,29 +37,32 @@ class Notification extends Component
     public function onNewNotification(Actor $sender, Activity $activity, array $ids_already_known = [], ?string $reason = null): bool
     {
         $targets = $activity->getNotificationTargets($ids_already_known);
-        foreach ($targets as $target) {
-            $this->notify($sender, $activity, $target, $reason);
-        }
+        $this->notify($sender, $activity, $targets, $reason);
 
         return Event::next;
     }
 
-    public function notify(Actor $sender, Activity $activity, Actor $target, ?string $reason = null): bool
+    public function notify(Actor $sender, Activity $activity, array $targets, ?string $reason = null): bool
     {
-        if ($target->isGroup()) {
-            // FIXME: Make sure we check (for both local and remote) users are in the groups they send to!
-        } else {
-            if ($target->hasBlocked($activity->getActor())) {
-                Log::info("Not saving reply to actor {$target->getId()} from sender {$sender->getId()} because of a block.");
-                return false;
+        $remote_targets = [];
+        foreach ($targets as $target) {
+            if ($target->getIsLocal()) {
+                if ($target->isGroup()) {
+                    // FIXME: Make sure we check (for both local and remote) users are in the groups they send to!
+                } else {
+                    if ($target->hasBlocked($activity->getActor())) {
+                        Log::info("Not saving reply to actor {$target->getId()} from sender {$sender->getId()} because of a block.");
+                        continue;
+                    }
+                }
+                // TODO: use https://symfony.com/doc/current/notifier.html
+            } else {
+                $remote_targets[] = $target;
             }
         }
 
-        if ($target->getIsLocal()) {
-            // TODO: use https://symfony.com/doc/current/notifier.html
-        } else {
-            return FreeNetwork::notify($sender, $activity, $target, $reason);
-        }
-        return true;
+        FreeNetwork::notify($sender, $activity, $remote_targets, $reason);
+
+        return Event::next;
     }
 }

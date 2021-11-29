@@ -265,9 +265,13 @@ class FreeNetwork extends Component
         return Event::stop;
     }
 
-    public static function notify(Actor $sender, Activity $activity, Actor $target, ?string $reason = null): bool
+    public static function notify(Actor $sender, Activity $activity, array $targets, ?string $reason = null): bool
     {
-        // TODO: implement
+        $protocols = [];
+        Event::handle('AddFreeNetworkProtocol', [&$protocols]);
+        foreach ($protocols as $protocol) {
+            $protocol::freeNetworkDistribute($sender, $activity, $targets, $reason);
+        }
         return false;
     }
 
