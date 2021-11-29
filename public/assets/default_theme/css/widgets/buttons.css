@@ -1,8 +1,8 @@
 input {
     all: unset;
 }
-
-input[type=checkbox],input[type=radio] {
+input[type=checkbox],
+input[type=radio] {
     all: unset;
     display: inline-block;
     cursor: pointer !important;
@@ -11,20 +11,21 @@ input[type=checkbox],input[type=radio] {
     background: var(--accent) !important;
 }
 
-input[type=checkbox]:not(:hover,:focus),input[type=radio]:not(:hover,:focus) {
+input[type=checkbox]:not(:hover, :focus),
+input[type=radio]:not(:hover, :focus) {
     background: var(--foreground) !important;
 }
 
-input[type=checkbox],input[type=radio] {
+input[type=checkbox],
+input[type=radio] {
     border: unset !important;
 }
+
 input[type=radio] {
     background: var(--background-hard) !important;
 }
 
 input[type=radio] {
-    -webkit-border-radius: 50% !important;
-    -moz-border-radius: 50% !important;
     border-radius: 50% !important;
     margin: 3px 3px 0 5px !important;
 }
@@ -35,20 +36,15 @@ input[type=file] {
     font-family: 'Open Sans',sans-serif !important;
     font-weight: normal !important;
     padding: unset !important;
-    -webkit-border-radius: .6rem;
-    -moz-border-radius: .6rem;
-    border-radius: .6rem;
+    border-radius: var(--smaller);
     background: var(--gradient) !important;
 }
 
 input[type=radio] {
-    border: solid .25em !important;
+    border: solid 0.25em !important;
 }
 
 input[type=checkbox] {
-    -webkit-background-size: 100%;
-    -moz-background-size: 100%;
-    -o-background-size: 100%;
     background-size: 100%;
     margin-right: 2px;
     -webkit-mask-image: url("../../icons/check-off.svg") !important;
@@ -65,24 +61,25 @@ input[type=checkbox]:checked {
 }
 
 input[type=color] {
-    border: unset;
-    padding: 2px;
-    width: 100%;
-    height: 3rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: var(--big);
+    height: var(--big);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+input[type=color]::-webkit-color-swatch {
+    border-radius: var(--smaller);
+    border: none;
+}
+input[type=color]::-moz-color-swatch {
+    border-radius: var(--smaller);
+    border: none;
 }
 
 ::-webkit-file-upload-button {
-    cursor: pointer;
-    background-color: unset;
-    border: unset;
-    font-family: 'Open Sans',sans-serif !important;
-    font-weight: bold !important;
-    color: var(--foreground);
-    fill: var(--foreground);
-    margin: 3px;
-}
-
-::file-selector-button {
     cursor: pointer;
     background-color: unset;
     border: unset;
@@ -115,7 +112,8 @@ button {
     margin-top: var(--smaller);
 }
 
-button,label {
+button,
+label {
     font-family: 'Poppins',sans-serif;
     font-weight: bold !important;
     color: currentColor;
@@ -124,32 +122,33 @@ button,label {
 select::-ms-expand {
     display: none;
 }
-button,input,select,textarea {
+
+button,
+input,
+select,
+textarea {
     appearance: none;
     -webkit-appearance: none;
-    -moz-appearance: none;/* For IE <= 11 */
-    display: -webkit-inline-box;
-    display: -webkit-inline-flex;
-    display: -ms-inline-flexbox;
-    display: -moz-inline-box;
+    -moz-appearance: none;
     display: inline-flex;
     overflow: hidden;
     font-size: inherit;
     padding: 6px 8px !important;
-    -webkit-border-radius: .6rem;
-    -moz-border-radius: .6rem;
-    border-radius: .6rem;
+    border-radius: var(--smaller);
     border: 2px solid var(--border) !important;
-    -webkit-box-shadow: var(--shadow);
-    -moz-box-shadow: var(--shadow);
     box-shadow: var(--shadow);
     width: inherit;
     max-width: border-box !important;
 }
-button, select, textarea {
+
+button,
+select,
+textarea {
     background: var(--gradient) !important;
 }
-button,input:not([type=checkbox], [type=radio]) {
+
+button,
+input:not([type=checkbox], [type=radio]) {
     background: var(--gradient) !important;
 }
 
@@ -158,9 +157,7 @@ select {
     -moz-appearance: none !important;
     cursor: pointer;
     background-repeat: no-repeat;
-    -webkit-border-radius: .6rem;
-    -moz-border-radius: .6rem;
-    border-radius: .6rem;
+    border-radius: var(--smaller);
     max-width: 100% !important;
 }
 
@@ -169,8 +166,13 @@ select[multiple] {
     height: 20rem;
 }
 
-button:focus,button:hover,input:focus,input:hover,select:focus,select:hover,textarea:focus,textarea:hover {
-    -webkit-box-shadow: var(--shadow-inset-accent) !important;
-    -moz-box-shadow: var(--shadow-inset-accent) !important;
+button:focus,
+button:hover,
+input:focus,
+input:hover,
+select:focus,
+select:hover,
+textarea:focus,
+textarea:hover {
     box-shadow: var(--shadow-inset-accent) !important;
 }
