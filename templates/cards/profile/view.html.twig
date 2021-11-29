@@ -1,6 +1,6 @@
 {% set actor_nickname = actor.getNickname() %}
 {% set actor_avatar = actor.getAvatarUrl() %}
-{% set actor_tags = actor.getSelfTags() %}
+{% set actor_tags = actor.getSelfTags()[1] %} {# Take only the actor_tags, not the circles #}
 {% set actor_bio = actor.getBio() %}
 {% set actor_uri = actor.getUri() %}
 
@@ -28,8 +28,8 @@
 
         <nav class="profile-info-tags">
             {% if actor_tags %}
-                {% for tag in actor_tags %} {# Actually a list of actor_circle #}
-                  {% include 'cards/tag/actor_tag.html.twig' with { 'tag': tag.getActorTag(), 'actor': actor } %}
+                {% for tag in actor_tags %}
+                  {% include 'cards/tag/actor_tag.html.twig' with { 'tag': tag, 'actor': actor } %}
                 {% endfor %}
             {% else %}
                 {{ '(No tags)' | trans }}

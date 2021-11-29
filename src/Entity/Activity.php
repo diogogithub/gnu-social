@@ -29,6 +29,7 @@ use App\Entity\Actor;
 use Component\Notification\Entity\Notification;
 use DateTimeInterface;
 use Exception;
+use Functional as F;
 
 /**
  * Entity for all activities we know about
@@ -160,13 +161,8 @@ class Activity extends Entity
      */
     public function getNotificationTargetIdsFromActorTags(): array
     {
-        $actors = [];
-        $self_tags = $this->getActor()->getSelfTags();
-        foreach ($self_tags as $circle) {
-            // Get subscriptions
-            array_push($actors, ...$circle->getSubscribedActors());
-        }
-        return $actors;
+        [$actor_circles, $actor_tags] = $this->getActor()->getSelfTags();
+        return F\flat_map($actor_circles, fn ($circle) => $circle->getSubscribedActors());
     }
 
     /**

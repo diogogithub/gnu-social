@@ -266,9 +266,9 @@ class Actor extends Entity
     }
 
     /**
-     * Tags attributed to self
+     * Tags attributed to self, shortcut function for increased legibility
      *
-     * @return [ActorCircle]
+     * @return [ActorCircle[], ActorTag[]]
      */
     public function getSelfTags(bool $_test_force_recompute = false): array
     {
@@ -285,62 +285,58 @@ class Actor extends Entity
      * @param null|int       $offset Offset from latest
      * @param null|int       $limit  Max number to get
      *
-     * @return [ActorCircle] resulting lists
+     * @return [ActorCircle[], ActorTag[]] resulting lists
      */
     public function getOtherTags(self|int|null $scoped = null, ?int $offset = null, ?int $limit = null, bool $_test_force_recompute = false): array
     {
         if (\is_null($scoped)) {
             return Cache::get(
                 "othertags-{$this->getId()}",
-                fn () => DB::dql(
+                fn () => (($t = DB::dql(
                     <<< 'EOQ'
-                        SELECT circle
-                        FROM App\Entity\ActorTag tag
-                        JOIN App\Entity\ActorCircle circle
-                            WITH
-                                tag.tagger = circle.tagger
-                                AND tag.tag = circle.tag
+                        SELECT circle, tag
+                        FROM actor_tag tag
+                             JOIN actor_circle circle
+                             WITH tag.tagger = circle.tagger
+                                  AND tag.tag = circle.tag
                         WHERE tag.tagged = :id
                         ORDER BY tag.modified DESC, tag.tagged DESC
                         EOQ,
                     ['id' => $this->getId()],
-                    ['offset'   => $offset,
-                        'limit' => $limit, ],
-                ),
+                    options: ['offset' => $offset, 'limit' => $limit],
+                )) === [] ? [[],[]] : $t),
             );
         } else {
             $scoped_id = \is_int($scoped) ? $scoped : $scoped->getId();
             return Cache::get(
                 "othertags-{$this->getId()}-by-{$scoped_id}",
-                fn () => DB::dql(
+                fn () => (($t = DB::dql(
                     <<< 'EOQ'
-                        SELECT circle
-                        FROM App\Entity\ActorTag tag
-                        JOIN App\Entity\ActorCircle circle
+                        SELECT circle, tag
+                        FROM actor_tag tag
+                        JOIN actor_circle circle
                             WITH
                                 tag.tagger = circle.tagger
                                 AND tag.tag = circle.tag
                         WHERE
                             tag.tagged = :id
-                            AND ( circle.private != true
-                                OR ( circle.tagger = :scoped
+                            AND (circle.private != true
+                                OR (circle.tagger = :scoped
                                     AND circle.private = true
                                    )
                             )
                         ORDER BY tag.modified DESC, tag.tagged DESC
                         EOQ,
-                    ['id'        => $this->getId(),
-                        'scoped' => $scoped_id, ],
-                    ['offset'    => $offset,
-                        'limit'  => $limit, ],
-                ),
+                    ['id' => $this->getId(), 'scoped' => $scoped_id],
+                    options: ['offset' => $offset, 'limit' => $limit],
+                )) === [] ? [[],[]] : $t),
             );
         }
     }
 
     /**
      * @param array      $tags     array of strings to become self tags
-     * @param null|array $existing array of existing self tags (actor_circle[])
+     * @param null|array $existing array of existing self tags (ActorTag[])
      *
      * @throws \App\Util\Exception\DuplicateFoundException
      * @throws NotFoundException
@@ -350,21 +346,21 @@ class Actor extends Entity
     public function setSelfTags(array $tags, ?array $existing = null): self
     {
         if (\is_null($existing)) {
-            $existing = $this->getSelfTags();
+            [$_, $existing] = $this->getSelfTags();
         }
-        $existing_actor_circles  = F\map($existing, fn ($actor_circle) => $actor_circle->getTag());
-        $tags_to_add             = array_diff($tags, $existing_actor_circles);
-        $tags_to_remove          = array_diff($existing_actor_circles, $tags);
-        $actor_circles_to_remove = F\filter($existing, fn ($actor_circle) => \in_array($actor_circle->getTag(), $tags_to_remove));
+        $existing_actor_tags  = F\map($existing, fn ($actor_tag) => $actor_tag->getTag());
+        $tags_to_add          = array_diff($tags, $existing_actor_tags);
+        $tags_to_remove       = array_diff($existing_actor_tags, $tags);
+        $actor_tags_to_remove = F\filter($existing, fn ($actor_tag) => \in_array($actor_tag->getTag(), $tags_to_remove));
         foreach ($tags_to_add as $tag) {
             $canonical_tag = TagComponent::canonicalTag($tag, $this->getTopLanguage()->getLocale());
             DB::persist(ActorCircle::create(['tagger' => $this->getId(), 'tag' => $canonical_tag, 'private' => false]));
             DB::persist(ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag, 'canonical' => $canonical_tag]));
         }
-        foreach ($actor_circles_to_remove as $actor_circle) {
-            $canonical_tag = TagComponent::canonicalTag($actor_circle->getTag(), $this->getTopLanguage()->getLocale());
+        foreach ($actor_tags_to_remove as $actor_tag) {
+            $canonical_tag = TagComponent::canonicalTag($actor_tag->getTag(), $this->getTopLanguage()->getLocale());
             DB::removeBy('actor_tag', ['tagger' => $this->getId(), 'tagged' => $this->getId(), 'canonical' => $canonical_tag]);
-            DB::removeBy('actor_circle', ['id' => $actor_circle->getId()]);
+            DB::removeBy('actor_circle', ['tagger' => $this->getId(), 'tag' => $canonical_tag]);
         }
         Cache::delete("selftags-{$this->getId()}");
         Cache::delete("othertags-{$this->getId()}-by-{$this->getId()}");
