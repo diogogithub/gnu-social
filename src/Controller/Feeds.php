@@ -147,10 +147,10 @@ class Feeds extends Controller
         $form_definitions = [];
         foreach ($feeds as $feed) {
             $md5                = md5($feed->getUrl());
-            $form_definitions[] = [$md5 . '-url', TextType::class, ['data' => $feed->getUrl(), 'label' => ' ']];
-            $form_definitions[] = [$md5 . '-order', IntegerType::class, ['data' => $feed->getOrdering(), 'label' => ' ']];
-            $form_definitions[] = [$md5 . '-title', TextType::class, ['data' => $feed->getTitle(), 'label' => ' ']];
-            $form_definitions[] = [$md5 . '-remove', SubmitType::class, ['label' => _m('Remove')]];
+            $form_definitions[] = [$md5 . '-url', TextType::class, ['data' => $feed->getUrl(), 'label' => _m('URL'), 'block_prefix' => 'row_url']];
+            $form_definitions[] = [$md5 . '-order', IntegerType::class, ['data' => $feed->getOrdering(), 'label' => _m('Order'), 'block_prefix' => 'row_order']];
+            $form_definitions[] = [$md5 . '-title', TextType::class, ['data' => $feed->getTitle(), 'label' => _m('Title'), 'block_prefix' => 'row_title']];
+            $form_definitions[] = [$md5 . '-remove', SubmitType::class, ['label' => _m('Remove'), 'block_prefix' => 'row_remove']];
         }
 
         $form_definitions[] = ['url', TextType::class, ['label' => _m('New feed'), 'required' => false]];
@@ -242,8 +242,8 @@ class Feeds extends Controller
         }
 
         return [
-            '_template' => 'feeds/edit_feeds.html.twig',
-            'form'      => $form->createView(),
+            '_template'  => 'feeds/edit_feeds.html.twig',
+            'edit_feeds' => $form->createView(),
         ];
     }
 

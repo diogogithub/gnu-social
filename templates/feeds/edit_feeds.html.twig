@@ -1,7 +1,40 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
+{% endblock stylesheets %}
+
 {% block body %}
-  <div class="section-widget">
-    {{ form(form) }}
+  <div class="section-widget section-widget-padded">
+    <form class="section-form">
+
+      <fieldset>
+        <legend class="section-form-legend">{{ "Edit feed navigation links" | trans }}</legend>
+
+        {# Since the form is not separated into individual groups, this happened #}
+        {{ form_start(edit_feeds) }}
+        {% for child in edit_feeds.children %}
+          {% if 'row_url' in child.vars.block_prefixes %}
+            <div class="section-widget section-widget-padded">
+            {{ form_label(child) }}
+            {{ form_widget(child) }}
+          {% elseif 'row_title' in child.vars.block_prefixes %}
+            {{ form_label(child) }}
+            {{ form_widget(child) }}
+          {% elseif 'row_order' in child.vars.block_prefixes %}
+            {{ form_label(child) }}
+            {{ form_widget(child) }}
+          {% elseif 'row_remove' in child.vars.block_prefixes %}
+            {{ form_label(child) }}
+            {{ form_widget(child) }}
+            </div>
+          {% endif %}
+        {% endfor %}
+        {{ form_end(edit_feeds) }}
+
+      </fieldset>
+    </form>
+
   </div>
 {% endblock %}

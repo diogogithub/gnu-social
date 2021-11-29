@@ -2,13 +2,6 @@ input {
     all: unset;
 }
 
-input+label {
-    -webkit-align-self: center;
-    -ms-flex-item-align: center;
-    -ms-grid-row-align: center;
-    align-self: center;
-}
-
 input[type=checkbox],input[type=radio] {
     all: unset;
     display: inline-block;
