@@ -95,8 +95,8 @@ class NoteReply extends Entity
         $result = DB::dql('select nr.reply_to from note_reply nr '
             . 'where nr.note_id = :note_id', ['note_id' => $note->getId()], );
 
-        if (!\is_null($result) && \array_key_exists('reply_to', $result)) {
-            return $result['reply_to'];
+        if (!\is_null($result) && \array_key_exists(0, $result)) {
+            return $result[0]['reply_to'];
         }
 
         return null;
