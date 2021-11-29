@@ -49,13 +49,14 @@ class Inbox extends Controller
 
         // TODO: Check if Actor can post
 
-        // Get content
-        $payload = Util::decodeJson(
-            (string) $this->request->getContent(),
-        );
-
-        // Cast as an ActivityStreams type
-        $type = Type::create($payload);
+//        // Get content
+//        $payload = Util::decodeJson(
+//            (string) $this->request->getContent(),
+//        );
+//
+//        // Cast as an ActivityStreams type
+//        $type = Type::create($payload);
+        $type = Type::fromJson((string) $this->request->getContent());
 
         // TODO: Check if Actor has authority over payload
 

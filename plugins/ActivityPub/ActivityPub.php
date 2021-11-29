@@ -5,10 +5,12 @@ declare(strict_types = 1);
 namespace Plugin\ActivityPub;
 
 use App\Core\Event;
+use App\Core\HTTPClient;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
+use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Common;
@@ -24,9 +26,12 @@ use Exception;
 use Plugin\ActivityPub\Controller\Inbox;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
 use Plugin\ActivityPub\Util\Explorer;
+use Plugin\ActivityPub\Util\Model\EntityToType\EntityToType;
 use Plugin\ActivityPub\Util\Response\ActorResponse;
 use Plugin\ActivityPub\Util\Response\NoteResponse;
 use Plugin\ActivityPub\Util\Response\TypeResponse;
+use Plugin\ActivityPub\Util\Type;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 use XML_XRD;
 use XML_XRD_Element_Link;
 use function count;
@@ -87,7 +92,7 @@ class ActivityPub extends Plugin
         return Event::next;
     }
 
-    public function onStartGetActorUri(Actor $actor, int $type, ?string &$uri):bool
+    public function onStartGetActorUrl(Actor $actor, int $type, ?string &$url):bool
     {
         if (
             // Is remote?
@@ -97,17 +102,77 @@ class ActivityPub extends Plugin
             // We can only provide a full URL (anything else wouldn't make sense)
             && $type === Router::ABSOLUTE_URL
         ) {
-            $uri = $ap_actor->getUri();
+            $url = $ap_actor->getUri();
             return Event::stop;
         }
 
         return Event::next;
     }
 
-    public function onStartGetActorUrl(Actor $actor, int $type, ?string &$url):bool
-    {
-        return $this->onStartGetActorUri($actor, $type, $url);
+    public function onAddFreeNetworkProtocol (array &$protocols): bool {
+        $protocols[] = '\Plugin\ActivityPub\ActivityPub';
+        return Event::next;
     }
+
+    public static function freeNetworkDistribute(Actor $sender, Activity $activity, array $targets, ?string $reason = null): bool
+    {
+        $to_addr = [];
+        foreach($targets as $target) {
+            if (is_null($ap_target = ActivitypubActor::getWithPK(['actor_id' => $target->getId()]))) {
+                continue;
+            }
+            $to_addr[$ap_target->getInboxSharedUri() ?? $ap_target->getInboxUri()] = true;
+        }
+
+        $errors = [];
+        $to_failed = []; // TODO: Implement failed queues
+        foreach ($to_addr as $inbox => $dummy) {
+            try {
+                $res = self::postman($sender->getUri(), EntityToType::translate($activity), $inbox);
+
+                // accummulate errors for later use, if needed
+                $status_code = $res->getStatusCode();
+                if (!($status_code === 200 || $status_code === 202 || $status_code === 409)) {
+                    $res_body = json_decode($res->getContent(), true);
+                    $errors[] = isset($res_body['error']) ?
+                        $res_body['error'] : "An unknown error occurred.";
+                    $to_failed[$inbox] = $activity;
+                }
+            } catch (Exception $e) {
+                Log::error('ActivityPub @ freeNetworkDistribute: ' . $e->getMessage());
+                $to_failed[$inbox] = $activity;
+            }
+
+        }
+
+        if (!empty($errors)) {
+            Log::error(sizeof($errors) . ' instance/s failed to handle the delete_profile activity!');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $sender
+     * @param Type $activity
+     * @param string $inbox
+     * @param string $method
+     * @return ResponseInterface
+     */
+    public static function postman(string $sender, mixed $activity, string $inbox, string $method = 'post'): ResponseInterface
+    {
+        $data = $activity->toJson();
+        Log::debug('ActivityPub Postman: Delivering ' . $data . ' to ' . $inbox);
+
+        $headers = []; //HttpSignature::sign($sender, $inbox, $data);
+        Log::debug('ActivityPub Postman: Delivery headers were: '.print_r($headers, true));
+
+        $response = HTTPClient::$method($inbox, ['headers' => $headers, 'body' => $data]);
+        Log::debug('ActivityPub Postman: Delivery result with status code '.$response->getStatusCode().': '.$response->getContent());
+        return $response;
+    }
+
 
     public static function getActorByUri(string $resource, ?bool $attempt_fetch = true): Actor
     {

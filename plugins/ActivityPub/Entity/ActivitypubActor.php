@@ -94,12 +94,12 @@ class ActivitypubActor extends Entity
         return $this;
     }
 
-    public function getInboxSharedUri(): string
+    public function getInboxSharedUri(): ?string
     {
         return $this->inbox_shared_uri;
     }
 
-    public function setInboxSharedUri(string $inbox_shared_uri): self
+    public function setInboxSharedUri(?string $inbox_shared_uri = null): self
     {
         $this->inbox_shared_uri = $inbox_shared_uri;
         return $this;

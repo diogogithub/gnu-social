@@ -431,9 +431,7 @@ class Actor extends Entity
     {
         $uri = null;
         if (Event::handle('StartGetActorUri', [$this, $type, &$uri]) === Event::next) {
-            if ($this->getIsLocal()) {
-                $uri = Router::url('actor_view_id', ['id' => $this->getId()], $type);
-            }
+            $uri = Router::url('actor_view_id', ['id' => $this->getId()], $type);
             Event::handle('EndGetActorUri', [$this, $type, &$uri]);
         }
         return $uri;
@@ -445,6 +443,8 @@ class Actor extends Entity
         if (Event::handle('StartGetActorUrl', [$this, $type, &$url]) === Event::next) {
             if ($this->getIsLocal()) {
                 $url = Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+            } else {
+                return $this->getUri($type);
             }
             Event::handle('EndGetActorUrl', [$this, $type, &$url]);
         }
