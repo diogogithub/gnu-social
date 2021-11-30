@@ -22,6 +22,7 @@ use App\Core\Log;
 use App\Entity\Actor;
 use App\Util\Exception\ServerException;
 use DateTimeInterface;
+use Doctrine\ORM\UnitOfWork;
 use Exception;
 
 /**
@@ -143,16 +144,16 @@ class ActivitypubRsa extends Entity
     public static function getByActor(Actor $gsactor, bool $fetch = true): self
     {
         $apRSA = self::getWithPK(['actor_id' => ($actor_id = $gsactor->getId())]);
-        if (!$apRSA instanceof self) {
+        if (is_null($apRSA)) {
             // Nonexistent key pair for this profile
             if ($gsactor->getIsLocal()) {
-
                 self::generateKeys($private_key, $public_key);
-
-                $apRSA = new self();
-                $apRSA->setActorId($actor_id);
-                $apRSA->setPrivateKey($private_key);
-                $apRSA->setPublicKey($public_key);
+                $apRSA = self::create([
+                    'actor_id' => $actor_id,
+                    'private_key' => $private_key,
+                    'public_key' => $public_key,
+                ]);
+                DB::wrapInTransaction(fn() => DB::persist($apRSA));
             } else {
                 // ASSERT: This should never happen, but try to recover!
                 Log::error("Activitypub_rsa: An impossible thing has happened... Please let the devs know.");

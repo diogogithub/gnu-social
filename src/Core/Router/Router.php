@@ -32,6 +32,7 @@ declare(strict_types = 1);
 
 namespace App\Core\Router;
 
+use App\Core\Log;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Router as SymfonyRouter;
 
@@ -82,6 +83,9 @@ abstract class Router
      */
     public static function url(string $id, array $args = [], int $type = self::ABSOLUTE_PATH): string
     {
+        if ($type === self::RELATIVE_PATH) {
+            Log::debug('Requested relative path which is not an absolute path... just saying...');
+        }
         return self::$router->generate($id, $args, $type);
     }
 

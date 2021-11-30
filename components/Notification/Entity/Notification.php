@@ -112,7 +112,7 @@ class Notification extends Entity
      */
     public function getTarget(): Actor
     {
-        return Actor::getById($this->getActorId());
+        return Actor::getById($this->getTargetId());
     }
 
     /**

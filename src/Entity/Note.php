@@ -302,6 +302,7 @@ class Note extends Entity
 
     public function getNotificationTargets(array $ids_already_known = []): array
     {
+        $rendered = null;
         $mentions = [];
         Event::handle('RenderNoteContent', [$this->getContent(), $this->getContentType(), &$rendered, &$mentions, $this->getActor(), Language::getFromId($this->getLanguageId())->getLocale()]);
         $mentioned = [];

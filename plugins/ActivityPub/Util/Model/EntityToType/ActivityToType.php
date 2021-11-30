@@ -31,7 +31,7 @@ class ActivityToType
             '@context' => 'https://www.w3.org/ns/activitystreams',
             'id' => Router::url('activity_view', ['id' => $activity->getId()], Router::ABSOLUTE_URL),
             'published' => $activity->getCreated()->format(DateTimeInterface::RFC3339),
-            'attributedTo' => $activity->getActor()->getUri(Router::ABSOLUTE_URL),
+            'actor' => $activity->getActor()->getUri(Router::ABSOLUTE_URL),
             //'to' => $to,
             //'cc' => $cc,
             'object' => $activity->getObject()->getUrl(),

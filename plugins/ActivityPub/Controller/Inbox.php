@@ -25,6 +25,14 @@ namespace Plugin\ActivityPub\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use App\Core\Log;
+use App\Core\Router\Router;
+use App\Entity\Actor;
+use Exception;
+use Plugin\ActivityPub\Entity\ActivitypubActor;
+use Plugin\ActivityPub\Entity\ActivitypubRsa;
+use Plugin\ActivityPub\Util\Explorer;
+use Plugin\ActivityPub\Util\HTTPSignature;
 use function App\Core\I18n\_m;
 use App\Util\Exception\ClientException;
 use Plugin\ActivityPub\ActivityPub;
@@ -40,23 +48,81 @@ class Inbox extends Controller
      */
     public function handle(?int $gsactor_id = null): TypeResponse
     {
+        $path = Router::url('activitypub_inbox', type: Router::ABSOLUTE_PATH);
+
         if (!\is_null($gsactor_id)) {
-            $user = DB::find('local_user', ['id' => $gsactor_id]);
-            if (\is_null($user)) {
-                throw new ClientException(_m('No such actor.'), 404);
+            try {
+                $user = DB::findOneBy('local_user', ['id' => $gsactor_id]);
+                $path = Router::url('activitypub_actor_inbox', ['gsactor_id' => $user->getId()], type: Router::ABSOLUTE_PATH);
+            } catch (Exception $e) {
+                throw new ClientException(_m('No such actor.'), 404, $e);
             }
         }
 
-        // TODO: Check if Actor can post
+        Log::debug('ActivityPub Inbox: Received a POST request.');
+        $body = (string) $this->request->getContent();
+        $type = Type::fromJson($body);
 
-//        // Get content
-//        $payload = Util::decodeJson(
-//            (string) $this->request->getContent(),
-//        );
-//
-//        // Cast as an ActivityStreams type
-//        $type = Type::create($payload);
-        $type = Type::fromJson((string) $this->request->getContent());
+        if ($type->has('actor') === false) {
+            ActivityPubReturn::error('Actor not found in the request.');
+        }
+
+        try {
+            $ap_actor = ActivitypubActor::fromUri($type->get('actor'));
+            $actor = Actor::getById($ap_actor->getActorId());
+            DB::flush();
+        } catch (Exception) {
+            ActivityPubReturn::error('Invalid actor.');
+        }
+
+        $actor_public_key = ActivitypubRsa::getByActor($actor)->getPublicKey();
+
+        $headers = $this->request->headers->all();
+        // Flattify headers
+        foreach ($headers as $key => $val) {
+            $headers[$key] = $val[0];
+        }
+
+        if (!isset($headers['signature'])) {
+            Log::debug('ActivityPub Inbox: HTTP Signature: Missing Signature header.');
+            ActivityPubReturn::error('Missing Signature header.', 400);
+            // TODO: support other methods beyond HTTP Signatures
+        }
+
+        // Extract the signature properties
+        $signatureData = HTTPSignature::parseSignatureHeader($headers['signature']);
+        Log::debug('ActivityPub Inbox: HTTP Signature Data: ' . print_r($signatureData, true));
+        if (isset($signatureData['error'])) {
+            Log::debug('ActivityPub Inbox: HTTP Signature: ' . json_encode($signatureData, JSON_PRETTY_PRINT));
+            ActivityPubReturn::error(json_encode($signatureData, JSON_PRETTY_PRINT), 400);
+        }
+
+        list($verified, /*$headers*/) = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
+
+        // If the signature fails verification the first time, update profile as it might have changed public key
+        if ($verified !== 1) {
+            try {
+                $res = Explorer::get_remote_user_activity($ap_actor->getUri());
+            } catch (Exception) {
+                ActivityPubReturn::error('Invalid remote actor.');
+            }
+            try {
+                $actor = ActivitypubActor::update_profile($ap_actor, $res);
+            } catch (Exception) {
+                ActivityPubReturn::error('Failed to updated remote actor information.');
+            }
+
+            [$verified, /*$headers*/] = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
+        }
+
+        // If it still failed despite profile update
+        if ($verified !== 1) {
+            Log::debug('ActivityPub Inbox: HTTP Signature: Invalid signature.');
+            ActivityPubReturn::error('Invalid signature.');
+        }
+
+        // HTTP signature checked out, make sure the "actor" of the activity matches that of the signature
+        Log::debug('ActivityPub Inbox: HTTP Signature: Authorized request. Will now start the inbox handler.');
 
         // TODO: Check if Actor has authority over payload
 

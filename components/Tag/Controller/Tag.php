@@ -72,11 +72,11 @@ class Tag extends Controller
         );
     }
 
-    public function multi_actor_tag(string $tag)
+    public function multi_actor_tag(string $tags)
     {
         $tags = explode(',', $tags);
         return $this->process(
-            tag_or_tags: $tag,
+            tag_or_tags: $tags,
             key: fn ($canonical) => 'actor-tags-feed-' . implode('-', $canonical),
             query: 'select a from actor a join actor_tag at with a.id = at.tagged where at.canonical = :canon order by at.modified DESC',
             template: 'actor_tag_feed.html.twig',

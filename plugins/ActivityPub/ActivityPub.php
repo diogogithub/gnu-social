@@ -26,6 +26,7 @@ use Exception;
 use Plugin\ActivityPub\Controller\Inbox;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
 use Plugin\ActivityPub\Util\Explorer;
+use Plugin\ActivityPub\Util\HTTPSignature;
 use Plugin\ActivityPub\Util\Model\EntityToType\EntityToType;
 use Plugin\ActivityPub\Util\Response\ActorResponse;
 use Plugin\ActivityPub\Util\Response\NoteResponse;
@@ -128,7 +129,7 @@ class ActivityPub extends Plugin
         $to_failed = []; // TODO: Implement failed queues
         foreach ($to_addr as $inbox => $dummy) {
             try {
-                $res = self::postman($sender->getUri(), EntityToType::translate($activity), $inbox);
+                $res = self::postman($sender, EntityToType::translate($activity), $inbox);
 
                 // accummulate errors for later use, if needed
                 $status_code = $res->getStatusCode();
@@ -154,19 +155,19 @@ class ActivityPub extends Plugin
     }
 
     /**
-     * @param string $sender
+     * @param Actor $sender
      * @param Type $activity
      * @param string $inbox
      * @param string $method
      * @return ResponseInterface
      */
-    public static function postman(string $sender, mixed $activity, string $inbox, string $method = 'post'): ResponseInterface
+    public static function postman(Actor $sender, mixed $activity, string $inbox, string $method = 'post'): ResponseInterface
     {
         $data = $activity->toJson();
         Log::debug('ActivityPub Postman: Delivering ' . $data . ' to ' . $inbox);
 
-        $headers = []; //HttpSignature::sign($sender, $inbox, $data);
-        Log::debug('ActivityPub Postman: Delivery headers were: '.print_r($headers, true));
+        $headers = HTTPSignature::sign($sender, $inbox, $data);
+        Log::debug('ActivityPub Postman: Delivery headers were: ' . print_r($headers, true));
 
         $response = HTTPClient::$method($inbox, ['headers' => $headers, 'body' => $data]);
         Log::debug('ActivityPub Postman: Delivery result with status code '.$response->getStatusCode().': '.$response->getContent());

@@ -410,7 +410,7 @@ abstract class Formatting
      * @param string $text   partially-rendered HTML
      * @param Actor  $author the Actor that is composing the current notice
      *
-     * @return string partially-rendered HTML
+     * @return array [partially-rendered HTML, array of mentions]
      */
     public static function linkifyMentions(string $text, Actor $author, string $language): array
     {
