@@ -153,7 +153,7 @@ class Activity extends Entity
 
     public function getObject(): mixed
     {
-        return DB::findBy($this->getObjectType(), ['id' => $this->getObjectId()]);
+        return DB::findOneBy($this->getObjectType(), ['id' => $this->getObjectId()]);
     }
 
     /**

@@ -25,9 +25,9 @@ abstract class AS2ToEntity
         };
     }
 
-    public static function activity_stream_two_object_type_to_gs_table($verb)
+    public static function activity_stream_two_object_type_to_gs_table($object)
     {
-        return match ($verb) {
+        return match ($object) {
             'Note'  => 'note',
             default => throw new ClientException('Invalid verb'),
         };

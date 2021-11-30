@@ -11,12 +11,15 @@ use Plugin\ActivityPub\Util\Type;
 abstract class EntityToType
 {
     /**
+     * @return Type
      * @throws Exception
      */
-    public static function translate(Entity $entity): Type
+    public static function translate(Entity $entity): mixed
     {
         switch ($entity::class) {
-            case 'Note':
+            case 'App\Entity\Activity':
+                return ActivityToType::translate($entity);
+            case 'App\Entity\Note':
                 return NoteToType::translate($entity);
             default:
                 $map = [
