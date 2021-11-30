@@ -96,17 +96,18 @@ class UserPanel extends Controller
      */
     public function personalInfo(Request $request)
     {
-        $user            = Common::ensureLoggedIn();
-        $actor           = $user->getActor();
-        $extra           = ['self_tags' => $actor->getSelfTags()];
-        $form_definition = [
-            ['nickname',   TextType::class,      ['label' => _m('Nickname'),  'required' => true,  'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
-            ['full_name',  TextType::class,      ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
-            ['homepage',   TextType::class,      ['label' => _m('Homepage'),  'required' => false, 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
-            ['bio',        TextareaType::class,  ['label' => _m('Bio'),       'required' => false, 'help' => _m('Describe yourself and your interests.')]],
-            ['location',   TextType::class,      ['label' => _m('Location'),  'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
-            ['self_tags',  TextType::class,      ['label' => _m('Self Tags'), 'required' => false, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.'), 'transformer' => ArrayTransformer::class]],
-            ['save_personal_info',       SubmitType::class,    ['label' => _m('Save personal info')]],
+        $user             = Common::ensureLoggedIn();
+        $actor            = $user->getActor();
+        [$_, $actor_tags] = $actor->getSelfTags();
+        $extra            = ['self_tags' => $actor_tags];
+        $form_definition  = [
+            ['nickname',           TextType::class,     ['label' => _m('Nickname'),  'required' => true,  'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
+            ['full_name',          TextType::class,     ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
+            ['homepage',           TextType::class,     ['label' => _m('Homepage'),  'required' => false, 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
+            ['bio',                TextareaType::class, ['label' => _m('Bio'),       'required' => false, 'help' => _m('Describe yourself and your interests.')]],
+            ['location',           TextType::class,     ['label' => _m('Location'),  'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
+            ['self_tags',          TextType::class,     ['label' => _m('Self Tags'), 'required' => false, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.'), 'transformer' => ArrayTransformer::class]],
+            ['save_personal_info', SubmitType::class,   ['label' => _m('Save personal info')]],
         ];
         $extra_step = function ($data, $extra_args) use ($user) {
             $user->setNickname($data['nickname']);
