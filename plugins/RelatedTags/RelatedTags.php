@@ -25,6 +25,7 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Plugin;
+use App\Entity\ActorTag;
 use App\Entity\NoteTag;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +44,8 @@ class RelatedTags extends Plugin
                 'related-note-tags-' . implode('-', $tags),
                 fn () => DB::sql(
                     <<<'EOQ'
-                        select {select} from note_tag nt
+                        select distinct on (nt.canonical) canonical, nt.tag, nt.note_id, nt.created
+                        from note_tag nt
                         where nt.note_id in (select n.id from note n join note_tag nt on n.id = nt.note_id where nt.canonical in (:tags))
                               and not nt.canonical in (:tags)
                         limit 5
@@ -61,12 +63,14 @@ class RelatedTags extends Plugin
                 'related-actor-tags-' . implode('-', $tags),
                 fn () => DB::sql(
                     <<<'EOQ'
-                        select {select} from actor_tag at
+                        select distinct on (at.canonical) canonical, at.tagger, at.tagged, at.tag, at.modified
+                        from actor_tag at
                         where at.tagged in (select at.tagged from actor_tag at where at.canonical in (:tags))
                               and not at.canonical in (:tags)
                         limit 5
                         EOQ,
                     ['tags' => $tags],
+                    entities: ['at' => ActorTag::class],
                 ),
             );
             $pinned[] = ['template' => 'related_tags/actor_tags.html.twig', 'vars' => $related];
