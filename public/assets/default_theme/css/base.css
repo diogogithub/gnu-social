@@ -209,6 +209,11 @@ li {
     fill: var(--foreground);
 }
 
+.edit-feed-link {
+    display: block;
+    float: right;
+}
+
 .active {
     font-weight: bold;
 }
