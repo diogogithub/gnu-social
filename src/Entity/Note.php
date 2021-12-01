@@ -217,6 +217,18 @@ class Note extends Entity
         return Avatar::getAvatarUrl($this->getActorId(), $size);
     }
 
+    public static function getAllNotesByActor(Actor $actor): array
+    {
+        return DB::sql(
+            <<<'EOF'
+                select {select} from note n
+                where (n.actor_id & :actor_id) <> 0
+                order by n.created DESC
+                EOF,
+            ['actor_id' => $actor],
+        );
+    }
+
     public static function getAllNotes(int $note_scope): array
     {
         return DB::sql(

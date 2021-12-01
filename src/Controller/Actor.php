@@ -71,6 +71,6 @@ class Actor extends Controller
     }
     public function ActorShowNickname(Request $request, string $nickname)
     {
-        return $this->ActorByNickname($nickname, fn ($actor) => ['_template' => 'actor/view.html.twig', 'actor' => $actor]);
+        return $this->ActorByNickname($nickname, fn ($actor) => ['_template' => 'actor/view.html.twig', 'actor' => $actor, 'notes' => \App\Entity\Note::getAllNotesByActor($actor)]);
     }
 }

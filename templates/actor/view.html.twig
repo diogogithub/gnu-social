@@ -1,20 +1,30 @@
 {% extends 'stdgrid.html.twig' %}
+{% import '/cards/note/view.html.twig' as noteView %}
 
-{% block title %}{{ actor.getNickname() }}'s profile{% endblock %}
+{% block title %}{{ actor.getNickname() ~ '\'s profile' | trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
+{% endblock stylesheets %}
 
 {% block body %}
-{% block profile_view %}{% include 'cards/profile/view.html.twig' %}{% endblock profile_view %}
+    {% block profile_view %}
+        {% include 'cards/profile/view.html.twig' %}
+    {% endblock profile_view %}
 
-<main class="feed" tabindex="0" role="feed">
-    <div class="h-feed hfeed notes">
-        {% if notes is defined and notes is not empty %}
-            {% for conversation in notes %}
-                {% include '/note/view.html.twig' with {'note': conversation['note'], 'have_user': have_user, 'replies': conversation['replies']} only %}
-                <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
-            {% endfor %}
-        {% else %}
-            <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
-        {% endif %}
-    </div>
-</main>
+    <main class="feed" tabindex="0" role="feed">
+        <div class="h-feed hfeed notes">
+            {% if notes is defined and notes is not empty %}
+                {% for note in notes %}
+                    {% block current_note %}
+                        {{ noteView.macro_note(note, null) }}
+                        <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                    {% endblock current_note %}
+                {% endfor %}
+            {% else %}
+                <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
+            {% endif %}
+        </div>
+    </main>
 {% endblock body %}
