@@ -291,49 +291,43 @@ class Actor extends Entity
     {
         if (\is_null($scoped)) {
             return Cache::get(
-                "othertags-{$this->getId()}",
-                fn () => F\partition(
-                    DB::dql(
-                        <<< 'EOQ'
-                            SELECT circle, tag
-                            FROM actor_tag tag
-                                  JOIN actor_circle circle
-                                  WITH tag.tagger = circle.tagger
-                                       AND tag.tag = circle.tag
-                            WHERE tag.tagged = :id
-                            ORDER BY tag.modified DESC, tag.tagged DESC
-                            EOQ,
-                        ['id' => $this->getId()],
-                        options: ['offset' => $offset, 'limit' => $limit],
-                    ),
-                    fn ($o) => $o instanceof ActorCircle,
+                "actor-circles-and-tags-{$this->getId()}",
+                fn () => DB::dql(
+                    <<< 'EOQ'
+                        SELECT circle, tag
+                        FROM actor_tag tag
+                              JOIN actor_circle circle
+                              WITH tag.tagger = circle.tagger
+                                   AND tag.tag = circle.tag
+                        WHERE tag.tagged = :id
+                        ORDER BY tag.modified DESC, tag.tagged DESC
+                        EOQ,
+                    ['id' => $this->getId()],
+                    options: ['offset' => $offset, 'limit' => $limit],
                 ),
             );
         } else {
             $scoped_id = \is_int($scoped) ? $scoped : $scoped->getId();
             return Cache::get(
-                "othertags-{$this->getId()}-by-{$scoped_id}",
-                fn () => F\partition(
-                    DB::dql(
-                        <<< 'EOQ'
-                            SELECT circle, tag
-                            FROM actor_tag tag
-                                 JOIN actor_circle circle
-                                 WITH tag.tagger = circle.tagger
-                                      AND tag.tag = circle.tag
-                            WHERE
-                                 tag.tagged = :id
-                                 AND (circle.private != true
-                                      OR (circle.tagger = :scoped
-                                          AND circle.private = true
-                                      )
-                                 )
-                            ORDER BY tag.modified DESC, tag.tagged DESC
-                            EOQ,
-                        ['id' => $this->getId(), 'scoped' => $scoped_id],
-                        options: ['offset' => $offset, 'limit' => $limit],
-                    ),
-                    fn ($o) => $o instanceof ActorCircle,
+                "actor-circles-and-tags-{$this->getId()}-by-{$scoped_id}",
+                fn () => DB::dql(
+                    <<< 'EOQ'
+                        SELECT circle, tag
+                        FROM actor_tag tag
+                             JOIN actor_circle circle
+                             WITH tag.tagger = circle.tagger
+                                  AND tag.tag = circle.tag
+                        WHERE
+                             tag.tagged = :id
+                             AND (circle.private != true
+                                  OR (circle.tagger = :scoped
+                                      AND circle.private = true
+                                  )
+                             )
+                        ORDER BY tag.modified DESC, tag.tagged DESC
+                        EOQ,
+                    ['id' => $this->getId(), 'scoped' => $scoped_id],
+                    options: ['offset' => $offset, 'limit' => $limit],
                 ),
             );
         }

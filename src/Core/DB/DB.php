@@ -36,6 +36,7 @@ namespace App\Core\DB;
 
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
+use Closure;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\EntityManager;
@@ -70,9 +71,10 @@ class DB
     /**
      * Table name to class map, used to allow specifying table names instead of classes in doctrine calls
      */
-    private static array $table_map              = [];
-    private static array $class_pk               = [];
-    private static ?string $table_entity_pattern = null;
+    private static array $table_map                  = [];
+    private static array $class_pk                   = [];
+    private static ?string $sql_table_entity_pattern = null;
+    private static ?array $dql_table_name_patterns   = null;
     public static function initTableMap()
     {
         $all = self::$em->getMetadataFactory()->getAllMetadata();
@@ -81,7 +83,8 @@ class DB
             self::$class_pk[$meta->getMetadataValue('name')] = $meta->getIdentifier();
         }
 
-        self::$table_entity_pattern = '/(' . implode('|', array_keys(self::$table_map)) . ')\s([^\s]+)/';
+        self::$sql_table_entity_pattern = '/(' . implode('|', array_keys(self::$table_map)) . ')\s([^\s]+)/';
+        self::$dql_table_name_patterns  = F\map(self::$table_map, fn ($_, $s) => "/(?<!\\.)\\b{$s}\\b/");
     }
 
     public static function getTableForClass(string $class)
@@ -99,7 +102,7 @@ class DB
      */
     public static function dql(string $query, array $params = [], array $options = [])
     {
-        $query = preg_replace(F\map(self::$table_map, fn ($_, $s) => "/(?<!\\.)\\b{$s}\\b/"), self::$table_map, $query);
+        $query = preg_replace(self::$dql_table_name_patterns, self::$table_map, $query);
         $q     = new Query(self::$em);
         $q->setDQL($query);
 
@@ -114,7 +117,40 @@ class DB
             $q->setParameter($k, $v);
         }
 
-        return $q->getResult();
+        $results = $q->getResult();
+
+        // So, Doctrine doesn't return 'select a, b from a join b' as [[a, a], [b, b]], but as [a, b, a, b] (or even [b,
+        // a, b, a]), so we do it ourselves. For whatever reason, neither the AST nor the ResultSetMapping have the
+        // entities in the correct order, so we need to "parse" the query ourselves. This only applies if there's no '.'
+        // in the select clause (i.e. we're selecting whole entities, not just a bunch of columns)
+        $matches = [];        //      v not a space in case of line breaks
+        if ($ret = preg_match('/SELECT.([^\.]*).FROM/is', $query, $matches)) {
+            // Grab the entities from the select clause and trim spaces
+            $entities = F\map(explode(',', $matches[1]), fn ($p) => trim($p));
+            if (\count($entities) > 1) { // If more than one entities in the select clause
+                // Call protected method getResultSetMapping, get the alias map (to avoid parsing it ourselves, or
+                // dealing with the AST)
+                $aliases = Closure::bind(fn ($q) => $q->getResultSetMapping(), null, $q)($q)->aliasMap;
+                // Since the order is not necessarily the correct one in the results (for whatever reason) (though it
+                // presumably is the same as in the AST, but just in case), use Functional\partition to chunk the
+                // results into groups of the same class
+                return F\partition(
+                    $results,
+                    ...F\map(
+                        // partition partitions into one more array than we want (those that don't pass any predicate),
+                        // so drop the last
+                        F\but_last($entities),
+                        // Map into a list of callables that each check if the given object is an instance of the class
+                        // in $aliases
+                        fn ($p) => (fn ($o) => $o instanceof $aliases[$p]),
+                    ),
+                );
+            } else {
+                return $results;
+            }
+        } else {
+            return $results;
+        }
     }
 
     /**
@@ -130,7 +166,7 @@ class DB
         $rsmb = new ResultSetMappingBuilder(self::$em, \is_null($entities) ? ResultSetMappingBuilder::COLUMN_RENAMING_INCREMENT : ResultSetMappingBuilder::COLUMN_RENAMING_NONE);
         if (\is_null($entities)) {
             $matches = [];
-            preg_match_all(self::$table_entity_pattern, $query, $matches);
+            preg_match_all(self::$sql_table_entity_pattern, $query, $matches);
             $entities = [];
             foreach (F\zip($matches[1], $matches[2]) as [$table, $alias]) {
                 $entities[$alias] = self::$table_map[$table];
