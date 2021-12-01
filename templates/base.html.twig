@@ -89,9 +89,7 @@
             </div>
         </details>
 
-        {% if app.user %}
-            {{ block("rightpanel", "stdgrid.html.twig") }}
-        {% endif %}
+        {{ block("rightpanel", "stdgrid.html.twig") }}
     </header>
 {% endblock header %}
 
