@@ -136,7 +136,7 @@ textarea {
     padding: 6px 8px !important;
     border-radius: var(--smaller);
     border: 2px solid var(--border) !important;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow) !important;
     width: inherit;
     max-width: border-box !important;
 }

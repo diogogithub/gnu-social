@@ -1,5 +1,6 @@
 .section-settings {
     border: 2px solid var(--border);
+    box-shadow: var(--shadow);
 }
 
 .section-settings,
@@ -9,7 +10,10 @@
     border-radius: .6rem;
     padding: .6rem;
     box-sizing: border-box;
-    box-shadow: var(--shadow);
+}
+
+.section-title-settings[open] {
+    border-left: 2px solid var(--accent);
 }
 
 .section-title-settings[open] > summary:first-child {

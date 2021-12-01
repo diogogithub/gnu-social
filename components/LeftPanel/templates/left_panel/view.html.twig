@@ -1,0 +1,25 @@
+{% block leftpanel %}
+    <label class="panel-left-icon" for="panel-left-toggle" aria-hidden="true"
+           tabindex="-1">{{ icon('menu', 'icon icon-left') | raw }}</label>
+    <input type="checkbox" id="panel-left-toggle" aria-hidden="true" tabindex="-1">
+
+    <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
+    <section class="header-panel section-panel-left accessibility-target">
+        <aside class="panel-content">
+            {% if app.user %}
+                <section class='section-widget section-widget-padded' title="{{ 'Your profile information.' | trans }}">
+                    {% block profile_view %}{% include 'cards/profile/view.html.twig' with { actor: current_actor } %}{% endblock profile_view %}
+                    {{ block("profile_current_actor", "cards/navigation/view.html.twig") }}
+                </section>
+            {% else %}
+                <section>
+                    {{ block("profile_security", "cards/navigation/view.html.twig") }}
+                </section>
+            {% endif %}
+
+            {{ block("feeds", "cards/navigation/view.html.twig") }}
+
+            {{ block("footer", "cards/navigation/view.html.twig") }}
+        </aside>
+    </section>
+{% endblock leftpanel %}

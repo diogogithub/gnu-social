@@ -19,13 +19,21 @@ declare(strict_types = 1);
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace Component\Right;
+namespace Component\LeftPanel;
 
 use App\Core\Event;
 use App\Core\Modules\Component;
+use App\Core\Router\RouteLoader;
+use Component\LeftPanel\Controller as C;
 
-class Right extends Component
+class LeftPanel extends Component
 {
+    public function onAddRoute(RouteLoader $r): bool
+    {
+        $r->connect('edit_feeds', '/edit-feeds', C\EditFeeds::class);
+        return Event::next;
+    }
+
     /**
      * Output our dedicated stylesheet
      *
@@ -35,7 +43,7 @@ class Right extends Component
      */
     public function onEndShowStyles(array &$styles, string $route): bool
     {
-        $styles[] = 'components/Right/assets/css/view.css';
+        $styles[] = 'components/Left/assets/css/view.css';
         return Event::next;
     }
 }

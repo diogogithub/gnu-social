@@ -13,8 +13,8 @@
         --background-card: #131217;
         --border: #201f25;
         --accent: #5ddbcf;
-        --shadow: 0px 0px 199px -76px #01010166;
-        --shadow: 0px 25px 42px -10px rgba(0,0,0,0.09) !important;
+        --shadow: 0px 5px 20px -10px rgba(255,255,255,0.1) !important;
+        --shadow-inset-accent: inset 0 0 0 2px var(--accent);
         --background-checkerboard: repeating-conic-gradient(#ffffff66 0 90deg,#ffffff33 0 180deg) 0 0/40px 40px round;
         --gradient: linear-gradient(10deg,var(--border) 0,transparent 90%) !important;
         --gradient-backwards: linear-gradient(290deg,var(--border) 0,var(--background-card) 100%) !important;
@@ -28,7 +28,7 @@
         --background-card: #f0f0f0;
         --border: #d5d5d5;
         --accent: #a22430;
-        --shadow: 0px 25px 42px -10px rgba(0,0,0,0.09) !important;
+        --shadow: 0px 25px 42px -10px rgba(0,0,0,0.1) !important;
         --shadow-inset-accent: inset 0 0 0 2px var(--accent);
         --background-checkerboard: repeating-conic-gradient(#ffffff66 0 90deg,#ffffff33 0 180deg) 0 0/40px 40px round;
         --gradient: linear-gradient(10deg,var(--background-hard) 0,transparent 60%) !important;

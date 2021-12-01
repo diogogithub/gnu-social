@@ -21,7 +21,7 @@ declare(strict_types = 1);
 
 // }}}
 
-namespace Component\Left\Controller;
+namespace Component\LeftPanel\Controller;
 
 use App\Core\Cache;
 use App\Core\Controller;

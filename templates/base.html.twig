@@ -3,7 +3,8 @@
 <head>
     {% block meta %}
         {# This is far from perfect. The response headers should already come with this. #}
-        {% if app.request.server.get('APP_ENV') not in ['test', 'dev'] %}<meta http-equiv="Content-Security-Policy" content="default-src https:">{% endif %}
+        {% if app.request.server.get('APP_ENV') not in ['test', 'dev'] %}
+            <meta http-equiv="Content-Security-Policy" content="default-src https:">{% endif %}
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="home" href="/">
@@ -38,7 +39,8 @@
     <p tabindex="0">{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</p>
     <p tabindex="0">{{ 'Provided the following keyboard shortcut, the link is targeted.' | trans }}</p>
     <br>
-    <p tabindex="0">{{ 'Be mindful that another ' | trans }}<kbd>Tab</kbd>{{ ' is needed in order to focus.' | trans }}</p>
+    <p tabindex="0">{{ 'Be mindful that another ' | trans }}<kbd>Tab</kbd>{{ ' is needed in order to focus.' | trans }}
+    </p>
     <p tabindex="0">
         {% if is_firefox() == true %}
             <em><kbd>Alt</kbd> + <kbd>Shift</kbd> + "access key"</em>
@@ -48,13 +50,10 @@
     </p>
     <br>
 
-    <a accesskey="z" href="#anchor-accessibility-menu" class="anchor-hidden"></a>
-    <a id="anchor-accessibility-menu" class="anchor-hidden"></a>
-
-    <p tabindex="0">
+    <a id="anchor-accessibility-menu" accesskey="z" href="#anchor-accessibility-menu">
         <strong>{{ 'The keyboard key ' | trans }}<kbd>Z</kbd>{{ ' accesses this menu.' | trans }}</strong>
         <strong>{{ 'The other access keys are:' | trans }}</strong>
-    </p>
+    </a>
 
     <nav>
         <ul>
@@ -72,14 +71,16 @@
     <header class="page-header">
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
-        <a id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access instance\'s main page.' | trans }}"></a>
-        <a class="accessibility-target header-instance" href="{{ path('main_public') }}" tabindex="0" title="{{ 'This instance\'s name. Access public feed.' | trans }}">
+        <a id="anchor-main-page" class="anchor-hidden"
+           title="{{ 'Press tab to access instance\'s main page.' | trans }}"></a>
+        <a class="accessibility-target header-instance" href="{{ path('main_public') }}" tabindex="0"
+           title="{{ 'This instance\'s name. Access public feed.' | trans }}">
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }}</h1>
         </a>
 
         <details class="header-extra-actions">
             <summary>
-              {{ icon('kebab', 'icon icon-details-open') | raw }}
+                {{ icon('kebab', 'icon icon-details-open') | raw }}
             </summary>
             <div class="header-extra-actions-open">
                 {% for extra_form in extra_header_forms %}
@@ -95,7 +96,8 @@
 {% endblock header %}
 
 <div class="page-content-wrapper">
-    <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden" title="{{ 'Press tab to access main content.' | trans }}"></a>
+    <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden"
+       title="{{ 'Press tab to access main content.' | trans }}"></a>
     <div class='page-content accessibility-target'>
         {% block nav %}{% endblock %}
         {% block body %}{% endblock %}
