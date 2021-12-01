@@ -23,9 +23,17 @@ namespace Component\Left;
 
 use App\Core\Event;
 use App\Core\Modules\Component;
+use App\Core\Router\RouteLoader;
+use Component\Left\Controller as C;
 
 class Left extends Component
 {
+    public function onAddRoute(RouteLoader $r): bool
+    {
+        $r->connect('edit_feeds', '/edit-feeds', C\EditFeeds::class);
+        return Event::next;
+    }
+
     /**
      * Output our dedicated stylesheet
      *
