@@ -134,6 +134,10 @@ class Reply extends NoteHandlerPlugin
     public function onAddRoute($r)
     {
         $r->connect('reply_add', '/object/note/{id<\d+>}/reply', [ReplyController::class, 'replyAddNote']);
+        $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [ReplyController::class, 'replies']);
+
+        return Event::next;
+    }
 
         return Event::next;
     }
