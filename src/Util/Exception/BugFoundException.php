@@ -44,6 +44,7 @@ class BugFoundException extends ServerException
     {
         parent::__construct($message, $code, $previous);
         $frame = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, limit: 2)[1];
-        Log::critical("{$log_message} in {$frame['file']}:{$frame['line']}");
+        $file  = mb_substr($frame['file'], \mb_strlen(INSTALLDIR) + 1);
+        Log::critical("{$log_message} in {$file}:{$frame['line']}");
     }
 }
