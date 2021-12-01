@@ -99,6 +99,11 @@ class Tag extends Component
         return mb_substr($tag, 0, self::MAX_TAG_LENGTH);
     }
 
+    /**
+     * Convert a tag to it's canonical representation, by splitting it
+     * into words, stemming it in the given language (if enabled) and
+     * sluggifying it (turning it into an ASCII representation)
+     */
     public static function canonicalTag(string $tag, ?string $language): string
     {
         $result = '';

@@ -32,6 +32,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RelatedTags extends Plugin
 {
+    /**
+     * Add a pinnned block containing tags related to the current page, be it note tags or actor tags
+     */
     public function onAddPinnedFeedContent(Request $request, array &$pinned)
     {
         $tags = $request->attributes->get('tags');

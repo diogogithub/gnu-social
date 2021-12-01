@@ -42,6 +42,10 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class EditFeeds extends Controller
 {
+    /**
+     * Controller for editing the list of feeds in the user's left
+     * panel. Adds and removes `\App\Entity\Feed`s as appropriate
+     */
     public function __invoke(Request $request)
     {
         $user  = Common::ensureLoggedIn();
