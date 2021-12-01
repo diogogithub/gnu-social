@@ -109,6 +109,7 @@ class EditFeeds extends Controller
                 throw new RedirectException();
             }
 
+            // TODO fix orderings when removing
             // Remove feed
             foreach ($form_definitions as [$field, $type, $opts]) {
                 if (str_ends_with($field, '-url')) {

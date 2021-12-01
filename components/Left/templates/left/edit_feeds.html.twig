@@ -7,7 +7,7 @@
 
 {% block body %}
   <div class="section-widget section-widget-padded">
-    <form class="section-form">
+    <form class="section-form" action="{{ path('edit_feeds') }}" method="post">
 
       <fieldset>
         <legend class="section-form-legend">{{ "Edit feed navigation links" | trans }}</legend>
