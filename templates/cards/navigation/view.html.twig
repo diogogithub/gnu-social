@@ -36,16 +36,6 @@
 {% block profile_current_actor %}
 <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
 
-    <a title='{{ 'Replies to your notes.' | trans }}' href="{{ path('replies', {'nickname' : current_actor.getNickname()}) }}" class='{{ active("replies") }}'>
-        Replies
-    </a>
-
-    {% for tab in handle_event('AddProfileNavigationItem', {'nickname': current_actor.getNickname()}) %}
-        <a href="{{ tab['path'] }}" class='{{ active(tab['path_id']) }}'>
-            {{ tab['title'] }}
-        </a>
-    {% endfor %}
-
     <a title='{{ 'Access your account settings.' | trans }}' href="{{ path('settings') }}" class='{{ active('settings') }}'>
         Settings
     </a>

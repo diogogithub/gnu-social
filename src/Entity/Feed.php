@@ -24,7 +24,9 @@ namespace App\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
 use function App\Core\I18n\_m;
+use App\Core\Router\Router;
 use DateTimeInterface;
 
 /**
@@ -149,12 +151,11 @@ class Feed extends Entity
      */
     public static function createDefaultFeeds(int $actor_id, LocalUser $user): void
     {
-        DB::persist(self::create(['actor_id' => $actor_id, 'url' => '/main/public',
-            'route'                          => 'main_public', 'title' => _m('Public'), 'ordering' => 1, ]));
-        DB::persist(self::create(['actor_id' => $actor_id, 'url' => '/main/all',
-            'route'                          => 'main_all', 'title' => _m('Network'), 'ordering' => 2, ]));
-        DB::persist(self::create(['actor_id' => $actor_id, 'url' => '/@' . $user->getNickname() . '/all',
-            'route'                          => 'home_all', 'title' => _m('Home'), 'ordering' => 3, ]));
+        $ordering = 1;
+        DB::persist(self::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'main_public'), 'route' => $route, 'title' => _m('Public'), 'ordering' => $ordering++]));
+        DB::persist(self::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'main_all'), 'route' => $route, 'title' => _m('Network'), 'ordering' => $ordering++]));
+        DB::persist(self::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'home_all', ['nickname' => $user->getNickname()]), 'route' => $route, 'title' => _m('Home'), 'ordering' => $ordering++]));
+        Event::handle('CreateDefaultFeeds', [$actor_id, $user, &$ordering]);
     }
 
     public static function schemaDef(): array

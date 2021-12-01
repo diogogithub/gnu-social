@@ -23,11 +23,14 @@ declare(strict_types = 1);
 
 namespace Plugin\Reply;
 
+use App\Core\DB\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\Router;
 use App\Entity\Actor;
+use App\Entity\Feed;
+use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
@@ -35,6 +38,7 @@ use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
+use App\Util\Nickname;
 use Plugin\Reply\Controller\Reply as ReplyController;
 use Plugin\Reply\Entity\NoteReply;
 use Symfony\Component\HttpFoundation\Request;
@@ -139,6 +143,15 @@ class Reply extends NoteHandlerPlugin
         return Event::next;
     }
 
+    public function onCreateDefaultFeeds(int $actor_id, LocalUser $user, int &$ordering)
+    {
+        DB::persist(Feed::create([
+            'actor_id' => $actor_id,
+            'url'      => Router::url($route = 'replies', ['nickname' => $user->getNickname()]),
+            'route'    => $route,
+            'title'    => _m('Replies'),
+            'ordering' => $ordering++,
+        ]));
         return Event::next;
     }
 }

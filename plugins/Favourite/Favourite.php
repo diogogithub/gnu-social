@@ -25,17 +25,18 @@ namespace Plugin\Favourite;
 
 use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
+use App\Entity\Feed;
+use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
-use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
-use App\Util\Formatting;
 use App\Util\Nickname;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -83,17 +84,11 @@ class Favourite extends NoteHandlerPlugin
         return Event::next;
     }
 
-    public function onAddProfileNavigationItem(array $vars, array &$res): bool
+    public function onAppendCardNote(array $vars, array &$result)
     {
-        $res[] = ['title' => 'Favourites', 'path' => Router::url('favourites_view_by_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'favourites_view_by_nickname'];
-        $res[] = ['title' => 'Reverse Favourites', 'path' => Router::url('favourites_reverse_view_by_nickname', ['nickname' => $vars['nickname']]), 'path_id' => 'favourites_view_by_nickname'];
-        return Event::next;
-    }
-
-    public function onAppendCardNote(array $vars, array &$result) {
         // if note is the original, append on end "user favourited this"
         $actor = $vars['actor'];
-        $note = $vars['note'];
+        $note  = $vars['note'];
 
         return Event::next;
     }
@@ -111,6 +106,25 @@ class Favourite extends NoteHandlerPlugin
         // View all favourites by nickname
         $r->connect(id: 'favourites_view_by_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', target: [Controller\Favourite::class, 'favouritesByActorNickname']);
         $r->connect(id: 'favourites_reverse_view_by_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/reverse_favourites', target: [Controller\Favourite::class, 'reverseFavouritesByActorNickname']);
+        return Event::next;
+    }
+
+    public function onCreateDefaultFeeds(int $actor_id, LocalUser $user, int &$ordering)
+    {
+        DB::persist(Feed::create([
+            'actor_id' => $actor_id,
+            'url'      => Router::url($route = 'favourites_view_by_nickname', ['nickname' => $user->getNickname()]),
+            'route'    => $route,
+            'title'    => _m('Favourites'),
+            'ordering' => $ordering++,
+        ]));
+        DB::persist(Feed::create([
+            'actor_id' => $actor_id,
+            'url'      => Router::url($route = 'favourites_reverse_view_by_nickname', ['nickname' => $user->getNickname()]),
+            'route'    => $route,
+            'title'    => _m('Reverse favourites'),
+            'ordering' => $ordering++,
+        ]));
         return Event::next;
     }
 }
