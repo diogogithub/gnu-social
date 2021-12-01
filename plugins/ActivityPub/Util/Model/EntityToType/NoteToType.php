@@ -22,9 +22,9 @@ class NoteToType
             'id' => Router::url('note_view', ['id' => $note->getId()], Router::ABSOLUTE_URL),
             'published' => $note->getCreated()->format(DateTimeInterface::RFC3339),
             'attributedTo' => $note->getActor()->getUri(Router::ABSOLUTE_URL),
-            //'to' => $to,
-            //'cc' => $cc,
-            'content' => json_encode($note->getRendered()),
+            'to' => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
+            'cc' => ['https://www.w3.org/ns/activitystreams#Public'],
+            'content' => $note->getRendered(),
             //'tag' => $tags
         ];
         return Type::create(type: 'Note', attributes: $attr);

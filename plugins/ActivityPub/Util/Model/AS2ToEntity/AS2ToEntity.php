@@ -17,7 +17,7 @@ use Plugin\ActivityPub\Entity\ActivitypubActivity;
 
 abstract class AS2ToEntity
 {
-    public static function activity_stream_two_verb_to_gs_verb($verb)
+    public static function activity_stream_two_verb_to_gs_verb(string $verb): string
     {
         return match ($verb) {
             'Create' => 'create',
@@ -25,7 +25,7 @@ abstract class AS2ToEntity
         };
     }
 
-    public static function activity_stream_two_object_type_to_gs_table($object)
+    public static function activity_stream_two_object_type_to_gs_table(string $object): string
     {
         return match ($object) {
             'Note'  => 'note',

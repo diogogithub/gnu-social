@@ -32,9 +32,9 @@ class ActivityToType
             'id' => Router::url('activity_view', ['id' => $activity->getId()], Router::ABSOLUTE_URL),
             'published' => $activity->getCreated()->format(DateTimeInterface::RFC3339),
             'actor' => $activity->getActor()->getUri(Router::ABSOLUTE_URL),
-            //'to' => $to,
-            //'cc' => $cc,
-            'object' => $activity->getObject()->getUrl(),
+            'to' => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
+            'cc' => ['https://www.w3.org/ns/activitystreams#Public'],
+            'object' => EntityToType::translate($activity->getObject()),
         ];
         return Type::create($attr);
     }

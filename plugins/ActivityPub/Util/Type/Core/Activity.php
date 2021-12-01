@@ -13,6 +13,8 @@ declare(strict_types = 1);
 
 namespace Plugin\ActivityPub\Util\Type\Core;
 
+use Plugin\ActivityPub\Util\Type;
+
 /**
  * \Plugin\ActivityPub\Util\Type\Core\Activity is an implementation of one of the
  * Activity Streams Core Types.
@@ -39,5 +41,5 @@ class Activity extends AbstractActivity
      *             | Link
      *             | null
      */
-    protected string $object;
+    protected ObjectType $object;
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Plugin\ActivityPub;
 
@@ -14,18 +14,11 @@ use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Common;
-use App\Util\Exception\NicknameEmptyException;
-use App\Util\Exception\NicknameException;
-use App\Util\Exception\NicknameInvalidException;
-use App\Util\Exception\NicknameNotAllowedException;
-use App\Util\Exception\NicknameTakenException;
-use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Nickname;
 use Exception;
 use Plugin\ActivityPub\Controller\Inbox;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
-use Plugin\ActivityPub\Util\Explorer;
 use Plugin\ActivityPub\Util\HTTPSignature;
 use Plugin\ActivityPub\Util\Model\EntityToType\EntityToType;
 use Plugin\ActivityPub\Util\Response\ActorResponse;
@@ -55,7 +48,7 @@ class ActivityPub extends Plugin
         'as:Public',
     ];
     public const HTTP_CLIENT_HEADERS = [
-        'Accept'     => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+        'Accept' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
         'User-Agent' => 'GNUsocialBot ' . GNUSOCIAL_VERSION . ' - ' . GNUSOCIAL_PROJECT_URL,
     ];
 
@@ -93,7 +86,7 @@ class ActivityPub extends Plugin
         return Event::next;
     }
 
-    public function onStartGetActorUrl(Actor $actor, int $type, ?string &$url):bool
+    public function onStartGetActorUrl(Actor $actor, int $type, ?string &$url): bool
     {
         if (
             // Is remote?
@@ -110,7 +103,8 @@ class ActivityPub extends Plugin
         return Event::next;
     }
 
-    public function onAddFreeNetworkProtocol (array &$protocols): bool {
+    public function onAddFreeNetworkProtocol(array &$protocols): bool
+    {
         $protocols[] = '\Plugin\ActivityPub\ActivityPub';
         return Event::next;
     }
@@ -118,7 +112,7 @@ class ActivityPub extends Plugin
     public static function freeNetworkDistribute(Actor $sender, Activity $activity, array $targets, ?string $reason = null): bool
     {
         $to_addr = [];
-        foreach($targets as $target) {
+        foreach ($targets as $target) {
             if (is_null($ap_target = ActivitypubActor::getWithPK(['actor_id' => $target->getId()]))) {
                 continue;
             }
@@ -170,7 +164,7 @@ class ActivityPub extends Plugin
         Log::debug('ActivityPub Postman: Delivery headers were: ' . print_r($headers, true));
 
         $response = HTTPClient::$method($inbox, ['headers' => $headers, 'body' => $data]);
-        Log::debug('ActivityPub Postman: Delivery result with status code '.$response->getStatusCode().': '.$response->getContent());
+        Log::debug('ActivityPub Postman: Delivery result with status code ' . $response->getStatusCode() . ': ' . $response->getContent());
         return $response;
     }
 
@@ -191,7 +185,7 @@ class ActivityPub extends Plugin
                 if (preg_match_all($renick, $str, $matches, PREG_SET_ORDER, 0) === 1) {
                     return LocalUser::getWithPK(['nickname' => $matches[0][1]])->getActor();
                 } elseif (preg_match_all($reuri, $str, $matches, PREG_SET_ORDER, 0) === 1) {
-                    return Actor::getById((int) $matches[0][1]);
+                    return Actor::getById((int)$matches[0][1]);
                 }
             }
         }
@@ -265,21 +259,21 @@ class ActivityPub extends Plugin
     /**
      * Webfinger matches: @user@example.com or even @user--one.george_orwell@1984.biz
      *
-     * @param   string  $text       The text from which to extract webfinger IDs
-     * @param   string  $preMention Character(s) that signals a mention ('@', '!'...)
+     * @param string $text The text from which to extract webfinger IDs
+     * @param string $preMention Character(s) that signals a mention ('@', '!'...)
      * @return  array   The matching IDs (without $preMention) and each respective position in the given string.
      */
-    public static function extractWebfingerIds(string $text, string $preMention='@'): array
+    public static function extractWebfingerIds(string $text, string $preMention = '@'): array
     {
         $wmatches = [];
         $result = preg_match_all(
-            '/'.Nickname::BEFORE_MENTIONS.preg_quote($preMention, '/').'('.Nickname::WEBFINGER_FMT.')/',
+            '/' . Nickname::BEFORE_MENTIONS . preg_quote($preMention, '/') . '(' . Nickname::WEBFINGER_FMT . ')/',
             $text,
             $wmatches,
             PREG_OFFSET_CAPTURE
         );
         if ($result === false) {
-            Log::error(__METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error=='.preg_last_error().').');
+            Log::error(__METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error==' . preg_last_error() . ').');
             return [];
         } elseif (($n_matches = count($wmatches)) != 0) {
             Log::debug((sprintf('Found %d matches for WebFinger IDs: %s', $n_matches, print_r($wmatches, true))));
@@ -288,25 +282,25 @@ class ActivityPub extends Plugin
     }
 
     /**
-     * Profile URL matches: @example.com/mublog/user
-     *
-     * @param   string  $text       The text from which to extract URL mentions
-     * @param   string  $preMention Character(s) that signals a mention ('@', '!'...)
+     * Profile URL matches: @param string $text The text from which to extract URL mentions
+     * @param string $preMention Character(s) that signals a mention ('@', '!'...)
      * @return  array   The matching URLs (without @ or acct:) and each respective position in the given string.
+     * @example.com/mublog/user
+     *
      */
-    public static function extractUrlMentions(string $text, string $preMention='@'): array
+    public static function extractUrlMentions(string $text, string $preMention = '@'): array
     {
         $wmatches = [];
         // In the regexp below we need to match / _before_ URL_REGEX_VALID_PATH_CHARS because it otherwise gets merged
         // with the TLD before (but / is in URL_REGEX_VALID_PATH_CHARS anyway, it's just its positioning that is important)
         $result = preg_match_all(
-            '/(?:^|\s+)'.preg_quote($preMention, '/').'('.URL_REGEX_DOMAIN_NAME.'(?:\/['.URL_REGEX_VALID_PATH_CHARS.']*)*)/',
+            '/(?:^|\s+)' . preg_quote($preMention, '/') . '(' . URL_REGEX_DOMAIN_NAME . '(?:\/[' . URL_REGEX_VALID_PATH_CHARS . ']*)*)/',
             $text,
             $wmatches,
             PREG_OFFSET_CAPTURE
         );
         if ($result === false) {
-            Log::error(__METHOD__ . ': Error parsing profile URL mentions from text (preg_last_error=='.preg_last_error().').');
+            Log::error(__METHOD__ . ': Error parsing profile URL mentions from text (preg_last_error==' . preg_last_error() . ').');
             return [];
         } elseif (count($wmatches)) {
             Log::debug((sprintf('Found %d matches for profile URL mentions: %s', count($wmatches), print_r($wmatches, true))));
@@ -317,11 +311,11 @@ class ActivityPub extends Plugin
     /**
      * Find any explicit remote mentions. Accepted forms:
      *   Webfinger: @user@example.com
-     *   Profile link: @example.com/mublog/user
-     * @param Actor $sender
+     *   Profile link: @param Actor $sender
      * @param string $text input markup text
      * @param $mentions
      * @return bool hook return value
+     * @example.com/mublog/user
      */
     public function onEndFindMentions(Actor $sender, string $text, array &$mentions): bool
     {
@@ -421,10 +415,10 @@ class ActivityPub extends Plugin
     /**
      * Profile from URI.
      *
-     * @author GNU social
      * @param string $uri
      * @param Actor &$profile in/out param: Profile got from URI
      * @return mixed hook return code
+     * @author GNU social
      */
     //public function onStartGetProfileFromURI($uri, &$profile)
     //{

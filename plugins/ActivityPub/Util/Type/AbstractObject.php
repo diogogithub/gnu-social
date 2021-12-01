@@ -260,8 +260,8 @@ abstract class AbstractObject
     public function toJson(?int $options = null): string
     {
         return json_encode(
-            $this->toArray(),
-            (int) $options,
+            value: $this->toArray(),
+            flags: (int) $options,
         );
     }
 
