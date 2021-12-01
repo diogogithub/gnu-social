@@ -159,7 +159,7 @@ class EditFeeds extends Controller
         }
 
         return [
-            '_template'  => 'left/edit_feeds.html.twig',
+            '_template'  => 'left_panel/edit_feeds.html.twig',
             'edit_feeds' => $form->createView(),
         ];
     }
