@@ -39,6 +39,9 @@ database-force-schema-update:
 tooling-docker: .PHONY
 	@cd docker/tooling && docker-compose up -d > /dev/null 2>&1
 
+accessibility: .PHONY
+	@cd docker/accessibility && docker-compose up
+
 test: tooling-docker
 	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,'')
 
