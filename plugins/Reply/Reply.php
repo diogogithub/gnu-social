@@ -83,9 +83,9 @@ class Reply extends NoteHandlerPlugin
     /**
      * Append on note information about user actions
      *
-     * @return array|bool
+     * @return bool
      */
-    public function onAppendCardNote(array $vars, array &$result)
+    public function onAppendCardNote(array $vars, array &$result): bool
     {
         // if note is the original, append on end "user replied to this"
         // if note is the reply itself: append on end "in response to user in conversation"
@@ -132,7 +132,7 @@ class Reply extends NoteHandlerPlugin
         $complementary_info .= ' replied to this note.';
         $result[] = Formatting::twigRenderString($complementary_info, []);
 
-        return $result;
+        return Event::next;
     }
 
     public function onAddRoute($r)
