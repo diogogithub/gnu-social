@@ -23,16 +23,22 @@ declare(strict_types = 1);
 
 namespace Component\Left\Controller;
 
+use App\Core\Cache;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Core\Router\Router;
 use App\Entity\Feed;
 use App\Util\Common;
+use App\Util\Exception\RedirectException;
+use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class EditFeeds extends Controller
 {
@@ -70,7 +76,9 @@ class EditFeeds extends Controller
 
             $data = $form->getData();
 
-            if ($form->get('update_exisiting')->isClicked()) {
+            /** @var SubmitButton $update_existing */
+            $update_existing = $form->get('update_exisiting');
+            if ($update_existing->isClicked()) {
                 // Each feed has a URL, an order and a title
                 $feeds_data = array_chunk($data, 3, preserve_keys: true);
                 // The last three would be the new one
@@ -101,7 +109,10 @@ class EditFeeds extends Controller
             foreach ($form_definitions as [$field, $type, $opts]) {
                 if (str_ends_with($field, '-url')) {
                     $remove_id = str_replace('-url', '-remove', $field);
-                    if ($form->get($remove_id)->isClicked()) {
+                    /** @var SubmitButton $remove_button */
+                    $remove_button = $form->get($remove_id);
+                    if ($remove_button->isClicked()) {
+                        // @phpstan-ignore-next-line -- Doesn't quite understand that _this_ $opts for the current $form_definitions does have 'data'
                         DB::remove(DB::getReference('feed', ['actor_id' => $user->getId(), 'url' => $opts['data']]));
                         DB::flush();
                         Cache::delete($key);
@@ -110,7 +121,9 @@ class EditFeeds extends Controller
                 }
             }
 
-            if ($form->get('reset')->isClicked()) {
+            /** @var SubmitButton $reset_button */
+            $reset_button = $form->get('reset');
+            if ($reset_button->isClicked()) {
                 F\map(DB::findBy('feed', ['actor_id' => $user->getId()]), fn ($f) => DB::remove($f));
                 DB::flush();
                 Cache::delete($key);
@@ -134,6 +147,7 @@ class EditFeeds extends Controller
                 Cache::delete($key);
                 throw new RedirectException();
             } catch (ResourceNotFoundException) {
+                // TODO add error (flash?)
                 // throw new ClientException(_m('Invalid route'));
                 // continue bellow
             }

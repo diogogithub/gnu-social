@@ -268,7 +268,7 @@ class Actor extends Entity
     /**
      * Tags attributed to self, shortcut function for increased legibility
      *
-     * @return [ActorCircle[], ActorTag[]]
+     * @return array<int, array> [ActorCircle[], ActorTag[]] resulting lists
      */
     public function getSelfTags(bool $_test_force_recompute = false): array
     {
@@ -285,7 +285,7 @@ class Actor extends Entity
      * @param null|int       $offset Offset from latest
      * @param null|int       $limit  Max number to get
      *
-     * @return [ActorCircle[], ActorTag[]] resulting lists
+     * @return array<int, array> [ActorCircle[], ActorTag[]] resulting lists
      */
     public function getOtherTags(self|int|null $scoped = null, ?int $offset = null, ?int $limit = null, bool $_test_force_recompute = false): array
     {

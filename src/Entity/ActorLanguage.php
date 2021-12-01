@@ -97,7 +97,7 @@ class ActorLanguage extends Entity
     }
 
     /**
-     * @return self[]
+     * @return Language[]
      */
     public static function getActorLanguages(LocalUser|Actor $actor, ?Actor $context): array
     {

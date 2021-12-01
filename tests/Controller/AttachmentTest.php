@@ -68,7 +68,7 @@ class AttachmentTest extends GNUsocialTestCase
     public function testAttachmentViewNotStored()
     {
         $client          = static::createClient();
-        $last_attachment = DB::findBy('attachment', [], orderBy: ['id' => 'DESC'], limit: 1)[0];
+        $last_attachment = DB::findBy('attachment', [], order_by: ['id' => 'DESC'], limit: 1)[0];
         $id              = $last_attachment->getId() + 1;
         $crawler         = $client->request('GET', "/attachment/{$id}/view");
         $this->assertResponseStatusCodeSame(500); // TODO (exception page) 404
