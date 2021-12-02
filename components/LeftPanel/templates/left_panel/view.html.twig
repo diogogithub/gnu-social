@@ -3,8 +3,8 @@
            tabindex="-1">{{ icon('menu', 'icon icon-left') | raw }}</label>
     <input type="checkbox" id="panel-left-toggle" aria-hidden="true" tabindex="-1">
 
-    <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <section class="header-panel section-panel-left accessibility-target">
+        <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
         <aside class="panel-content">
             {% if app.user %}
                 <section class='section-widget section-widget-padded' title="{{ 'Your profile information.' | trans }}">

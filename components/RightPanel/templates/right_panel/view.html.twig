@@ -3,8 +3,8 @@
            tabindex="-1">{{ icon('notes', 'icon icon-right') | raw }}</label>
     <input type="checkbox" id="panel-right-toggle" aria-hidden="true" tabindex="-1">
 
-    <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <div class="header-panel section-panel-right accessibility-target">
+        <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
         <aside class="panel-content">
 
             {% set blocks = handle_event('AppendRightPostingBlock', request) %}
