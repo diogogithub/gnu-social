@@ -42,6 +42,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use App\Util\Nickname;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use function App\Core\I18n\_m;
 use App\Core\Log;
@@ -111,7 +112,8 @@ class UserPanel extends Controller
             ['save_personal_info', SubmitType::class,   ['label' => _m('Save personal info')]],
         ];
         $extra_step = function ($data, $extra_args) use ($user) {
-            $user->setNickname($data['nickname']);
+            $nickname = Nickname::normalize($data['nickname'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: true);
+            $nickname ?: $user->setNickname($data['nickname']);
         };
         return Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
     }
