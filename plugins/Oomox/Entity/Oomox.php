@@ -197,6 +197,23 @@ class Oomox extends Entity
         return $this->modified;
     }
 
+    public function resetTheme(bool $is_light) {
+        if ($is_light) {
+            $this->colour_background_hard_light = '#09090d';
+            $this->colour_background_card_light = '#ebebeb';
+            $this->colour_foreground_light = '#f0f0f0';
+            $this->colour_border_light = '#d5d5d5';
+            $this->colour_accent_light = '#a22430';
+        } else {
+
+            $this->colour_background_hard_dark = '#141216';
+            $this->colour_background_card_dark = '#131217';
+            $this->colour_foreground_dark = '#f0f6f6';
+            $this->colour_border_dark = '#201f25';
+            $this->colour_accent_dark = '#5ddbcf';
+        }
+    }
+
     // @codeCoverageIgnoreEnd
     // }}} Autocode
     public static function schemaDef(): array

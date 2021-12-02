@@ -70,22 +70,26 @@ class Oomox
 
         $form_light->handleRequest($request);
         if ($form_light->isSubmitted() && $form_light->isValid()) {
-            $data                   = $form_light->getData();
-            $current_oomox_settings = Entity\Oomox::create(
-                [
-                    'actor_id'                     => $actor_id,
-                    'colour_foreground_light'      => $data['colour_foreground_light'],
-                    'colour_background_hard_light' => $data['colour_background_hard_light'],
-                    'colour_background_card_light' => $data['colour_background_card_light'],
-                    'colour_border_light'          => $data['colour_border_light'],
-                    'colour_accent_light'          => $data['colour_accent_light'],
-                ],
-            );
+            $reset_button = $form_light->get('colour_reset_light');
+            if ($reset_button->isClicked()) {
+                $current_oomox_settings->resetTheme(true);
+            } else {
+                $data                   = $form_light->getData();
+                $current_oomox_settings = Entity\Oomox::create(
+                    [
+                        'actor_id'                     => $actor_id,
+                        'colour_foreground_light'      => $data['colour_foreground_light'],
+                        'colour_background_hard_light' => $data['colour_background_hard_light'],
+                        'colour_background_card_light' => $data['colour_background_card_light'],
+                        'colour_border_light'          => $data['colour_border_light'],
+                        'colour_accent_light'          => $data['colour_accent_light'],
+                    ],
+                );
+            }
+
             DB::merge($current_oomox_settings);
             DB::flush();
-
             Cache::delete(\Plugin\Oomox\Oomox::cacheKey($user));
-
             throw new RedirectException();
         }
 
@@ -109,22 +113,27 @@ class Oomox
 
         $form_dark->handleRequest($request);
         if ($form_dark->isSubmitted() && $form_dark->isValid()) {
-            $data                   = $form_dark->getData();
-            $current_oomox_settings = Entity\Oomox::create(
-                [
-                    'actor_id'                    => $actor_id,
-                    'colour_foreground_dark'      => $data['colour_foreground_dark'],
-                    'colour_background_hard_dark' => $data['colour_background_hard_dark'],
-                    'colour_background_card_dark' => $data['colour_background_card_dark'],
-                    'colour_border_dark'          => $data['colour_border_dark'],
-                    'colour_accent_dark'          => $data['colour_accent_dark'],
-                ],
-            );
+            $reset_button = $form_dark->get('colour_reset_dark');
+            if ($reset_button->isClicked()) {
+                $current_oomox_settings->resetTheme(false);
+
+            } else {
+                $data                   = $form_dark->getData();
+                $current_oomox_settings = Entity\Oomox::create(
+                    [
+                        'actor_id'                    => $actor_id,
+                        'colour_foreground_dark'      => $data['colour_foreground_dark'],
+                        'colour_background_hard_dark' => $data['colour_background_hard_dark'],
+                        'colour_background_card_dark' => $data['colour_background_card_dark'],
+                        'colour_border_dark'          => $data['colour_border_dark'],
+                        'colour_accent_dark'          => $data['colour_accent_dark'],
+                    ],
+                );
+            }
+
             DB::merge($current_oomox_settings);
             DB::flush();
-
             Cache::delete(\Plugin\Oomox\Oomox::cacheKey($user));
-
             throw new RedirectException();
         }
 
@@ -144,7 +153,7 @@ class Oomox
         $background_card = 'colour_background_card_' . ($is_light ? 'light' : 'dark');
         $border          = 'colour_border_' . ($is_light ? 'light' : 'dark');
         $accent          = 'colour_accent_' . ($is_light ? 'light' : 'dark');
-        $shadow          = 'colour_shadow_' . ($is_light ? 'light' : 'dark');
+        $reset           = 'colour_reset_' . ($is_light ? 'light' : 'dark');
         $save            = 'save_oomox_colours_' . ($is_light ? 'light' : 'dark');
 
         if (isset($current_oomox_settings)) {
@@ -201,6 +210,7 @@ class Oomox
                 'help'  => _m('Choose the accent colour'), ],
             ],
             ['hidden', HiddenType::class, []],
+            [$reset, SubmitType::class, ['label' => _m('Reset colors to default')]],
             [$save, SubmitType::class, ['label' => _m('Submit')]],
         ]);
     }
