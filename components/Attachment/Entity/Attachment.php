@@ -357,7 +357,7 @@ class Attachment extends Entity
      *
      * @return AttachmentThumbnail
      */
-    public function getThumbnail(?string $size = null, bool $crop = false): AttachmentThumbnail
+    public function getThumbnail(?string $size = null, bool $crop = false): ?AttachmentThumbnail
     {
         return AttachmentThumbnail::getOrCreate(attachment: $this, size: $size, crop: $crop);
     }

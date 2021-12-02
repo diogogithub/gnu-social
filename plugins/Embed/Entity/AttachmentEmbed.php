@@ -185,10 +185,10 @@ class AttachmentEmbed extends Entity
         $thumbnail  = $attachment->getThumbnail('medium');
         if (\is_null($attachment) || \is_null($attachment->getWidth()) || \is_null($attachment->getHeight())) {
             $attr['has_attachment'] = false;
-        } else {
+        } elseif (!\is_null($thumbnail)) {
             $attr['has_attachment'] = true;
-            $attr['width']          = $thumbnail->getWidth();
-            $attr['height']         = $thumbnail->getHeight();
+            $attr['width'] = $thumbnail->getWidth();
+            $attr['height'] = $thumbnail->getHeight();
         }
         return $attr;
     }
