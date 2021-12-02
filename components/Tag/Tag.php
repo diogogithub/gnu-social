@@ -141,7 +141,7 @@ class Tag extends Component
         return Event::stop;
     }
 
-    public function onSeachQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
+    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
         $note_qb->join('App\Entity\NoteTag', 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
         $actor_qb->join('App\Entity\ActorTag', 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id');

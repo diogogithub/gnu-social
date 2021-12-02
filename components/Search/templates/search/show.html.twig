@@ -9,7 +9,7 @@
 {% endblock stylesheets %}
 
 {% block body %}
-    {% if error %}
+    {% if error is defined %}
         <label class="alert alert-danger">
             {{ error.getMessage() }}
         </label>
