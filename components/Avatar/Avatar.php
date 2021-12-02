@@ -68,8 +68,8 @@ class Avatar extends Component
         foreach (['full', 'big', 'medium', 'small'] as $size) {
             foreach ([Router::ABSOLUTE_PATH, Router::ABSOLUTE_URL] as $type) {
                 Cache::delete("avatar-url-{$actor_id}-{$size}-{$type}");
-                Cache::delete("avatar-file-info-{$actor_id}-{$size}-{$type}");
             }
+            Cache::delete("avatar-file-info-{$actor_id}-{$size}");
         }
         return Event::next;
     }
