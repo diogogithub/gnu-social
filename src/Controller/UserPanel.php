@@ -42,6 +42,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Entity\ActorLanguage;
@@ -126,7 +127,7 @@ class UserPanel extends Controller
         $form = Form::create([
             ['outgoing_email', TextType::class,        ['label' => _m('Outgoing email'), 'required' => false,  'help' => _m('Change the email we use to contact you')]],
             ['incoming_email', TextType::class,        ['label' => _m('Incoming email'), 'required' => false,  'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
-            ['old_password',   TextType::class,        ['label' => _m('Old password'),   'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
+            ['old_password',   PasswordType::class,        ['label' => _m('Old password'),   'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
             FormFields::repeated_password(['required' => false]),
             FormFields::language($user->getActor(), context_actor: null, label: _m('Languages'), help: _m('The languages you understand, so you can see primarily content in those'), multiple: true, required: false, use_short_display: false),
             ['phone_number', PhoneNumberType::class, ['label' => _m('Phone number'), 'required' => false, 'help' => _m('Your phone number'), 'data_class' => null]],
@@ -267,11 +268,11 @@ class UserPanel extends Controller
 
             switch ($type_str) {
             case Types::BOOLEAN:
-                $form_defs['placeholder'][$name] = [$name, CheckboxType::class, ['data' => $val, 'label' => _m($labels[$name] ?? $label), 'help' => _m($help[$name])]];
+                $form_defs['placeholder'][$name] = [$name, CheckboxType::class, ['data' => $val, 'required' => false, 'label' => _m($labels[$name] ?? $label), 'help' => _m($help[$name])]];
                 break;
             case Types::INTEGER:
                 if ($name == 'target_actor_id') {
-                    $form_defs['placeholder'][$name] = [$name, TextType::class, ['data' => $val, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ActorArrayTransformer::class];
+                    $form_defs['placeholder'][$name] = [$name, TextType::class, ['data' => $val, 'required' => false, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ActorArrayTransformer::class];
                 }
                 break;
             default:
