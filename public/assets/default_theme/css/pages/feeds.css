@@ -31,7 +31,10 @@
 }
 
 .note-sidebar .avatar {
-    width: var(--big);
+    max-width: 4rem;
+    max-height: 4rem;
+    min-width: var(--big);
+    width: 100%;
     height: auto;
     background: unset;
     margin-bottom: var(--smaller);
