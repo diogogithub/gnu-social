@@ -348,11 +348,9 @@ embed header {
 .h-entry-language {
     position: relative;
     float: right;
-    background: var(--border);
-    padding: 5px;
+    padding: 6px 12px;
+    background: var(--gradient-backwards);
     font-size: var(--default);
     color: var(--foreground);
-    margin-right: var(--smaller);
-    margin-bottom: var(--smaller);
-    border-radius: var(--smaller);
+    border-radius: 0 0 var(--smaller) 0;
 }
