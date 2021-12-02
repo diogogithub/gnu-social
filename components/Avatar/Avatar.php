@@ -110,6 +110,16 @@ class Avatar extends Component
         }
     }
 
+    public static function getDimensions(int $actor_id, string $size = 'full')
+    {
+        try {
+            $attachment = self::getAvatar($actor_id)->getAttachment();
+            return ['width' => $attachment->getWidth(), 'height' => $attachment->getHeight()];
+        } catch (NoAvatarException) {
+            return ['width' => Common::config('thumbnail', 'small'), 'height' => Common::config('thumbnail', 'small')];
+        }
+    }
+
     /**
      * Get the cached avatar file info associated with the given Actor id
      *

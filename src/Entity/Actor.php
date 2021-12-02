@@ -250,6 +250,11 @@ class Actor extends Entity
         return Avatar::getAvatarUrl($this->getId(), $size);
     }
 
+    public function getAvatarDimensions(string $size = 'full')
+    {
+        return Avatar::getDimensions($this->getId(), $size);
+    }
+
     public static function getById(int $id): ?self
     {
         return Cache::get('actor-id-' . $id, fn () => DB::find('actor', ['id' => $id]));

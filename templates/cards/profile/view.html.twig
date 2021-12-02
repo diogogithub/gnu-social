@@ -1,5 +1,6 @@
 {% set actor_nickname = actor.getNickname() %}
 {% set actor_avatar = actor.getAvatarUrl() %}
+{% set actor_avatar_dimensions = actor.getAvatarDimensions() %}
 {% set actor_tags = actor.getSelfTags()[1] %} {# Take only the actor_tags, not the circles #}
 {% set actor_bio = actor.getBio() %}
 {% set actor_uri = actor.getUri() %}
@@ -8,7 +9,7 @@
     <section id='profile-{{ actor.id }}' class='profile' title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
         <a href="{{ actor_uri }}">
             <div class="profile-info">
-                <img src='{{ actor_avatar }}' class="profile-avatar" alt="{{ actor_nickname }}{{ '\'s avatar.' | trans }}">
+                <img src="{{ actor_avatar }}" class="profile-avatar" alt="{% trans %} %actor_nickname%'s avatar. {% endtrans %}" width="{{actor_avatar_dimensions['width']}}" height="{{actor_avatar_dimensions['height']}}">
                 <strong class="profile-info-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
 
                 <section class="profile-info-bio">
