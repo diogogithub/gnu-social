@@ -341,3 +341,15 @@ embed header {
 .note-complementary a {
     font-weight: bold;
 }
+
+.h-entry-language {
+    position: relative;
+    float: right;
+    background: var(--border);
+    padding: 5px;
+    font-size: var(--default);
+    color: var(--foreground);
+    margin-right: var(--smaller);
+    margin-bottom: var(--smaller);
+    border-radius: var(--smaller);
+}

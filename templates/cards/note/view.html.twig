@@ -2,7 +2,7 @@
     {% if app.user or note_actions_hide is defined %}
         <div class="note-actions">
             {% for current_action in get_note_actions(note) %}
-                <a class="{{ current_action["classes"] }}" href="{{ current_action["url"] }}"></a>
+                <a title="{{ current_action["title"] | trans }}" class="{{ current_action["classes"] }}" href="{{ current_action["url"] }}"></a>
             {% endfor %}
         </div>
     {% endif %}
@@ -74,8 +74,9 @@
     {% set fullname = note.getActorFullname() %}
     {% set actor = note.getActor() %}
     {% set actor_url = actor.getUrl() %}
+    {% set note_language = note.getNoteLanguageShortDisplay() %}
 
-    <article class="h-entry hentry note">
+    <article class="h-entry hentry note" lang={{ note.getLanguageLocale() }}>
         {{ block('note_sidebar') }}
         <div class="note-wrapper">
             <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
@@ -90,12 +91,16 @@
             </section>
 
             {% for block in handle_event('AppendCardNote', {'note': note, 'actor': note.getActor() }) %}
-                <aside class="note-complementary">
+                <aside title="{{ 'Note\'s complementary information' | trans }}" class="note-complementary">
                     {{ block | raw }}
                 </aside>
             {% endfor %}
 
             {{ block('note_replies') }}
+
+            {% if note_language is defined and note_language is not empty %}
+                <div title="{{ 'Note\'s language' | trans }}" class="h-entry-language">{{ note_language }}</div>
+            {% endif %}
         </div>
     </article>
 {% endmacro macro_note %}

@@ -217,6 +217,16 @@ class Note extends Entity
         return Avatar::getAvatarUrl($this->getActorId(), $size);
     }
 
+    public function getNoteLanguageShortDisplay(): string
+    {
+        return Language::getFromId($this->language_id)->getShortDisplay();
+    }
+
+    public function getLanguageLocale(): string
+    {
+        return Language::getFromId($this->language_id)->getLocale();
+    }
+
     public static function getAllNotesByActor(Actor $actor): array
     {
         return DB::sql(

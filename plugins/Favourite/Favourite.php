@@ -76,6 +76,7 @@ class Favourite extends NoteHandlerPlugin
         $extra_classes    = $is_favourite ? 'note-actions-set' : 'note-actions-unset';
         $favourite_action = [
             'url'     => $favourite_action_url,
+            'title'   => $is_favourite ? 'Remove this note from favourites' : 'Favourite this note!',
             'classes' => "button-container favourite-button-container {$extra_classes}",
             'id'      => 'favourite-button-container-' . $note->getId(),
         ];

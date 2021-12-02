@@ -72,6 +72,7 @@ class Reply extends NoteHandlerPlugin
 
         $reply_action = [
             'url'     => $reply_action_url,
+            'title'   => 'Reply to this note!',
             'classes' => 'button-container reply-button-container note-actions-unset',
             'id'      => 'reply-button-container-' . $note->getId(),
         ];

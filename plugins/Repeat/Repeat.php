@@ -85,6 +85,7 @@ class Repeat extends NoteHandlerPlugin
         $extra_classes = $is_repeat ? 'note-actions-set' : 'note-actions-unset';
         $repeat_action = [
             'url'     => $repeat_action_url,
+            'title'   => $is_repeat ? 'Remove this repeat' : 'Repeat this note!',
             'classes' => "button-container repeat-button-container {$extra_classes}",
             'id'      => 'repeat-button-container-' . $note->getId(),
         ];
