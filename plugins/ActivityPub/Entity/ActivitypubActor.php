@@ -58,6 +58,7 @@ class ActivitypubActor extends Entity
     private int $actor_id;
     private string $inbox_uri;
     private ?string $inbox_shared_uri = null;
+    private string $url;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -69,6 +70,17 @@ class ActivitypubActor extends Entity
     public function setUri(string $uri): self
     {
         $this->uri = $uri;
+        return $this;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): self
+    {
+        $this->url = $url;
         return $this;
     }
 
@@ -229,6 +241,7 @@ class ActivitypubActor extends Entity
                 'actor_id'         => ['type' => 'int', 'not null' => true],
                 'inbox_uri'        => ['type' => 'text', 'not null' => true],
                 'inbox_shared_uri' => ['type' => 'text'],
+                'url'              => ['type' => 'text'],
                 'created'          => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

@@ -238,7 +238,6 @@ class Explorer
             'fullname' => $res['name'] ?? null,
             'created'  => new DateTime($res['published'] ?? 'now'),
             'bio'      => isset($res['summary']) ? mb_substr(Security::sanitize($res['summary']), 0, 1000) : null,
-            'homepage' => $res['url'],
             'is_local' => false,
             'modified' => new DateTime(),
         ];
@@ -252,22 +251,21 @@ class Explorer
         DB::persist($actor);
 
         // ActivityPub Actor
-        $aprofile = new ActivitypubActor();
-        $aprofile->setInboxUri($res['inbox']);
-        $aprofile->setInboxSharedUri($res['endpoints']['sharedInbox'] ?? $res['inbox']);
-        $aprofile->setUri($res['id']);
-        $aprofile->setActorId($actor->getId());
-        $aprofile->setCreated(new DateTime());
-        $aprofile->setModified(new DateTime());
+        $aprofile = ActivitypubActor::create([
+            'inbox_uri' => $res['inbox'],
+            'inbox_shared_uri' => $res['endpoints']['sharedInbox'],
+            'uri' => $res['id'],
+            'actor_id' => $actor->getId(),
+            'url' => $res['url'] ?? null,
+        ]);
 
         DB::persist($aprofile);
 
         // Public Key
-        $apRSA = new ActivitypubRsa();
-        $apRSA->setActorId($actor->getID());
-        $apRSA->setPublicKey($res['publicKey']['publicKeyPem']);
-        $apRSA->setCreated(new DateTime());
-        $apRSA->setModified(new DateTime());
+        $apRSA = ActivitypubRsa::create([
+            'actor_id' => $actor->getID(),
+            'public_key' => $res['publicKey']['publicKeyPem'],
+        ]);
 
         DB::persist($apRSA);
 
