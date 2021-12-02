@@ -172,7 +172,7 @@ li {
     padding: 0;
 }
 
-*:focus {
+*:focus-visible {
     -webkit-box-shadow: var(--shadow-inset-accent);
     -moz-box-shadow: var(--shadow-inset-accent);
     box-shadow: var(--shadow-inset-accent);
@@ -578,9 +578,6 @@ html {
             border-radius: var(--smaller);
         }
         50% {
-            -webkit-border-rns
-            Enable/
-            disabadius: var(--smaller);
             border-radius: var(--smaller);
             -webkit-box-shadow: inset 0 20px 40px #FFF;
             box-shadow: inset 0 20px 40px #FFF;
