@@ -42,6 +42,10 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
@@ -349,7 +353,12 @@ class Embed extends Plugin
 
         // Validate if the URL really does point to a remote image
         $head    = HTTPClient::head($url);
-        $headers = $head->getHeaders();
+        try {
+            $headers = $head->getHeaders();
+        } catch (ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
+            Log::debug('Embed->downloadThumbnail@HTTPHead->getHeaders: ' . $e->getMessage());
+            return null;
+        }
         $headers = array_change_key_case($headers, \CASE_LOWER);
         if (empty($headers['content-type']) || GSFile::mimetypeMajor($headers['content-type'][0]) !== 'image') {
             Log::debug("URL ({$url}) doesn't point to an image (content-type: " . (!empty($headers['content-type'][0]) ? $headers['content-type'][0] : 'not available') . ') in Embed->downloadThumbnail.');
