@@ -28,6 +28,7 @@ use App\Core\DB\DB;
 use App\Core\Log;
 use App\Core\Router\Router;
 use App\Entity\Actor;
+use Component\FreeNetwork\Entity\FreeNetworkActorProtocol;
 use Exception;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
 use Plugin\ActivityPub\Entity\ActivitypubRsa;
@@ -128,6 +129,7 @@ class Inbox extends Controller
 
         // Store Activity
         $ap_act = AS2ToEntity::store(activity: $type->toArray(), source: 'ActivityPub');
+        FreeNetworkActorProtocol::protocolSucceeded('activitypub', $actor->getId());
         DB::flush();
         dd($ap_act, $act = $ap_act->getActivity(), $act->getActor(), $act->getObject());
 

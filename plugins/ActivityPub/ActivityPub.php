@@ -16,6 +16,8 @@ use App\Entity\LocalUser;
 use App\Util\Common;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Nickname;
+use Component\FreeNetwork\Entity\FreeNetworkActorProtocol;
+use Component\FreeNetwork\Util\Discovery;
 use Exception;
 use Plugin\ActivityPub\Controller\Inbox;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
@@ -29,6 +31,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 use XML_XRD;
 use XML_XRD_Element_Link;
 use function count;
+use function Psy\debug;
 use const PREG_SET_ORDER;
 
 class ActivityPub extends Plugin
@@ -109,33 +112,46 @@ class ActivityPub extends Plugin
         return Event::next;
     }
 
-    public static function freeNetworkDistribute(Actor $sender, Activity $activity, array $targets, ?string $reason = null): bool
+    public static function freeNetworkDistribute(Actor $sender, Activity $activity, array $targets, ?string $reason = null, array &$delivered = []): bool
     {
         $to_addr = [];
-        foreach ($targets as $target) {
-            if (is_null($ap_target = ActivitypubActor::getWithPK(['actor_id' => $target->getId()]))) {
-                continue;
+        foreach ($targets as $actor) {
+            if (FreeNetworkActorProtocol::canIActor('activitypub', $actor->getId())) {
+                if (is_null($ap_target = ActivitypubActor::getWithPK(['actor_id' => $actor->getId()]))) {
+                    continue;
+                }
+                $to_addr[$ap_target->getInboxSharedUri() ?? $ap_target->getInboxUri()][] = $actor;
+            } else {
+                return Event::next;
             }
-            $to_addr[$ap_target->getInboxSharedUri() ?? $ap_target->getInboxUri()] = true;
         }
 
         $errors = [];
-        $to_failed = []; // TODO: Implement failed queues
+        //$to_failed = [];
         foreach ($to_addr as $inbox => $dummy) {
             try {
                 $res = self::postman($sender, EntityToType::translate($activity), $inbox);
 
-                // accummulate errors for later use, if needed
+                // accumulate errors for later use, if needed
                 $status_code = $res->getStatusCode();
                 if (!($status_code === 200 || $status_code === 202 || $status_code === 409)) {
                     $res_body = json_decode($res->getContent(), true);
                     $errors[] = isset($res_body['error']) ?
                         $res_body['error'] : "An unknown error occurred.";
-                    $to_failed[$inbox] = $activity;
+                    //$to_failed[$inbox] = $activity;
+                } else {
+                    array_push($delivered, ...$dummy);
+                    foreach ($dummy as $actor) {
+                        FreeNetworkActorProtocol::protocolSucceeded(
+                            'activitypub',
+                            $actor,
+                            Discovery::normalize($actor->getNickname() . '@' . parse_url($inbox, PHP_URL_HOST))
+                        );
+                    }
                 }
             } catch (Exception $e) {
                 Log::error('ActivityPub @ freeNetworkDistribute: ' . $e->getMessage());
-                $to_failed[$inbox] = $activity;
+                //$to_failed[$inbox] = $activity;
             }
 
         }
@@ -259,20 +275,39 @@ class ActivityPub extends Plugin
     public function onFreeNetworkFindMentions(string $target, ?Actor &$actor = null): bool
     {
         try {
-            $ap_actor = ActivitypubActor::getByAddr($target);
-            $actor = Actor::getById($ap_actor->getActorId());
-            return Event::stop;
+            if (FreeNetworkActorProtocol::canIAddr('activitypub', $addr = Discovery::normalize($target))) {
+                $ap_actor = ActivitypubActor::getByAddr($addr);
+                $actor = Actor::getById($ap_actor->getActorId());
+                FreeNetworkActorProtocol::protocolSucceeded('activitypub', $actor->getId(), $addr);
+                return Event::stop;
+            } else {
+                return Event::next;
+            }
         } catch (Exception $e) {
             Log::error("ActivityPub Webfinger Mention check failed: " . $e->getMessage());
             return Event::next;
         }
     }
 
-    public function onFreeNetworkFindUrlMentions(string $url, ?Actor &$actor = null): bool
+    public function onFreeNetworkFoundXrd(XML_XRD $xrd, ?Actor &$actor = null): bool
     {
+        $addr = null;
+        foreach ($xrd->aliases as $alias) {
+            if (Discovery::isAcct($alias)) {
+                $addr = Discovery::normalize($alias);
+            }
+        }
+        if (is_null($addr)) {
+            return Event::next;
+        } else {
+            if (!FreeNetworkActorProtocol::canIAddr('activitypub', $addr)) {
+                return Event::next;
+            }
+        }
         try {
-            $ap_actor = ActivitypubActor::fromUri($url);
+            $ap_actor = ActivitypubActor::fromXrd($addr, $xrd);
             $actor = Actor::getById($ap_actor->getActorId());
+            FreeNetworkActorProtocol::protocolSucceeded('activitypub', $actor, $addr);
             return Event::stop;
         } catch (Exception $e) {
             Log::error("ActivityPub Actor from URL Mention check failed: " . $e->getMessage());

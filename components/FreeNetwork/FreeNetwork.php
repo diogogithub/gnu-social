@@ -22,8 +22,11 @@ declare(strict_types = 1);
 namespace Component\FreeNetwork;
 
 use App\Core\Event;
+use App\Core\GSFile;
+use App\Core\HTTPClient;
 use App\Entity\Activity;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
+use XML_XRD;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Component;
@@ -304,7 +307,7 @@ class FreeNetwork extends Component
         // In the regexp below we need to match / _before_ URL_REGEX_VALID_PATH_CHARS because it otherwise gets merged
         // with the TLD before (but / is in URL_REGEX_VALID_PATH_CHARS anyway, it's just its positioning that is important)
         $result = preg_match_all(
-            '/(?:^|\s+)' . preg_quote($preMention, '/') . '(' . URL_REGEX_DOMAIN_NAME . '(?:\/[' . URL_REGEX_VALID_PATH_CHARS . ']*)*)/',
+            '/' . Nickname::BEFORE_MENTIONS . preg_quote($preMention, '/') . '(' . URL_REGEX_DOMAIN_NAME . '(?:\/[' . URL_REGEX_VALID_PATH_CHARS . ']*)*)/',
             $text,
             $wmatches,
             PREG_OFFSET_CAPTURE
@@ -362,46 +365,72 @@ class FreeNetwork extends Component
 
         foreach (self::extractUrlMentions($text) as $wmatch) {
             [$target, $pos] = $wmatch;
-            $schemes = ['https', 'http'];
-            foreach ($schemes as $scheme) {
-                $url = "$scheme://$target";
-                if (Common::isValidHttpUrl($url)) {
-                    // This means $resource is a valid url
-                    Log::info("Checking actor address '$url'");
-                    $actor = null;
-                    $resource_parts = parse_url($url);
-                    // TODO: Use URLMatcher
-                    if ($resource_parts['host'] === $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
-                        $str = $resource_parts['path'];
-                        // actor_view_nickname
-                        $renick = '/\/@(' . Nickname::DISPLAY_FMT . ')\/?/m';
-                        // actor_view_id
-                        $reuri = '/\/actor\/(\d+)\/?/m';
-                        if (preg_match_all($renick, $str, $matches, PREG_SET_ORDER, 0) === 1) {
-                            $actor = LocalUser::getWithPK(['nickname' => $matches[0][1]])->getActor();
-                        } elseif (preg_match_all($reuri, $str, $matches, PREG_SET_ORDER, 0) === 1) {
-                            $actor = Actor::getById((int) $matches[0][1]);
-                        } else {
-                            Log::error('Unexpected behaviour onEndFindMentions at FreeNetwork');
-                            throw new ServerException('Unexpected behaviour onEndFindMentions at FreeNetwork');
-                        }
+            $url = "https://$target";
+            if (Common::isValidHttpUrl($url)) {
+                // This means $resource is a valid url
+                $resource_parts = parse_url($url);
+                // TODO: Use URLMatcher
+                if ($resource_parts['host'] === $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
+                    $str = $resource_parts['path'];
+                    // actor_view_nickname
+                    $renick = '/\/@(' . Nickname::DISPLAY_FMT . ')\/?/m';
+                    // actor_view_id
+                    $reuri = '/\/actor\/(\d+)\/?/m';
+                    if (preg_match_all($renick, $str, $matches, PREG_SET_ORDER, 0) === 1) {
+                        $actor = LocalUser::getWithPK(['nickname' => $matches[0][1]])->getActor();
+                    } elseif (preg_match_all($reuri, $str, $matches, PREG_SET_ORDER, 0) === 1) {
+                        $actor = Actor::getById((int) $matches[0][1]);
                     } else {
-                        Event::handle('FreeNetworkFindUrlMentions', [$url, &$actor]);
-                        if (is_null($actor)) {
-                            continue;
-                        }
+                        Log::error('Unexpected behaviour onEndFindMentions at FreeNetwork');
+                        throw new ServerException('Unexpected behaviour onEndFindMentions at FreeNetwork');
                     }
-                    $displayName = $actor->getFullname() ?? $actor->getNickname() ?? $target; // TODO: we could do getBestName() or getFullname() here
-                    $matches[$pos] = ['mentioned' => [$actor],
-                        'type' => 'mention',
-                        'text' => $displayName,
-                        'position' => $pos,
-                        'length' => mb_strlen($target),
-                        'url' => $actor->getUri()
-                    ];
                 } else {
-                    break;
+                    Log::info("Checking actor address '$url'");
+
+                    $link = new XML_XRD_Element_Link(
+                        Discovery::LRDD_REL,
+                        'https://' . parse_url($url, PHP_URL_HOST) . '/.well-known/webfinger?resource={uri}',
+                        Discovery::JRD_MIMETYPE,
+                        true // isTemplate
+                    );
+                    $xrd_uri = Discovery::applyTemplate($link->template, $url);
+                    $response = HTTPClient::get($xrd_uri, ['headers' => ['Accept' => $link->type]]);
+                    if ($response->getStatusCode() !== 200) {
+                        continue;
+                    }
+
+                    $xrd = new XML_XRD();
+
+                    switch (GSFile::mimetypeBare($response->getHeaders()['content-type'][0])) {
+                        case Discovery::JRD_MIMETYPE_OLD:
+                        case Discovery::JRD_MIMETYPE:
+                            $type = 'json';
+                            break;
+                        case Discovery::XRD_MIMETYPE:
+                            $type = 'xml';
+                            break;
+                        default:
+                            // fall back to letting XML_XRD auto-detect
+                            Log::debug('No recognized content-type header for resource descriptor body on ' . $xrd_uri);
+                            $type = null;
+                    }
+                    $xrd->loadString($response->getContent(), $type);
+
+                    $actor = null;
+                    Event::handle('FreeNetworkFoundXrd', [$xrd, &$actor]);
+                    if (is_null($actor)) {
+                        continue;
+                    }
                 }
+                $displayName = $actor->getFullname() ?? $actor->getNickname() ?? $target; // TODO: we could do getBestName() or getFullname() here
+                $matches[$pos] = [
+                    'mentioned' => [$actor],
+                    'type' => 'mention',
+                    'text' => $displayName,
+                    'position' => $pos,
+                    'length' => mb_strlen($target),
+                    'url' => $actor->getUri()
+                ];
             }
         }
 
@@ -425,9 +454,12 @@ class FreeNetwork extends Component
     {
         $protocols = [];
         Event::handle('AddFreeNetworkProtocol', [&$protocols]);
+        $delivered = [];
         foreach ($protocols as $protocol) {
-            $protocol::freeNetworkDistribute($sender, $activity, $targets, $reason);
+            $protocol::freeNetworkDistribute($sender, $activity, $targets, $reason, $delivered);
         }
+        $failed_targets = array_udiff($targets, $delivered, function(Actor $a, Actor $b):int {return $a->getId() <=> $b->getId();});
+        // TODO: Implement failed queues
         return false;
     }
 

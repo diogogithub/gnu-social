@@ -186,6 +186,11 @@ class ActivitypubActor extends Entity
             throw new Exception(_m('Not a valid WebFinger address: ' . $e->getMessage()));
         }
 
+        return self::fromXrd($addr, $xrd);
+    }
+
+    public static function fromXrd(string $addr, \XML_XRD $xrd): self
+    {
         $hints = array_merge(
             ['webfinger' => $addr],
             DiscoveryHints::fromXRD($xrd),
