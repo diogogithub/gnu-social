@@ -285,11 +285,11 @@ class Embed extends Plugin
         $metadata['title']         = $info->title;
         $metadata['description']   = $info->description;
         $metadata['author_name']   = $info->authorName;
-        $metadata['author_url']    = (string) $info->authorUrl;
-        $metadata['provider_name'] = $info->providerName;
         $root_url                  = parse_url($url);
         $root_url                  = "{$root_url['scheme']}://{$root_url['host']}";
-        $metadata['provider_url']  = (string) ($info->providerUrl != '' ? $info->providerUrl : $root_url);
+        $metadata['author_url']    = $info->authorUrl ? (string)$info->authorUrl : $root_url;
+        $metadata['provider_name'] = $info->providerName;
+        $metadata['provider_url']  = (string)$info->providerUrl ?? $metadata['author_name'];
 
         if (!\is_null($info->image)) {
             $thumbnail_url = (string) $info->image;
