@@ -30,10 +30,10 @@ class Attachment extends Component
 {
     public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect('attachment_show', '/attachment/{id<\d+>}', [C\Attachment::class, 'attachment_show']);
-        $r->connect('attachment_view', '/attachment/{id<\d+>}/view', [C\Attachment::class, 'attachment_view']);
-        $r->connect('attachment_download', '/attachment/{id<\d+>}/download', [C\Attachment::class, 'attachment_download']);
-        $r->connect('attachment_thumbnail', '/attachment/{id<\d+>}/thumbnail/{size<big|medium|small>}', [C\Attachment::class, 'attachment_thumbnail']);
+        $r->connect('attachment_show', '/object/attachment/{id<\d+>}', [C\Attachment::class, 'attachment_show']);
+        $r->connect('attachment_view', '/object/attachment/{id<\d+>}/view', [C\Attachment::class, 'attachment_view']);
+        $r->connect('attachment_download', '/object/attachment/{id<\d+>}/download', [C\Attachment::class, 'attachment_download']);
+        $r->connect('attachment_thumbnail', '/object/attachment/{id<\d+>}/thumbnail/{size<big|medium|small>}', [C\Attachment::class, 'attachment_thumbnail']);
         return Event::next;
     }
 }
