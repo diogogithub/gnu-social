@@ -160,7 +160,7 @@ class Embed extends Plugin
                 fn () => DB::findOneBy('attachment_embed', ['link_id' => $link->getId()]),
             );
         } catch (DuplicateFoundException $e) {
-            Log::warning($e);
+            Log::warning($e->getMessage());
             return Event::next;
         } catch (NotFoundException) {
             Log::debug("Embed doesn't have a representation for the link id={$link->getId()}. Must have been stored before the plugin was enabled.");
@@ -357,9 +357,9 @@ class Embed extends Plugin
         }
 
         // Does it respect the file quota?
-        $file_size = $headers['content-length'][0];
+        $file_size = $headers['content-length'][0] ?? null;
         $max_size  = Common::config('attachments', 'file_quota');
-        if ($file_size > $max_size) {
+        if (is_null($file_size) || $file_size > $max_size) {
             Log::debug("Went to download remote thumbnail of size {$file_size} but the upload limit is {$max_size} so we aborted in Embed->downloadThumbnail.");
             return false;
         }
