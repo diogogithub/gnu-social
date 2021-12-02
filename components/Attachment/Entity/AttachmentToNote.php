@@ -17,27 +17,32 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Attachment\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for relating an actor to an attachment
+ * Entity for relating a attachment to a post
  *
  * @category  DB
  * @package   GNUsocial
  *
- * @author    Diogo Peralta Cordeiro <mail@diogo.site>
- * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Zach Copley <zach@status.net>
+ * @copyright 2010 StatusNet Inc.
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ActorToAttachment extends Entity
+class AttachmentToNote extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
-    private int $actor_id;
+    private int $note_id;
+    private ?string $title;
     private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
@@ -51,15 +56,26 @@ class ActorToAttachment extends Entity
         return $this->attachment_id;
     }
 
-    public function setActorId(int $actor_id): self
+    public function setNoteId(int $note_id): self
     {
-        $this->actor_id = $actor_id;
+        $this->note_id = $note_id;
         return $this;
     }
 
-    public function getActorId(): int
+    public function getNoteId(): int
     {
-        return $this->actor_id;
+        return $this->note_id;
+    }
+
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -79,16 +95,17 @@ class ActorToAttachment extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'actor_to_attachment',
+            'name'   => 'attachment_to_note',
             'fields' => [
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_attachment_id_fkey', 'not null' => true, 'description' => 'id of attachment'],
-                'actor_id'      => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
+                'note_id'       => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
+                'title'         => ['type' => 'text',      'description' => 'title of resource when available'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['attachment_id', 'actor_id'],
+            'primary key' => ['attachment_id', 'note_id'],
             'indexes'     => [
                 'attachment_id_idx' => ['attachment_id'],
-                'actor_id_idx'      => ['actor_id'],
+                'note_id_idx'       => ['note_id'],
             ],
         ];
     }

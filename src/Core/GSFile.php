@@ -25,7 +25,7 @@ namespace App\Core;
 
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
-use App\Entity\Attachment;
+use Component\Attachment\Entity\Attachment;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\FileNotAllowedException;
@@ -229,7 +229,7 @@ class GSFile
                 function () use ($id) {
                     return DB::dql(
                         'select at.filename, at.mimetype '
-                        . 'from App\\Entity\\Attachment at '
+                        . 'from Component\Attachment\Entity\Attachment at '
                         . 'where at.id = :id',
                         ['id' => $id],
                     );

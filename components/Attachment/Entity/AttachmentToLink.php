@@ -17,32 +17,27 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Attachment\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for relating a attachment to a post
+ * Entity for relating a remote url to an attachment
  *
  * @category  DB
  * @package   GNUsocial
  *
- * @author    Zach Copley <zach@status.net>
- * @copyright 2010 StatusNet Inc.
- * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
- * @author    Hugo Sales <hugo@hsal.es>
- * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Diogo Peralta Cordeiro <mail@diogo.site>
+ * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class AttachmentToNote extends Entity
+class AttachmentToLink extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
-    private int $note_id;
-    private ?string $title;
+    private int $link_id;
     private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
@@ -56,26 +51,15 @@ class AttachmentToNote extends Entity
         return $this->attachment_id;
     }
 
-    public function setNoteId(int $note_id): self
+    public function setLinkId(int $link_id): self
     {
-        $this->note_id = $note_id;
+        $this->link_id = $link_id;
         return $this;
     }
 
-    public function getNoteId(): int
+    public function getLinkId(): int
     {
-        return $this->note_id;
-    }
-
-    public function setTitle(?string $title): self
-    {
-        $this->title = $title;
-        return $this;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
+        return $this->link_id;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -95,17 +79,16 @@ class AttachmentToNote extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'attachment_to_note',
+            'name'   => 'attachment_to_link',
             'fields' => [
+                'link_id'       => ['type' => 'int', 'foreign key' => true, 'target' => 'Link.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_attachment_id_fkey', 'not null' => true, 'description' => 'id of attachment'],
-                'note_id'       => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
-                'title'         => ['type' => 'text',      'description' => 'title of resource when available'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['attachment_id', 'note_id'],
+            'primary key' => ['link_id'],
             'indexes'     => [
+                'link_id_idx'       => ['link_id'],
                 'attachment_id_idx' => ['attachment_id'],
-                'note_id_idx'       => ['note_id'],
             ],
         ];
     }

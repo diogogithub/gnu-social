@@ -68,7 +68,7 @@ Simple enough.
 
 ### Attachments: Storing a reference in database
 Finally, you need a way to refer to previous files.
-GNU social calls that representation of `App\Entity\Attachment`.
+GNU social calls that representation of `Component\Attachment\Entity\Attachment`.
 If a note refers to an `Attachment` then you can link them
 using the entity `AttachmentToNote`. 
 
@@ -97,7 +97,7 @@ can be generated from files. And `StoreRemoteMedia` to understand how to generat
 them from URLs.
 
 The controller asking for them is the `App\Controller\Attachment::attachment_thumbnail` with
-a call to `App\Entity\AttachmentThumbnail::getOrCreate()`.
+a call to `Component\Attachment\Entity\AttachmentThumbnail::getOrCreate()`.
 
 ## Trade-offs between decoupling and complexity
 

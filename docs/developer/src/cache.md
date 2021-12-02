@@ -35,7 +35,7 @@ public static function getAvatarFileInfo(int $gsactor_id): array
             Cache::get("avatar-file-info-{$gsactor_id}",
                 function () use ($gsactor_id) {
                     return DB::dql('select f.file_hash, f.mimetype, f.title ' .
-                        'from App\Entity\Attachment f ' .
+                        'from Component\Attachment\Entity\Attachment f ' .
                         'join App\Entity\Avatar a with f.id = a.attachment_id ' .
                         'where a.gsactor_id = :gsactor_id',
                         ['gsactor_id' => $gsactor_id]);

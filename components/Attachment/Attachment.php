@@ -3,7 +3,6 @@
 declare(strict_types = 1);
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -18,35 +17,23 @@ declare(strict_types = 1);
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
-/**
- * Define social's attachment routes
- *
- * @package  GNUsocial
- * @category Router
- *
- * @author    Diogo Cordeiro <mail@diogo.site>
- * @author    Hugo Sales <hugo@hsal.es>
- * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
+namespace Component\Attachment;
 
-namespace App\Routes;
-
-use App\Controller as C;
+use App\Core\Event;
+use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
+use Component\Attachment\Controller as C;
 
-abstract class Attachments
+class Attachment extends Component
 {
-    public const LOAD_ORDER = 20;
-
-    public static function load(RouteLoader $r): void
+    public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect('attachment_show', '/attachment/{id<\d+>}', [C\Attachment::class, 'attachment_show']);
         $r->connect('attachment_view', '/attachment/{id<\d+>}/view', [C\Attachment::class, 'attachment_view']);
         $r->connect('attachment_download', '/attachment/{id<\d+>}/download', [C\Attachment::class, 'attachment_download']);
         $r->connect('attachment_thumbnail', '/attachment/{id<\d+>}/thumbnail/{size<big|medium|small>}', [C\Attachment::class, 'attachment_thumbnail']);
+        return Event::next;
     }
 }

@@ -21,7 +21,7 @@ declare(strict_types = 1);
 
 // }}}
 
-namespace App\Controller;
+namespace Component\Attachment\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
@@ -30,7 +30,7 @@ use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
-use App\Entity\AttachmentThumbnail;
+use Component\Attachment\Entity\AttachmentThumbnail;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchFileException;

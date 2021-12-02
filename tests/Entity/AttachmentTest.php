@@ -24,7 +24,7 @@ namespace App\Tests\Entity;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
-use App\Entity\AttachmentToNote;
+use Component\Attachment\Entity\AttachmentToNote;
 use App\Entity\Note;
 use App\Util\GNUsocialTestCase;
 use App\Util\TemporaryFile;

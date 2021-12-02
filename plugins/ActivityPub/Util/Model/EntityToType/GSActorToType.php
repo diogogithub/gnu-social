@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Plugin\ActivityPub\Util\Model\EntityToType;
 
-use App\Core\Event;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use Component\Avatar\Avatar;

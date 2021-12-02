@@ -25,7 +25,7 @@ namespace Plugin\Cover\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Entity\Attachment;
+use Component\Attachment\Entity\Attachment;
 use App\Util\Common;
 use DateTimeInterface;
 

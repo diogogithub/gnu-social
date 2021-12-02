@@ -47,7 +47,7 @@ use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
-use App\Entity\Attachment;
+use Component\Attachment\Entity\Attachment;
 use App\Entity\Link;
 use App\Entity\Note;
 use App\Util\Common;

@@ -36,7 +36,7 @@ namespace Plugin\Embed\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Entity\Attachment;
+use Component\Attachment\Entity\Attachment;
 use DateTimeInterface;
 
 /**

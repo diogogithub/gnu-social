@@ -27,7 +27,7 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Router\Router;
-use App\Entity\Attachment;
+use Component\Attachment\Entity\Attachment;
 use App\Util\Common;
 use DateTimeInterface;
 

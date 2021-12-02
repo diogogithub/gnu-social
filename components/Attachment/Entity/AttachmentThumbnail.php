@@ -21,7 +21,7 @@ declare(strict_types = 1);
 
 // }}}
 
-namespace App\Entity;
+namespace Component\Attachment\Entity;
 
 use App\Core\Cache;
 use App\Core\DB\DB;

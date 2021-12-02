@@ -29,7 +29,6 @@ use App\Core\Entity;
 use App\Core\Event;
 use App\Core\VisibilityScope;
 use Component\Avatar\Avatar;
-use Component\Notification\Entity\Notification;
 use DateTimeInterface;
 
 /**

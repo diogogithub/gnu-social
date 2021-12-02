@@ -123,7 +123,7 @@ class Avatar extends Component
             function () use ($actor_id) {
                 return DB::dql(
                     'select f.id, f.filename, a.title, f.mimetype '
-                    . 'from App\Entity\Attachment f '
+                    . 'from Component\Attachment\Entity\Attachment f '
                     . 'join Component\Avatar\Entity\Avatar a with f.id = a.attachment_id '
                     . 'where a.actor_id = :actor_id',
                     ['actor_id' => $actor_id],

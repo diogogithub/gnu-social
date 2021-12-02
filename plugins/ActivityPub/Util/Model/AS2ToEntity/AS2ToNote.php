@@ -29,7 +29,7 @@ abstract class AS2ToNote
             'created'      => new DateTime($object['published'] ?? 'now'),
             'content'      => $object['content'] ?? null,
             'content_type' => 'text/html',
-            'language_id'     => $object['contentLang'] ?? null,
+            'language_id'  => $object['contentLang'] ?? null,
             'url'          => \array_key_exists('url', $object) ? $object['url'] : $object['id'],
             'actor_id'     => $actor_id,
             'modified'     => new DateTime(),
@@ -59,6 +59,9 @@ abstract class AS2ToNote
             $set = Formatting::snakeCaseToCamelCase("set_{$prop}");
             $obj->{$set}($val);
         }
+
+        Event::handle('NewNoteFromActivityStreamsTwo', [$source, $obj, $actor_id]);
+
         return $obj;
     }
 }

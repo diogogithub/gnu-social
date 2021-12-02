@@ -19,13 +19,14 @@
 
 // }}}
 
-namespace App\Entity;
+namespace Component\Attachment\Entity;
 
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
 use App\Core\GSFile;
+use App\Entity\Note;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;

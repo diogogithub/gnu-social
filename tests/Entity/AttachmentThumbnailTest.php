@@ -23,7 +23,7 @@ namespace App\Tests\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Entity\AttachmentThumbnail;
+use Component\Attachment\Entity\AttachmentThumbnail;
 use App\Util\Exception\NotStoredLocallyException;
 use App\Util\GNUsocialTestCase;
 use Functional as F;

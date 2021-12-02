@@ -17,13 +17,13 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Attachment\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for relating a remote url to an attachment
+ * Entity for relating an actor to an attachment
  *
  * @category  DB
  * @package   GNUsocial
@@ -32,12 +32,12 @@ use DateTimeInterface;
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class AttachmentToLink extends Entity
+class ActorToAttachment extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
-    private int $link_id;
+    private int $actor_id;
     private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
@@ -51,15 +51,15 @@ class AttachmentToLink extends Entity
         return $this->attachment_id;
     }
 
-    public function setLinkId(int $link_id): self
+    public function setActorId(int $actor_id): self
     {
-        $this->link_id = $link_id;
+        $this->actor_id = $actor_id;
         return $this;
     }
 
-    public function getLinkId(): int
+    public function getActorId(): int
     {
-        return $this->link_id;
+        return $this->actor_id;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -79,16 +79,16 @@ class AttachmentToLink extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'attachment_to_link',
+            'name'   => 'actor_to_attachment',
             'fields' => [
-                'link_id'       => ['type' => 'int', 'foreign key' => true, 'target' => 'Link.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_attachment_id_fkey', 'not null' => true, 'description' => 'id of attachment'],
+                'actor_id'      => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['link_id'],
+            'primary key' => ['attachment_id', 'actor_id'],
             'indexes'     => [
-                'link_id_idx'       => ['link_id'],
                 'attachment_id_idx' => ['attachment_id'],
+                'actor_id_idx'      => ['actor_id'],
             ],
         ];
     }
