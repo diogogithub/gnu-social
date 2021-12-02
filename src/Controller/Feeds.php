@@ -70,7 +70,7 @@ class Feeds extends Controller
     public function home(Request $request, string $nickname)
     {
         try {
-            $target = DB::findOneBy('actor', ['nickname' => $nickname]);
+            $target = DB::findOneBy('actor', ['nickname' => $nickname, 'is_local' => true]);
         } catch (NotFoundException) {
             throw new ClientException(_m('User {nickname} doesn\'t exist', ['{nickname}' => $nickname]));
         }
