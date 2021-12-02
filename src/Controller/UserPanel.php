@@ -112,8 +112,13 @@ class UserPanel extends Controller
             ['save_personal_info', SubmitType::class,   ['label' => _m('Save personal info')]],
         ];
         $extra_step = function ($data, $extra_args) use ($user) {
+            // TODO: this isn't ideal, when the user nick is set it should be normalized and the cache updated
             $nickname = Nickname::normalize($data['nickname'], check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: true);
-            $nickname ?: $user->setNickname($data['nickname']);
+            if ($nickname) {
+                $user->setNickname($nickname);
+                // Updating actor cache
+                Cache::set('actor-nickname-id-' . $user->getActor()->getId(), $nickname);
+            }
         };
         return Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
     }
