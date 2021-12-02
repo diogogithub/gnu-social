@@ -6,14 +6,6 @@
 
 @import url("widgets/sections.css");
 
-/*:root {*/
-/*    --smaller: .6rem;*/
-/*    --default: 1rem;*/
-/*    --small: 1.3rem;*/
-/*    --medium: 1.62rem;*/
-/*    --big: 3rem;*/
-/*}*/
-
 * {
     -webkit-box-sizing: border-box !important;
     -moz-box-sizing: border-box !important;
@@ -24,9 +16,13 @@
 body,html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: var(--background-hard);
     background-attachment: fixed;
     font-family: 'Open Sans',sans-serif;
     font-size: var(--default);
+
+    display: flex;
+    flex-direction: column;
 }
 
 body,input,textarea,select {
@@ -183,10 +179,6 @@ li {
 }
 
 @media(prefers-color-scheme:dark) {
-    .background-image {
-        background-color: var(--background-hard);
-    }
-
     select:not([multiple]) {
         background: var(--gradient),url("../images/select_drop_dark.png") no-repeat center right 5px !important;
         background-size: cover,16px !important;
@@ -194,10 +186,6 @@ li {
 }
 
 @media(prefers-color-scheme:light) {
-    .background-image {
-        background-color: var(--background-hard);
-    }
-
     select:not([multiple]) {
         background: var(--gradient),url("../images/select_drop_light.png") no-repeat center right 5px !important;
         background-size: cover,16px !important;
@@ -421,6 +409,18 @@ html {
         -moz-animation-timing-function: ease-in-out;
         -o-animation-timing-function: ease-in-out;
         animation-timing-function: ease-in-out;
+    }
+}
+
+@media only screen and (min-width:2000px) {
+    .page-content-wrapper {
+        width: 50%;
+    }
+    .section-panel-left {
+        left: calc(25% - 19vw) !important;
+    }
+    .section-panel-right {
+        right: calc(25% - 19vw) !important;
     }
 }
 
