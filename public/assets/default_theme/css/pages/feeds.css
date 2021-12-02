@@ -193,6 +193,7 @@ embed header {
 
 .note-author-nickname {
     opacity: 0.5;
+    margin-left: var(--smaller);
 }
 
 .note-author-nickname::before {

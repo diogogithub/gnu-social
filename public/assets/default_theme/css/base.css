@@ -457,45 +457,6 @@ html {
     }
 }
 
-@-webkit-keyframes fadeIn {
-    0% {
-        opacity: 0;
-        -webkit-transform: translateY(-10px);
-        transform: translateY(-10px);
-    }
-    100% {
-        opacity: unset;
-        -webkit-transform: none;
-        transform: none;
-    }
-}
-
-@-moz-keyframes fadeIn {
-    0% {
-        opacity: 0;
-        -moz-transform: translateY(-10px);
-        transform: translateY(-10px);
-    }
-    100% {
-        opacity: unset;
-        -moz-transform: none;
-        transform: none;
-    }
-}
-
-@-o-keyframes fadeIn {
-    0% {
-        opacity: 0;
-        -o-transform: translateY(-10px);
-        transform: translateY(-10px);
-    }
-    100% {
-        opacity: unset;
-        -o-transform: none;
-        transform: none;
-    }
-}
-
 @keyframes fadeIn {
     0% {
         opacity: 0;
@@ -508,45 +469,6 @@ html {
         opacity: unset;
         -webkit-transform: none;
         -moz-transform: none;
-        -o-transform: none;
-        transform: none;
-    }
-}
-
-@-webkit-keyframes fadeOut {
-    100% {
-        opacity: 0;
-        -webkit-transform: translateY(-10px);
-        transform: translateY(-10px);
-    }
-    0% {
-        opacity: unset;
-        -webkit-transform: none;
-        transform: none;
-    }
-}
-
-@-moz-keyframes fadeOut {
-    100% {
-        opacity: 0;
-        -moz-transform: translateY(-10px);
-        transform: translateY(-10px);
-    }
-    0% {
-        opacity: unset;
-        -moz-transform: none;
-        transform: none;
-    }
-}
-
-@-o-keyframes fadeOut {
-    100% {
-        opacity: 0;
-        -o-transform: translateY(-10px);
-        transform: translateY(-10px);
-    }
-    0% {
-        opacity: unset;
         -o-transform: none;
         transform: none;
     }
@@ -570,77 +492,6 @@ html {
 }
 
 @media (prefers-color-scheme: dark) {
-    @-webkit-keyframes highlight {
-        0% {
-            -webkit-box-shadow: initial;
-            box-shadow: initial;
-            -webkit-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-        }
-        50% {
-            border-radius: var(--smaller);
-            -webkit-box-shadow: inset 0 20px 40px #FFF;
-            box-shadow: inset 0 20px 40px #FFF;
-            -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
-            transition: -webkit-box-shadow 0.3s ease-in-out;
-            -o-transition: box-shadow 0.3s ease-in-out;
-            -moz-transition: box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-        }
-        100% {
-            -webkit-box-shadow: initial;
-            box-shadow: initial;
-            -webkit-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-        }
-    }
-    @-moz-keyframes highlight {
-        0% {
-            -moz-box-shadow: initial;
-            box-shadow: initial;
-            -moz-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-        }
-        50% {
-            -moz-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-            -moz-box-shadow: inset 0 20px 40px #FFF;
-            box-shadow: inset 0 20px 40px #FFF;
-            -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
-            transition: -webkit-box-shadow 0.3s ease-in-out;
-            -o-transition: box-shadow 0.3s ease-in-out;
-            -moz-transition: box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-        }
-        100% {
-            -moz-box-shadow: initial;
-            box-shadow: initial;
-            -moz-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-        }
-    }
-    @-o-keyframes highlight {
-        0% {
-            box-shadow: initial;
-            border-radius: var(--smaller);
-        }
-        50% {
-            border-radius: var(--smaller);
-            box-shadow: inset 0 20px 40px #FFF;
-            -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
-            transition: -webkit-box-shadow 0.3s ease-in-out;
-            -o-transition: box-shadow 0.3s ease-in-out;
-            -moz-transition: box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-        }
-        100% {
-            box-shadow: initial;
-            border-radius: var(--smaller);
-        }
-    }
     @keyframes highlight {
         0% {
             -webkit-box-shadow: initial;
@@ -663,6 +514,7 @@ html {
             -moz-transition: box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
             transition: box-shadow 0.3s ease-in-out;
             transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
+            z-index: 666;
         }
         100% {
             -webkit-box-shadow: initial;
@@ -676,78 +528,6 @@ html {
 }
 
 @media (prefers-color-scheme: light) {
-    @-webkit-keyframes highlight {
-        0% {
-            -webkit-box-shadow: initial;
-            box-shadow: initial;
-            -webkit-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-        }
-        50% {
-            -webkit-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-            -webkit-box-shadow: inset 0 20px 40px #000;
-            box-shadow: inset 0 20px 40px #000;
-            -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
-            transition: -webkit-box-shadow 0.3s ease-in-out;
-            -o-transition: box-shadow 0.3s ease-in-out;
-            -moz-transition: box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-        }
-        100% {
-            -webkit-box-shadow: initial;
-            box-shadow: initial;
-            -webkit-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-        }
-    }
-    @-moz-keyframes highlight {
-        0% {
-            -moz-box-shadow: initial;
-            box-shadow: initial;
-            -moz-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-        }
-        50% {
-            -moz-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-            -moz-box-shadow: inset 0 20px 40px #000;
-            box-shadow: inset 0 20px 40px #000;
-            -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
-            transition: -webkit-box-shadow 0.3s ease-in-out;
-            -o-transition: box-shadow 0.3s ease-in-out;
-            -moz-transition: box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-        }
-        100% {
-            -moz-box-shadow: initial;
-            box-shadow: initial;
-            -moz-border-radius: var(--smaller);
-            border-radius: var(--smaller);
-        }
-    }
-    @-o-keyframes highlight {
-        0% {
-            box-shadow: initial;
-            border-radius: var(--smaller);
-        }
-        50% {
-            border-radius: var(--smaller);
-            box-shadow: inset 0 20px 40px #000;
-            -webkit-transition: -webkit-box-shadow 0.3s ease-in-out;
-            transition: -webkit-box-shadow 0.3s ease-in-out;
-            -o-transition: box-shadow 0.3s ease-in-out;
-            -moz-transition: box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out;
-            transition: box-shadow 0.3s ease-in-out, -webkit-box-shadow 0.3s ease-in-out, -moz-box-shadow 0.3s ease-in-out;
-        }
-        100% {
-            box-shadow: initial;
-            border-radius: var(--smaller);
-        }
-    }
     @keyframes highlight {
         0% {
             -webkit-box-shadow: initial;
