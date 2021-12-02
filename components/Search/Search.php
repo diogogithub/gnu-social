@@ -41,12 +41,13 @@ class Search extends Component
 
     /**
      * Add the search form to the site header
+     * @throws RedirectException
      */
     public function onAddExtraHeaderForms(Request $request, array &$elements)
     {
         $form = Form::create([
-            ['query', TextType::class, [
-                'attr' => ['placeholder' => _m('Search tags...')],
+            ['search_tags', TextType::class, [
+                'attr' => ['placeholder' => _m('Input desired query...')],
             ]],
             [$form_name = 'submit_search', SubmitType::class,
                 [
@@ -63,7 +64,7 @@ class Search extends Component
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 $data = $form->getData();
-                throw new RedirectException('search', ['q' => $data['query']]);
+                throw new RedirectException('search', ['q' => $data['search_tags']]);
             }
         }
 

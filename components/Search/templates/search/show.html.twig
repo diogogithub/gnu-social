@@ -1,20 +1,42 @@
-{% extends 'base.html.twig' %}
-
+{% extends 'stdgrid.html.twig' %}
 {% import '/cards/note/view.html.twig' as noteView %}
 
+{% block title %}{% if page_title is defined %}{{ page_title | trans }}{% endif %}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
+{% endblock stylesheets %}
+
 {% block body %}
-  {% for note in notes %}
-    {% block current_note %}
-      <div class="section-widget">
-        {{ noteView.macro_note(note) }}
-      </div>
-    {% endblock current_note %}
-  {% endfor %}
+    {% if error %}
+        <label class="alert alert-danger">
+            {{ error.getMessage() }}
+        </label>
+    {% endif %}
 
-  {% for actor in actors %}
-    {% include 'actor/view.html.twig' with {'actor': actor} %}
-  {% endfor %}
+    {# Backwards compatibility with hAtom 0.1 #}
+    <main class="feed" tabindex="0" role="feed">
+        <div class="h-feed hfeed notes">
+            {% if notes is defined and notes is not empty %}
+                {% for note in notes %}
+                    {% block current_note %}
+                        <div class="section-widget">
+                            {{ noteView.macro_note(note) }}
+                            <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                        </div>
+                    {% endblock current_note %}
+                {% endfor %}
+            {% else %}
+                <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
+            {% endif %}
+        </div>
+    </main>
 
-  {{ "Page: " ~ page }}
-{% endblock %}
+    {% for actor in actors %}
+        {% include 'actor/view.html.twig' with {'actor': actor} %}
+    {% endfor %}
+
+    {{ "Page: " ~ page }}
+{% endblock body %}
 

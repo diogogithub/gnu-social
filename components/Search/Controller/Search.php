@@ -40,7 +40,7 @@ class Search extends Controller
         $actor_qb = DB::createQueryBuilder();
         $note_qb->select('note')->from('App\Entity\Note', 'note');
         $actor_qb->select('actor')->from('App\Entity\Actor', 'actor');
-        Event::handle('SeachQueryAddJoins', [&$note_qb, &$actor_qb]);
+        Event::handle('SearchQueryAddJoins', [&$note_qb, &$actor_qb]);
         $notes = $actors = [];
         if (!\is_null($note_criteria)) {
             $note_qb->addCriteria($note_criteria);
