@@ -21,8 +21,8 @@ declare(strict_types = 1);
 
 namespace App\Tests\Entity;
 
-use App\Entity\Link;
 use App\Util\GNUsocialTestCase;
+use Component\Link\Entity\Link;
 use InvalidArgumentException;
 use Jchook\AssertThrows\AssertThrows;
 

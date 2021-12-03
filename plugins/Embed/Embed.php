@@ -42,17 +42,11 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
-use Component\Attachment\Entity\Attachment;
-use App\Entity\Link;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -61,9 +55,15 @@ use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use App\Util\TemporaryFile;
+use Component\Attachment\Entity\Attachment;
+use Component\Link\Entity\Link;
 use Embed\Embed as LibEmbed;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * Base class for the Embed plugin that does most of the heavy lifting to get
@@ -190,7 +190,7 @@ class Embed extends Plugin
     {
         // Only handle text mime
         $mimetype = $link->getMimetype();
-        if (!(Formatting::startsWith($mimetype, 'text/html') || Formatting::startsWith($mimetype, 'application/xhtml+xml'))) {
+        if (\is_null($mimetype) || !(Formatting::startsWith($mimetype, 'text/html') || Formatting::startsWith($mimetype, 'application/xhtml+xml'))) {
             return Event::next;
         }
 
@@ -291,9 +291,9 @@ class Embed extends Plugin
         $metadata['author_name']   = $info->authorName;
         $root_url                  = parse_url($url);
         $root_url                  = "{$root_url['scheme']}://{$root_url['host']}";
-        $metadata['author_url']    = $info->authorUrl ? (string)$info->authorUrl : $root_url;
+        $metadata['author_url']    = $info->authorUrl ? (string) $info->authorUrl : $root_url;
         $metadata['provider_name'] = $info->providerName;
-        $metadata['provider_url']  = (string)$info->providerUrl ?? $metadata['author_name'];
+        $metadata['provider_url']  = (string) $info->providerUrl ?? $metadata['author_name'];
 
         if (!\is_null($info->image)) {
             $thumbnail_url = (string) $info->image;
@@ -352,7 +352,7 @@ class Embed extends Plugin
         }
 
         // Validate if the URL really does point to a remote image
-        $head    = HTTPClient::head($url);
+        $head = HTTPClient::head($url);
         try {
             $headers = $head->getHeaders();
         } catch (ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
@@ -368,7 +368,7 @@ class Embed extends Plugin
         // Does it respect the file quota?
         $file_size = $headers['content-length'][0] ?? null;
         $max_size  = Common::config('attachments', 'file_quota');
-        if (is_null($file_size) || $file_size > $max_size) {
+        if (\is_null($file_size) || $file_size > $max_size) {
             Log::debug("Went to download remote thumbnail of size {$file_size} but the upload limit is {$max_size} so we aborted in Embed->downloadThumbnail.");
             return false;
         }

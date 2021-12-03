@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -17,7 +19,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Link\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
@@ -29,9 +31,8 @@ use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
 use DateTimeInterface;
+use Exception;
 use InvalidArgumentException;
-use Symfony\Component\HttpClient\Exception\ClientException as HTTPClientException;
-use Symfony\Component\HttpClient\Exception\TransportException;
 
 /**
  * Entity for representing a Link
@@ -100,13 +101,13 @@ class Link extends Entity
     public function getMimetypeMajor(): ?string
     {
         $mime = $this->getMimetype();
-        return is_null($mime) ? $mime : GSFile::mimetypeMajor($mime);
+        return \is_null($mime) ? $mime : GSFile::mimetypeMajor($mime);
     }
 
     public function getMimetypeMinor(): ?string
     {
         $mime = $this->getMimetype();
-        return is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
+        return \is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -123,24 +124,21 @@ class Link extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    const URLHASH_ALGO = 'sha256';
+    public const URLHASH_ALGO = 'sha256';
 
     /**
      * Create an attachment for the given URL, fetching the mimetype
      *
-     * @param string $url
-     *
-     *@throws InvalidArgumentException
      * @throws DuplicateFoundException
+     *@throws InvalidArgumentException
      *
      * @return Link
-     *
      */
     public static function getOrCreate(string $url): self
     {
         if (Common::isValidHttpUrl($url)) {
             // If the URL is a local one, do not create a Link to it
-            if (parse_url($url, PHP_URL_HOST) === $_ENV['SOCIAL_DOMAIN']) {
+            if (parse_url($url, \PHP_URL_HOST) === $_ENV['SOCIAL_DOMAIN']) {
                 Log::warning("It was attempted to create a Link to a local location {$url}.");
                 // Forbidden
                 throw new InvalidArgumentException(message: "A Link can't point to a local location ({$url}), it must be a remote one", code: 400);
@@ -150,7 +148,7 @@ class Link extends Entity
                 // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
                 $headers = $head->getHeaders();
                 // @codeCoverageIgnoreStart
-            } catch (HTTPClientException | TransportException $e) {
+            } catch (Exception $e) {
                 throw new InvalidArgumentException(previous: $e);
                 // @codeCoverageIgnoreEnd
             }
@@ -159,11 +157,11 @@ class Link extends Entity
             try {
                 return DB::findOneBy('link', ['url_hash' => $url_hash]);
             } catch (NotFoundException) {
-                $headers = array_change_key_case($headers, CASE_LOWER);
+                $headers = array_change_key_case($headers, \CASE_LOWER);
                 $link    = self::create([
                     'url'      => $url,
                     'url_hash' => $url_hash,
-                    'mimetype' => $headers['content-type'][0],
+                    'mimetype' => $headers['content-type'][0] ?? null,
                 ]);
                 DB::persist($link);
                 Event::handle('LinkStoredNew', [&$link]);

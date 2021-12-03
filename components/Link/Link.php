@@ -26,7 +26,6 @@ namespace Component\Link;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Component;
-use App\Entity;
 use App\Entity\Note;
 use App\Entity\NoteToLink;
 use App\Util\Common;
@@ -56,7 +55,7 @@ class Link extends Component
         return Event::next;
     }
 
-    public function onRenderPlainTextContent(string &$text): bool
+    public function onRenderPlainTextNoteContent(string &$text): bool
     {
         $text = $this->replaceURLs($text);
         return Event::next;

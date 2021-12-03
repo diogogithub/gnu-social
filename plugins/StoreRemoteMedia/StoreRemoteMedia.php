@@ -27,16 +27,16 @@ use App\Core\HTTPClient;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
-use Component\Attachment\Entity\AttachmentThumbnail;
-use Component\Attachment\Entity\AttachmentToLink;
-use Component\Attachment\Entity\AttachmentToNote;
-use App\Entity\Link;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Exception\TemporaryFileException;
 use App\Util\TemporaryFile;
+use Component\Attachment\Entity\AttachmentThumbnail;
+use Component\Attachment\Entity\AttachmentToLink;
+use Component\Attachment\Entity\AttachmentToNote;
+use Component\Link\Entity\Link;
 
 /**
  * The StoreRemoteMedia plugin downloads remotely attached files to local server.
@@ -139,7 +139,7 @@ class StoreRemoteMedia extends Plugin
             // Retrieve media
             $get_response = HTTPClient::get($link->getUrl());
             $media        = $get_response->getContent();
-            $mimetype     = $get_response->getHeaders()['content-type'][0];
+            $mimetype     = $get_response->getHeaders()['content-type'][0] ?? null;
             unset($get_response);
 
             // Ensure we still want to handle it
