@@ -41,7 +41,7 @@ use Symfony\Component\HttpFoundation\Request;
 use function App\Core\I18n\_m;
 
 /**
- * Profile Color plugin main class
+ * Profile Colour plugin main class
  *
  * @package  GNUsocial
  * @category Oomox
@@ -52,10 +52,12 @@ use function App\Core\I18n\_m;
  */
 class Oomox extends Plugin
 {
+
     /**
      * Map URLs to actions
      *
-     * @return bool hook value; true means continue processing, false means stop
+     * @param RouteLoader $r
+     * @return bool
      */
     public function onAddRoute(RouteLoader $r): bool
     {
@@ -64,9 +66,17 @@ class Oomox extends Plugin
         return Event::next;
     }
 
+
     /**
+     * Populates an additional profile user panel section
+     * Used in templates/settings/base.html.twig
+     *
+     * @param Request $request
+     * @param array $tabs
+     * @return bool
      * @throws RedirectException
      * @throws ServerException
+     * @throws \App\Util\Exception\NoLoggedInUser
      */
     public function onPopulateProfileSettingsTabs(Request $request, array &$tabs): bool
     {
@@ -85,10 +95,22 @@ class Oomox extends Plugin
         return Event::next;
     }
 
+    /**
+     * Returns Oomox cache key for the given user.
+     *
+     * @param LocalUser $user
+     * @return string
+     */
     public static function cacheKey(LocalUser $user) :string {
         return "oomox-css-{$user->getId()}";
     }
 
+    /**
+     * Returns Entity\Oomox if it already exists
+     *
+     * @param LocalUser $user
+     * @return Entity\Oomox|null
+     */
     public static function getEntity(LocalUser $user): ?Entity\Oomox
     {
         try {
@@ -98,6 +120,13 @@ class Oomox extends Plugin
         }
     }
 
+    /**
+     * Adds to array $styles the generated CSS according to user settings, if any are present.
+     *
+     * @param array $styles
+     * @param string $route
+     * @return bool
+     */
     public function onEndShowStyles(array &$styles, string $route)
     {
         $user = Common::user();
