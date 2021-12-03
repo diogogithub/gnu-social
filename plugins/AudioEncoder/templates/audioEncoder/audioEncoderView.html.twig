@@ -2,8 +2,12 @@
   <figure>
     <audio class="u-audio" src="{{ attachment.getUrl() }}" controls>
     </audio>
-    <figcaption><a
-          href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
+    <figcaption>
+      {% if attachment.getFilename() is not null %}
+        <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
+      {% else %}
+        {{ attachment.getBestTitle(note) }}
+      {% endif %}
     </figcaption>
   </figure>
 </div>

@@ -78,7 +78,7 @@ class StoreRemoteMedia extends Plugin
 
     private function getStoreOriginal(): bool
     {
-        return $this->store_original;
+        return $this->store_original ?? Common::config('plugin_store_remote_media', 'store_original');
     }
 
     private function getThumbnailWidth(): int
@@ -93,12 +93,12 @@ class StoreRemoteMedia extends Plugin
 
     private function getMaxSize(): int
     {
-        return $this->max_size ?? Common::config('attachments', 'file_quota');
+        return $this->max_size ?? Common::config('plugin_store_remote_media', 'max_file_size');
     }
 
     private function getSmartCrop(): bool
     {
-        return $this->smart_crop ?? Common::config('thumbnail', 'smart_crop');
+        return $this->smart_crop ?? Common::config('plugin_store_remote_media', 'smart_crop');
     }
 
     /**
@@ -127,6 +127,7 @@ class StoreRemoteMedia extends Plugin
         );
 
         // If it was handled already
+        // XXX: Maybe it would be interesting to have retroactive application of $this->getOriginal here
         if (!\is_null($attachment_to_link)) {
             // Relate the note with the existing attachment
             DB::persist(AttachmentToNote::create([

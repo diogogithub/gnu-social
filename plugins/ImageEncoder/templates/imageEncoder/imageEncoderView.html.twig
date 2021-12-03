@@ -5,7 +5,11 @@
          src="{{ attachment.getThumbnailUrl() }}"
          width="{{ thumbnail.getWidth() }}"
          height="{{ thumbnail.getHeight() }}">
-    <figcaption><a
-                href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
-    </figcaption>
+        <figcaption>
+            {% if attachment.getFilename() is not null %}
+                <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
+            {% else %}
+                {{ attachment.getBestTitle(note) }}
+            {% endif %}
+        </figcaption>
 </figure>

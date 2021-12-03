@@ -129,6 +129,7 @@ parameters:
       extension: '.webp'
 
     plugin_store_remote_media:
+      store_original: false
       max_file_size: 4000000
       smart_crop: false
 
