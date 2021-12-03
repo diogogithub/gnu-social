@@ -134,20 +134,33 @@ abstract class Form
         return $form[$field][2]['required'] ?? true;
     }
 
+
     /**
      * Handle the full life cycle of a form. Creates it with @see
      * self::create and inserts the submitted values into the database
+     *
+     * @param array $form_definition
+     * @param Request $request
+     * @param object|null $target
+     * @param array $extra_args
+     * @param callable|null $extra_step
+     * @param array $create_args
+     * @param SymfForm|null $testing_only_form
+     * @return mixed
+     * @throws ServerException
      */
-    public static function handle(array $form_definition, Request $request, ?object $target, array $extra_args = [], ?callable $extra_step = null, array $create_args = [], ?SymfForm $testing_only_form = null)
+    public static function handle(array $form_definition, Request $request, ?object $target, array $extra_args = [], ?callable $extra_step = null, array $create_args = [], ?SymfForm $testing_only_form = null): mixed
     {
         $form = $testing_only_form ?? self::create($form_definition, $target, ...$create_args);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+
             $data = $form->getData();
-            if ($target == null) {
+            if (is_null($target)) {
                 return $data;
             }
+
             unset($data['translation_domain'], $data['save']);
             foreach ($data as $key => $val) {
                 $method = 'set' . ucfirst(Formatting::snakeCaseToCamelCase($key));
@@ -155,19 +168,22 @@ abstract class Form
                     if (isset($extra_args[$key])) {
                         // @codeCoverageIgnoreStart
                         $target->{$method}($val, $extra_args[$key]);
-                    // @codeCoverageIgnoreEnd
+                        // @codeCoverageIgnoreEnd
                     } else {
                         $target->{$method}($val);
                     }
                 }
             }
+
             if (isset($extra_step)) {
                 // @codeCoverageIgnoreStart
                 $extra_step($data, $extra_args);
                 // @codeCoverageIgnoreEnd
             }
+
             DB::flush();
         }
+
         return $form;
     }
 }

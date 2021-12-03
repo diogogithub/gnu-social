@@ -28,11 +28,20 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\UserRoles;
 use App\Util\Common;
+use App\Util\Exception\NicknameEmptyException;
+use App\Util\Exception\NicknameException;
+use App\Util\Exception\NicknameInvalidException;
+use App\Util\Exception\NicknameNotAllowedException;
+use App\Util\Exception\NicknameNotFoundException;
+use App\Util\Exception\NicknameTakenException;
+use App\Util\Exception\NicknameTooLongException;
+use App\Util\Nickname;
 use DateTimeInterface;
 use Exception;
 use libphonenumber\PhoneNumber;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use function App\Core\I18n\_m;
 
 /**
  * Entity for users
@@ -342,6 +351,40 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
         return $this->getNickname();
     }
     // }}} Authentication
+
+    /**
+     * Checks if desired nickname is allowed, and in case it is, it sets Actor's nickname cache to newly set nickname
+     *
+     * @param string $nickname Desired new nickname
+     * @param int $actor_id Used to cache Actor nickname
+     * @return $this
+     * @throws NicknameEmptyException
+     * @throws NicknameInvalidException
+     * @throws NicknameNotAllowedException
+     * @throws NicknameTakenException
+     * @throws NicknameTooLongException
+     */
+    public function setNicknameSanitizedAndCached(string $nickname, int $actor_id): self
+    {
+        try {
+            $nickname = Nickname::normalize($nickname, check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: true);
+            $this->nickname = $nickname;
+            Cache::set('actor-nickname-id-' . $actor_id, $nickname);
+        } catch (NicknameEmptyException $e) {
+            throw new NicknameEmptyException();
+        } catch (NicknameInvalidException $e) {
+            throw new NicknameInvalidException();
+        } catch (NicknameNotAllowedException $e) {
+            throw new NicknameNotAllowedException();
+        } catch (NicknameTakenException $e) {
+            throw new NicknameTakenException();
+        } catch (NicknameTooLongException $e) {
+            throw new NicknameTooLongException();
+        } catch (NicknameException $e) {
+        }
+
+        return $this;
+    }
 
     public function getActor()
     {

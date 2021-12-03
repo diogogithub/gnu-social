@@ -65,9 +65,17 @@
                     </ul>
                 </nav>
             </li>
-        {% elseif title == 'Account' %}
+        {% elseif title == 'Email' %}
             <li>
-                {{ form(context.account) }}
+                {{ form(context.email) }}
+            </li>
+        {% elseif title == 'Password' %}
+            <li>
+                {{ form(context.password) }}
+            </li>
+        {% elseif title == 'Language' %}
+            <li>
+                {{ form(context.language) }}
             </li>
         {% elseif title == 'Notifications' %}
             <li>
@@ -105,7 +113,13 @@
             </li>
             <hr>
             <li>
-                {{ _self.settings_details_container('Account', 'Email, Password and Language', ['account'], _context) }}
+                {{ _self.settings_details_container('Email', 'Set incoming and outgoing email settings', ['email'], _context) }}
+            </li>
+            <li>
+                {{ _self.settings_details_container('Password', 'Change current password', ['password'], _context) }}
+            </li>
+            <li>
+                {{ _self.settings_details_container('Language', 'Select and set language preferences', ['language'], _context) }}
             </li>
             <hr>
             <li>

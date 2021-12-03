@@ -48,6 +48,6 @@ class NicknameNotAllowedException extends NicknameException
     protected function defaultMessage(): string
     {
         // TRANS: Validation error in form for registration, profile and group settings, etc.
-        return _m('This nickname is not allowed.');
+        return _m('Nickname not allowed! Only alphanumeric characters allowed.');
     }
 }
