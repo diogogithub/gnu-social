@@ -25,7 +25,6 @@ namespace App\Core;
 
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
-use Component\Attachment\Entity\Attachment;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\FileNotAllowedException;
@@ -34,6 +33,7 @@ use App\Util\Exception\NotFoundException;
 use App\Util\Exception\NotStoredLocallyException;
 use App\Util\Exception\ServerException;
 use App\Util\TemporaryFile;
+use Component\Attachment\Entity\Attachment;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -68,7 +68,7 @@ class GSFile
             $attachment->livesIncrementAndGet();
             // We had this attachment, but not the file, thus no filename, update meta
             if (\is_null($attachment->getFilename())) {
-                $mimetype               = $attachment->getMimetype();
+                $mimetype               = $attachment->getMimetype() ?? $file->getMimeType();
                 $width                  = $attachment->getWidth();
                 $height                 = $attachment->getHeight();
                 $event_map[$mimetype]   = [];

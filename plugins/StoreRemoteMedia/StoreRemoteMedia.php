@@ -152,34 +152,37 @@ class StoreRemoteMedia extends Plugin
                 }
             }
 
-            // Create an attachment for this
-            $temp_file = new TemporaryFile();
-            $temp_file->write($media);
-            $attachment = GSFile::storeFileAsAttachment($temp_file);
+            // We can ignore empty files safely, the user can guess them (:
+            if (!empty($media)) {
+                // Create an attachment for this
+                $temp_file = new TemporaryFile();
+                $temp_file->write($media);
+                $attachment = GSFile::storeFileAsAttachment($temp_file);
 
-            // Relate the link with the attachment
-            // TODO: Create a function that gets the title from content disposition or URL when such header isn't available
-            DB::persist(AttachmentToLink::create([
-                'link_id'       => $link->getId(),
-                'attachment_id' => $attachment->getId(),
-            ]));
+                // Relate the link with the attachment
+                // TODO: Create a function that gets the title from content disposition or URL when such header isn't available
+                DB::persist(AttachmentToLink::create([
+                    'link_id'       => $link->getId(),
+                    'attachment_id' => $attachment->getId(),
+                ]));
 
-            // Relate the note with the attachment
-            DB::persist(AttachmentToNote::create([
-                'attachment_id' => $attachment->getId(),
-                'note_id'       => $note->getId(),
-            ]));
+                // Relate the note with the attachment
+                DB::persist(AttachmentToNote::create([
+                    'attachment_id' => $attachment->getId(),
+                    'note_id'       => $note->getId(),
+                ]));
 
-            DB::flush();
+                DB::flush();
 
-            // Should we create a thumb and delete the original file?
-            if (!$this->getStoreOriginal()) {
-                $thumbnail = AttachmentThumbnail::getOrCreate(
-                    attachment: $attachment,
-                    size: 'medium',
-                    crop: $this->getSmartCrop(),
-                );
-                $attachment->deleteStorage();
+                // Should we create a thumb and delete the original file?
+                if (!$this->getStoreOriginal()) {
+                    $thumbnail = AttachmentThumbnail::getOrCreate(
+                        attachment: $attachment,
+                        size: 'medium',
+                        crop: $this->getSmartCrop(),
+                    );
+                    $attachment->deleteStorage();
+                }
             }
 
             return Event::stop;
