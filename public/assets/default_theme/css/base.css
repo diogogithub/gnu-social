@@ -34,11 +34,6 @@ body,input,textarea,select {
     color: currentColor;
 }
 
-a:hover,
-a:focus {
-    text-decoration: underline;
-}
-
 hr {
     all: unset;
     display: block;

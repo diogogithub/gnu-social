@@ -289,6 +289,10 @@ embed header {
     margin-bottom: var(--smaller)
 }
 
+.note-text a {
+    text-decoration: underline !important;
+}
+
 .note-attachments {
     display: flex;
     justify-items: flex-start;
