@@ -1,13 +1,23 @@
-<div>
-    <figure>
-        <video class="u-video" src="{{ attachment.getUrl() }}" controls poster="{{ attachment.getThumbnailUrl('medium')}}">
-        </video>
-        <figcaption>
-            {% if attachment.getFilename() is not null %}
-                <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
-            {% else %}
-                {{ attachment.getBestTitle(note) }}
-            {% endif %}
-        </figcaption>
-    </figure>
-</div>
+{% if attachment.getFilename() is not null %}
+    <div>
+        <figure>
+            <video
+                {% if attachment.getWidth() is not null %}
+                    class="u-video"
+                {% else %}
+                    class="u-audio"
+                {% endif %}
+                src="{{ attachment.getUrl() }}" controls
+                {% if attachment.getWidth() is not null %}
+                    poster="{{ attachment.getThumbnailUrl('medium')}}"
+                {% endif %}
+            >
+            </video>
+            <figcaption>
+                    <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
+            </figcaption>
+        </figure>
+    </div>
+{% else %}
+{# Not stored locally. #}
+{% endif %}

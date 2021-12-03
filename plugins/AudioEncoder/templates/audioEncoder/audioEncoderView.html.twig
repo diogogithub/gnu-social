@@ -1,3 +1,4 @@
+{% if attachment.getFilename() is not null %}
 <div>
   <figure>
     <audio class="u-audio" src="{{ attachment.getUrl() }}" controls>
@@ -11,3 +12,6 @@
     </figcaption>
   </figure>
 </div>
+{% else %}
+  {# Not stored locally. #}
+{% endif %}

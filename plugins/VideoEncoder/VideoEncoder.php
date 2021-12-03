@@ -54,7 +54,8 @@ class VideoEncoder extends Plugin
         return '1.0.0';
     }
 
-    public static function shouldHandle (string $mimetype): bool {
+    public static function shouldHandle(string $mimetype): bool
+    {
         return GSFile::mimetypeMajor($mimetype) === 'video' || $mimetype === 'image/gif';
     }
 
@@ -107,10 +108,12 @@ class VideoEncoder extends Plugin
         ]);
 
         $metadata = $ffprobe->streams($file->getRealPath()) // extracts streams informations
-                            ->videos()                      // filters video streams
-                            ->first();                      // returns the first video stream
-        $width  = $metadata->get('width');
-        $height = $metadata->get('height');
+            ->videos()                      // filters video streams
+            ->first();                      // returns the first video stream
+        if (!\is_null($metadata)) {
+            $width  = $metadata->get('width');
+            $height = $metadata->get('height');
+        }
 
         return true;
     }

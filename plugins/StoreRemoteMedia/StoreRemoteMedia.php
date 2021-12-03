@@ -69,36 +69,31 @@ class StoreRemoteMedia extends Plugin
         '.*', // Default to allowing any host
     ];
     public array $domain_blacklist = [];
-    // Whether to maintain a copy of the original media or only a thumbnail of it
-    public bool $store_original = false;
-    public ?int $thumbnail_width;
-    public ?int $thumbnail_height;
-    public ?int $max_size;
-    public ?bool $smart_crop;
 
+    // Whether to maintain a copy of the original media or only a thumbnail of it
     private function getStoreOriginal(): bool
     {
-        return $this->store_original ?? Common::config('plugin_store_remote_media', 'store_original');
+        return Common::config('plugin_store_remote_media', 'store_original');
     }
 
     private function getThumbnailWidth(): int
     {
-        return $this->thumbnail_width ?? Common::config('thumbnail', 'width');
+        return Common::config('thumbnail', 'width');
     }
 
     private function getThumbnailHeight(): int
     {
-        return $this->thumbnail_height ?? Common::config('thumbnail', 'height');
+        return Common::config('thumbnail', 'height');
     }
 
-    private function getMaxSize(): int
+    private function getMaxFileSize(): int
     {
-        return $this->max_size ?? Common::config('plugin_store_remote_media', 'max_file_size');
+        return Common::config('plugin_store_remote_media', 'max_file_size');
     }
 
     private function getSmartCrop(): bool
     {
-        return $this->smart_crop ?? Common::config('plugin_store_remote_media', 'smart_crop');
+        return Common::config('plugin_store_remote_media', 'smart_crop');
     }
 
     /**
