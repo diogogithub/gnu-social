@@ -96,6 +96,7 @@ parameters:
         image/png: png
         image/svg+xml: svg
         image/vnd.microsoft.icon: ico
+        image/webp: webp
         text/plain: txt
         text/rtf: rtf
         video/mp4: mp4
