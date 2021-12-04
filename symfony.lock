@@ -148,6 +148,15 @@
     "giggsey/locale": {
         "version": "1.9"
     },
+    "guzzlehttp/guzzle": {
+        "version": "7.4.0"
+    },
+    "guzzlehttp/promises": {
+        "version": "1.5.1"
+    },
+    "guzzlehttp/psr7": {
+        "version": "2.1.0"
+    },
     "jchook/phpunit-assert-throws": {
         "version": "v1.0.3"
     },
@@ -162,6 +171,9 @@
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.2.0"
+    },
+    "landrok/activitypub": {
+        "version": "0.5.6"
     },
     "league/uri-parser": {
         "version": "1.4.1"
@@ -223,6 +235,9 @@
     "oscarotero/html-parser": {
         "version": "v0.1.6"
     },
+    "paragonie/constant_time_encoding": {
+        "version": "v2.4.0"
+    },
     "pear/xml_xrd": {
         "version": "v0.3.1"
     },
@@ -252,6 +267,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "1.4.0"
+    },
+    "phpseclib/phpseclib": {
+        "version": "3.0.12"
     },
     "phpspec/prophecy": {
         "version": "1.13.0"
@@ -314,6 +332,9 @@
     },
     "psy/psysh": {
         "version": "v0.10.8"
+    },
+    "ralouphie/getallheaders": {
+        "version": "3.0.3"
     },
     "sebastian/cli-parser": {
         "version": "1.0.1"

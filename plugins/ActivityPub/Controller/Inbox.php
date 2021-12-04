@@ -1,9 +1,8 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -18,8 +17,17 @@ declare(strict_types = 1);
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
+
+/**
+ * ActivityPub implementation for GNU social
+ *
+ * @package   GNUsocial
+ * @category  ActivityPub
+ * @author    Diogo Peralta Cordeiro <@diogo.site>
+ * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 
 namespace Plugin\ActivityPub\Controller;
 
@@ -28,30 +36,37 @@ use App\Core\DB\DB;
 use App\Core\Log;
 use App\Core\Router\Router;
 use App\Entity\Actor;
+use App\Util\Exception\ClientException;
 use Component\FreeNetwork\Entity\FreeNetworkActorProtocol;
+use Component\FreeNetwork\Util\Discovery;
 use Exception;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
 use Plugin\ActivityPub\Entity\ActivitypubRsa;
 use Plugin\ActivityPub\Util\Explorer;
 use Plugin\ActivityPub\Util\HTTPSignature;
+use Plugin\ActivityPub\Util\Model;
+use Plugin\ActivityPub\Util\TypeResponse;
 use function App\Core\I18n\_m;
-use App\Util\Exception\ClientException;
-use Plugin\ActivityPub\ActivityPub;
-use Plugin\ActivityPub\Util\Model\AS2ToEntity\AS2ToEntity;
-use Plugin\ActivityPub\Util\Response\TypeResponse;
-use Plugin\ActivityPub\Util\Type;
-use Plugin\ActivityPub\Util\Type\Util;
+use function is_null;
+use const PHP_URL_HOST;
 
+/**
+ * ActivityPub Inbox Handler
+ *
+ * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class Inbox extends Controller
 {
     /**
-     * Inbox handler
+     * Create an Inbox Handler to receive something from someone.
      */
     public function handle(?int $gsactor_id = null): TypeResponse
     {
+        $error = fn(string $m): TypeResponse => new TypeResponse(json_encode(['error' => $m]));
         $path = Router::url('activitypub_inbox', type: Router::ABSOLUTE_PATH);
 
-        if (!\is_null($gsactor_id)) {
+        if (!is_null($gsactor_id)) {
             try {
                 $user = DB::findOneBy('local_user', ['id' => $gsactor_id]);
                 $path = Router::url('activitypub_actor_inbox', ['gsactor_id' => $user->getId()], type: Router::ABSOLUTE_PATH);
@@ -61,19 +76,19 @@ class Inbox extends Controller
         }
 
         Log::debug('ActivityPub Inbox: Received a POST request.');
-        $body = (string) $this->request->getContent();
-        $type = Type::fromJson($body);
+        $body = (string)$this->request->getContent();
+        $type = Model::jsonToType($body);
 
         if ($type->has('actor') === false) {
-            ActivityPubReturn::error('Actor not found in the request.');
+            $error('Actor not found in the request.');
         }
 
         try {
             $ap_actor = ActivitypubActor::fromUri($type->get('actor'));
             $actor = Actor::getById($ap_actor->getActorId());
             DB::flush();
-        } catch (Exception) {
-            ActivityPubReturn::error('Invalid actor.');
+        } catch (Exception $e) {
+            $error('Invalid actor.');
         }
 
         $actor_public_key = ActivitypubRsa::getByActor($actor)->getPublicKey();
@@ -86,7 +101,7 @@ class Inbox extends Controller
 
         if (!isset($headers['signature'])) {
             Log::debug('ActivityPub Inbox: HTTP Signature: Missing Signature header.');
-            ActivityPubReturn::error('Missing Signature header.', 400);
+            $error('Missing Signature header.', 400);
             // TODO: support other methods beyond HTTP Signatures
         }
 
@@ -95,7 +110,7 @@ class Inbox extends Controller
         Log::debug('ActivityPub Inbox: HTTP Signature Data: ' . print_r($signatureData, true));
         if (isset($signatureData['error'])) {
             Log::debug('ActivityPub Inbox: HTTP Signature: ' . json_encode($signatureData, JSON_PRETTY_PRINT));
-            ActivityPubReturn::error(json_encode($signatureData, JSON_PRETTY_PRINT), 400);
+            $error(json_encode($signatureData, JSON_PRETTY_PRINT), 400);
         }
 
         list($verified, /*$headers*/) = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
@@ -105,12 +120,12 @@ class Inbox extends Controller
             try {
                 $res = Explorer::get_remote_user_activity($ap_actor->getUri());
             } catch (Exception) {
-                ActivityPubReturn::error('Invalid remote actor.');
+                $error('Invalid remote actor.');
             }
             try {
                 $actor = ActivitypubActor::update_profile($ap_actor, $res);
             } catch (Exception) {
-                ActivityPubReturn::error('Failed to updated remote actor information.');
+                $error('Failed to updated remote actor information.');
             }
 
             [$verified, /*$headers*/] = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
@@ -119,7 +134,7 @@ class Inbox extends Controller
         // If it still failed despite profile update
         if ($verified !== 1) {
             Log::debug('ActivityPub Inbox: HTTP Signature: Invalid signature.');
-            ActivityPubReturn::error('Invalid signature.');
+            $error('Invalid signature.');
         }
 
         // HTTP signature checked out, make sure the "actor" of the activity matches that of the signature
@@ -128,8 +143,12 @@ class Inbox extends Controller
         // TODO: Check if Actor has authority over payload
 
         // Store Activity
-        $ap_act = AS2ToEntity::store(activity: $type->toArray(), source: 'ActivityPub');
-        FreeNetworkActorProtocol::protocolSucceeded('activitypub', $actor->getId());
+        $ap_act = Model\Activity::fromJson($type, ['source' => 'ActivityPub']);
+        FreeNetworkActorProtocol::protocolSucceeded(
+            'activitypub',
+            $ap_actor->getActorId(),
+            Discovery::normalize($actor->getNickname() . '@' . parse_url($ap_actor->getInboxUri(), PHP_URL_HOST))
+        );
         DB::flush();
         dd($ap_act, $act = $ap_act->getActivity(), $act->getActor(), $act->getObject());
 

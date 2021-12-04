@@ -1,5 +1,6 @@
 {
   "require": {
+    "landrok/activitypub": "^0.5.6",
     "masterminds/html5": "^2.7",
     "mf2/mf2": "^0.4.6"
   }

@@ -31,33 +31,29 @@ declare(strict_types=1);
 
 namespace Plugin\ActivityPub\Util\Response;
 
-use App\Entity\Actor as GSActor;
+use App\Entity\Activity as GSActivity;
 use App\Util\Exception\ClientException;
-use Plugin\ActivityPub\Util\Model\Actor as ModelActor;
+use Plugin\ActivityPub\Util\Model\Activity as ModelActivity;
 use Plugin\ActivityPub\Util\TypeResponse;
 
 /**
- * Provides a response in application/ld+json to GSActors
+ * Provides a response in application/ld+json to GSActivity
  *
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-abstract class ActorResponse
+abstract class ActivityResponse
 {
     /**
-     * Provides a response in application/ld+json to GSActors
+     * Provides a response in application/ld+json to GSActivity
      *
-     * @param GSActor $gsactor
+     * @param GSActivity $activity
      * @param int $status The response status code
      * @return TypeResponse
      * @throws ClientException
      */
-    public static function handle(GSActor $gsactor, int $status = 200): TypeResponse
+    public static function handle(GSActivity $activity, int $status = 200): TypeResponse
     {
-        if ($gsactor->getIsLocal()) {
-            return new TypeResponse(json: ModelActor::toJson($gsactor), status: $status);
-        } else {
-            throw new ClientException('This is a remote actor, you should request it to its source of authority instead.');
-        }
+        return new TypeResponse(json: ModelActivity::toJson($activity), status: $status);
     }
 }

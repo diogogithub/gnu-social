@@ -29,35 +29,22 @@ declare(strict_types=1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace Plugin\ActivityPub\Util\Response;
+namespace Plugin\ActivityPub\Util;
 
-use App\Entity\Actor as GSActor;
-use App\Util\Exception\ClientException;
-use Plugin\ActivityPub\Util\Model\Actor as ModelActor;
-use Plugin\ActivityPub\Util\TypeResponse;
+use ActivityPhp\Type\ValidatorInterface;
+use ActivityPhp\Type\ValidatorTools;
 
 /**
- * Provides a response in application/ld+json to GSActors
+ * \Plugin\ActivityPub\Util\ModelValidator is an abstract class for
+ * attribute validation.
+ * Its purpose is to be extended by Plugin\ActivityPub\Util\Validator\*
+ * classes.
+ * It provides some methods to make some regular validations.
+ * It implements \ActivityPhp\Type\ValidatorInterface.
  *
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-abstract class ActorResponse
+abstract class ModelValidator extends ValidatorTools implements ValidatorInterface
 {
-    /**
-     * Provides a response in application/ld+json to GSActors
-     *
-     * @param GSActor $gsactor
-     * @param int $status The response status code
-     * @return TypeResponse
-     * @throws ClientException
-     */
-    public static function handle(GSActor $gsactor, int $status = 200): TypeResponse
-    {
-        if ($gsactor->getIsLocal()) {
-            return new TypeResponse(json: ModelActor::toJson($gsactor), status: $status);
-        } else {
-            throw new ClientException('This is a remote actor, you should request it to its source of authority instead.');
-        }
-    }
 }

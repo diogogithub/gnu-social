@@ -1,4 +1,8 @@
 <?php
+
+declare(strict_types=1);
+
+// {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -13,6 +17,17 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+// }}}
+
+/**
+ * ActivityPub implementation for GNU social
+ *
+ * @package   GNUsocial
+ * @category  ActivityPub
+ * @author    Diogo Peralta Cordeiro <@diogo.site>
+ * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 
 namespace Plugin\ActivityPub\Entity;
 
@@ -22,25 +37,11 @@ use App\Core\Log;
 use App\Entity\Actor;
 use App\Util\Exception\ServerException;
 use DateTimeInterface;
-use Doctrine\ORM\UnitOfWork;
-use Exception;
-
-/**
- * ActivityPub implementation for GNU social
- *
- * @package   GNUsocial
- * @author    Diogo Peralta Cordeiro <@diogo.site>
- * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
- */
 
 /**
  * ActivityPub Keys System
  *
- * @category  Plugin
- * @package   GNUsocial
- * @author    Diogo Peralta Cordeiro <@diogo.site>
+ * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ActivitypubRsa extends Entity
@@ -137,7 +138,7 @@ class ActivitypubRsa extends Entity
      * Guarantees RSA keys for a given actor.
      *
      * @param Actor $gsactor
-     * @param bool $fetch=true Should attempt to fetch keys from a remote profile?
+     * @param bool $fetch =true Should attempt to fetch keys from a remote profile?
      * @return ActivitypubRsa The keys (private key is null for remote actors)
      * @throws ServerException It should never occur, but if so, we break everything!
      */

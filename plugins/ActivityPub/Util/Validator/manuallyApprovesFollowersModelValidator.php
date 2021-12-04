@@ -29,35 +29,36 @@ declare(strict_types=1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace Plugin\ActivityPub\Util\Response;
+namespace Plugin\ActivityPub\Util\Validator;
 
-use App\Entity\Actor as GSActor;
-use App\Util\Exception\ClientException;
-use Plugin\ActivityPub\Util\Model\Actor as ModelActor;
-use Plugin\ActivityPub\Util\TypeResponse;
+use ActivityPhp\Type;
+use ActivityPhp\Type\Util;
+use Exception;
+use Plugin\ActivityPub\Util\ModelValidator;
 
 /**
- * Provides a response in application/ld+json to GSActors
+ * manuallyApprovesFollowersModelValidator is a dedicated
+ * validator for manuallyApprovesFollowers attribute.
  *
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-abstract class ActorResponse
+class manuallyApprovesFollowersModelValidator extends ModelValidator
 {
     /**
-     * Provides a response in application/ld+json to GSActors
+     * Validate manuallyApprovesFollowers value
      *
-     * @param GSActor $gsactor
-     * @param int $status The response status code
-     * @return TypeResponse
-     * @throws ClientException
+     * @param string $value
+     * @param mixed $container A Person
+     * @return bool
+     * @throws Exception
      */
-    public static function handle(GSActor $gsactor, int $status = 200): TypeResponse
+    public function validate($value, $container): bool
     {
-        if ($gsactor->getIsLocal()) {
-            return new TypeResponse(json: ModelActor::toJson($gsactor), status: $status);
-        } else {
-            throw new ClientException('This is a remote actor, you should request it to its source of authority instead.');
-        }
+        // Validate that container is a Person
+        Util::subclassOf($container, Type\Extended\Actor\Person::class, true);
+
+        return true;
+        //return $this->validateString($value) && in_array($value, ['as:manuallyApprovesFollowers', true, false]);
     }
 }

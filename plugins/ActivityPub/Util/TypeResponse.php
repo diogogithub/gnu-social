@@ -29,35 +29,32 @@ declare(strict_types=1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace Plugin\ActivityPub\Util\Response;
+namespace Plugin\ActivityPub\Util;
 
-use App\Entity\Actor as GSActor;
-use App\Util\Exception\ClientException;
-use Plugin\ActivityPub\Util\Model\Actor as ModelActor;
-use Plugin\ActivityPub\Util\TypeResponse;
+use ActivityPhp\Type\AbstractObject;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * Provides a response in application/ld+json to GSActors
+ * TypeResponse represents an HTTP response in application/ld+json format.
  *
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-abstract class ActorResponse
+class TypeResponse extends JsonResponse
 {
     /**
-     * Provides a response in application/ld+json to GSActors
+     * Provides a response in application/ld+json for ActivityStreams 2.0 Types
      *
-     * @param GSActor $gsactor
+     * @param string|AbstractObject|null $json
      * @param int $status The response status code
-     * @return TypeResponse
-     * @throws ClientException
      */
-    public static function handle(GSActor $gsactor, int $status = 200): TypeResponse
+    public function __construct(string|AbstractObject|null $json = null, int $status = 202)
     {
-        if ($gsactor->getIsLocal()) {
-            return new TypeResponse(json: ModelActor::toJson($gsactor), status: $status);
-        } else {
-            throw new ClientException('This is a remote actor, you should request it to its source of authority instead.');
-        }
+        parent::__construct(
+            data: is_object($json) ? $json->toJson() : $json,
+            status: $status,
+            headers: ['content-type' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'],
+            json: true,
+        );
     }
 }

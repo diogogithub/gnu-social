@@ -1,9 +1,8 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -18,8 +17,17 @@ declare(strict_types = 1);
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
+
+/**
+ * ActivityPub implementation for GNU social
+ *
+ * @package   GNUsocial
+ * @category  ActivityPub
+ * @author    Diogo Peralta Cordeiro <@diogo.site>
+ * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 
 namespace Plugin\ActivityPub\Entity;
 
@@ -29,14 +37,9 @@ use App\Entity\Activity;
 use DateTimeInterface;
 
 /**
- * Entity for all activities we know about
+ * Table Definition for activitypub_activity
  *
- * @category  DB
- * @package   GNUsocial
- *
- * @author    Hugo Sales <hugo@hsal.es>
- * @author    Diogo Peralta Cordeiro <mail@diogo.site>
- * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ActivitypubActivity extends Entity
@@ -127,19 +130,19 @@ class ActivitypubActivity extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'activitypub_activity',
+            'name' => 'activitypub_activity',
             'fields' => [
-                'activity_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'Activity.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'activity_id to give attention'],
-                'activity_uri' => ['type' => 'text',      'not null' => true, 'description' => 'Activity\'s URI'],
-                'object_uri'   => ['type' => 'text',      'not null' => true, 'description' => 'Object\'s URI'],
-                'is_local'     => ['type' => 'bool',      'not null' => true, 'description' => 'whether this was a locally generated or an imported activity'],
-                'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'activity_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Activity.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'activity_id to give attention'],
+                'activity_uri' => ['type' => 'text', 'not null' => true, 'description' => 'Activity\'s URI'],
+                'object_uri' => ['type' => 'text', 'not null' => true, 'description' => 'Object\'s URI'],
+                'is_local' => ['type' => 'bool', 'not null' => true, 'description' => 'whether this was a locally generated or an imported activity'],
+                'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['activity_uri'],
-            'indexes'     => [
+            'indexes' => [
                 'activity_activity_uri_idx' => ['activity_uri'],
-                'activity_object_uri_idx'   => ['object_uri'],
+                'activity_object_uri_idx' => ['object_uri'],
             ],
         ];
     }

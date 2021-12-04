@@ -64,7 +64,7 @@ class HTTPSignature
     }
 
     /**
-     * @param array|string array or json string $body
+     * @param array|string $body array or json string $body
      * @return string
      */
     private static function _digest(array|string $body): string
