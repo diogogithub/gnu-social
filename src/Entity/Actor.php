@@ -247,7 +247,7 @@ class Actor extends Entity
 
     public function getAvatarUrl(string $size = 'full')
     {
-        return Avatar::getAvatarUrl($this->getId(), $size);
+        return Avatar::getUrl($this->getId(), $size);
     }
 
     public function getAvatarDimensions(string $size = 'full')

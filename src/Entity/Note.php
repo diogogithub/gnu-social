@@ -213,7 +213,12 @@ class Note extends Entity
 
     public function getActorAvatarUrl(string $size = 'full'): string
     {
-        return Avatar::getAvatarUrl($this->getActorId(), $size);
+        return Avatar::getUrl($this->getActorId(), $size);
+    }
+
+    public static function getFromId(int $note_id): self
+    {
+        return Cache::get("note-{$note_id}", fn () => DB::findOneBy('note', ['id' => $note_id]));
     }
 
     public function getNoteLanguageShortDisplay(): string

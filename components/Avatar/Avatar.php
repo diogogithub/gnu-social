@@ -101,7 +101,7 @@ class Avatar extends Component
     /**
      * Get the cached avatar associated with the given Actor id, or the current user if not given
      */
-    public static function getAvatarUrl(int $actor_id, string $size = 'full', int $type = Router::ABSOLUTE_PATH): string
+    public static function getUrl(int $actor_id, string $size = 'full', int $type = Router::ABSOLUTE_PATH): string
     {
         try {
             return self::getAvatar($actor_id)->getUrl($size, $type);
