@@ -21,6 +21,8 @@ declare(strict_types = 1);
 
 namespace App\Entity;
 
+use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Router\Router;
 use Component\Tag\Tag;
@@ -47,6 +49,7 @@ class NoteTag extends Entity
     private string $tag;
     private string $canonical;
     private int $note_id;
+    private bool $use_canonical;
     private DateTimeInterface $created;
 
     public function setTag(string $tag): self
@@ -82,6 +85,17 @@ class NoteTag extends Entity
         return $this->note_id;
     }
 
+    public function setUseCanonical(bool $use_canonical): self
+    {
+        $this->use_canonical = $use_canonical;
+        return $this;
+    }
+
+    public function getUseCanonical(): bool
+    {
+        return $this->use_canonical;
+    }
+
     public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
@@ -95,6 +109,11 @@ class NoteTag extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public static function getFromNoteId(int $note_id): array
+    {
+        return Cache::getList("note-tags-{$note_id}", fn () => DB::dql('select nt from note_tag nt join note n with n.id = nt.note_id where n.id = :id', ['id' => $note_id]));
+    }
 
     public function getUrl(?Actor $actor = null): string
     {
@@ -111,10 +130,11 @@ class NoteTag extends Entity
             'name'        => 'note_tag',
             'description' => 'Hash tags on notes',
             'fields'      => [
-                'tag'       => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag associated with this note'],
-                'canonical' => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
-                'note_id'   => ['type' => 'int',      'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to tagged note'],
-                'created'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'tag'           => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag associated with this note'],
+                'canonical'     => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
+                'note_id'       => ['type' => 'int',      'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to tagged note'],
+                'use_canonical' => ['type' => 'bool',     'not null' => true, 'description' => 'whether the user wanted to use canonical tags in this note. Separate for blocks'],
+                'created'       => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['tag', 'note_id'],
             'indexes'     => [
