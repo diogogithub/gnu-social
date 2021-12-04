@@ -72,6 +72,13 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $actions;
     }
 
+    public function getExtraNoteActions(Note $note)
+    {
+        $extra_actions = [];
+        Event::handle('AddExtraNoteActions', [$this->request, $note, &$extra_actions]);
+        return $extra_actions;
+    }
+
     /**
      * @codeCoverageIgnore
      */

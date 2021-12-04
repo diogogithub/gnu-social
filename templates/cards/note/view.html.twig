@@ -4,6 +4,18 @@
             {% for current_action in get_note_actions(note) %}
                 <a title="{{ current_action["title"] | trans }}" class="{{ current_action["classes"] }}" href="{{ current_action["url"] }}"></a>
             {% endfor %}
+            <details>
+                <summary>
+                    {{ icon('kebab', 'icon icon-extra-note-actions') | raw }} {# button-container #}
+                </summary>
+                <ul>
+                    {% for current_action in get_extra_note_actions(note) %}
+                        <li>
+                            <a class="{{ current_action["classes"] }}" href="{{ current_action["url"] }}">{{ current_action['title'] }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </details>
         </div>
     {% endif %}
 {% endblock note_actions %}

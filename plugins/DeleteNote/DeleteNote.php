@@ -26,6 +26,8 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
+use App\Core\Router\RouteLoader;
+use App\Core\Router\Router;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
@@ -46,14 +48,29 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class DeleteNote extends NoteHandlerPlugin
 {
-    // TODO: Refactoring to link instead of a form
+    public function onAddRoute(RouteLoader $r)
+    {
+        $r->connect(id: 'delete_note', uri_path: '/object/note/{id<\d+>}/delete', target: Controller\DeleteNote::class);
+        return Event::next;
+    }
+
+    public function onAddExtraNoteActions(Request $request, Note $note, array &$actions)
+    {
+        $actions[] = [
+            'title'   => _m('Delete note'),
+            'classes' => '',
+            'url'     => Router::url('delete_note', ['id' => $note->getId()]),
+        ];
+    }
+
     /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
      *
      * @throws RedirectException
      */
-/*    public function onAddNoteActions(Request $request, Note $note, array &$actions)
+    // TODO: Refactoring to link instead of a form
+    /*    public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
         if (($user = Common::user()) === null) {
             return Event::next;
