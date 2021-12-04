@@ -26,8 +26,10 @@ namespace Component\Tag;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\Router;
+use App\Entity\Actor;
 use App\Entity\Language;
 use App\Entity\Note;
 use App\Entity\NoteTag;
@@ -36,6 +38,8 @@ use App\Util\HTML;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Component responsible for extracting tags from posted notes, as well as normalizing them
@@ -62,15 +66,20 @@ class Tag extends Component
     /**
      * Process note by extracting any tags present
      */
-    public function onProcessNoteContent(Note $note, string $content): bool
+    public function onProcessNoteContent(Note $note, string $content, string $content_type, array $extra_args): bool
     {
         $matched_tags   = [];
         $processed_tags = false;
         preg_match_all(self::TAG_REGEX, $content, $matched_tags, \PREG_SET_ORDER);
         foreach ($matched_tags as $match) {
-            $tag           = str_replace('#', '', self::ensureLength($match[2]));
+            $tag           = self::ensureValid($match[2]);
             $canonical_tag = self::canonicalTag($tag, Language::getFromId($note->getLanguageId())->getLocale());
-            DB::persist(NoteTag::create(['tag' => $tag, 'canonical' => $canonical_tag, 'note_id' => $note->getId()]));
+            DB::persist(NoteTag::create([
+                'tag'           => $tag,
+                'canonical'     => $canonical_tag,
+                'note_id'       => $note->getId(),
+                'use_canonical' => $extra_args['tag_use_canonical'],
+            ]));
             Cache::pushList("tag-{$canonical_tag}", $note);
             $processed_tags = true;
         }
@@ -92,6 +101,11 @@ class Tag extends Component
         $canonical = self::canonicalTag($tag, $language);
         $url       = Router::url('single_note_tag', !\is_null($language) ? ['tag' => $canonical, 'lang' => $language] : ['tag' => $canonical]);
         return HTML::html(['a' => ['attrs' => ['href' => $url, 'title' => $tag, 'rel' => 'tag'], $tag]], options: ['indent' => false]);
+    }
+
+    public static function ensureValid(string $tag)
+    {
+        return self::ensureLength(str_replace('#', '', $tag));
     }
 
     public static function ensureLength(string $tag): string
@@ -145,6 +159,21 @@ class Tag extends Component
     {
         $note_qb->join('App\Entity\NoteTag', 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
         $actor_qb->join('App\Entity\ActorTag', 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id');
+        return Event::next;
+    }
+
+    public function onPostingAddFormEntries(Request $request, Actor $actor, array &$form_params)
+    {
+        $form_params[] = ['tag_use_canonical', CheckboxType::class, ['required' => false, 'data' => true, 'label' => _m('Make note tags canonical')]];
+        return Event::next;
+    }
+
+    public function onPostingHandleForm(Request $request, Actor $actor, array $data, array &$extra_args)
+    {
+        if (!isset($data['tag_use_canonical'])) {
+            throw new ClientException;
+        }
+        $extra_args['tag_use_canonical'] = $data['tag_use_canonical'];
         return Event::next;
     }
 }

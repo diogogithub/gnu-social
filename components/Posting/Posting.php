@@ -34,9 +34,6 @@ use App\Core\Router\Router;
 use App\Core\Security;
 use App\Entity\Activity;
 use App\Entity\Actor;
-use Component\Attachment\Entity\ActorToAttachment;
-use Component\Attachment\Entity\Attachment;
-use Component\Attachment\Entity\AttachmentToNote;
 use App\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
@@ -46,6 +43,9 @@ use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;
+use Component\Attachment\Entity\ActorToAttachment;
+use Component\Attachment\Entity\Attachment;
+use Component\Attachment\Entity\AttachmentToNote;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -113,6 +113,9 @@ class Posting extends Component
                 ],
             ];
         }
+
+        Event::handle('PostingAddFormEntries', [$request, $actor, &$form_params]);
+
         $form_params[] = ['post_note', SubmitType::class, ['label' => _m('Post')]];
         $form          = Form::create($form_params);
 
@@ -122,7 +125,16 @@ class Posting extends Component
                 if ($form->isValid()) {
                     $data         = $form->getData();
                     $content_type = $data['content_type'] ?? $available_content_types[array_key_first($available_content_types)];
-                    self::storeLocalNote($user->getActor(), $data['content'], $content_type, $data['language'], $data['attachments']);
+                    $extra_args   = [];
+                    Event::handle('PostingHandleForm', [$request, $actor, $data, &$extra_args, $form_params, $form]);
+                    self::storeLocalNote(
+                        $user->getActor(),
+                        $data['content'],
+                        $content_type,
+                        $data['language'],
+                        $data['attachments'],
+                        process_note_content_extra_args: $extra_args,
+                    );
                     throw new RedirectException();
                 }
             } catch (FormSizeFileException $sizeFileException) {
@@ -142,8 +154,9 @@ class Posting extends Component
      * $actor_id, possibly as a reply to note $reply_to and with flag
      * $is_local. Sanitizes $content and $attachments
      *
-     * @param array $attachments           Array of UploadedFile to be stored as GSFiles associated to this note
-     * @param array $processed_attachments Array of [Attachment, Attachment's name] to be associated to this $actor and Note
+     * @param array $attachments                     Array of UploadedFile to be stored as GSFiles associated to this note
+     * @param array $processed_attachments           Array of [Attachment, Attachment's name] to be associated to this $actor and Note
+     * @param array $process_note_content_extra_args Extra arguments for the event ProcessNoteContent
      *
      * @throws \App\Util\Exception\DuplicateFoundException
      * @throws ClientException
@@ -151,8 +164,15 @@ class Posting extends Component
      *
      * @return \App\Core\Entity|mixed
      */
-    public static function storeLocalNote(Actor $actor, string $content, string $content_type, string $language, array $attachments = [], $processed_attachments = [])
-    {
+    public static function storeLocalNote(
+        Actor $actor,
+        string $content,
+        string $content_type,
+        string $language,
+        array $attachments = [],
+        array $processed_attachments = [],
+        array $process_note_content_extra_args = [],
+    ) {
         $rendered = null;
         $mentions = [];
         Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $language, &$mentions]);
@@ -181,7 +201,7 @@ class Posting extends Component
 
         // Need file and note ids for the next step
         $note->setUrl(Router::url('note_view', ['id' => $note->getId()], Router::ABSOLUTE_URL));
-        Event::handle('ProcessNoteContent', [$note, $content, $content_type]);
+        Event::handle('ProcessNoteContent', [$note, $content, $content_type, $process_note_content_extra_args]);
 
         if ($processed_attachments !== []) {
             foreach ($processed_attachments as [$a, $fname]) {
