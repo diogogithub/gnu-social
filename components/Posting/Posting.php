@@ -181,7 +181,7 @@ class Posting extends Component
             'content'      => $content,
             'content_type' => $content_type,
             'rendered'     => $rendered,
-            'language_id'  => Language::getFromLocale($language)->getId(),
+            'language_id'  => Language::getByLocale($language)->getId(),
             'is_local'     => true,
         ]);
 

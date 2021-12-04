@@ -82,7 +82,7 @@ class TagBasedFiltering extends Plugin
         $notes_out = F\reject(
             $notes,
             fn (Note $n) => F\some(
-                dump(NoteTag::getFromNoteId($n->getId())),
+                dump(NoteTag::getByNoteId($n->getId())),
                 fn ($nt) => NoteTagBlock::checkBlocksNoteTag($nt, $blocked_note_tags),
             ),
         );

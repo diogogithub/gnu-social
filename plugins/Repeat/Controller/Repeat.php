@@ -91,7 +91,7 @@ class Repeat extends Controller
                     actor: Actor::getById($actor_id),
                     content: $note->getContent(),
                     content_type: $note->getContentType(),
-                    language: Language::getFromId($note->getLanguageId())->getLocale(),
+                    language: Language::getById($note->getLanguageId())->getLocale(),
                     processed_attachments: $note->getAttachmentsWithTitle(),
                 );
 

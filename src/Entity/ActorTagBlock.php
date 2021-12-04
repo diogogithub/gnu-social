@@ -21,6 +21,8 @@ declare(strict_types = 1);
 
 namespace App\Entity;
 
+use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Entity;
 use Component\Tag\Tag;
 use DateTimeInterface;
@@ -90,6 +92,25 @@ class ActorTagBlock extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public static function cacheKey(int $actor_id)
+    {
+        return "actor-tag-blocks-{$actor_id}";
+    }
+
+    public static function getByActorId(int $actor_id)
+    {
+        return Cache::getList(self::cacheKey($actor_id), fn () => DB::findBy('actor_tag_block', ['blocker' => $actor_id]));
+    }
+
+    /**
+     * Check whether $actor_tag is considered blocked by one of
+     * $actor_tag_blocks
+     */
+    public static function checkBlocksActorTag(ActorTag $actor_tag, array $actor_tag_blocks): bool
+    {
+        return F\some($actor_tag_blocks, fn ($ntb) => ($ntb->getUseCanonical() && $actor_tag->getCanonical() === $ntb->getCanonical()) || $actor_tag->getTag() === $ntb->getTag());
+    }
 
     public static function schemaDef(): array
     {

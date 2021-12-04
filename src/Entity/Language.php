@@ -108,7 +108,7 @@ class Language extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public static function getFromId(int $id): self
+    public static function getById(int $id): self
     {
         return Cache::getHashMapKey(
             map_key: 'languages-id',
@@ -117,7 +117,7 @@ class Language extends Entity
         );
     }
 
-    public static function getFromLocale(string $locale): self
+    public static function getByLocale(string $locale): self
     {
         return Cache::getHashMapKey(
             'languages',
@@ -126,9 +126,9 @@ class Language extends Entity
         );
     }
 
-    public static function getFromNote(Note $note): self
+    public static function getByNote(Note $note): self
     {
-        return self::getFromId($note->getLanguageId());
+        return self::getById($note->getLanguageId());
     }
 
     public static function getLanguageChoices(): array
@@ -159,7 +159,7 @@ class Language extends Entity
             $key    = array_key_first($preferred_language_choices);
             $locale = $preferred_language_choices[$key];
             unset($preferred_language_choices[$key], $language_choices[$key]);
-            $short_display                              = self::getFromLocale($locale)->getShortDisplay();
+            $short_display                              = self::getByLocale($locale)->getShortDisplay();
             $preferred_language_choices[$short_display] = trim($locale);
             $language_choices[$short_display]           = trim($locale);
         }

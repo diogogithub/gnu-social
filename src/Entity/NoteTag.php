@@ -118,7 +118,7 @@ class NoteTag extends Entity
         return "note-tags-{$note_id}";
     }
 
-    public static function getFromNoteId(int $note_id): array
+    public static function getByNoteId(int $note_id): array
     {
         return Cache::getList(self::cacheKey($note_id), fn () => DB::dql('select nt from note_tag nt join note n with n.id = nt.note_id where n.id = :id', ['id' => $note_id]));
     }

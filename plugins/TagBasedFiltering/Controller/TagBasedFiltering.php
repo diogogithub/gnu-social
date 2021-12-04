@@ -52,9 +52,9 @@ class TagBasedFiltering extends Controller
     public function editBlockedNoteTags(Request $request, ?int $note_id)
     {
         $user                = Common::ensureLoggedIn();
-        $note                = !\is_null($note_id) ? Note::getFromId($note_id) : null;
-        $note_tag_blocks     = NoteTagBlock::getFromActorId($user->getId());
-        $note_tags           = !\is_null($note_id) ? NoteTag::getFromNoteId($note_id) : [];
+        $note                = !\is_null($note_id) ? Note::getById($note_id) : null;
+        $note_tag_blocks     = NoteTagBlock::getByActorId($user->getId());
+        $note_tags           = !\is_null($note_id) ? NoteTag::getByNoteId($note_id) : [];
         $blockable_note_tags = F\reject(
             $note_tags,
             fn (NoteTag $nt) => NoteTagBlock::checkBlocksNoteTag($nt, $note_tag_blocks),
@@ -92,7 +92,7 @@ class TagBasedFiltering extends Controller
                             Cache::delete(NoteTagBlock::cacheKey($user->getId()));
                             Cache::delete(TagFilerPlugin::cacheKeys($user->getId())['note']);
                             $new_tag       = Tag::ensureValid($data[$canon . ':new-tag']);
-                            $canonical_tag = Tag::canonicalTag($new_tag, Language::getFromNote($note)->getLocale());
+                            $canonical_tag = Tag::canonicalTag($new_tag, Language::getByNote($note)->getLocale());
                             DB::persist(NoteTagBlock::create([
                                 'blocker'       => $user->getId(),
                                 'tag'           => $new_tag,
@@ -140,7 +140,7 @@ class TagBasedFiltering extends Controller
 
         return [
             '_template'          => 'tag-based-filtering/edit-tags.html.twig',
-            'note'               => !\is_null($note_id) ? Note::getFromId($note_id) : null,
+            'note'               => !\is_null($note_id) ? Note::getById($note_id) : null,
             'new_tags_form'      => $new_tags_form?->createView(),
             'existing_tags_form' => $existing_tags_form?->createView(),
         ];

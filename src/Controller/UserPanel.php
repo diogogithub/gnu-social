@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 
@@ -42,6 +42,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Entity\ActorLanguage;
 use App\Entity\Language;
@@ -73,8 +74,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
-use function is_null;
 
 // }}} Imports
 
@@ -88,28 +87,26 @@ class UserPanel extends Controller
     public function allSettings(Request $request): array
     {
         $personal_form = $this->personalInfo($request);
-        $email_form = $this->email($request);
+        $email_form    = $this->email($request);
         $password_form = $this->password($request);
         $language_form = $this->language($request);
 
         $notifications_form_array = $this->notifications($request);
 
         return [
-            '_template' => 'settings/base.html.twig',
-            'profile' => $personal_form->createView(),
-            'email' => $email_form->createView(),
-            'password' => $password_form->createView(),
-            'language' => $language_form->createView(),
+            '_template'           => 'settings/base.html.twig',
+            'profile'             => $personal_form->createView(),
+            'email'               => $email_form->createView(),
+            'password'            => $password_form->createView(),
+            'language'            => $language_form->createView(),
             'tabbed_forms_notify' => $notifications_form_array,
-            'open_details_query' => $this->string('open'),
+            'open_details_query'  => $this->string('open'),
         ];
     }
 
     /**
      * Change email settings form
      *
-     * @param Request $request
-     * @return FormInterface
      * @throws NoLoggedInUser
      * @throws ServerException
      */
@@ -142,8 +139,6 @@ class UserPanel extends Controller
     /**
      * Change password form
      *
-     * @param Request $request
-     * @return FormInterface
      * @throws AuthenticationException
      * @throws NoLoggedInUser
      * @throws ServerException
@@ -162,7 +157,7 @@ class UserPanel extends Controller
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            if (!is_null($data['old_password'])) {
+            if (!\is_null($data['old_password'])) {
                 $data['password'] = $form->get('password')->getData();
                 if (!($user->changePassword($data['old_password'], $data['password']))) {
                     throw new AuthenticationException(_m('The provided password is incorrect'));
@@ -182,9 +177,9 @@ class UserPanel extends Controller
     }
 
     /**
+     * @throws NoLoggedInUser
      * @throws RedirectException
      * @throws ServerException
-     * @throws NoLoggedInUser
      */
     public function language(Request $request): FormInterface
     {
@@ -227,7 +222,6 @@ class UserPanel extends Controller
 
                 throw new RedirectException('settings_sort_languages', ['_fragment' => null]); // TODO doesn't clear fragment
             }
-
         }
         return $form;
     }
@@ -235,8 +229,6 @@ class UserPanel extends Controller
     /**
      * Local user personal information panel
      *
-     * @param Request $request
-     * @return mixed
      * @throws NicknameEmptyException
      * @throws NicknameInvalidException
      * @throws NicknameNotAllowedException
@@ -248,12 +240,12 @@ class UserPanel extends Controller
     public function personalInfo(Request $request): mixed
     {
         // Ensure the user is logged in and retrieve Actor object for given user
-        $user = Common::ensureLoggedIn();
+        $user  = Common::ensureLoggedIn();
         $actor = $user->getActor();
 
         // Used in Form::handle as an array $extra_args
         [$_, $actor_tags] = $actor->getSelfTags();
-        $extra = ['self_tags' => $actor_tags];
+        $extra            = ['self_tags' => $actor_tags];
 
         // Defining the various form fields
         $form_definition = [
@@ -279,33 +271,33 @@ class UserPanel extends Controller
      */
     public function notifications(Request $request): array
     {
-        $user = Common::ensureLoggedIn();
-        $schema = DB::getConnection()->getSchemaManager();
-        $platform = $schema->getDatabasePlatform();
-        $columns = Common::arrayRemoveKeys($schema->listTableColumns('user_notification_prefs'), ['user_id', 'transport', 'created', 'modified']);
+        $user      = Common::ensureLoggedIn();
+        $schema    = DB::getConnection()->getSchemaManager();
+        $platform  = $schema->getDatabasePlatform();
+        $columns   = Common::arrayRemoveKeys($schema->listTableColumns('user_notification_prefs'), ['user_id', 'transport', 'created', 'modified']);
         $form_defs = ['placeholder' => []];
         foreach ($columns as $name => $col) {
-            $type = $col->getType();
-            $val = $type->convertToPHPValue($col->getDefault(), $platform);
+            $type     = $col->getType();
+            $val      = $type->convertToPHPValue($col->getDefault(), $platform);
             $type_str = $type->getName();
-            $label = str_replace('_', ' ', ucfirst($name));
+            $label    = str_replace('_', ' ', ucfirst($name));
 
             $labels = [
                 'target_actor_id' => 'Target Actors',
-                'dm' => 'DM',
+                'dm'              => 'DM',
             ];
 
             $help = [
-                'target_actor_id' => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
+                'target_actor_id'        => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
                 'activity_by_subscribed' => 'Notify me when someone I subscribed has new activity',
-                'mention' => 'Notify me when mentions me in a notice',
-                'reply' => 'Notify me when someone replies to a notice made by me',
-                'subscription' => 'Notify me when someone subscribes to me or asks for permission to do so',
-                'favorite' => 'Notify me when someone favorites one of my notices',
-                'nudge' => 'Notify me when someone nudges me',
-                'dm' => 'Notify me when someone sends me a direct message',
-                'post_on_status_change' => 'Post a notice when my status in this service changes',
-                'enable_posting' => 'Enable posting from this service',
+                'mention'                => 'Notify me when mentions me in a notice',
+                'reply'                  => 'Notify me when someone replies to a notice made by me',
+                'subscription'           => 'Notify me when someone subscribes to me or asks for permission to do so',
+                'favorite'               => 'Notify me when someone favorites one of my notices',
+                'nudge'                  => 'Notify me when someone nudges me',
+                'dm'                     => 'Notify me when someone sends me a direct message',
+                'post_on_status_change'  => 'Post a notice when my status in this service changes',
+                'enable_posting'         => 'Enable posting from this service',
             ];
 
             switch ($type_str) {
@@ -325,8 +317,8 @@ class UserPanel extends Controller
             }
         }
 
-        $form_defs['placeholder']['save'] = fn(string $transport, string $form_name) => [$form_name, SubmitType::class,
-            ['label' => _m('Save notification settings for {transport}', ['transport' => $transport])],];
+        $form_defs['placeholder']['save'] = fn (string $transport, string $form_name) => [$form_name, SubmitType::class,
+            ['label' => _m('Save notification settings for {transport}', ['transport' => $transport])], ];
 
         Event::handle('AddNotificationTransport', [&$form_defs]);
         unset($form_defs['placeholder']);
@@ -334,7 +326,7 @@ class UserPanel extends Controller
         $tabbed_forms = [];
         foreach ($form_defs as $transport_name => $f) {
             unset($f['save']);
-            $form = Form::create($f);
+            $form                          = Form::create($f);
             $tabbed_forms[$transport_name] = $form;
 
             $form->handleRequest($request);
@@ -360,15 +352,13 @@ class UserPanel extends Controller
             }
         }
 
-        $tabbed_forms = F\map($tabbed_forms, fn($f) => $f->createView());
+        $tabbed_forms = F\map($tabbed_forms, fn ($f) => $f->createView());
         return $tabbed_forms;
     }
 
     /**
      * Controller for defining the ordering of a users' languages
      *
-     * @param Request $request
-     * @return array
      * @throws NoLoggedInUser
      * @throws RedirectException
      * @throws ServerException
@@ -386,18 +376,18 @@ class UserPanel extends Controller
 
         $form_entries[] = ['save_language_order', SubmitType::class, []];
         $form_entries[] = ['go_back', SubmitType::class, ['label' => _m('Return to settings page')]];
-        $form = Form::create($form_entries);
+        $form           = Form::create($form_entries);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var SubmitButton $button */
-            $button = $form->get('go_back');
+            $button  = $form->get('go_back');
             $go_back = $button->isClicked();
-            $data = $form->getData();
+            $data    = $form->getData();
             asort($data); // Sort by the order value
             $data = array_keys($data); // This keeps the order and gives us a unique number for each
             foreach ($data as $order => $locale) {
-                $lang = Language::getFromLocale($locale);
+                $lang       = Language::getByLocale($locale);
                 $actor_lang = DB::getReference('actor_language', ['actor_id' => $user->getId(), 'language_id' => $lang->getId()]);
                 $actor_lang->setOrdering($order + 1);
             }
@@ -412,7 +402,7 @@ class UserPanel extends Controller
 
         return [
             '_template' => 'settings/sort_languages.html.twig',
-            'form' => $form->createView(),
+            'form'      => $form->createView(),
         ];
     }
 }

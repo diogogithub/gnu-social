@@ -74,7 +74,7 @@ class Tag extends Component
         preg_match_all(self::TAG_REGEX, $content, $matched_tags, \PREG_SET_ORDER);
         foreach ($matched_tags as $match) {
             $tag           = self::ensureValid($match[2]);
-            $canonical_tag = self::canonicalTag($tag, Language::getFromId($note->getLanguageId())->getLocale());
+            $canonical_tag = self::canonicalTag($tag, Language::getById($note->getLanguageId())->getLocale());
             DB::persist(NoteTag::create([
                 'tag'           => $tag,
                 'canonical'     => $canonical_tag,

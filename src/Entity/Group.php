@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -62,8 +64,8 @@ class Group extends Entity
     private ?string $mainpage;
     private ?int $join_policy;
     private ?int $force_scope;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -271,7 +273,7 @@ class Group extends Entity
         return Actor::getById($this->getId());
     }
 
-    public static function getFromNickname(string $nickname, ?Actor $actor = null): ?self
+    public static function getByNickname(string $nickname, ?Actor $actor = null): ?self
     {
         $nickname = Nickname::normalize($nickname, check_already_used: false);
         $group    = null;

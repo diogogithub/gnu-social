@@ -108,7 +108,7 @@ class ActorLanguage extends Entity
                 'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.ordering ASC',
                 ['id' => $id],
             ),
-        ) ?: [Language::getFromLocale(Common::config('site', 'language'))];
+        ) ?: [Language::getByLocale(Common::config('site', 'language'))];
     }
 
     public static function schemaDef(): array

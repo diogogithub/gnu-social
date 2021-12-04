@@ -111,13 +111,14 @@ class NoteTagBlock extends Entity
         return "note-tag-blocks-{$actor_id}";
     }
 
-    public static function getFromActorId(int $actor_id)
+    public static function getByActorId(int $actor_id)
     {
         return Cache::getList(self::cacheKey($actor_id), fn () => DB::findBy('note_tag_block', ['blocker' => $actor_id]));
     }
 
     /**
-     * Check whether $note_tag should
+     * Check whether $note_tag is considered blocked by one of
+     * $note_tag_blocks
      */
     public static function checkBlocksNoteTag(NoteTag $note_tag, array $note_tag_blocks): bool
     {

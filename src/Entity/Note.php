@@ -216,19 +216,19 @@ class Note extends Entity
         return Avatar::getUrl($this->getActorId(), $size);
     }
 
-    public static function getFromId(int $note_id): self
+    public static function getById(int $note_id): self
     {
         return Cache::get("note-{$note_id}", fn () => DB::findOneBy('note', ['id' => $note_id]));
     }
 
     public function getNoteLanguageShortDisplay(): string
     {
-        return Language::getFromId($this->language_id)->getShortDisplay();
+        return Language::getById($this->language_id)->getShortDisplay();
     }
 
     public function getLanguageLocale(): string
     {
-        return Language::getFromId($this->language_id)->getLocale();
+        return Language::getById($this->language_id)->getLocale();
     }
 
     public static function getAllNotesByActor(Actor $actor): array
@@ -330,7 +330,7 @@ class Note extends Entity
     {
         $rendered = null;
         $mentions = [];
-        Event::handle('RenderNoteContent', [$this->getContent(), $this->getContentType(), &$rendered, &$mentions, $this->getActor(), Language::getFromId($this->getLanguageId())->getLocale()]);
+        Event::handle('RenderNoteContent', [$this->getContent(), $this->getContentType(), &$rendered, &$mentions, $this->getActor(), Language::getById($this->getLanguageId())->getLocale()]);
         $mentioned = [];
         foreach ($mentions as $mention) {
             foreach ($mention['mentioned'] as $m) {
