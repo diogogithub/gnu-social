@@ -33,6 +33,7 @@ use App\Entity\Actor;
 use App\Entity\Language;
 use App\Entity\Note;
 use App\Entity\NoteTag;
+use App\Util\Exception\ClientException;
 use App\Util\Formatting;
 use App\Util\HTML;
 use Doctrine\Common\Collections\ExpressionBuilder;
