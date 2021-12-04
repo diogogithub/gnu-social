@@ -126,6 +126,11 @@ class Language extends Entity
         );
     }
 
+    public static function getFromNote(Note $note): self
+    {
+        return self::getFromId($note->getLanguageId());
+    }
+
     public static function getLanguageChoices(): array
     {
         $langs = Cache::getHashMap(

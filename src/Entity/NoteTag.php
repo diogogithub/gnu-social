@@ -110,9 +110,17 @@ class NoteTag extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public static function cacheKey(int|Note $note_id)
+    {
+        if (!\is_int($note_id)) {
+            $note_id = $note_id->getId();
+        }
+        return "note-tags-{$note_id}";
+    }
+
     public static function getFromNoteId(int $note_id): array
     {
-        return Cache::getList("note-tags-{$note_id}", fn () => DB::dql('select nt from note_tag nt join note n with n.id = nt.note_id where n.id = :id', ['id' => $note_id]));
+        return Cache::getList(self::cacheKey($note_id), fn () => DB::dql('select nt from note_tag nt join note n with n.id = nt.note_id where n.id = :id', ['id' => $note_id]));
     }
 
     public function getUrl(?Actor $actor = null): string
