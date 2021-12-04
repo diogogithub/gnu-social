@@ -28,6 +28,11 @@ class WebfingerResourceNote extends WebfingerResource
         parent::__construct($object);
     }
 
+    /**
+     * Update given XRD with self's data
+     *
+     * @param XML_XRD $xrd
+     */
     public function updateXRD(XML_XRD $xrd)
     {
         if (Event::handle('StartWebFingerNoticeLinks', [$xrd, $this->object])) {

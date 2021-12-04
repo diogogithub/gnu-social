@@ -42,6 +42,15 @@ class Notification extends Component
         return Event::next;
     }
 
+    /**
+     * Bring given Activity to Targets's attention
+     *
+     * @param Actor $sender
+     * @param Activity $activity
+     * @param array $targets
+     * @param string|null $reason
+     * @return bool
+     */
     public function notify(Actor $sender, Activity $activity, array $targets, ?string $reason = null): bool
     {
         $remote_targets = [];

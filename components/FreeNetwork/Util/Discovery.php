@@ -204,7 +204,7 @@ class Discovery
         return $uri;
     }
 
-    public static function isAcct($uri): bool
+    public static function isAcct(string $uri): bool
     {
         return mb_strtolower(mb_substr($uri, 0, 5)) == 'acct:';
     }

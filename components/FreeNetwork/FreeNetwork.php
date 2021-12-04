@@ -25,6 +25,12 @@ use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
 use App\Entity\Activity;
+use App\Util\Exception\NicknameEmptyException;
+use App\Util\Exception\NicknameException;
+use App\Util\Exception\NicknameInvalidException;
+use App\Util\Exception\NicknameNotAllowedException;
+use App\Util\Exception\NicknameTakenException;
+use App\Util\Exception\NicknameTooLongException;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
 use XML_XRD;
 use function App\Core\I18n\_m;
@@ -49,7 +55,7 @@ use Component\FreeNetwork\Util\WebfingerResource\WebfingerResourceActor;
 use Component\FreeNetwork\Util\WebfingerResource\WebfingerResourceNote;
 use Exception;
 use Plugin\ActivityPub\Entity\ActivitypubActivity;
-use Plugin\ActivityPub\Util\Response\TypeResponse;
+use Plugin\ActivityPub\Util\TypeResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use XML_XRD_Element_Link;
@@ -107,7 +113,23 @@ class FreeNetwork extends Component
         return Event::stop;
     }
 
-    public function onEndGetWebFingerResource($resource, ?WebfingerResource &$target = null, array $args = [])
+    /**
+     * Last attempts getting a WebFingerResource object
+     *
+     * @param string $resource String that contains the requested URI
+     * @param WebfingerResource|null $target WebFingerResource extended object goes here
+     * @param array $args Array which may contains arguments such as 'rel' filtering values
+     * @return bool
+     * @throws NoSuchActorException
+     * @throws ServerException
+     * @throws NicknameEmptyException
+     * @throws NicknameException
+     * @throws NicknameInvalidException
+     * @throws NicknameNotAllowedException
+     * @throws NicknameTakenException
+     * @throws NicknameTooLongException
+     */
+    public function onEndGetWebFingerResource(string $resource, ?WebfingerResource &$target = null, array $args = []): bool
     {
         // * Either we didn't find the profile, then we want to make
         //   the $profile variable null for clarity.

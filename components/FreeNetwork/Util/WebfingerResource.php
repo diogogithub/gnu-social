@@ -38,7 +38,12 @@ abstract class WebfingerResource
         return $this->object;
     }
 
-    public function getAliases()
+    /**
+     * List of alternative IDs of a certain Actor
+     *
+     * @return array
+     */
+    public function getAliases(): array
     {
         $aliases = $this->object->getAliasesWithIDs();
 

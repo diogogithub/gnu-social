@@ -61,6 +61,9 @@ class Webfinger extends XrdController
         return parent::handle($request);
     }
 
+    /**
+     * Configures $this->xrd which will later be printed.
+     */
     protected function setXRD()
     {
         $this->xrd->subject = $this->resource;

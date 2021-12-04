@@ -32,7 +32,7 @@ class WebfingerResourceActor extends WebFingerResource
         parent::__construct($object);
     }
 
-    public function getAliases()
+    public function getAliases(): array
     {
         $aliases = [];
 
@@ -46,6 +46,12 @@ class WebfingerResourceActor extends WebFingerResource
         return array_merge($aliases, parent::getAliases());
     }
 
+    /**
+     * Reconstruct WebFinger acct: from object
+     *
+     * @return array|false|mixed|string|string[]|null
+     * @throws WebfingerReconstructionException
+     */
     public function reconstructAcct()
     {
         $acct = null;
