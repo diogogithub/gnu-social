@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% import '/cards/note/view.html.twig' as noteView %}
+
+{% block body %}
+    {% if new_tags_form is not null %}
+        <div class="section-widget">
+            {{ noteView.macro_note(note, {}) }}
+        </div>
+        <p>{% trans %}Tags in the note above:{% endtrans %}</p>
+        {{ form(new_tags_form) }}
+    {% endif %}
+    {% if existing_tags_form is not null %}
+        <p>{% trans %}Tags you already blocked:{% endtrans %}</p>
+        {{ form(existing_tags_form) }}
+    {% endif %}
+{% endblock %}
