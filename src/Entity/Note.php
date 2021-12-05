@@ -85,9 +85,6 @@ class Note extends Entity
         return $this->content_type;
     }
 
-    /**
-     * @return Note
-     */
     public function setContentType(string $content_type): self
     {
         $this->content_type = $content_type;
@@ -221,14 +218,14 @@ class Note extends Entity
         return Cache::get("note-{$note_id}", fn () => DB::findOneBy('note', ['id' => $note_id]));
     }
 
-    public function getNoteLanguageShortDisplay(): string
+    public function getNoteLanguageShortDisplay(): ?string
     {
-        return Language::getById($this->language_id)->getShortDisplay();
+        return !is_null($this->language_id) ? Language::getById($this->language_id)->getShortDisplay() : null;
     }
 
-    public function getLanguageLocale(): string
+    public function getLanguageLocale(): ?string
     {
-        return Language::getById($this->language_id)->getLocale();
+        return !is_null($this->language_id) ? Language::getById($this->language_id)->getLocale() : null;
     }
 
     public static function getAllNotesByActor(Actor $actor): array
