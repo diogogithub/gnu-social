@@ -367,12 +367,12 @@ class Actor extends Entity
         foreach ($tags_to_add as $tag) {
             $canonical_tag = TagComponent::canonicalTag($tag, $this->getTopLanguage()->getLocale());
             DB::persist(ActorCircle::create(['tagger' => $this->getId(), 'tag' => $canonical_tag, 'private' => false]));
-            DB::persist(ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag, 'canonical' => $canonical_tag]));
+            DB::persist(ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag, 'canonical' => $canonical_tag, 'use_canonical' => true])); // TODO make use canonical configurable
         }
         foreach ($actor_tags_to_remove as $actor_tag) {
             $canonical_tag = TagComponent::canonicalTag($actor_tag->getTag(), $this->getTopLanguage()->getLocale());
             DB::removeBy('actor_tag', ['tagger' => $this->getId(), 'tagged' => $this->getId(), 'canonical' => $canonical_tag]);
-            DB::removeBy('actor_circle', ['tagger' => $this->getId(), 'tag' => $canonical_tag]);
+            DB::removeBy('actor_circle', ['tagger' => $this->getId(), 'tag' => $canonical_tag]); // TODO only remove if unused
         }
         Cache::delete("selftags-{$this->getId()}");
         Cache::delete("othertags-{$this->getId()}-by-{$this->getId()}");

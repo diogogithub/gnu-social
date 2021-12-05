@@ -48,6 +48,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TagBasedFiltering extends Controller
 {
+    /**
+     * Edit the blocked tags of $type_name for target with ID $id. Handles both actor and note tags
+     */
     private function editBlocked(
         Request $request,
         ?int $id,

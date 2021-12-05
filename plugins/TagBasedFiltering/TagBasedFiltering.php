@@ -31,6 +31,8 @@ use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
+use App\Entity\ActorTag;
+use App\Entity\ActorTagBlock;
 use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Entity\NoteTag;
@@ -79,13 +81,28 @@ class TagBasedFiltering extends Plugin
             self::cacheKeys($actor)['note'],
             fn () => DB::dql('select ntb from note_tag_block ntb where ntb.blocker = :blocker', ['blocker' => $actor->getId()]),
         );
+        $blocked_actor_tags = Cache::get(
+            self::cacheKeys($actor)['actor'],
+            fn () => DB::dql('select atb from actor_tag_block atb where atb.blocker = :blocker', ['blocker' => $actor->getId()]),
+        );
+
         $notes_out = F\reject(
             $notes,
-            fn (Note $n) => F\some(
-                dump(NoteTag::getByNoteId($n->getId())),
-                fn ($nt) => NoteTagBlock::checkBlocksNoteTag($nt, $blocked_note_tags),
+            fn (Note $n) => (
+                $n->getActor()->getId() != $actor->getId()
+                && (
+                    F\some(
+                        NoteTag::getByNoteId($n->getId()),
+                        fn ($nt) => NoteTagBlock::checkBlocksNoteTag($nt, $blocked_note_tags),
+                    )
+                    || F\some(
+                        ActorTag::getByActorId($n->getActor()->getId()),
+                        fn ($at) => ActorTagBlock::checkBlocksActorTag($at, $blocked_actor_tags),
+                    )
+                )
             ),
         );
+
         return Event::next;
     }
 }

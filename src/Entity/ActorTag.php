@@ -164,4 +164,9 @@ class ActorTag extends Entity
             ],
         ];
     }
+
+    public function __toString(): string
+    {
+        return $this->getTag();
+    }
 }
