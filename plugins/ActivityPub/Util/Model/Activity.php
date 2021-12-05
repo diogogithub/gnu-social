@@ -81,22 +81,27 @@ class Activity extends Model
         $ap_act = ActivitypubActivity::getWithPK(['activity_uri' => $type_activity->get('id')]);
         if (is_null($ap_act)) {
             $actor = ActivityPub::getActorByUri($type_activity->get('actor'));
-            // Store Object
-            $obj = null;
             if (!$type_activity->has('object') || !$type_activity->get('object')->has('type')) {
                 throw new InvalidArgumentException('Activity Object or Activity Object Type is missing.');
             }
-            switch ($type_activity->get('object')->get('type')) {
-                case 'Note':
-                    $obj = Note::fromJson($type_activity->get('object'), ['source' => $source, 'actor_uri' => $type_activity->get('actor'), 'actor_id' => $actor->getId()]);
-                    break;
-                default:
-                    if (!Event::handle('ActivityPubObject', [$type_activity->get('object')->get('type'), $type_activity->get('object'), &$obj])) {
-                        throw new ClientException('Unsupported Object type.');
-                    }
-                    break;
+            // Store Object if new
+            $ap_act = ActivitypubActivity::getWithPK(['object_uri' => $type_activity->get('object')->get('id')]);
+            if (!is_null($ap_act)) {
+                $obj = $ap_act->getActivity()->getObject();
+            } else {
+                $obj = null;
+                switch ($type_activity->get('object')->get('type')) {
+                    case 'Note':
+                        $obj = Note::fromJson($type_activity->get('object'), ['source' => $source, 'actor_uri' => $type_activity->get('actor'), 'actor_id' => $actor->getId()]);
+                        break;
+                    default:
+                        if (!Event::handle('ActivityPubObject', [$type_activity->get('object')->get('type'), $type_activity->get('object'), &$obj])) {
+                            throw new ClientException('Unsupported Object type.');
+                        }
+                        break;
+                }
+                DB::persist($obj);
             }
-            DB::persist($obj);
             // Store Activity
             $act = GSActivity::create([
                 'actor_id' => $actor->getId(),
