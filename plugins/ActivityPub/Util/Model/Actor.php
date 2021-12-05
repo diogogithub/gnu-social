@@ -34,11 +34,15 @@ namespace Plugin\ActivityPub\Util\Model;
 use ActivityPhp\Type\AbstractObject;
 use App\Core\DB\DB;
 use App\Core\Event;
+use App\Core\GSFile;
+use App\Core\HTTPClient;
+use App\Core\Log;
 use App\Core\Router\Router;
 use App\Core\Security;
 use App\Entity\Actor as GSActor;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
+use App\Util\TemporaryFile;
 use Component\Avatar\Avatar;
 use Component\Avatar\Exception\NoAvatarException;
 use DateTime;
@@ -116,14 +120,46 @@ class Actor extends Model
         }
 
         // Avatar
-        //if (isset($res['icon']['url'])) {
-        //    try {
-        //        $this->update_avatar($profile, $res['icon']['url']);
-        //    } catch (Exception $e) {
-        //        // Let the exception go, it isn't a serious issue
-        //        Log::debug('ActivityPub Explorer: An error occurred while grabbing remote avatar: ' . $e->getMessage());
-        //    }
-        //}
+        if ($person->has('icon')) {
+            try {
+                // Retrieve media
+                $get_response = HTTPClient::get($person->get('icon')->get('url'));
+                $media        = $get_response->getContent();
+                $mimetype     = $get_response->getHeaders()['content-type'][0] ?? null;
+                unset($get_response);
+
+                // Only handle if it is an image
+                if (GSFile::mimetypeMajor($mimetype) === 'image') {
+                    // Ignore empty files
+                    if (!empty($media)) {
+                        // Create an attachment for this
+                        $temp_file = new TemporaryFile();
+                        $temp_file->write($media);
+                        $attachment = GSFile::storeFileAsAttachment($temp_file);
+                        // Delete current avatar if there's one
+                        $avatar = DB::find('avatar', ['actor_id' => $actor->getId()]);
+                        $avatar?->delete();
+                        DB::wrapInTransaction(function() use ($attachment, $actor) {
+                            DB::persist($attachment);
+                            DB::persist(\Component\Avatar\Entity\Avatar::create(['actor_id' => $actor->getId(), 'attachment_id' => $attachment->getId()]));
+                        });
+                        Event::handle('AvatarUpdate', [$actor->getId()]);
+                    }
+                }
+            } catch (Exception $e) {
+                // Let the exception go, it isn't a serious issue
+                Log::warning('ActivityPub Explorer: An error occurred while grabbing remote avatar: ' . $e->getMessage());
+            }
+        } else {
+            // Delete existing avatar if any
+            try {
+                $avatar = DB::findOneBy('avatar', ['actor_id' => $actor->getId()]);
+                $avatar->delete();
+                Event::handle('AvatarUpdate', [$actor->getId()]);
+            } catch (Exception) {
+               // No avatar set, so cannot delete
+            }
+        }
 
         Event::handle('ActivityPubNewActor', [&$ap_actor, &$actor, &$apRSA]);
         return $ap_actor;
@@ -169,13 +205,21 @@ class Actor extends Model
             'updated' => $object->getModified()->format(DateTimeInterface::RFC3339),
             'url' => $object->getUrl(Router::ABSOLUTE_URL),
         ];
+
+        // Avatar
         try {
-            $attr['icon'] = Avatar::getAvatar($object->getId())->getUrl(type: Router::ABSOLUTE_URL);
-        } catch (NoAvatarException) {
+            $avatar = Avatar::getAvatar($object->getId());
+            $attr['icon'] = $attr['image'] = [
+                'type' => 'Image',
+                'mediaType' => $avatar->getAttachment()->getMimetype(),
+                'url' => $avatar->getUrl(type: Router::ABSOLUTE_URL),
+            ];
+        } catch (Exception) {
             // No icon for this actor
         }
 
         $type = self::jsonToType($attr);
+        Event::handle('ActivityPubAddActivityStreamsTwoData', [$type->get('type'), &$type]);
         return $type->toJson($options);
     }
 }
