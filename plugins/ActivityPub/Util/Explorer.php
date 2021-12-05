@@ -55,7 +55,7 @@ use const JSON_UNESCAPED_SLASHES;
  */
 class Explorer
 {
-    private array $discovered_actor_profiles = [];
+    private array $discovered_activitypub_actor_profiles = [];
 
     /**
      * Shortcut function to get a single profile from its URL.
@@ -104,7 +104,7 @@ class Explorer
         }
 
         Log::debug('ActivityPub Explorer: Started now looking for ' . $url);
-        $this->discovered_actor_profiles = [];
+        $this->discovered_activitypub_actor_profiles = [];
 
         return $this->_lookup($url, $grab_online);
     }
@@ -123,7 +123,7 @@ class Explorer
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      *
-     * @return array of Profile objects
+     * @return array of ActivityPub Actor objects
      */
     private function _lookup(string $url, bool $grab_online = true): array
     {
@@ -135,7 +135,7 @@ class Explorer
             throw new NoSuchActorException('Actor not found.');
         }
 
-        return $this->discovered_actor_profiles;
+        return $this->discovered_activitypub_actor_profiles;
     }
 
     /**
@@ -160,7 +160,7 @@ class Explorer
             Log::debug('ActivityPub Explorer: Found a known Aprofile for ' . $uri);
 
             // We found something!
-            $this->discovered_actor_profiles[] = $aprofile;
+            $this->discovered_activitypub_actor_profiles[] = $aprofile;
             return true;
         } else {
             Log::debug('ActivityPub Explorer: Unable to find a known Aprofile for ' . $uri);
@@ -204,7 +204,7 @@ class Explorer
             return true;
         } else {
             try {
-                $this->discovered_actor_profiles[] = Model\Actor::fromJson(json_encode($res));
+                $this->discovered_activitypub_actor_profiles[] = Model\Actor::fromJson(json_encode($res));
                 return true;
             } catch (Exception $e) {
                 Log::debug(
@@ -217,19 +217,6 @@ class Explorer
         }
 
         return false;
-    }
-
-    /**
-     * Validates a remote response in order to determine whether this
-     * response is a valid profile or not
-     *
-     * @param array $res remote response
-     *
-     * @return bool success state
-     */
-    public static function validate_remote_response(array $res): bool
-    {
-        return !(!isset($res['id'], $res['preferredUsername'], $res['inbox'], $res['publicKey']['publicKeyPem']));
     }
 
     /**
@@ -288,28 +275,20 @@ class Explorer
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
+     * @throws Exception
      *
-     * @return array|false If it is able to fetch, false if it's gone
+     * @return string|null If it is able to fetch, false if it's gone
      *                     // Exceptions when network issues or unsupported Activity format
      */
-    public static function get_remote_user_activity(string $url): bool|array
+    public static function get_remote_user_activity(string $url): string|null
     {
         $response = HTTPClient::get($url, ['headers' => ACTIVITYPUB::HTTP_CLIENT_HEADERS]);
         // If it was deleted
         if ($response->getStatusCode() == 410) {
-            return false;
+            return null;
         } elseif (!HTTPClient::statusCodeIsOkay($response)) { // If it is unavailable
             throw new Exception('Non Ok Status Code for given Actor URL.');
         }
-        $res = json_decode($response->getContent(), true);
-        if (is_null($res)) {
-            Log::debug('ActivityPub Explorer: Invalid JSON returned from given Actor URL: ' . $response->getContent());
-            throw new Exception('Given Actor URL didn\'t return a valid JSON.');
-        }
-        if (self::validate_remote_response($res)) {
-            Log::debug('ActivityPub Explorer: Found a valid remote actor for ' . $url);
-            return $res;
-        }
-        throw new Exception('ActivityPub Explorer: Failed to get activity.');
+        return $response->getContent();
     }
 }

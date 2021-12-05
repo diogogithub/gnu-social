@@ -64,10 +64,10 @@ class Actor extends Model
      *
      * @param string|AbstractObject $json
      * @param array $options
-     * @return GSActor
+     * @return ActivitypubActor
      * @throws Exception
      */
-    public static function fromJson(string|AbstractObject $json, array $options = []): GSActor
+    public static function fromJson(string|AbstractObject $json, array $options = []): ActivitypubActor
     {
         $person = is_string($json) ? self::jsonToType($json) : $json;
 
@@ -81,32 +81,39 @@ class Actor extends Model
             'modified' => new DateTime(),
         ];
 
-        $actor = new GSActor();
+        $actor = $options['objects']['Actor'] ?? new GSActor();
+
         foreach ($actor_map as $prop => $val) {
             $set = Formatting::snakeCaseToCamelCase("set_{$prop}");
             $actor->{$set}($val);
         }
 
-        DB::persist($actor);
+        if (!isset($options['objects']['Actor'])) {
+            DB::persist($actor);
+        }
 
         // ActivityPub Actor
-        $aprofile = ActivitypubActor::create([
+        $ap_actor = ActivitypubActor::create([
             'inbox_uri' => $person->get('inbox'),
             'inbox_shared_uri' => ($person->has('endpoints') && isset($person->get('endpoints')['sharedInbox'])) ? $person->get('endpoints')['sharedInbox'] : null,
             'uri' => $person->get('id'),
             'actor_id' => $actor->getId(),
             'url' => $person->get('url') ?? null,
-        ]);
+        ], $options['objects']['ActivitypubActor'] ?? null);
 
-        DB::persist($aprofile);
+        if (!isset($options['objects']['ActivitypubActor'])) {
+            DB::persist($ap_actor);
+        }
 
         // Public Key
         $apRSA = ActivitypubRsa::create([
             'actor_id' => $actor->getID(),
             'public_key' => ($person->has('publicKey') && isset($person->get('publicKey')['publicKeyPem'])) ? $person->get('publicKey')['publicKeyPem'] : null,
-        ]);
+        ], $options['objects']['ActivitypubRsa'] ?? null);
 
-        DB::persist($apRSA);
+        if (!isset($options['objects']['ActivitypubRsa'])) {
+            DB::persist($apRSA);
+        }
 
         // Avatar
         //if (isset($res['icon']['url'])) {
@@ -118,8 +125,8 @@ class Actor extends Model
         //    }
         //}
 
-        Event::handle('ActivityPubNewActor', [&$aprofile, &$actor, &$apRSA]);
-        return $aprofile;
+        Event::handle('ActivityPubNewActor', [&$ap_actor, &$actor, &$apRSA]);
+        return $ap_actor;
     }
 
     /**

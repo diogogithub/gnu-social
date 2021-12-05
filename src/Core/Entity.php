@@ -58,11 +58,18 @@ abstract class Entity
     public static function create(array $args, $obj = null)
     {
         $class = static::class;
-        $obj   = $obj ?: new $class();
+
         $date  = new DateTime();
-        foreach (['created', 'modified'] as $prop) {
-            if (property_exists($class, $prop)) {
-                $args[$prop] = $date;
+        if (!is_null($obj)) { // Update modified
+            if (property_exists($class, 'modified')) {
+                $args['modified'] = $date;
+            }
+        } else {
+            $obj = new $class();
+            foreach (['created', 'modified'] as $prop) {
+                if (property_exists($class, $prop)) {
+                    $args[$prop] = $date;
+                }
             }
         }
 
@@ -75,6 +82,7 @@ abstract class Entity
                 throw new InvalidArgumentException($m);
             }
         }
+
         return $obj;
     }
 

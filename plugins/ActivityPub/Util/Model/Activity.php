@@ -66,6 +66,7 @@ class Activity extends Model
     public static function fromJson(string|AbstractObject $json, array $options = []): ActivitypubActivity
     {
         $type_activity = is_string($json) ? self::jsonToType($json) : $json;
+        $source = $options['source'];
 
         $activity_stream_two_verb_to_gs_verb = fn(string $verb): string => match ($verb) {
             'Create' => 'create',
@@ -82,15 +83,15 @@ class Activity extends Model
             $actor = ActivityPub::getActorByUri($type_activity->get('actor'));
             // Store Object
             $obj = null;
-            if (!$type_activity->has('object') || !isset($type_activity->get('object')['type'])) {
+            if (!$type_activity->has('object') || !$type_activity->get('object')->has('type')) {
                 throw new InvalidArgumentException('Activity Object or Activity Object Type is missing.');
             }
-            switch ($type_activity->get('object')['type']) {
+            switch ($type_activity->get('object')->get('type')) {
                 case 'Note':
-                    $obj = Note::toJson($type_activity->get('object'), ['source' => $source, 'actor_uri' => $type_activity->get('actor'), 'actor_id' => $actor->getId()]);
+                    $obj = Note::fromJson($type_activity->get('object'), ['source' => $source, 'actor_uri' => $type_activity->get('actor'), 'actor_id' => $actor->getId()]);
                     break;
                 default:
-                    if (!Event::handle('ActivityPubObject', [$type_activity->get('object')['type'], $type_activity->get('object'), &$obj])) {
+                    if (!Event::handle('ActivityPubObject', [$type_activity->get('object')->get('type'), $type_activity->get('object'), &$obj])) {
                         throw new ClientException('Unsupported Object type.');
                     }
                     break;
@@ -100,20 +101,20 @@ class Activity extends Model
             $act = GSActivity::create([
                 'actor_id' => $actor->getId(),
                 'verb' => $activity_stream_two_verb_to_gs_verb($type_activity->get('type')),
-                'object_type' => $activity_stream_two_object_type_to_gs_table($type_activity->get('object')['type']),
+                'object_type' => $activity_stream_two_object_type_to_gs_table($type_activity->get('object')->get('type')),
                 'object_id' => $obj->getId(),
                 'is_local' => false,
-                'created' => new DateTime($activity['published'] ?? 'now'),
+                'created' => new DateTime($type_activity->get('published') ?? 'now'),
                 'source' => $source,
             ]);
             DB::persist($act);
             // Store ActivityPub Activity
             $ap_act = ActivitypubActivity::create([
                 'activity_id' => $act->getId(),
-                'activity_uri' => $activity['id'],
-                'object_uri' => $activity['object']['id'],
+                'activity_uri' => $type_activity->get('id'),
+                'object_uri' => $type_activity->get('object')->get('id'),
                 'is_local' => false,
-                'created' => new DateTime($activity['published'] ?? 'now'),
+                'created' => new DateTime($type_activity->get('published') ?? 'now'),
                 'modified' => new DateTime(),
             ]);
             DB::persist($ap_act);

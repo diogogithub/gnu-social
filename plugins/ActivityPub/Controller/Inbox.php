@@ -80,7 +80,7 @@ class Inbox extends Controller
         $type = Model::jsonToType($body);
 
         if ($type->has('actor') === false) {
-            $error('Actor not found in the request.');
+            return $error('Actor not found in the request.');
         }
 
         try {
@@ -88,10 +88,11 @@ class Inbox extends Controller
             $actor = Actor::getById($ap_actor->getActorId());
             DB::flush();
         } catch (Exception $e) {
-            $error('Invalid actor.');
+            return $error('Invalid actor.');
         }
 
-        $actor_public_key = ActivitypubRsa::getByActor($actor)->getPublicKey();
+        $activitypub_rsa = ActivitypubRsa::getByActor($actor);
+        $actor_public_key = $activitypub_rsa->getPublicKey();
 
         $headers = $this->request->headers->all();
         // Flattify headers
@@ -101,7 +102,7 @@ class Inbox extends Controller
 
         if (!isset($headers['signature'])) {
             Log::debug('ActivityPub Inbox: HTTP Signature: Missing Signature header.');
-            $error('Missing Signature header.', 400);
+            return $error('Missing Signature header.', 400);
             // TODO: support other methods beyond HTTP Signatures
         }
 
@@ -110,22 +111,25 @@ class Inbox extends Controller
         Log::debug('ActivityPub Inbox: HTTP Signature Data: ' . print_r($signatureData, true));
         if (isset($signatureData['error'])) {
             Log::debug('ActivityPub Inbox: HTTP Signature: ' . json_encode($signatureData, JSON_PRETTY_PRINT));
-            $error(json_encode($signatureData, JSON_PRETTY_PRINT), 400);
+            return $error(json_encode($signatureData, JSON_PRETTY_PRINT), 400);
         }
 
-        list($verified, /*$headers*/) = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
+        [$verified, /*$headers*/] = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
 
         // If the signature fails verification the first time, update profile as it might have changed public key
         if ($verified !== 1) {
             try {
                 $res = Explorer::get_remote_user_activity($ap_actor->getUri());
+                if (is_null($res)) {
+                    return $error('Invalid remote actor.');
+                }
             } catch (Exception) {
-                $error('Invalid remote actor.');
+                return $error('Invalid remote actor.');
             }
             try {
-                $actor = ActivitypubActor::update_profile($ap_actor, $res);
+                ActivitypubActor::update_profile($ap_actor, $actor, $activitypub_rsa, $res);
             } catch (Exception) {
-                $error('Failed to updated remote actor information.');
+                return $error('Failed to updated remote actor information.');
             }
 
             [$verified, /*$headers*/] = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
@@ -134,7 +138,7 @@ class Inbox extends Controller
         // If it still failed despite profile update
         if ($verified !== 1) {
             Log::debug('ActivityPub Inbox: HTTP Signature: Invalid signature.');
-            $error('Invalid signature.');
+            return $error('Invalid signature.');
         }
 
         // HTTP signature checked out, make sure the "actor" of the activity matches that of the signature

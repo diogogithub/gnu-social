@@ -34,6 +34,7 @@ namespace Plugin\ActivityPub\Entity;
 use App\Core\Cache;
 use App\Core\Entity;
 use App\Core\Log;
+use App\Entity\Actor;
 use Component\FreeNetwork\Util\Discovery;
 use DateTimeInterface;
 use Exception;
@@ -235,6 +236,18 @@ class ActivitypubActor extends Entity
         } catch (Exception $e) {
             throw new Exception('No valid ActivityPub profile found for given URI.', previous: $e);
         }
+    }
+
+    /**
+     * @param ActivitypubActor $ap_actor
+     * @param Actor $actor
+     * @param ActivitypubRsa $activitypub_rsa
+     * @param string $res
+     * @throws Exception
+     */
+    public static function update_profile(self &$ap_actor, Actor &$actor, ActivitypubRsa &$activitypub_rsa, string $res): void
+    {
+        \Plugin\ActivityPub\Util\Model\Actor::fromJson($res, ['objects' => ['ActivitypubActor' => &$ap_actor, 'Actor' => &$actor, 'ActivitypubRsa' => &$activitypub_rsa]]);
     }
 
     public static function schemaDef(): array
