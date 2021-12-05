@@ -32,18 +32,28 @@ declare(strict_types=1);
 namespace Plugin\ActivityPub\Util\Model;
 
 use ActivityPhp\Type\AbstractObject;
+use App\Core\DB\DB;
 use App\Core\Event;
+use App\Core\GSFile;
+use App\Core\HTTPClient;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Language;
 use App\Entity\Note as GSNote;
+use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Formatting;
+use App\Util\TemporaryFile;
+use Component\Attachment\Entity\ActorToAttachment;
+use Component\Attachment\Entity\AttachmentToNote;
 use DateTime;
 use DateTimeInterface;
 use Exception;
 use InvalidArgumentException;
 use Plugin\ActivityPub\ActivityPub;
 use Plugin\ActivityPub\Util\Model;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use function App\Core\I18n\_m;
 
 /**
  * This class handles translation between JSON and GSNotes
@@ -109,6 +119,47 @@ class Note extends Model
             $obj->{$set}($val);
         }
 
+        // Attachments
+        $processed_attachments = [];
+        foreach ($type_note->get('attachment') as $attachment) {
+            if ($attachment->get('type') === 'Document') {
+                // Retrieve media
+                $get_response = HTTPClient::get($attachment->get('url'));
+                $media = $get_response->getContent();
+                unset($get_response);
+                // Ignore empty files
+                if (!empty($media)) {
+                    // Create an attachment for this
+                    $temp_file = new TemporaryFile();
+                    $temp_file->write($media);
+                    $filesize = $temp_file->getSize();
+                    $max_file_size = Common::getUploadLimit();
+                    if ($max_file_size < $filesize) {
+                        throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. '
+                            . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize],));
+                    }
+                    Event::handle('EnforceUserFileQuota', [$filesize, $actor_id]);
+
+                    $processed_attachments[] = [GSFile::storeFileAsAttachment($temp_file), $attachment->get('name')];
+                }
+            }
+        }
+
+        DB::persist($obj);
+
+        // Need file and note ids for the next step
+        $obj->setUrl(Router::url('note_view', ['id' => $obj->getId()], Router::ABSOLUTE_URL));
+        Event::handle('ProcessNoteContent', [$obj, $obj->getContent(), $obj->getContentType(), $process_note_content_extra_args = []]);
+
+        if ($processed_attachments !== []) {
+            foreach ($processed_attachments as [$a, $fname]) {
+                if (DB::count('actor_to_attachment', $args = ['attachment_id' => $a->getId(), 'actor_id' => $actor_id]) === 0) {
+                    DB::persist(ActorToAttachment::create($args));
+                }
+                DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $obj->getId(), 'title' => $fname]));
+            }
+        }
+
         Event::handle('ActivityPubNewNote', [&$obj]);
         return $obj;
     }
@@ -129,14 +180,27 @@ class Note extends Model
 
         $attr = [
             '@context'     => 'https://www.w3.org/ns/activitystreams',
+            'type'         => 'Note',
             'id'           => Router::url('note_view', ['id' => $object->getId()], Router::ABSOLUTE_URL),
             'published'    => $object->getCreated()->format(DateTimeInterface::RFC3339),
             'attributedTo' => $object->getActor()->getUri(Router::ABSOLUTE_URL),
             'to'           => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
             'cc'           => ['https://www.w3.org/ns/activitystreams#Public'],
             'content'      => $object->getRendered(),
-            //'tag' => $tags
+            'attachment'   => [],
         ];
+
+        // Attachments
+        foreach ($object->getAttachments() as $attachment) {
+            $attr['attachment'][] = [
+                'type' => 'Document',
+                'mediaType' => $attachment->getMimetype(),
+                'url' => $attachment->getUrl(Router::ABSOLUTE_URL),
+                'name' => AttachmentToNote::getWithPK(['attachment_id' => $attachment->getId(), 'note_id' => $object->getId()])->getTitle(),
+                'width' => $attachment->getWidth(),
+                'height' => $attachment->getHeight(),
+            ];
+        }
 
         $type = self::jsonToType($attr);
         Event::handle('ActivityPubAddActivityStreamsTwoData', [$type->get('type'), &$type]);

@@ -342,9 +342,9 @@ class Attachment extends Entity
         return is_null($filename) ? null : Common::config('attachments', 'dir') . DIRECTORY_SEPARATOR . $filename;
     }
 
-    public function getUrl()
+    public function getUrl(int $type = Router::ABSOLUTE_URL): string
     {
-        return Router::url('attachment_view', ['id' => $this->getId()]);
+        return Router::url(id: 'attachment_view', args: ['id' => $this->getId()], type: $type);
     }
 
     /**
