@@ -45,6 +45,7 @@ class ActorTagBlock extends Entity
     private int $blocker;
     private string $tag;
     private string $canonical;
+    private bool $use_canonical;
     private DateTimeInterface $modified;
 
     public function setBlocker(int $blocker): self
@@ -78,6 +79,17 @@ class ActorTagBlock extends Entity
     public function getCanonical(): string
     {
         return $this->canonical;
+    }
+
+    public function setUseCanonical(bool $use_canonical): self
+    {
+        $this->use_canonical = $use_canonical;
+        return $this;
+    }
+
+    public function getUseCanonical(): bool
+    {
+        return $this->use_canonical;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -118,10 +130,11 @@ class ActorTagBlock extends Entity
         return [
             'name'   => 'actor_tag_block',
             'fields' => [
-                'blocker'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_block_blocker_fkey', 'not null' => true, 'description' => 'user making the block'],
-                'tag'       => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag this is blocking'],
-                'canonical' => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'foreign key' => true, 'target' => 'NoteTag.canonical', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'ascii slug of tag'],
-                'modified'  => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'blocker'       => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_block_blocker_fkey', 'not null' => true, 'description' => 'user making the block'],
+                'tag'           => ['type' => 'varchar',   'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag this is blocking'],
+                'canonical'     => ['type' => 'varchar',   'length' => Tag::MAX_TAG_LENGTH, 'foreign key' => true, 'target' => 'NoteTag.canonical', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'ascii slug of tag'],
+                'use_canonical' => ['type' => 'bool',      'not null' => true, 'description' => 'whether the user wanted to block canonical tags'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['blocker', 'canonical'],
         ];

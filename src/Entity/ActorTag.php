@@ -50,6 +50,7 @@ class ActorTag extends Entity
     private int $tagged;
     private string $tag;
     private string $canonical;
+    private bool $use_canonical;
     private DateTimeInterface $modified;
 
     public function setTagger(int $tagger): self
@@ -96,6 +97,17 @@ class ActorTag extends Entity
         return $this->canonical;
     }
 
+    public function setUseCanonical(bool $use_canonical): self
+    {
+        $this->use_canonical = $use_canonical;
+        return $this;
+    }
+
+    public function getUseCanonical(): bool
+    {
+        return $this->use_canonical;
+    }
+
     public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
@@ -137,11 +149,12 @@ class ActorTag extends Entity
         return [
             'name'   => 'actor_tag',
             'fields' => [
-                'tagger'    => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagger_fkey', 'not null' => true, 'description' => 'actor making the tag'],
-                'tagged'    => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'not null' => true, 'description' => 'actor tagged'],
-                'tag'       => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag associated with this actor'],
-                'canonical' => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
-                'modified'  => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'tagger'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagger_fkey', 'not null' => true, 'description' => 'actor making the tag'],
+                'tagged'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'not null' => true, 'description' => 'actor tagged'],
+                'tag'           => ['type' => 'varchar',   'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag associated with this actor'],
+                'canonical'     => ['type' => 'varchar',   'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
+                'use_canonical' => ['type' => 'bool',      'not null' => true, 'description' => 'whether the user wanted to block canonical tags'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['tagger', 'tagged', 'canonical'],
             'indexes'     => [
@@ -150,10 +163,5 @@ class ActorTag extends Entity
                 'actor_tag_tagged_idx'           => ['tagged'],
             ],
         ];
-    }
-
-    public function __toString()
-    {
-        return $this->getTag();
     }
 }
