@@ -48,13 +48,13 @@ class TagBasedFiltering extends Plugin
         if (!\is_int($actor_id)) {
             $actor_id = $actor_id->getId();
         }
-        return ['note' => "filtered-tags-{$actor_id}"];
+        return ['note' => "blocked-note-tags-{$actor_id}", 'actor' => "blocked-actor-tags-{$actor_id}"];
     }
 
     public function onAddRoute(RouteLoader $r)
     {
         $r->connect(id: self::NOTE_TAG_FILTER_ROUTE, uri_path: '/filter/edit-blocked-note-tags/{note_id<\d+>?}', target: [Controller\TagBasedFiltering::class, 'editBlockedNoteTags']);
-        $r->connect(id: self::ACTOR_TAG_FILTER_ROUTE, uri_path: '/filter/edit-blocked-actor-tags/{note_id<\d+>?}', target: [Controller\TagBasedFiltering::class, 'editBlockedActorTags']);
+        $r->connect(id: self::ACTOR_TAG_FILTER_ROUTE, uri_path: '/filter/edit-blocked-actor-tags/{actor_id<\d+>?}', target: [Controller\TagBasedFiltering::class, 'editBlockedActorTags']);
         return Event::next;
     }
 
@@ -69,7 +69,7 @@ class TagBasedFiltering extends Plugin
         $actions[] = [
             'title'   => _m('Block people tags'),
             'classes' => '',
-            'url'     => Router::url(self::ACTOR_TAG_FILTER_ROUTE, ['note_id' => $note->getId()]),
+            'url'     => Router::url(self::ACTOR_TAG_FILTER_ROUTE, ['actor_id' => $note->getActor()->getId()]),
         ];
     }
 

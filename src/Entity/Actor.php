@@ -271,6 +271,14 @@ class Actor extends Entity
     }
 
     /**
+     * For consistency with Note
+     */
+    public function getActorId(): int
+    {
+        return $this->getId();
+    }
+
+    /**
      * Tags attributed to self, shortcut function for increased legibility
      *
      * @return array<int, array> [ActorCircle[], ActorTag[]] resulting lists

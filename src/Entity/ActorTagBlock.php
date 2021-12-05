@@ -26,6 +26,7 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use Component\Tag\Tag;
 use DateTimeInterface;
+use Functional as F;
 
 /**
  * Entity for User's Note Tag block

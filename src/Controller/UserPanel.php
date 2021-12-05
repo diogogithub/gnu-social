@@ -263,6 +263,7 @@ class UserPanel extends Controller
         $extra_step = function ($data, $extra_args) use ($user, $actor) {
             $user->setNicknameSanitizedAndCached($data['nickname'], $actor->getId());
         };
+
         return Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
     }
 

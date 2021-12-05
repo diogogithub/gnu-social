@@ -58,7 +58,7 @@ use Functional as F;
  * @method static void persist(object $entity)                                                                                                                                                                                                                                                               // Tells the EntityManager to make an instance managed and persistent.
  * @method static bool contains(object $entity)                                                                                                                                                                                                                                                              // Determines whether an entity instance is managed in this EntityManager.
  * @method static void flush()                                                                                                                                                                                                                                                                               // Flushes the in-memory state of persisted objects to the database.
- * @method mixed wrapInTransaction(callable $func) // Executes a function in a transaction. Warning: suppresses exceptions
+ * @method mixed  wrapInTransaction(callable $func)                                                                                                                                                                                                                                                          // Executes a function in a transaction. Warning: suppresses exceptions
  */
 class DB
 {
@@ -263,9 +263,14 @@ class DB
         }
     }
 
-    public static function removeBy(string $table, array $criteria)
+    public static function removeBy(string $table, array $criteria): void
     {
-        self::remove(self::getReference($table, $criteria));
+        $class = self::$table_map[$table];
+        if (empty(array_intersect(self::getPKForClass($class), array_keys($criteria)))) {
+            self::remove(self::findOneBy($class, $criteria));
+        } else {
+            self::remove(self::getReference($table, $criteria));
+        }
     }
 
     public static function count(string $table, array $criteria)

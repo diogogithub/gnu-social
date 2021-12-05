@@ -165,7 +165,7 @@ class ActorCircle extends Entity
             'name'        => 'actor_circle',
             'description' => 'a actor can have lists of actors, to separate their feed',
             'fields'      => [
-                'id'          => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
+                'id'          => ['type' => 'serial',    'not null' => true, 'description' => 'unique identifier'],
                 'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
                 'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.canonical', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
                 'description' => ['type' => 'text',      'description' => 'description of the people tag'],

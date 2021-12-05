@@ -2,15 +2,22 @@
 {% import '/cards/note/view.html.twig' as noteView %}
 
 {% block body %}
-    {% if new_tags_form is not null %}
-        <div class="section-widget">
-            {{ noteView.macro_note(note, {}) }}
+    {% if note is defined or actor is defined %}
+        <div class="section-widget-padded">
+            {% if note is defined %}
+                {{ noteView.macro_note(note, {}) }}
+            {% elseif actor is defined %}
+                {% include 'cards/profile/view.html.twig' with {'actor': actor} only %}
+            {% endif %}
         </div>
-        <p>{% trans %}Tags in the note above:{% endtrans %}</p>
+    {% endif %}
+    {% if new_tags_form is not null %}
+        <p>{{ new_label }}</p>
         {{ form(new_tags_form) }}
+        <hr>
     {% endif %}
     {% if existing_tags_form is not null %}
-        <p>{% trans %}Tags you already blocked:{% endtrans %}</p>
+        <p>{{ existing_label }}</p>
         {{ form(existing_tags_form) }}
     {% endif %}
 {% endblock %}
