@@ -13,7 +13,7 @@
 }
 
 .section-title-settings[open] {
-    border-left: 2px solid var(--accent);
+    border-left: 2px solid var(--foreground);
 }
 
 .section-title-settings[open] > summary:first-child {
