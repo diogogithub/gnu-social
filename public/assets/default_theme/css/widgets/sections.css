@@ -83,7 +83,7 @@
     font-weight: 700;
 }
 
-.section-title-details {
+.section-widget-title-details summary {
     font-size: var(--small);
     font-weight: 700;
     border-radius: var(--smaller);
@@ -91,12 +91,12 @@
     background: var(--gradient) !important;
 }
 
-.section-title-details[open] svg {
+.section-widget-title-details[open] svg {
     transform: rotate(180deg);
     animation: fadeOut 200ms cubic-bezier(0,0.55,0.45,1);
 }
 
-.section-title-details:not([open]) svg {
+.section-widget-title-details:not([open]) svg {
     transform: initial;
     animation: fadeIn 200ms cubic-bezier(0,0.55,0.45,1);
 }

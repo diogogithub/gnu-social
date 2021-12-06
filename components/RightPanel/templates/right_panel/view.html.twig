@@ -10,18 +10,18 @@
             {% set blocks = handle_event('AppendRightPostingBlock', request) %}
             {% if blocks['post_form'] is defined %}
                 <section class="section-widget" title={{ 'Create a new note.' | trans }}>
-                    <details class="section-title-details"
+                    <details class="section-widget-title-details" open="open"
                              title={{ 'Expand if you want to access more options.' | trans }}>
                         <summary class="section-title-summary">
                             {{ "Create a note" | trans }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}
                         </summary>
-                    </details>
 
-                    <div class="section-form">
-                        <fieldset>
-                            {{ form(blocks['post_form']) }}
-                        </fieldset>
-                    </div>
+                        <div class="section-form">
+                            <fieldset>
+                                {{ form(blocks['post_form']) }}
+                            </fieldset>
+                        </div>
+                    </details>
                 </section>
             {% endif %}
 
