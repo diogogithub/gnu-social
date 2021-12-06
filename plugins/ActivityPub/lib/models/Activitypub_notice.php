@@ -167,12 +167,19 @@ class Activitypub_notice
         $act->time = time();
         $act->actor = $actor_profile->asActivityObject();
         $act->context = new ActivityContext();
-        $options = ['source' => 'ActivityPub',
+
+        [$note_type, $note_scope] = self::getNotePolicy($object, $actor_profile);
+
+        $options = [
+            'source' => 'ActivityPub',
             'uri' => $id,
             'url' => $url,
-            'is_local' => self::getNotePolicyType($object, $actor_profile)];
+            'is_local' => $note_type,
+            'scope' => $note_scope,
+        ];
 
         if ($directMessage) {
+            $options['is_local'] = Notice::GATEWAY;
             $options['scope'] = Notice::MESSAGE_SCOPE;
         }
 
@@ -364,20 +371,17 @@ class Activitypub_notice
      *
      * @param array $note received Note
      * @param Profile $actor_profile Note author
-     * @return int Notice policy type
+     * @return [int NoteType, ?int NoteScope] Notice policy type
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function getNotePolicyType(array $note, Profile $actor_profile): int
+    public static function getNotePolicy(array $note, Profile $actor_profile): array
     {
-        $addressee = array_unique(array_merge($note['to'], $note['cc']));
-        if (in_array('https://www.w3.org/ns/activitystreams#Public', $addressee)) {
-            return $actor_profile->isLocal() ? Notice::LOCAL_PUBLIC : Notice::REMOTE;
-        } else {
-            // either an unlisted or followers-only note, we'll handle
-            // both as a GATEWAY notice since this type is not visible
-            // from the public timelines, hence partially enough while
-            // we don't have subscription_policy working.
-            return Notice::GATEWAY;
+        if (in_array('https://www.w3.org/ns/activitystreams#Public', $note['to'])) { // Public: Visible for all, shown in public feeds
+            return [$actor_profile->isLocal() ? Notice::LOCAL_PUBLIC : Notice::REMOTE, null];
+        } elseif (in_array('https://www.w3.org/ns/activitystreams#Public', $note['cc'])) { // Unlisted: Visible for all but not shown in public feeds
+            return [$actor_profile->isLocal() ? Notice::LOCAL_NONPUBLIC : Notice::GATEWAY, null];
+        } else { // Either Followers-only or Direct (but this function isn't used for direct)
+            return [$actor_profile->isLocal() ? Notice::LOCAL_NONPUBLIC : Notice::REMOTE, Notice::FOLLOWER_SCOPE];
         }
     }
 }
