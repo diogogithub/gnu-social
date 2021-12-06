@@ -1,6 +1,9 @@
-<div class="section-widget">
-  <p>Related tags:</p>
-  {% for nt in note_tags %}
-    {% include 'cards/tag/note_tag.html.twig' with { 'tag': nt } %} 
-  {% endfor %}
-</div>
+{% if note_tags is not empty %}
+  <div class="section-widget section-widget-padded">
+    <h2>Related tags:</h2>
+
+    {% for nt in note_tags %}
+      {% include 'cards/tag/note_tag.html.twig' with { 'tag': nt } %}
+    {% endfor %}
+  </div>
+{% endif %}

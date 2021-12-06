@@ -38,6 +38,10 @@
     margin-top: var(--smaller);
 }
 
+.profile-info-bio {
+    word-break: break-all;
+}
+
 .profile-avatar {
     max-width: 4rem;
     max-height: 4rem;
@@ -64,6 +68,12 @@
 
 .section-widget-padded {
     padding: var(--smaller);
+}
+
+.section-widget-paging {
+    display: block;
+    margin-top: var(--smaller);
+    margin-left: auto;
 }
 
 .section-title {

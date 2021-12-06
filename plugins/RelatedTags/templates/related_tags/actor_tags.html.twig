@@ -1,7 +1,9 @@
-<div class="section-widget">
-  <p>Related tags:</p>
+{% if note_tags is not empty %}
+<div class="section-widget section-widget-padded">
+  <h2>Related tags:</h2>
   {% for at in actor_tags %}
     {% include 'cards/tag/actor_tag.html.twig' with { 'tag': at, 'actor': null } %}
   {% endfor %}
 </div>
+{% endif %}
 

@@ -36,6 +36,7 @@ class Tag extends Controller
 
         return [
             '_template' => $template,
+            'tag_name'  => $canonical,
             'results'   => $results,
             'page'      => $page,
         ];
