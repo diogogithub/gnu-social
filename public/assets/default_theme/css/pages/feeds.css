@@ -228,6 +228,7 @@ embed header {
     z-index: 1;
     display: flex;
     position: absolute;
+    right: 0; /* prevents details from overflowing */
     flex-direction: column;
     padding: var(--smaller);
     border: 2px solid var(--border);
