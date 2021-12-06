@@ -200,7 +200,7 @@ embed header {
     content: '@';
 }
 
-.note-actions {
+.note-actions ul {
     display: -webkit-box;
     display: -webkit-flex;
     display: -moz-box;
@@ -209,19 +209,44 @@ embed header {
     vertical-align: middle
 }
 
+.note-actions-extra-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.note-actions-extra-details summary {
+    display: block;
+    opacity: 0.33;
+    vertical-align: middle;
+}
+
+.note-actions-extra-details[open] > summary {
+    opacity: 1 !important;
+}
+
+.note-actions-extra-details[open] > summary + * {
+    z-index: 1;
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    padding: var(--smaller);
+    border-radius: var(--smaller);
+    background: var(--background-card);
+    box-shadow: var(--shadow);
+    font-size: var(--default);
+    line-height: 1.5;
+    width: max-content;
+}
+
 .note-actions-set {
     opacity: 1 !important;
 }
 
 .button-container {
     border: none !important;
-    -webkit-border-radius: unset !important;
-    -moz-border-radius: unset !important;
-    border-radius: unset !important;
-    -webkit-mask-repeat: no-repeat !important;
     mask-repeat: no-repeat !important;
-    -webkit-mask-size: cover !important;
     mask-size: cover !important;
+    display: inline-block;
     margin-left: var(--smaller);
     width: var(--default);
     height: var(--default);

@@ -1,21 +1,29 @@
 {% block note_actions %}
     {% if app.user or note_actions_hide is defined %}
         <div class="note-actions">
-            {% for current_action in get_note_actions(note) %}
-                <a title="{{ current_action["title"] | trans }}" class="{{ current_action["classes"] }}" href="{{ current_action["url"] }}"></a>
-            {% endfor %}
-            <details>
-                <summary>
-                    {{ icon('kebab', 'icon icon-extra-note-actions') | raw }} {# button-container #}
-                </summary>
-                <ul>
-                    {% for current_action in get_extra_note_actions(note) %}
-                        <li>
-                            <a class="{{ current_action["classes"] }}" href="{{ current_action["url"] }}">{{ current_action['title'] }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </details>
+            <ul>
+                <li class="note-actions-extra">
+                    <details class="note-actions-extra-details">
+                        <summary>
+                            {{ icon('kebab', 'icon icon-note-actions-extra') | raw }} {# button-container #}
+                        </summary>
+                        <ul>
+                            {% for current_action in get_extra_note_actions(note) %}
+                                <li>
+                                    <a class="{{ current_action["classes"] }}"
+                                       href="{{ current_action["url"] }}">{{ current_action['title'] }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                </li>
+                {% for current_action in get_note_actions(note) %}
+                    <li>
+                        <a title="{{ current_action["title"] | trans }}" class="{{ current_action["classes"] }}"
+                           href="{{ current_action["url"] }}"></a>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     {% endif %}
 {% endblock note_actions %}
