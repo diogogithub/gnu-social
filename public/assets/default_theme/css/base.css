@@ -208,15 +208,6 @@ li {
     overflow: hidden;
 }
 
-.background-image {
-    background-position: center;
-    background-repeat: no-repeat;
-    -webkit-background-size: 100% 100%;
-    -moz-background-size: 100% 100%;
-    -o-background-size: 100% 100%;
-    background-size: 100% 100%;
-}
-
 .accessibility-menu {
     display: block;
     position: absolute;
@@ -241,6 +232,10 @@ li {
     left: var(--smaller);
 }
 
+html {
+    scroll-margin-top: var(--big);
+}
+
 .page-header {
     z-index: 1;
     font-family: 'Poppins',sans-serif;
@@ -250,15 +245,11 @@ li {
     justify-content: center;
     position: fixed;
     top: 0;
-    width: 100%;
+    align-self: center;
     align-items: center;
     padding: var(--smaller);
     background: var(--gradient) !important;
     box-shadow: var(--shadow);
-}
-
-html {
-    scroll-margin-top: var(--big);
 }
 
 .header-instance {
@@ -284,7 +275,7 @@ html {
     position: absolute;
     top: 100%;
     right: 0;
-    width: 19vw;
+    width: 16.5vw;
     font-size: var(--default);
     border-radius: 0 0 var(--smaller) var(--smaller);
     padding: var(--smaller);
@@ -292,8 +283,22 @@ html {
     box-shadow: var(--shadow);
 }
 
+.header-panel {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Open Sans',sans-serif;
+    font-size: var(--default);
+    position: fixed;
+    top: 0;
+    margin-top: var(--big);
+    height: calc(100% - var(--big));
+    padding: var(--smaller);
+    overflow-y: auto;
+}
+
 .page-content-wrapper {
     position: relative;
+    top: var(--big);
     margin-left: auto;
     margin-right: auto;
     justify-content: center;
@@ -303,7 +308,6 @@ html {
 .page-content {
     display: flex;
     flex-direction: column;
-    padding: var(--smaller) var(--smaller) 0;
     width: 100%;
 }
 
@@ -352,74 +356,12 @@ html {
     padding: var(--smaller);
 }
 
-.page-content-wrapper {
-    top: var(--big);
-    width: 62vw;
-}
-
-.header-panel {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    -moz-box-orient: vertical;
-    -moz-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    font-family: 'Open Sans',sans-serif;
-    font-size: var(--default);
-    position: fixed;
-    top: 0;
-    margin-top: var(--big);
-    height: -webkit-calc(100% - var(--big));
-    height: -moz-calc(100% - var(--big));
-    height: calc(100% - var(--big));
-    padding: var(--smaller);
-    overflow-y: auto;
-}
-
-@media only screen and (min-width:1281px) {
-    .page-content {
-        padding: var(--smaller) var(--medium) 0;
-    }
-
-    .header-panel {
-        width: 19vw;
-    }
-
-    a[id|="anchor"]:target+.accessibility-target {
-        -webkit-animation-name: highlight;
-        -moz-animation-name: highlight;
-        -o-animation-name: highlight;
-        animation-name: highlight;
-        -webkit-animation-duration: 600ms;
-        -moz-animation-duration: 600ms;
-        -o-animation-duration: 600ms;
-        animation-duration: 600ms;
-        -webkit-animation-timing-function: ease-in-out;
-        -moz-animation-timing-function: ease-in-out;
-        -o-animation-timing-function: ease-in-out;
-        animation-timing-function: ease-in-out;
-    }
-}
-
-@media only screen and (min-width:2000px) {
-    .page-content-wrapper {
-        width: 50%;
-    }
-    .section-panel-left {
-        left: calc(25% - 19vw) !important;
-    }
-    .section-panel-right {
-        right: calc(25% - 19vw) !important;
-    }
-}
-
+/* < 720p */
 @media only screen and (max-width:1280px) {
+    .page-header {
+        width: 100%;
+    }
+    
     .page-content-wrapper {
         width: 100%;
     }
@@ -449,6 +391,74 @@ html {
         background-size: 100% 100%;
         z-index: auto;
         background-color: var(--background-hard) !important;
+    }
+}
+
+/* > 720p */
+@media only screen and (min-width:1281px) {
+    /*
+    * Using the Van de Graaf Canon and Tschichold’s recommended 2:3 page-size ratio
+    * Except we use the whole page
+    *
+    * > .page-content-wrapper
+    * 100% * 2/3 = 66%
+    *
+    * > .header-panel
+    * 100 - 66% = 34%
+    * 34% / 2 = 17%
+    */
+    .page-header {
+        width: 100%;
+    }
+
+    .header-panel {
+        width: 17vw;
+    }
+
+    .page-content-wrapper {
+        width: 66vw;
+    }
+
+    a[id|="anchor"]:target+.accessibility-target {
+        -webkit-animation-name: highlight;
+        -moz-animation-name: highlight;
+        -o-animation-name: highlight;
+        animation-name: highlight;
+        -webkit-animation-duration: 600ms;
+        -moz-animation-duration: 600ms;
+        -o-animation-duration: 600ms;
+        animation-duration: 600ms;
+        -webkit-animation-timing-function: ease-in-out;
+        -moz-animation-timing-function: ease-in-out;
+        -o-animation-timing-function: ease-in-out;
+        animation-timing-function: ease-in-out;
+    }
+}
+
+/* > 1080p */
+@media only screen and (min-width:1921px) {
+    /*
+    * Using the Van de Graaf Canon and Tschichold’s recommended 2:3 page-size ratio
+    *
+    * 100% * 2/3 = 66%
+    *
+    * > .page-content-wrapper
+    * 66% * 2/3 = 44%
+    *
+    * > .header-panel
+    * 66% - 44% = 22%
+    * 22% / 2 = 11%
+    */
+    .page-header {
+        width: 66vw;
+    }
+
+    .header-panel {
+        width: 11vw;
+    }
+
+    .page-content-wrapper {
+        width: 44vw;
     }
 }
 

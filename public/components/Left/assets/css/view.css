@@ -53,9 +53,25 @@
     font-size: var(--default);
 }
 
-@media only screen and (min-width: 1281px) {
+/* > 720p */
+@media only screen and (min-width:1281px) {
     .panel-left-icon {
         display: none;
     }
 }
 
+/* > 1080p */
+@media only screen and (min-width:1921px) {
+    /*
+    * Using the Van de Graaf Canon and Tschichold’s recommended 2:3 page-size ratio
+    *
+    * 50% - (100 * 2/3) / 2 = 33%
+    *
+    * > .section-panel-left
+    * 50 % - 33% = 17%
+    */
+    .section-panel-left {
+        left: 0;
+        margin-left: 17vw;
+    }
+}
