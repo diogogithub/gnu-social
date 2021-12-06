@@ -167,6 +167,11 @@ li {
     padding: 0;
 }
 
+a:focus,
+a:hover {
+    text-decoration: underline;
+}
+
 *:focus-visible {
     -webkit-box-shadow: var(--shadow-inset-accent);
     -moz-box-shadow: var(--shadow-inset-accent);

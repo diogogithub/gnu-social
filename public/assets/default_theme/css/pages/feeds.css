@@ -230,12 +230,16 @@ embed header {
     position: absolute;
     flex-direction: column;
     padding: var(--smaller);
+    border: 2px solid var(--border);
     border-radius: var(--smaller);
     background: var(--background-card);
     box-shadow: var(--shadow);
     font-size: var(--default);
-    line-height: 1.5;
     width: max-content;
+}
+
+.note-actions-extra-details[open] > summary + * > li:not(:last-of-type) {
+    margin-bottom: var(--smaller);
 }
 
 .note-actions-set {
