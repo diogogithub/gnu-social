@@ -129,9 +129,9 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
             && (preg_match(pattern: $re_has_gecko, subject: $this->request->headers->get('User-Agent')) === 1);
     }
 
-    public function isInstanceOf($var, string $instance): bool
+    public function isInstanceOf($value, string $type): bool
     {
-        return $var instanceof $instance;
+        return (\function_exists($func = 'is_' . $type) && $func($value)) || $value instanceof $type;
     }
 
     public function handleOverrideTemplateImport(string $template, string $default_import): string
