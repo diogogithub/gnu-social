@@ -53,7 +53,7 @@ abstract class Parser
      *
      * @return Criteria[]
      */
-    public static function parse(string $input, int $level = 0): array
+    public static function parse(string $input, ?string $language = null, int $level = 0): array
     {
         if ($level === 0) {
             $input = trim(preg_replace(['/\s+/', '/\s+AND\s+/', '/\s+OR\s+/'], [' ', '&', '|'], $input), ' |&');
@@ -77,8 +77,8 @@ abstract class Parser
                 if ($input[$index] === $delimiter || $end = ($index === $lenght - 1)) {
                     $term     = mb_substr($input, $left, $end ? null : $right - $left);
                     $note_res = $actor_res = null;
-                    $ret      = Event::handle('SearchCreateExpression', [$eb, $term, &$note_res, &$actor_res]);
-                    if ((\is_null($note_res) && \is_null($actor_res)) || $ret == Event::next) {
+                    $ret      = Event::handle('SearchCreateExpression', [$eb, $term, $language, &$note_res, &$actor_res]);
+                    if (\is_null($note_res) && \is_null($actor_res)) {
                         throw new ServerException("No one claimed responsibility for a match term: {$term}");
                     } elseif (!\is_null($note_res)) {
                         $note_parts[] = $note_res;

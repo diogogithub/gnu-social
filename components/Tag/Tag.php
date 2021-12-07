@@ -150,21 +150,20 @@ class Tag extends Component
      *
      * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, &$note_expr, &$actor_expr): bool
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
     {
-        $search_term     = str_contains($term, ':#') ? explode(':', $term)[1] : $term;
-        $temp_note_expr  = $eb->eq('note_tag.tag', $search_term);
-        $temp_actor_expr = $eb->eq('actor_tag.tag', $search_term);
+        $search_term       = str_contains($term, ':#') ? explode(':', $term)[1] : $term;
+        $canon_search_term = self::canonicalTag($search_term, $language);
+        $temp_note_expr    = $eb->eq('note_tag.canonical', $canon_search_term);
+        $temp_actor_expr   = $eb->eq('actor_tag.canonical', $canon_search_term);
         if (Formatting::startsWith($term, ['note', 'tag'])) {
             $note_expr = $temp_note_expr;
+        } elseif (Formatting::startsWith($term, ['people', 'actor'])) {
+            $actor_expr = $temp_actor_expr;
         } else {
-            if (Formatting::startsWith($term, ['people', 'actor'])) {
-                $actor_expr = $temp_actor_expr;
-            } else {
-                $note_expr  = $temp_note_expr;
-                $actor_expr = $temp_actor_expr;
-                return Event::next;
-            }
+            $note_expr  = $temp_note_expr;
+            $actor_expr = $temp_actor_expr;
+            return Event::next;
         }
         return Event::stop;
     }

@@ -26,20 +26,26 @@ namespace Component\Search\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
+use App\Util\Common;
 use Component\Search\Util\Parser;
 use Symfony\Component\HttpFoundation\Request;
 
 class Search extends Controller
 {
+    /**
+     * Handle a search query
+     */
     public function handle(Request $request)
     {
+        $actor                            = Common::actor();
+        $language                         = !\is_null($actor) ? $actor->getTopLanguage()->getLocale() : null;
         $q                                = $this->string('q');
-        [$note_criteria, $actor_criteria] = Parser::parse($q);
+        [$note_criteria, $actor_criteria] = Parser::parse($q, $language);
 
         $note_qb  = DB::createQueryBuilder();
         $actor_qb = DB::createQueryBuilder();
-        $note_qb->select('note')->from('App\Entity\Note', 'note');
-        $actor_qb->select('actor')->from('App\Entity\Actor', 'actor');
+        $note_qb->select('note')->from('App\Entity\Note', 'note')->orderBy('note.created', 'DESC');
+        $actor_qb->select('actor')->from('App\Entity\Actor', 'actor')->orderBy('actor.created', 'DESC');
         Event::handle('SearchQueryAddJoins', [&$note_qb, &$actor_qb]);
         $notes = $actors = [];
         if (!\is_null($note_criteria)) {
