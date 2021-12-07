@@ -26,7 +26,7 @@ declare(strict_types = 1);
 
 namespace Plugin\Reply\Controller;
 
-use App\Core\Controller;
+use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
@@ -48,7 +48,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
 
-class Reply extends Controller
+class Reply extends FeedController
 {
     /**
      * Controller for the note reply non-JS page
@@ -152,10 +152,10 @@ class Reply extends Controller
         $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
-        return [
+        return $this->process_feed([
             '_template'  => 'feeds/feed.html.twig',
             'notes'      => $notes_out,
             'page_title' => 'Replies feed',
-        ];
+        ]);
     }
 }

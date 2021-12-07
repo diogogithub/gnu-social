@@ -23,10 +23,11 @@ declare(strict_types = 1);
 
 namespace Plugin\Directory\Controller;
 
+use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use Symfony\Component\HttpFoundation\Request;
 
-class Directory
+class Directory extends FeedController
 {
     /**
      * actors stream
@@ -35,7 +36,10 @@ class Directory
      */
     public function actors(Request $request): array
     {
-        return ['_template' => 'directory/actors.html.twig', 'actors' => DB::dql('select g from App\Entity\Actor g order by g.nickname ASC')];
+        return $this->process_feed([
+            '_template' => 'directory/actors.html.twig',
+            'actors'    => DB::dql('select a from actor a order by a.nickname ASC'),
+        ]);
     }
 
     /**
@@ -45,6 +49,9 @@ class Directory
      */
     public function groups(Request $request): array
     {
-        return ['_template' => 'directory/groups.html.twig', 'groups' => DB::dql('select g from App\Entity\Group g order by g.nickname ASC')];
+        return $this->process_feed([
+            '_template' => 'directory/groups.html.twig',
+            'groups'    => DB::dql('select g from group g order by g.nickname ASC'),
+        ]);
     }
 }

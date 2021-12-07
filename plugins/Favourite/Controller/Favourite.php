@@ -23,9 +23,8 @@ declare(strict_types = 1);
 
 namespace Plugin\Favourite\Controller;
 
-use App\Core\Controller;
+use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
-use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
@@ -40,7 +39,7 @@ use Plugin\Favourite\Entity\Favourite as FavouriteEntity;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
-class Favourite extends Controller
+class Favourite extends FeedController
 {
     /**
      * @throws \App\Util\Exception\ServerException
@@ -167,21 +166,20 @@ class Favourite extends Controller
     public function favouritesByActorId(Request $request, int $id)
     {
         $notes = DB::dql(
-            'select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f '
-            . 'where n.id = f.note_id '
-            . 'and f.actor_id = :id '
-            . 'order by f.created DESC',
+            <<< 'EOF'
+                select n from note n
+                join favourite f with n.id = f.note_id
+                where f.actor_id = :id
+                order by f.created DESC
+                EOF,
             ['id' => $id],
         );
 
-        $notes_out = null;
-        Event::handle('FormatNoteList', [$notes, &$notes_out]);
-
-        return [
+        return $this->process_feed([
             '_template'  => 'feeds/feed.html.twig',
-            'notes'      => $notes_out,
             'page_title' => 'Favourites feed.',
-        ];
+            'notes'      => $notes,
+        ]);
     }
 
     public function favouritesByActorNickname(Request $request, string $nickname)
@@ -200,22 +198,21 @@ class Favourite extends Controller
     public function reverseFavouritesByActorId(Request $request, int $id): array
     {
         $notes = DB::dql(
-            'select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f '
-            . 'where n.id = f.note_id '
-            . 'and f.actor_id != :id '
-            . 'and n.actor_id = :id '
-            . 'order by f.created DESC',
+            <<< 'EOF'
+                select n from note n
+                join favourite f with n.id = f.note_id
+                where f.actor_id != :id
+                and n.actor_id = :id
+                order by f.created DESC
+                EOF,
             ['id' => $id],
         );
 
-        $notes_out = null;
-        Event::handle('FormatNoteList', [$notes, &$notes_out]);
-
-        return [
+        return $this->process_feed([
             '_template'  => 'feeds/feed.html.twig',
-            'notes'      => $notes,
             'page_title' => 'Reverse favourites feed.',
-        ];
+            'notes'      => $notes,
+        ]);
     }
 
     public function reverseFavouritesByActorNickname(Request $request, string $nickname)
