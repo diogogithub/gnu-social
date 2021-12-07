@@ -27,6 +27,13 @@
               <a href="{{ link.getUrl() }}" class='{{ active(link.getRoute()) }}'>{{ link.getTitle() }}</a>
             </li>
           {% endfor %}
+          {% for link in handle_event('AddMainNavigationItem', {'nickname': current_actor.getNickname()}) %}
+            <li>
+              <a href="{{ link['path'] }}" class='{{ active(link['path_id']) }}'>
+                {{ link['title'] }}
+              </a>
+            </li>
+          {% endfor %}
         </ul>
       {% endif %}
     </nav>

@@ -1,0 +1,158 @@
+* {
+    box-sizing: border-box !important;
+    max-width: 100%;
+}
+body,
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--background-hard);
+    background-attachment: fixed;
+    font-family: 'Open Sans',sans-serif;
+    font-size: var(--default);
+    display: flex;
+    flex-direction: column;
+}
+body,
+input,
+select,
+textarea {
+    color: var(--foreground);
+}
+:link,
+:visited {
+    text-decoration: none;
+    color: currentColor;
+}
+hr {
+    all: unset;
+    display: block;
+    height: 1px;
+    background-color: var(--border) !important;
+}
+ol,
+ul {
+    list-style: none;
+}
+blockquote,
+body,
+fieldset,
+form,
+html,
+input,
+pre,
+textarea {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+fieldset {
+    all: unset;
+}
+:link img,
+:visited img,
+a img {
+    border: 0;
+}
+address {
+    font-style: normal;
+}
+:focus {
+    outline: 0;
+}
+::-moz-focus-inner {
+    border: 0;
+}
+details summary {
+    cursor: pointer !important;
+}
+details summary > * {
+    margin: unset;
+    padding: unset;
+}
+details > summary {
+    list-style: none;
+}
+details > summary::-webkit-details-marker {
+    display: none;
+}
+@supports not(-ms-ime-align:auto) {
+    details summary {
+        cursor: pointer;
+    }
+}
+[hidden] {
+    display: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    all: unset;
+    display: block;
+    font-family: 'Poppins',sans-serif;
+}
+h1 {
+    font-size: var(--medium);
+    font-weight: 700;
+    margin-bottom: 16.2px;
+}
+h2 {
+    font-size: var(--small);
+    font-weight: 600;
+    margin-bottom: 13px;
+}
+h3 {
+    font-size: var(--default);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+h4,
+h5 {
+    font-size: var(--default);
+    font-weight: 400;
+    margin-bottom: 6.1px;
+}
+p {
+    font-family: 'Open Sans',sans-serif;
+    font-size: var(--default);
+    font-weight: 400;
+    margin: unset;
+}
+p:first-line {
+    padding-left: var(--default);
+}
+p:first-line {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+p:not(:first-line) {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+input[type=password],
+input[type=text],
+textarea {
+    font-family: 'Open Sans',sans-serif;
+    font-weight: 400;
+    padding: 4px 6px;
+}
+ul {
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+li {
+    margin: 0;
+    padding: 0;
+}
+a:focus,
+a:hover {
+    text-decoration: underline;
+}
+*:focus-visible {
+    box-shadow: var(--shadow-inset-accent);
+}

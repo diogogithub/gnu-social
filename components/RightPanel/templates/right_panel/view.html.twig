@@ -18,7 +18,20 @@
 
                         <div class="section-form">
                             <fieldset>
-                                {{ form(blocks['post_form']) }}
+                                {{ form_start(blocks['post_form']) }}
+                                {{ form_row(blocks['post_form'].to) }}
+                                {{ form_row(blocks['post_form'].visibility) }}
+                                {{ form_row(blocks['post_form'].content) }}
+                                {{ form_row(blocks['post_form'].attachments) }}
+
+                                <details class="section-widget-subtitle-details">
+                                    <summary class="section-subtitle-summary">
+                                        {{ "Additional options" | trans }}{{ icon('arrow-down', 'icon icon-details-close') | raw }}
+                                    </summary>
+                                    {{ form_row(blocks['post_form'].language) }}
+                                    {{ form_row(blocks['post_form'].tag_use_canonical) }}
+                                </details>
+                                {{ form_end(blocks['post_form']) }}
                             </fieldset>
                         </div>
                     </details>

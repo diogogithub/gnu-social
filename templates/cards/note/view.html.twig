@@ -118,9 +118,9 @@
 
             {{ block('note_replies') }}
 
-            {% if note_language is defined and note_language is not empty %}
-                <div title="{{ 'Note\'s language' | trans }}" class="h-entry-language">{{ note_language }}</div>
-            {% endif %}
+{#            {% if note_language is defined and note_language is not empty %}#}
+{#                <div title="{{ 'Note\'s language' | trans }}" class="h-entry-language">{{ note_language }}</div>#}
+{#            {% endif %}#}
         </div>
     </article>
 {% endmacro macro_note %}
