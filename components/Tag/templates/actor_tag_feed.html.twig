@@ -6,7 +6,7 @@
 {% endblock stylesheets %}
 
 {% block body %}
-  <h2>{{ 'Notes containing tag:' | trans }} {{ tag_name }}</h2>
+  <h2>{{ 'Actors containing tag:' | trans }} {{ tag_name }}</h2>
 
   {% for pinned in handle_event('AddPinnedFeedContent', app.request) %}
     {% include pinned['template'] with { 'actor_tags': pinned['vars']} only %}
