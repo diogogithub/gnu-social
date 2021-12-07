@@ -23,14 +23,14 @@ declare(strict_types = 1);
 
 namespace Component\Search\Controller;
 
-use App\Core\Controller;
+use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Util\Common;
 use Component\Search\Util\Parser;
 use Symfony\Component\HttpFoundation\Request;
 
-class Search extends Controller
+class Search extends FeedController
 {
     /**
      * Handle a search query
@@ -56,12 +56,12 @@ class Search extends Controller
             $actors = $actor_qb->getQuery()->execute();
         }
 
-        return [
+        return $this->process_feed([
             '_template' => 'search/show.html.twig',
             'query'     => $q,
             'notes'     => $notes,
             'actors'    => $actors,
             'page'      => 1, // TODO paginate
-        ];
+        ]);
     }
 }
