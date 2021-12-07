@@ -177,21 +177,25 @@ embed header {
 .favourite-button-container {
     -o-mask-image: url("../../icons/heart.svg");
     -moz-mask-image: url("../../icons/heart.svg");
+    -webkit-mask-image: url("../../icons/heart.svg");
     mask-image: url("../../icons/heart.svg");
 }
 .reply-button-container {
     -o-mask-image: url("../../icons/reply.svg");
     -moz-mask-image: url("../../icons/reply.svg");
+    -webkit-mask-image: url("../../icons/reply.svg");
     mask-image: url("../../icons/reply.svg");
 }
 .repeat-button-container {
     -o-mask-image: url("../../icons/repeat.svg");
     -moz-mask-image: url("../../icons/repeat.svg");
+    -webkit-mask-image: url("../../icons/repeat.svg");
     mask-image: url("../../icons/repeat.svg");
 }
 .delete-button-container {
     -o-mask-image: url("../../icons/delete.svg");
     -moz-mask-image: url("../../icons/delete.svg");
+    -webkit-mask-image: url("../../icons/delete.svg");
     mask-image: url("../../icons/delete.svg");
 }
 .note-content {
