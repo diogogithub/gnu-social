@@ -125,7 +125,7 @@ class NoteTag extends Entity
 
     public function getUrl(?Actor $actor = null): string
     {
-        $params = ['tag' => $this->getCanonical()];
+        $params = ['canon' => $this->getCanonical(), 'tag' => $this->getTag()];
         if (!\is_null($actor)) {
             $params['lang'] = $actor->getTopLanguage()->getLocale();
         }

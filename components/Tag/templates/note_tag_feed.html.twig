@@ -2,24 +2,31 @@
 {% import '/cards/note/view.html.twig' as noteView %}
 
 {% block stylesheets %}
-  {{ parent() }}
-  <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
 {% endblock stylesheets %}
 
 {% block body %}
-  <h2>{{ 'Notes containing tag:' | trans }} {{ tag_name }}</h2>
+    {% if tag_name is defined and tag_name is not null %}
+        {% if tag_name is instanceof('string') %}
+            <h2>{% trans %}People with tag: %tag_name%{% endtrans %}</h2>
+        {% else %}
+            {% set tags = tag_name|join(', ') %} {# TODO Not ideal, hard to translate #}
+            <h2>{% trans %}People with tags: %tags%{% endtrans %}</h2>
+        {% endif %}
+    {% endif %}
 
-  {% for pinned in handle_event('AddPinnedFeedContent', app.request) %}
-    {% include pinned['template'] with { 'note_tags': pinned['vars']} only %}
-  {% endfor %}
+    {% for pinned in handle_event('AddPinnedFeedContent', app.request) %}
+        {% include pinned['template'] with { 'note_tags': pinned['vars']} only %}
+    {% endfor %}
 
-  {% for note in results %}
-    {% block current_note %}
-        {{ noteView.macro_note(note) }}
-    {% endblock current_note %}
-  {% endfor %}
+    {% for note in results %}
+        {% block current_note %}
+            {{ noteView.macro_note(note) }}
+        {% endblock current_note %}
+    {% endfor %}
 
-  <div class="section-widget section-widget-padded section-widget-paging">
-    {{ "Page " ~ page }}
-  </div>
+    <div class="section-widget section-widget-padded section-widget-paging">
+        {{ "Page " ~ page }}
+    </div>
 {% endblock %}

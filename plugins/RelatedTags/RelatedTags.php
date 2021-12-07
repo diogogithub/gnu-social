@@ -37,12 +37,13 @@ class RelatedTags extends Plugin
      */
     public function onAddPinnedFeedContent(Request $request, array &$pinned)
     {
-        $tags = $request->attributes->get('tags');
-        $tags = !\is_null($tags) ? explode('-', $tags) : [$request->attributes->get('tag')];
+        $tags = $request->attributes->get('canons');
+        $tags = !\is_null($tags) ? explode(',', $tags) : [$request->attributes->get('canon')];
+
         switch ($request->attributes->get('_route')) {
         case 'single_note_tag':
             // fall-through
-        case 'multi_note_tag':
+        case 'multi_note_tags':
             $related = Cache::getList(
                 'related-note-tags-' . implode('-', $tags),
                 fn () => DB::sql(
@@ -59,9 +60,10 @@ class RelatedTags extends Plugin
             );
             $pinned[] = ['template' => 'related_tags/note_tags.html.twig', 'vars' => $related];
             break;
+
         case 'single_actor_tag':
             // fall-through
-        case 'multi_actor_tag':
+        case 'multi_actor_tags':
             $related = Cache::getList(
                 'related-actor-tags-' . implode('-', $tags),
                 fn () => DB::sql(

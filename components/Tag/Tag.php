@@ -57,10 +57,10 @@ class Tag extends Component
 
     public function onAddRoute($r): bool
     {
-        $r->connect('single_note_tag', '/note-tag/{tag<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_note_tag']);
-        $r->connect('multiple_note_tags', '/note-tags/{tags<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_note_tags']);
-        $r->connect('single_actor_tag', '/actor-tag/{tag<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_actor_tag']);
-        $r->connect('multiple_actor_tags', '/actor-tags/{tags<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_actor_tags']);
+        $r->connect('single_note_tag', '/note-tag/{canon<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_note_tag']);
+        $r->connect('multi_note_tags', '/note-tags/{canons<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_note_tags']);
+        $r->connect('single_actor_tag', '/actor-tag/{canon<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_actor_tag']);
+        $r->connect('multi_actor_tags', '/actor-tags/{canons<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_actor_tags']);
         return Event::next;
     }
 
@@ -83,6 +83,9 @@ class Tag extends Component
             ]));
             Cache::pushList("tag-{$canonical_tag}", $note);
             $processed_tags = true;
+            foreach (self::cacheKeys($canonical_tag) as $key) {
+                Cache::delete($key);
+            }
         }
         if ($processed_tags) {
             DB::flush();
@@ -96,11 +99,21 @@ class Tag extends Component
         return Event::next;
     }
 
+    public static function cacheKeys(string $canon_single_or_multi): array
+    {
+        return [
+            'note_single'  => "note-tag-feed-{$canon_single_or_multi}",
+            'note_multi'   => "note-tags-feed-{$canon_single_or_multi}",
+            'actor_single' => "actor-tag-feed-{$canon_single_or_multi}",
+            'actor_multi'  => "actor-tags-feed-{$canon_single_or_multi}",
+        ];
+    }
+
     private static function tagLink(string $tag, ?string $language): string
     {
         $tag       = self::ensureLength($tag);
         $canonical = self::canonicalTag($tag, $language);
-        $url       = Router::url('single_note_tag', !\is_null($language) ? ['tag' => $canonical, 'lang' => $language] : ['tag' => $canonical]);
+        $url       = Router::url('single_note_tag', !\is_null($language) ? ['canon' => $canonical, 'lang' => $language, 'tag' => $tag] : ['canon' => $canonical, 'tag' => $tag]);
         return HTML::html(['a' => ['attrs' => ['href' => $url, 'title' => $tag, 'rel' => 'tag'], $tag]], options: ['indent' => false]);
     }
 
