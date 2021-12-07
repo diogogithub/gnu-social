@@ -15,6 +15,11 @@
         </label>
     {% endif %}
 
+    <div class="section-widget-padded">
+        {% set query = query|escape %}
+        <h2>{% trans %}Search results for %query%{% endtrans %}</h2>
+    </div>
+
     {# Backwards compatibility with hAtom 0.1 #}
     <main class="feed" tabindex="0" role="feed">
         <div class="h-feed hfeed notes">

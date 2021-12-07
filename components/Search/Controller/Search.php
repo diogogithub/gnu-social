@@ -58,6 +58,7 @@ class Search extends Controller
 
         return [
             '_template' => 'search/show.html.twig',
+            'query'     => $q,
             'notes'     => $notes,
             'actors'    => $actors,
             'page'      => 1, // TODO paginate
