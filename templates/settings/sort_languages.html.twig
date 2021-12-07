@@ -1,6 +1,8 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-  <p>{{ 'Put the languages in the order you\'d like to see them in your language selection dropdown, when posting' | trans}}</p>
-  {{ form(form) }}
+  <div class="section-widget section-widget-padded">
+    <h3>{{ 'Put the languages in the order you\'d like to see them in your language selection dropdown, when posting' | trans}}</h3>
+    {{ form(form) }}
+  </div>
 {% endblock %}
