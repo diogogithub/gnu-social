@@ -86,8 +86,10 @@
     border-radius: var(--smaller);
 }
 .h-entry .replies {
-    padding: var(--smaller);
-    margin-left: var(--small);
+    margin-bottom: var(--small);
+    padding: var(--smaller) var(--smaller) 0 0;
+    padding-left: var(--small);
+    border-left: 2px solid var(--border);
 }
 .note-info,
 embed header {
