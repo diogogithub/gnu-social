@@ -15,7 +15,11 @@
             {% if notes is defined and notes is not empty %}
                 {% for conversation in notes %}
                     {% block current_note %}
-                        {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
+                        {% if conversation is instanceof('array') %}
+                            {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
+                        {% else %}
+                            {{ noteView.macro_note(conversation) }}
+                        {% endif %}
                         <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
                     {% endblock current_note %}
                 {% endfor %}

@@ -35,18 +35,16 @@ declare(strict_types = 1);
 
 namespace App\Controller;
 
-use App\Core\Controller;
+use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
-use App\Core\Event;
 use function App\Core\I18n\_m;
 use App\Core\VisibilityScope;
 use App\Entity\Note;
-use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 
-class Feeds extends Controller
+class Feeds extends FeedController
 {
     // Can't have constants inside herestring
     private $public_scope     = VisibilityScope::PUBLIC;
@@ -54,32 +52,14 @@ class Feeds extends Controller
     private $message_scope    = VisibilityScope::MESSAGE;
     private $subscriber_scope = VisibilityScope::PUBLIC | VisibilityScope::SUBSCRIBER;
 
-    private function feed(string $title, array $notes)
-    {
-        $actor = Common::actor();
-        if (!\is_null($actor)) {
-            $notes_out = null;
-            Event::handle('FilterNoteList', [$actor, $notes, &$notes_out]);
-            $notes = $notes_out;
-        }
-
-        $notes_out = null;
-        Event::handle('FormatNoteList', [$notes, &$notes_out]);
-
-        return [
-            '_template'  => 'feeds/feed.html.twig',
-            'page_title' => $title,
-            'notes'      => $notes_out,
-        ];
-    }
-
     public function public(Request $request)
     {
         $notes = Note::getAllNotes($this->instance_scope);
-        return $this->feed(
-            title: 'Public feed',
-            notes: $notes,
-        );
+        return $this->process_feed([
+            '_template'  => 'feeds/feed.html.twig',
+            'page_title' => 'Public feed',
+            'notes'      => $notes,
+        ]);
     }
 
     public function home(Request $request, string $nickname)
@@ -117,18 +97,20 @@ class Feeds extends Controller
             END;
         $notes = DB::sql($query, ['target_actor_id' => $target->getId()]);
 
-        return $this->feed(
-            title: 'Home feed',
-            notes: $notes,
-        );
+        return $this->process_feed([
+            '_template'  => 'feeds/feed.html.twig',
+            'page_title' => 'Home feed',
+            'notes'      => $notes,
+        ]);
     }
 
     public function network(Request $request)
     {
         $notes = Note::getAllNotes($this->public_scope);
-        return $this->feed(
-            title: 'Network feed',
-            notes: $notes,
-        );
+        return $this->process_feed([
+            '_template'  => 'feeds/feed.html.twig',
+            'page_title' => 'Network feed',
+            'notes'      => $notes,
+        ]);
     }
 }
