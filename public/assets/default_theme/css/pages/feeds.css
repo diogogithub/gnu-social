@@ -171,6 +171,8 @@ embed header {
 .button-container:focus,
 .button-container:hover {
     border: none !important;
+    mask-repeat: no-repeat !important;
+    mask-size: cover !important;
     opacity: 1;
     background-color: var(--accent);
 }

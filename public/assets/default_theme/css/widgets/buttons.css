@@ -40,11 +40,13 @@ input[type=radio] {
 input[type=checkbox] {
     background-size: 100%;
     margin-right: 2px;
+    -webkit-mask-image: url("../../icons/check-off.svg") !important;
     -o-mask-image: url("../../icons/check-off.svg") !important;
     -moz-mask-image: url("../../icons/check-off.svg") !important;
     mask-image: url("../../icons/check-off.svg") !important;
 }
 input[type=checkbox]:checked {
+    -webkit-mask-image: url("../../icons/check-on.svg") !important;
     -o-mask-image: url("../../icons/check-on.svg") !important;
     -moz-mask-image: url("../../icons/check-on.svg") !important;
     mask-image: url("../../icons/check-on.svg") !important;
