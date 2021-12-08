@@ -25,12 +25,12 @@
         <div class="h-feed hfeed notes">
             {% if notes is defined and notes is not empty %}
                 {% for note in notes %}
-                    {% block current_note %}
+                    {% block current_note %} 
                         <div class="section-widget">
                             {{ noteView.macro_note(note) }}
                             <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
                         </div>
-                    {% endblock current_note %}
+                    {% endblock current_note %} 
                 {% endfor %}
             {% else %}
                 <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
@@ -39,7 +39,7 @@
     </main>
 
     {% for actor in actors %}
-        {% include 'actor/view.html.twig' with {'actor': actor} %}
+        {% include 'cards/profile/view.html.twig' with {'actor': actor} %}
     {% endfor %}
 
     {{ "Page: " ~ page }}
