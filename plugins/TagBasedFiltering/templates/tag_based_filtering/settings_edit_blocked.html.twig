@@ -1,0 +1,10 @@
+<div class='form'>
+    {% if blocked_form is not null %}
+        {{ form(blocked_form) }}
+    {% else %}
+        <em>{% trans %}No blocked %type% tags{% endtrans %}</em>
+    {% endif %}
+    <hr>
+    <p>{{ label }}</p>
+    {{ form(add_block) }} 
+</div>

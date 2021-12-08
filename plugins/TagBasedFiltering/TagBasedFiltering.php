@@ -38,6 +38,7 @@ use App\Entity\Note;
 use App\Entity\NoteTag;
 use App\Entity\NoteTagBlock;
 use Functional as F;
+use Plugin\TagBasedFiltering\Controller as C;
 use Symfony\Component\HttpFoundation\Request;
 
 class TagBasedFiltering extends Plugin
@@ -55,8 +56,8 @@ class TagBasedFiltering extends Plugin
 
     public function onAddRoute(RouteLoader $r)
     {
-        $r->connect(id: self::NOTE_TAG_FILTER_ROUTE, uri_path: '/filter/edit-blocked-note-tags/{note_id<\d+>?}', target: [Controller\TagBasedFiltering::class, 'editBlockedNoteTags']);
-        $r->connect(id: self::ACTOR_TAG_FILTER_ROUTE, uri_path: '/filter/edit-blocked-actor-tags/{actor_id<\d+>?}', target: [Controller\TagBasedFiltering::class, 'editBlockedActorTags']);
+        $r->connect(id: self::NOTE_TAG_FILTER_ROUTE, uri_path: '/filter/edit-blocked-note-tags/{note_id<\d+>}', target: [Controller\AddBlocked::class, 'addBlockedNoteTags']);
+        $r->connect(id: self::ACTOR_TAG_FILTER_ROUTE, uri_path: '/filter/edit-blocked-actor-tags/{actor_id<\d+>}', target: [Controller\AddBlocked::class, 'addBlockedActorTags']);
         return Event::next;
     }
 
@@ -103,6 +104,25 @@ class TagBasedFiltering extends Plugin
             ),
         );
 
+        return Event::next;
+    }
+
+    public function onPopulateSettingsTabs(Request $request, string $section, array &$tabs): bool
+    {
+        if ($section === 'muting') {
+            $tabs[] = [
+                'title'      => 'Muted note tags',
+                'desc'       => 'Edit your muted note tags',
+                'id'         => 'settings-muting-note-tags',
+                'controller' => C\EditBlocked::editBlockedNoteTags($request),
+            ];
+            $tabs[] = [
+                'title'      => 'Muted people tags',
+                'desc'       => 'Edit your muted people tags',
+                'id'         => 'settings-muting-actor-tags',
+                'controller' => C\EditBlocked::editBlockedActorTags($request),
+            ];
+        }
         return Event::next;
     }
 }

@@ -67,6 +67,11 @@
             </li>
             <hr>
             <li>
+                {% set muting_tabs = handle_event('PopulateSettingsTabs', app.request, 'muting') %}
+                {{ _self.settings_details_container('Muting', 'Blocked tags and actors', 'settings-muting-details', muting_tabs, _context) }}
+            </li>
+            <hr>
+            <li>
                 {{ _self.settings_details_element('Email', 'Set incoming and outgoing email settings', 'settings-email-details', email_form, _context) }}
             </li>
             <li>

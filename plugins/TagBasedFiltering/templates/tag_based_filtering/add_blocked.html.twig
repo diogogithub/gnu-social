@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+{% import '/cards/note/view.html.twig' as noteView %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
+{% endblock stylesheets %}
+
+{% block body %}
+    {% if note is defined or actor is defined %}
+        <div class="section-widget-padded">
+            {% if note is defined and note is not null %}
+                {{ noteView.macro_note(note, {}) }}
+            {% elseif actor is defined and actor is not null  %}
+                {% include 'cards/profile/view.html.twig' with {'actor': actor} only %}
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if tags_form is not null %}
+        <p>{{ label }}</p>
+        {{ form(tags_form) }}
+    {% endif %}
+    <div class="section-widget-button-like">
+        <a href="{{ url('settings', {'open': 'settings-muting-' ~ type ~ '-tags-details'}) }}">{% trans %}Go to %type% muting settings{% endtrans %}</a>
+    </div>
+{% endblock %}
