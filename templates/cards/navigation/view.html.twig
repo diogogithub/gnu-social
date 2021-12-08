@@ -1,42 +1,48 @@
 {% block feeds %}
-  <section class="section-widget section-widget-padded">
-    <h2 class="section-title">{{ icon('logo', 'icon icon-logo') | raw }}{{ 'Feeds' | trans }}
-    {% if app.user %}
-        {# User custom feeds #}
-        <a class="edit-feed-link" href="{{ path('edit_feeds') }}">{{ icon('edit', 'icon icon-edit-feed') | raw }}</a>
-    {% endif %}
-    </h2>
-    <nav class='sec-nav' tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
-      {% if not app.user %} {# Default feeds #}
-        <ul>
-          <li>
-            <a href="{{ path('main_public') }}" class='{{ active('main_public') }}'>
-              Public
-            </a>
-          </li>
-          <li>
-            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>
-              Network
-            </a>
-          </li>
-        </ul>
-      {% else %}
-        <ul>
-          {% for link in get_feeds(current_actor) %}
+  <section class="section-widget" title="{{ 'Feed navigation.' | trans }}">
+    <details class="section-widget-title-details" open="open"
+             title="{{ 'Expand if you want to access more options.' | trans }}">
+      <summary class="section-title-summary">
+        <h2>{{ 'Feeds' | trans }}</h2>
+        {% if app.user %}
+          {# User custom feeds #}
+          <a class="edit-feed-link" href="{{ path('edit_feeds') }}">{{ icon('edit', 'icon icon-edit-feed') | raw }}</a>
+        {% endif %}
+        {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+      </summary>
+
+      <nav class='section-widget-padded' tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
+        {% if not app.user %} {# Default feeds #}
+          <ul>
             <li>
-              <a href="{{ link.getUrl() }}" class='{{ active(link.getRoute()) }}'>{{ link.getTitle() }}</a>
-            </li>
-          {% endfor %}
-          {% for link in handle_event('AddMainNavigationItem', {'nickname': current_actor.getNickname()}) %}
-            <li>
-              <a href="{{ link['path'] }}" class='{{ active(link['path_id']) }}'>
-                {{ link['title'] }}
+              <a href="{{ path('main_public') }}" class='{{ active('main_public') }}'>
+                Public
               </a>
             </li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    </nav>
+            <li>
+              <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>
+                Network
+              </a>
+            </li>
+          </ul>
+        {% else %}
+          <ul>
+            {% for link in get_feeds(current_actor) %}
+              <li>
+                <a href="{{ link.getUrl() }}" class='{{ active(link.getRoute()) }}'>{{ link.getTitle() }}</a>
+              </li>
+            {% endfor %}
+            {% for link in handle_event('AddMainNavigationItem', {'nickname': current_actor.getNickname()}) %}
+              <li>
+                <a href="{{ link['path'] }}" class='{{ active(link['path_id']) }}'>
+                  {{ link['title'] }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </nav>
+    </details>
   </section>
 {% endblock feeds %}
 

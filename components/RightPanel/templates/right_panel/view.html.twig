@@ -13,7 +13,10 @@
                     <details class="section-widget-title-details" open="open"
                              title="{{ 'Expand if you want to access more options.' | trans }}">
                         <summary class="section-title-summary">
-                            {{ "Create a note" | trans }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                            <h2>
+                                {{ "Create a note" | trans }}
+                            </h2>
+                            {{ icon('arrow-down', 'icon icon-details-open') | raw }}
                         </summary>
 
                         <div class="section-form">
@@ -26,7 +29,10 @@
 
                                 <details class="section-widget-subtitle-details">
                                     <summary class="section-subtitle-summary">
-                                        {{ "Additional options" | trans }}{{ icon('arrow-down', 'icon icon-details-close') | raw }}
+                                        <h3>
+                                            {{ "Additional options" | trans }}
+                                        </h3>
+                                        {{ icon('arrow-down', 'icon icon-details-close') | raw }}
                                     </summary>
                                     {{ form_row(blocks['post_form'].language) }}
                                     {{ form_row(blocks['post_form'].tag_use_canonical) }}
