@@ -24,11 +24,14 @@ declare(strict_types = 1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace Plugin\Reply\Controller;
+namespace Component\Conversation\Controller;
 
 use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use App\Core\Form;
+use App\Util\Exception\DuplicateFoundException;
+use App\Util\Exception\NoLoggedInUser;
+use App\Util\Exception\ServerException;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
@@ -42,7 +45,6 @@ use App\Util\Exception\NotImplementedException;
 use App\Util\Exception\RedirectException;
 use App\Util\Form\FormFields;
 use Component\Posting\Posting;
-use Plugin\Reply\Entity\NoteReply;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -50,17 +52,20 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Reply extends FeedController
 {
+
     /**
      * Controller for the note reply non-JS page
      *
-     * @throws \App\Util\Exception\NoLoggedInUser
-     * @throws \App\Util\Exception\ServerException
+     * @param Request $request
+     * @param int $id
+     * @return array
      * @throws ClientException
      * @throws InvalidFormException
      * @throws NoSuchNoteException
      * @throws RedirectException
-     *
-     * @return array
+     * @throws DuplicateFoundException
+     * @throws NoLoggedInUser
+     * @throws ServerException
      */
     public function replyAddNote(Request $request, int $id)
     {
@@ -75,7 +80,9 @@ class Reply extends FeedController
         // TODO shouldn't this be the posting form?
         $form = Form::create([
             ['content', TextareaType::class, ['label' => _m('Reply'), 'label_attr' => ['class' => 'section-form-label'], 'help' => _m('Please input your reply.')]],
-            FormFields::language($user->getActor(), context_actor: $note->getActor(), label: _m('Note language')),
+            FormFields::language($user->getActor(),
+                context_actor: $note->getActor(),
+                label: _m('Note language')),
             ['attachments', FileType::class, ['label' => ' ', 'multiple' => true, 'required' => false]],
             ['replyform', SubmitType::class, ['label' => _m('Submit')]],
         ]);
@@ -99,19 +106,13 @@ class Reply extends FeedController
                 DB::flush();
 
                 // Find the id of the note we just created
-                $reply_id = $reply->getId();
-                $og_id    = $note->getId();
-
-                // Add it to note_repeat table
-                if (!\is_null($reply_id)) {
-                    DB::persist(NoteReply::create([
-                        'note_id'  => $reply_id,
-                        'actor_id' => $actor_id,
-                        'reply_to' => $og_id,
-                    ]));
-                }
+                $reply_id       = $reply->getId();
+                $parent_id      = $note->getId();
+                $resulting_note = Note::getWithPK($reply_id);
+                $resulting_note->setReplyTo($parent_id);
 
                 // Update DB one last time
+                DB::merge($note);
                 DB::flush();
 
                 // Redirect user to where they came from

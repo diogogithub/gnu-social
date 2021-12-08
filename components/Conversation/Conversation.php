@@ -21,39 +21,36 @@ declare(strict_types = 1);
 
 // }}}
 
-namespace Plugin\Reply;
+namespace Component\Conversation;
 
 use App\Core\DB\DB;
 use App\Core\Event;
+use App\Core\Modules\Component;
+use App\Core\Router\RouteLoader;
 use function App\Core\I18n\_m;
-use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exception\InvalidFormException;
-use App\Util\Exception\NoSuchNoteException;
-use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use App\Util\Nickname;
-use Plugin\Reply\Controller\Reply as ReplyController;
-use Plugin\Reply\Entity\NoteReply;
+use Component\Conversation\Controller\Reply as ReplyController;
 use Symfony\Component\HttpFoundation\Request;
 
-class Reply extends NoteHandlerPlugin
+class Conversation extends Component
 {
+
     /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
      *
-     * @throws InvalidFormException
-     * @throws NoSuchNoteException
-     * @throws RedirectException
-     *
-     * @return bool Event hook
+     * @param Request $request
+     * @param Note $note
+     * @param array $actions
+     * @return bool
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
@@ -81,9 +78,12 @@ class Reply extends NoteHandlerPlugin
         return Event::next;
     }
 
+
     /**
      * Append on note information about user actions
      *
+     * @param array $vars
+     * @param array $result
      * @return bool
      */
     public function onAppendCardNote(array $vars, array &$result): bool
@@ -95,11 +95,11 @@ class Reply extends NoteHandlerPlugin
 
         $complementary_info = '';
         $reply_actor        = [];
-        $note_replies       = NoteReply::getNoteReplies($note);
+        $note_replies       = $note->getReplies();
 
         // Get actors who replied
         foreach ($note_replies as $reply) {
-            $reply_actor[] = Actor::getWithPK($reply->getActorId());
+            $reply_actor[] = Actor::getWithPK(Note::getWithPK($reply)->getActorId());
         }
         if (\count($reply_actor) < 1) {
             return Event::next;
@@ -136,7 +136,11 @@ class Reply extends NoteHandlerPlugin
         return Event::next;
     }
 
-    public function onAddRoute($r)
+    /**
+     * @param RouteLoader $r
+     * @return bool
+     */
+    public function onAddRoute(RouteLoader $r)
     {
         $r->connect('reply_add', '/object/note/{id<\d+>}/reply', [ReplyController::class, 'replyAddNote']);
         $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [ReplyController::class, 'replies']);
