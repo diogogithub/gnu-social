@@ -94,32 +94,38 @@
 .note-info,
 embed header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     max-height: var(--big);
     border-bottom: unset;
     border-radius: var(--smaller) var(--smaller) 0 0;
-    font-size: var(--small);
-    padding: 0 var(--smaller) 0 0;
+    padding: 4px var(--smaller) 4px 0;
 }
 .note-info {
     background: var(--gradient-backwards);
 }
-.note-author {
-    font-size: var(--default);
-    display: flex;
-    align-items: center;
-    align-self: center;
+.note-url {
+    opacity: 0.5;
+    font-size: 0.9em;
+    margin-left: var(--smaller);
+}
+embed header {
+    font-size: var(--small);
+    justify-content: space-between;
+}
+.note-author-url {
+    margin-left: 4px;
 }
 .note-author-fullname {
     font-weight: bold;
 }
 .note-author-nickname {
     opacity: 0.5;
-    margin-left: var(--smaller);
 }
 .note-author-nickname::before {
     content: '@';
+}
+.note-actions {
+    margin-left: auto;
 }
 .note-actions ul {
     display: flex;

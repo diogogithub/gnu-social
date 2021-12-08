@@ -14,6 +14,9 @@
     "composer/ca-bundle": {
         "version": "1.2.10"
     },
+    "composer/pcre": {
+        "version": "1.0.0"
+    },
     "composer/semver": {
         "version": "3.2.4"
     },
@@ -162,6 +165,9 @@
     },
     "jcupitt/vips": {
         "version": "v1.0.8"
+    },
+    "knplabs/knp-time-bundle": {
+        "version": "1.17.0"
     },
     "laminas/laminas-code": {
         "version": "4.1.0"

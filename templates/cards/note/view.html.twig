@@ -72,14 +72,14 @@
 
 {% block note_author %}
     {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
-    <a href="{{ actor_url }}" class="note-author u-url">
-        <strong class="note-author-fullname">
-            {% if fullname is not null %}
-                {{ fullname }}
-            {% else %}
-                {{ nickname }}
-            {% endif %}
-        </strong>
+    <header class="note-author-fullname" tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}" >
+        {% if fullname is not null %}
+            {{ fullname }}
+        {% else %}
+            {{ nickname }}
+        {% endif %}
+    </header>
+    <a href="{{ actor_url }}" class="note-author-url u-url">
         <em class="note-author-nickname">{{ nickname }}</em>
     </a>
 {% endblock note_author %}
@@ -89,6 +89,17 @@
         <img class="u-logo avatar" src="{{ note.getActorAvatarUrl() }}" alt="{{ nickname }}'s avatar" width="32px" height="32px">
     </aside>
 {% endblock note_sidebar %}
+
+{% block note_info %}
+    <div class="note-info">
+        {{ block('note_author') }}
+        <em>
+            <a href="{{ note.getUrl() }}" class="note-url">{{ 'in conversation' | trans }} {{ note.getModified() | ago }}</a>
+        </em>
+
+        {{ block('note_actions') }}
+    </div>
+{% endblock note_info %}
 
 {% macro macro_note(note, replies) %}
     {% set nickname = note.getActorNickname() %}
@@ -100,12 +111,9 @@
     <article class="h-entry hentry note" lang={{ note.getLanguageLocale() }}>
         {{ block('note_sidebar') }}
         <div class="note-wrapper">
-            <div tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
-                {{ block('note_author') }}
-                {{ block('note_actions') }}
-            </div>
+            {{ block('note_info') }}
 
-            <section tabindex="0" role="dialog" class="e-content entry-content note-content">
+            <section role="dialog" class="e-content entry-content note-content">
                 {{ block('note_text') }}
                 {{ block('note_attachments') }}
                 {{ block('note_links') }}
