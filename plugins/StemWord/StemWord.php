@@ -25,13 +25,19 @@ namespace Plugin\StemWord;
 
 use App\Core\Event;
 use App\Core\Modules\Plugin;
+use Wamania\Snowball\NotFoundException;
 use Wamania\Snowball\StemmerFactory;
 
 class StemWord extends Plugin
 {
     public function onStemWord(string $language, string $word, ?string &$out)
     {
-        $out = StemmerFactory::create($language)->stem($word);
+        $language = explode('_', $language)[0];
+        try {
+            $out = StemmerFactory::create($language)->stem($word);
+        } catch (NotFoundException) {
+            return Event::next;
+        }
         return Event::stop;
     }
 }
