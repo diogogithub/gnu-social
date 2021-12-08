@@ -95,10 +95,10 @@ class UserPanel extends Controller
 
         return [
             '_template'           => 'settings/base.html.twig',
-            'profile'             => $personal_form->createView(),
-            'email'               => $email_form->createView(),
-            'password'            => $password_form->createView(),
-            'language'            => $language_form->createView(),
+            'personal_info_form'  => $personal_form->createView(),
+            'email_form'          => $email_form->createView(),
+            'password_form'       => $password_form->createView(),
+            'language_form'       => $language_form->createView(),
             'tabbed_forms_notify' => $notifications_form_array,
             'open_details_query'  => $this->string('open'),
         ];
@@ -327,8 +327,11 @@ class UserPanel extends Controller
         $tabbed_forms = [];
         foreach ($form_defs as $transport_name => $f) {
             unset($f['save']);
-            $form                          = Form::create($f);
-            $tabbed_forms[$transport_name] = $form;
+            $form                                   = Form::create($f);
+            $tabbed_forms[$transport_name]['title'] = $transport_name;
+            $tabbed_forms[$transport_name]['desc']  = _m('{transport} notification settings', ['transport' => $transport_name]);
+            $tabbed_forms[$transport_name]['id']    = "settings-notifications-{$transport_name}";
+            $tabbed_forms[$transport_name]['form']  = $form->createView();
 
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
@@ -353,7 +356,6 @@ class UserPanel extends Controller
             }
         }
 
-        $tabbed_forms = F\map($tabbed_forms, fn ($f) => $f->createView());
         return $tabbed_forms;
     }
 

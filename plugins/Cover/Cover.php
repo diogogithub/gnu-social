@@ -54,14 +54,16 @@ class Cover extends Plugin
         return Event::next;
     }
 
-    public function onPopulateProfileSettingsTabs(Request $request, &$tabs)
+    public function onPopulateSettingsTabs(Request $request, string $section, &$tabs)
     {
-        $tabs[] = [
-            'title'      => 'Cover',
-            'desc'       => 'Change your cover.',
-            'controller' => C\Cover::coverSettings($request),
-        ];
-
+        if ($section === 'profile') {
+            $tabs[] = [
+                'title'      => 'Cover',
+                'desc'       => 'Change your cover.',
+                'id'         => 'settings-cover',
+                'controller' => C\Cover::coverSettings($request),
+            ];
+        }
         return Event::next;
     }
 

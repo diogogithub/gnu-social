@@ -8,8 +8,11 @@
     <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/settings.css') }}">
 {% endblock stylesheets %}
 
-{% macro settings_details_element(title, summary, form_name, context) %}
-    <details class="section-title-settings" {{ open_details(context.open_details_query, [ form_name ]) }} id={{ form_name ~ '-details' }}>
+{% macro settings_details_element(title, summary, id, details_content, context, details_ids) %}
+    {% if details_ids is null %}
+        {% set details_ids = [id] %}
+    {% endif %}
+    <details class="section-title-settings" {{ open_details(context.open_details_query, details_ids) }} id={{ id }}>
         <summary>
             <h3>
                 {{ title | trans }}
@@ -20,87 +23,37 @@
             </em>
         </summary>
 
-
-        {{ form(attribute(context, form_name) | default) }}
+        {% if details_content is instanceof('Twig\\Markup') %}
+            {{ details_content }}
+        {% else %}
+            {{ form(details_content) }}
+        {% endif %}
     </details>
 {% endmacro settings_details_element %}
 
-{% macro settings_details_container(title, summary, tabs, context) %}
-    <details class="section-title-settings" {{ open_details(context.open_details_query, tabs) }} id={{ tabs[0] ~ '-details' }}>
-        <summary>
-            <h3>
-                {{ title | trans }}
-                {{ icon('arrow-down', 'icon icon-details-open') | raw }}
-            </h3>
-            <em>
-                {{ summary | trans }}
-            </em>
-        </summary>
-
-
-        {% if title == 'Profile' %}
-            <li>
-                <nav class='section-settings-nav'>
-                    <ul>
-                        <li>
-                            {{ _self.settings_details_element('Personal Info', 'Nickname, Homepage, Bio, Self Tags and more.', 'profile', context) }}
-                        </li>
-
-                        <hr>
-
-                        {% for tab in context.profile_tabs %}
-                            <li>
-                                <details class="section-title-settings">  {# TODO: add ID and open_details and to parent #}
-                                <summary>
-                                    <h3>{{ tab['title'] }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
-                                    <em>{{ tab['desc'] }}</em>
-                                </summary>
-
-                                {% include tab['controller']['_template'] with tab['controller'] only %}
-                                </details>
-                            </li>
-
-                            <hr>
-                        {% endfor %}
-                    </ul>
-                </nav>
-            </li>
-        {% elseif title == 'Email' %}
-            <li>
-                {{ form(context.email) }}
-            </li>
-        {% elseif title == 'Password' %}
-            <li>
-                {{ form(context.password) }}
-            </li>
-        {% elseif title == 'Language' %}
-            <li>
-                {{ form(context.language) }}
-            </li>
-        {% elseif title == 'Notifications' %}
-            <li>
-                <nav class='section-settings-nav'>
-                    <ul>
-                        {% for transport, form_transport in context.tabbed_forms_notify %}
-                            <li>
-                                <details class="section-title-settings">
-                                    <summary>
-                                        <h3>{{ transport }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h3>
-                                        <em>{{ transport }}'s notification options.</em>
-                                    </summary>
-
-                                    <div id="form_{{ transport }}" class='form'>
-                                        {{ form(form_transport) }}
-                                    </div>
-                                </details>
-                            </li>
-                            <hr>
-                        {% endfor %}
-                    </ul>
-                </nav>
-            </li>
-        {% endif %}
-    </details>
+{% macro settings_details_container(title, summary, container_id, tabs, context) %}
+    {% set children_ids = [container_id] %}
+    {% set details_content %}
+        <nav class='section-settings-nav'>
+            <ul>
+                {% for tab in tabs %}
+                    <hr>
+                    <li>
+                        {% set content %}
+                        {% if tab['controller'] is defined %}
+                            {% include tab['controller']['_template'] with tab['controller'] only %}
+                        {% else %}
+                            {{ form(tab['form']) }}
+                        {% endif %}
+                    {% endset %}
+                    {{ _self.settings_details_element(tab['title'], tab['desc'], tab['id'] ~ '-details', content, context) }}
+                    {% set children_ids = children_ids|merge([tab['id'] ~ '-details']) %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </nav>
+    {% endset %}
+    {{ _self.settings_details_element(title, summary, container_id, details_content, context, children_ids) }}
 {% endmacro settings_details_container %}
 
 {% block body %}
@@ -108,22 +61,28 @@
         <h2>Settings</h2>
         <ul>
             <li>
-                {% set profile_tabs = handle_event('PopulateProfileSettingsTabs', app.request) %}
-                {{ _self.settings_details_container('Profile', 'Personal Information, Avatar and Profile', ['profile', 'personal-info'], _context) }}
+                {% set profile_tabs = [{'title': 'Personal Info', 'desc': 'Nickname, Homepage, Bio, Self Tags and more.', 'id': 'settings-personal-info', 'form': personal_info_form}] %}
+                {% set profile_tabs = profile_tabs|merge(handle_event('PopulateSettingsTabs', app.request, 'profile')) %}
+                {{ _self.settings_details_container('Profile', 'Personal Information, Avatar and Profile', 'settings-profile-details', profile_tabs, _context) }}
             </li>
             <hr>
             <li>
-                {{ _self.settings_details_container('Email', 'Set incoming and outgoing email settings', ['email'], _context) }}
+                {{ _self.settings_details_element('Email', 'Set incoming and outgoing email settings', 'settings-email-details', email_form, _context) }}
             </li>
             <li>
-                {{ _self.settings_details_container('Password', 'Change current password', ['password'], _context) }}
+                {{ _self.settings_details_element('Password', 'Change current password', 'settings-password-details', password_form, _context) }}
             </li>
             <li>
-                {{ _self.settings_details_container('Language', 'Select and set language preferences', ['language'], _context) }}
+                {{ _self.settings_details_element('Language', 'Select and set language preferences', 'settings-language-details', language_form, _context) }}
             </li>
             <hr>
             <li>
-                {{ _self.settings_details_container('Notifications', 'Enable/disable notifications (Email, XMPP, Replies...)', ['notifications'], _context) }}
+                {% set colour_tabs = handle_event('PopulateSettingsTabs', app.request, 'colours') %}
+                {{ _self.settings_details_container('Colours', 'Customize your interface colours', 'settings-colour-details', colour_tabs, _context) }}
+            </li>
+            <hr>
+            <li>
+                {{ _self.settings_details_container('Notifications', 'Enable/disable notifications (Email, XMPP, Replies...)', 'notifications', tabbed_forms_notify, _context) }}
             </li>
         </ul>
     </nav>

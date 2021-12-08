@@ -28,17 +28,13 @@ use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
-use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Common;
-use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use App\Util\Formatting;
 use Plugin\Oomox\Controller as C;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
 /**
  * Profile Colour plugin main class
@@ -52,12 +48,8 @@ use function App\Core\I18n\_m;
  */
 class Oomox extends Plugin
 {
-
     /**
      * Map URLs to actions
-     *
-     * @param RouteLoader $r
-     * @return bool
      */
     public function onAddRoute(RouteLoader $r): bool
     {
@@ -66,55 +58,49 @@ class Oomox extends Plugin
         return Event::next;
     }
 
-
     /**
      * Populates an additional profile user panel section
      * Used in templates/settings/base.html.twig
      *
-     * @param Request $request
-     * @param array $tabs
-     * @return bool
+     * @throws \App\Util\Exception\NoLoggedInUser
      * @throws RedirectException
      * @throws ServerException
-     * @throws \App\Util\Exception\NoLoggedInUser
      */
-    public function onPopulateProfileSettingsTabs(Request $request, array &$tabs): bool
+    public function onPopulateSettingsTabs(Request $request, string $section, array &$tabs): bool
     {
-        $tabs[] = [
-            'title'      => 'Light theme colours',
-            'desc'       => 'Change the theme colours.',
-            'controller' => C\Oomox::oomoxSettingsLight($request),
-        ];
+        if ($section === 'colours') {
+            $tabs[] = [
+                'title'      => 'Light theme colours',
+                'desc'       => 'Change the theme colours.',
+                'id'         => 'settings-light-theme-colours-details',
+                'controller' => C\Oomox::oomoxSettingsLight($request),
+            ];
 
-        $tabs[] = [
-            'title'      => 'Dark theme colours',
-            'desc'       => 'Change the theme colours.',
-            'controller' => C\Oomox::oomoxSettingsDark($request),
-        ];
-
+            $tabs[] = [
+                'title'      => 'Dark theme colours',
+                'desc'       => 'Change the theme colours.',
+                'id'         => 'settings-dark-theme-colours-details',
+                'controller' => C\Oomox::oomoxSettingsDark($request),
+            ];
+        }
         return Event::next;
     }
 
     /**
      * Returns Oomox cache key for the given user.
-     *
-     * @param LocalUser $user
-     * @return string
      */
-    public static function cacheKey(LocalUser $user) :string {
+    public static function cacheKey(LocalUser $user): string
+    {
         return "oomox-css-{$user->getId()}";
     }
 
     /**
      * Returns Entity\Oomox if it already exists
-     *
-     * @param LocalUser $user
-     * @return Entity\Oomox|null
      */
     public static function getEntity(LocalUser $user): ?Entity\Oomox
     {
         try {
-            return Cache::get(self::cacheKey($user), fn() => DB::findOneBy('oomox', ['actor_id' => $user->getId()]));
+            return Cache::get(self::cacheKey($user), fn () => DB::findOneBy('oomox', ['actor_id' => $user->getId()]));
         } catch (NotFoundException $e) {
             return null;
         }
@@ -123,14 +109,12 @@ class Oomox extends Plugin
     /**
      * Adds to array $styles the generated CSS according to user settings, if any are present.
      *
-     * @param array $styles
-     * @param string $route
      * @return bool
      */
     public function onEndShowStyles(array &$styles, string $route)
     {
         $user = Common::user();
-        if (!is_null($user) && !is_null(Cache::get(self::cacheKey($user), fn () => self::getEntity($user)))) {
+        if (!\is_null($user) && !\is_null(Cache::get(self::cacheKey($user), fn () => self::getEntity($user)))) {
             $styles[] = Router::url('oomox_css');
         }
         return Event::next;

@@ -61,15 +61,16 @@ class ProfileColor extends Plugin
      * @throws RedirectException
      * @throws ServerException
      */
-    public function onPopulateProfileSettingsTabs(Request $request, array &$tabs): bool
+    public function onPopulateSettingsTabs(Request $request, string $section, array &$tabs): bool
     {
-        // TODO avatar template shouldn't be on settings folder
-        $tabs[] = [
-            'title'      => 'Color',
-            'desc'       => 'Change your profile color.',
-            'controller' => C\ProfileColor::profileColorSettings($request),
-        ];
-
+        if ($section === 'colours') {
+            $tabs[] = [
+                'title'      => 'Profile Colour',
+                'desc'       => 'Change your profile colour.',
+                'id'         => 'settings-profile-colour-details',
+                'controller' => C\ProfileColor::profileColorSettings($request),
+            ];
+        }
         return Event::next;
     }
 

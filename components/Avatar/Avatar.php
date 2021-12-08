@@ -50,15 +50,16 @@ class Avatar extends Component
     /**
      * @throws \App\Util\Exception\ClientException
      */
-    public function onPopulateProfileSettingsTabs(Request $request, &$tabs): bool
+    public function onPopulateSettingsTabs(Request $request, string $section, &$tabs): bool
     {
-        // TODO avatar template shouldn't be on settings folder
-        $tabs[] = [
-            'title'      => 'Avatar',
-            'desc'       => 'Change your avatar.',
-            'controller' => C\Avatar::settings_avatar($request),
-        ];
-
+        if ($section === 'profile') {
+            $tabs[] = [
+                'title'      => 'Avatar',
+                'desc'       => 'Change your avatar.',
+                'id'         => 'settings-avatar',
+                'controller' => C\Avatar::settings_avatar($request),
+            ];
+        }
         return Event::next;
     }
 

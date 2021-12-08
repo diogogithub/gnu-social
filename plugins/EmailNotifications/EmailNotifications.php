@@ -41,9 +41,9 @@ class EmailNotifications extends Plugin
 {
     public function onAddNotificationTransport(&$form_defs): bool
     {
-        $form_defs['email']   = $form_defs['placeholder'];
-        $form_defs['email'][] = $form_defs['placeholder']['save']('Email', 'save_email');
-        unset($form_defs['email']['post_on_status_change']);
+        $form_defs['Email']   = $form_defs['placeholder'];
+        $form_defs['Email'][] = $form_defs['placeholder']['save']('Email', 'save_email');
+        unset($form_defs['Email']['post_on_status_change']);
         return Event::next;
     }
 }

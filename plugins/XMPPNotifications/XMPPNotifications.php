@@ -41,8 +41,8 @@ class XMPPNotifications extends Plugin
 {
     public function onAddNotificationTransport(&$form_defs): bool
     {
-        $form_defs['xmpp']   = $form_defs['placeholder'];
-        $form_defs['xmpp'][] = $form_defs['placeholder']['save']('XMMP', 'save_xmpp');
+        $form_defs['XMPP']   = $form_defs['placeholder'];
+        $form_defs['XMPP'][] = $form_defs['placeholder']['save']('XMMP', 'save_xmpp');
         return Event::next;
     }
 }

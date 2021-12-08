@@ -127,6 +127,6 @@ class Avatar extends Controller
             }
         }
 
-        return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];
+        return ['_template' => 'avatar/settings.html.twig', 'avatar' => $form->createView()];
     }
 }
