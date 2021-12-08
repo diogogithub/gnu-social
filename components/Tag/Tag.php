@@ -177,7 +177,7 @@ class Tag extends Component
 
     public function onPostingAddFormEntries(Request $request, Actor $actor, array &$form_params)
     {
-        $form_params[] = ['tag_use_canonical', CheckboxType::class, ['required' => false, 'data' => true, 'label' => _m('Make note tags canonical')]];
+        $form_params[] = ['tag_use_canonical', CheckboxType::class, ['required' => false, 'data' => true, 'label' => _m('Make note tags canonical'), 'help' => _m('Canonical tags will be treated as a version of an existing tag with the same root/stem (e.g. \'#great_tag\' will be considered as a version of \'#great\', if it already exists)')]];
         return Event::next;
     }
 

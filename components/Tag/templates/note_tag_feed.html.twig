@@ -9,7 +9,7 @@
 {% block body %}
     {% if tag_name is defined and tag_name is not null %}
         {% if tag_name is instanceof('string') %}
-            <h2>{% trans %}People with tag: %tag_name%{% endtrans %}</h2>
+            <h2>{% trans %}Notes with tag: %tag_name%{% endtrans %}</h2>
         {% else %}
             {% set tags = tag_name|join(', ') %} {# TODO Not ideal, hard to translate #}
             <h2>{% trans %}People with tags: %tags%{% endtrans %}</h2>
