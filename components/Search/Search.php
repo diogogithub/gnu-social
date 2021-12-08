@@ -28,6 +28,10 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Util\Exception\RedirectException;
+use App\Util\Formatting;
+use Doctrine\Common\Collections\ExpressionBuilder;
+use Doctrine\ORM\Query\Expr;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +45,7 @@ class Search extends Component
 
     /**
      * Add the search form to the site header
+     *
      * @throws RedirectException
      */
     public function onAddExtraHeaderForms(Request $request, array &$elements)
@@ -82,6 +87,30 @@ class Search extends Component
     public function onEndShowStyles(array &$styles, string $route): bool
     {
         $styles[] = 'components/Search/assets/css/view.css';
+        return Event::next;
+    }
+
+    /**
+     * Populate $note_expr with an expression to match a tag, if the term looks like a tag
+     *
+     * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
+     */
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
+    {
+        if (Formatting::startsWith($term, ['lang', 'language'])) {
+            $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
+            $note_expr   = $eb->eq('language.locale', $search_term);
+            $actor_expr  = $eb->eq('language.locale', $search_term);
+            return Event::stop;
+        }
+        return Event::next;
+    }
+
+    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
+    {
+        $note_qb->leftJoin('App\Entity\Language', 'language', Expr\Join::WITH, 'note.language_id = language.id');
+        $actor_qb->leftJoin('App\Entity\ActorLanguage', 'actor_language', Expr\Join::WITH, 'actor.id = actor_language.actor_id')
+            ->leftJoin('App\Entity\Language', 'language', Expr\Join::WITH, 'actor_language.language_id = language.id');
         return Event::next;
     }
 }
