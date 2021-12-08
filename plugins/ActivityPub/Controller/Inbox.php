@@ -84,11 +84,17 @@ class Inbox extends Controller
         }
 
         try {
-            $ap_actor = ActivitypubActor::fromUri($type->get('actor'));
-            $actor = Actor::getById($ap_actor->getActorId());
-            DB::flush();
+            $resource_parts = parse_url($type->get('actor'));
+            if ($resource_parts['host'] !== $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
+                $ap_actor = ActivitypubActor::fromUri($type->get('actor'));
+                $actor = Actor::getById($ap_actor->getActorId());
+                DB::flush();
+            } else {
+                throw new Exception('Only remote actors can use this endpoint.');
+            }
+            unset($resource_parts);
         } catch (Exception $e) {
-            return $error('Invalid actor.');
+            return $error('Invalid actor: ' . $e->getMessage());
         }
 
         $activitypub_rsa = ActivitypubRsa::getByActor($actor);

@@ -217,7 +217,6 @@ class Posting extends Component
             'verb'        => 'create',
             'object_type' => 'note',
             'object_id'   => $note->getId(),
-            'is_local'    => true,
             'source'      => 'web',
         ]);
         DB::persist($act);

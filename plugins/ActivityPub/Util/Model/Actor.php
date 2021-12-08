@@ -44,7 +44,6 @@ use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use App\Util\TemporaryFile;
 use Component\Avatar\Avatar;
-use Component\Avatar\Exception\NoAvatarException;
 use DateTime;
 use DateTimeInterface;
 use Exception;
@@ -120,12 +119,12 @@ class Actor extends Model
         }
 
         // Avatar
-        if ($person->has('icon')) {
+        if ($person->has('icon') && !empty($person->get('icon'))) {
             try {
                 // Retrieve media
                 $get_response = HTTPClient::get($person->get('icon')->get('url'));
-                $media        = $get_response->getContent();
-                $mimetype     = $get_response->getHeaders()['content-type'][0] ?? null;
+                $media = $get_response->getContent();
+                $mimetype = $get_response->getHeaders()['content-type'][0] ?? null;
                 unset($get_response);
 
                 // Only handle if it is an image
@@ -139,7 +138,7 @@ class Actor extends Model
                         // Delete current avatar if there's one
                         $avatar = DB::find('avatar', ['actor_id' => $actor->getId()]);
                         $avatar?->delete();
-                        DB::wrapInTransaction(function() use ($attachment, $actor) {
+                        DB::wrapInTransaction(function () use ($attachment, $actor) {
                             DB::persist($attachment);
                             DB::persist(\Component\Avatar\Entity\Avatar::create(['actor_id' => $actor->getId(), 'attachment_id' => $attachment->getId()]));
                         });
@@ -157,11 +156,10 @@ class Actor extends Model
                 $avatar->delete();
                 Event::handle('AvatarUpdate', [$actor->getId()]);
             } catch (Exception) {
-               // No avatar set, so cannot delete
+                // No avatar set, so cannot delete
             }
         }
 
-        Event::handle('ActivityPubNewActor', [&$ap_actor, &$actor, &$apRSA]);
         return $ap_actor;
     }
 

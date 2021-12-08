@@ -33,43 +33,54 @@ namespace Plugin\ActivityPub\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Entity\Activity;
 use DateTimeInterface;
 
 /**
- * Table Definition for activitypub_activity
+ * Table Definition for activitypub_object
  *
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ActivitypubActivity extends Entity
+class ActivitypubObject extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $activity_id;
-    private string $activity_uri;
+    private string $object_uri;
+    private int $object_id;
+    private string $object_type;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setActivityId(int $activity_id): self
+    public function getObjectUri(): string
     {
-        $this->activity_id = $activity_id;
+        return $this->object_uri;
+    }
+
+    public function setObjectUri(string $object_uri): self
+    {
+        $this->object_uri = $object_uri;
         return $this;
     }
 
-    public function getActivityId(): int
+    public function getObjectId(): int
     {
-        return $this->activity_id;
+        return $this->object_id;
     }
 
-    public function getActivityUri(): string
+    public function setObjectId(int $object_id): self
     {
-        return $this->activity_uri;
+        $this->object_id = $object_id;
+        return $this;
     }
 
-    public function setActivityUri(string $activity_uri): self
+    public function getObjectType(): string
     {
-        $this->activity_uri = $activity_uri;
+        return $this->object_type;
+    }
+
+    public function setObjectType(string $object_type): self
+    {
+        $this->object_type = $object_type;
         return $this;
     }
 
@@ -98,24 +109,25 @@ class ActivitypubActivity extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public function getActivity(): Activity
+    public function getObject()
     {
-        return DB::findOneBy('activity', ['id' => $this->getActivityId()]);
+        return DB::findOneBy($this->getObjectType(), ['id' => $this->getObjectId()]);
     }
 
     public static function schemaDef(): array
     {
         return [
-            'name' => 'activitypub_activity',
+            'name' => 'activitypub_object',
             'fields' => [
-                'activity_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Activity.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'activity_id to give attention'],
-                'activity_uri' => ['type' => 'text', 'not null' => true, 'description' => 'Activity\'s URI'],
+                'object_uri' => ['type' => 'text', 'not null' => true, 'description' => 'Object\'s URI'],
+                'object_type' => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'the name of the table this object refers to'],
+                'object_id' => ['type' => 'int', 'not null' => true, 'description' => 'id in the referenced table'],
                 'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['activity_uri'],
+            'primary key' => ['object_uri'],
             'indexes' => [
-                'activity_activity_uri_idx' => ['activity_uri'],
+                'activity_object_uri_idx' => ['object_uri'],
             ],
         ];
     }

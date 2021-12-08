@@ -37,11 +37,13 @@ use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
 use App\Core\Router\Router;
-use App\Entity\Actor;
 use App\Entity\Language;
 use App\Entity\Note as GSNote;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\DuplicateFoundException;
+use App\Util\Exception\NoSuchActorException;
+use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use App\Util\TemporaryFile;
 use Component\Attachment\Entity\ActorToAttachment;
@@ -51,9 +53,15 @@ use DateTimeInterface;
 use Exception;
 use InvalidArgumentException;
 use Plugin\ActivityPub\ActivityPub;
+use Plugin\ActivityPub\Entity\ActivitypubObject;
 use Plugin\ActivityPub\Util\Model;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use function App\Core\I18n\_m;
+use function is_null;
+use function is_string;
 
 /**
  * This class handles translation between JSON and GSNotes
@@ -71,28 +79,52 @@ class Note extends Model
      * @param string|AbstractObject $json
      * @param array $options
      * @return GSNote
-     * @throws Exception
+     * @throws ClientException
+     * @throws DuplicateFoundException
+     * @throws NoSuchActorException
+     * @throws ServerException
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      */
     public static function fromJson(string|AbstractObject $json, array $options = []): GSNote
     {
-        $source    = $options['source'];
-        $actor_uri = $options['actor_uri'];
-        $actor_id  = $options['actor_id'];
-        $type_note = \is_string($json) ? self::jsonToType($json) : $json;
+        $source = $options['source'] ?? 'ActivityPub';
+        $type_note = is_string($json) ? self::jsonToType($json) : $json;
+        $actor = null;
+        $actor_id = null;
+        if ($json instanceof AbstractObject
+            && array_key_exists('test_authority', $options)
+            && $options['test_authority']
+            && array_key_exists('actor_uri', $options)
+        ) {
+            $actor_uri = $options['actor_uri'];
+            if ($actor_uri !== $type_note->get('attributedTo')) {
+                if (parse_url($actor_uri)['host'] !== parse_url($type_note->get('attributedTo'))['host']) {
+                    throw new Exception('You don\'t seem to have enough authority to create this note.');
+                }
+            } else {
+                $actor = $options['actor'] ?? null;
+                $actor_id = $options['actor_id'] ?? $actor?->getId();
+            }
+        }
 
-        if (\is_null($actor_uri) || $actor_uri !== $type_note->get('attributedTo')) {
-            $actor_id = ActivityPub::getActorByUri($type_note->get('attributedTo'))->getId();
+        if (is_null($actor_id)) {
+            $actor = ActivityPub::getActorByUri($type_note->get('attributedTo'));
+            $actor_id = $actor->getId();
         }
         $map = [
-            'is_local'     => false,
-            'created'      => new DateTime($type_note->get('published') ?? 'now'),
-            'content'      => $type_note->get('content') ?? null,
+            'is_local' => false,
+            'created' => new DateTime($type_note->get('published') ?? 'now'),
+            'content' => $type_note->get('content') ?? null,
+            'rendered' => null,
             'content_type' => 'text/html',
-            'language_id'  => $type_note->get('contentLang') ?? null,
-            'url'          => $type_note->get('url') ?? $type_note->get('id'),
-            'actor_id'     => $actor_id,
-            'modified'     => new DateTime(),
-            'source'       => $source,
+            'language_id' => $type_note->get('contentLang') ?? null,
+            'url' => $type_note->get('url') ?? $type_note->get('id'),
+            'actor_id' => $actor_id,
+            'modified' => new DateTime(),
+            'source' => $source,
         ];
         if ($map['content'] !== null) {
             $mentions = [];
@@ -100,7 +132,7 @@ class Note extends Model
                 $map['content'],
                 $map['content_type'],
                 &$map['rendered'],
-                Actor::getById($actor_id),
+                $actor,
                 $map['language_id'],
                 &$mentions,
             ]);
@@ -108,7 +140,7 @@ class Note extends Model
 
         $obj = new GSNote();
 
-        if (!\is_null($map['language_id'])) {
+        if (!is_null($map['language_id'])) {
             $map['language_id'] = Language::getByLocale($map['language_id'])->getId();
         } else {
             $map['language_id'] = null;
@@ -148,7 +180,6 @@ class Note extends Model
         DB::persist($obj);
 
         // Need file and note ids for the next step
-        $obj->setUrl(Router::url('note_view', ['id' => $obj->getId()], Router::ABSOLUTE_URL));
         Event::handle('ProcessNoteContent', [$obj, $obj->getContent(), $obj->getContentType(), $process_note_content_extra_args = []]);
 
         if ($processed_attachments !== []) {
@@ -160,7 +191,20 @@ class Note extends Model
             }
         }
 
-        Event::handle('ActivityPubNewNote', [&$obj]);
+        $map = [
+            'object_uri' => $type_note->get('id'),
+            'object_type' => 'note',
+            'object_id' => $obj->getId(),
+            'created' => new DateTime($type_note->get('published') ?? 'now'),
+            'modified' => new DateTime(),
+        ];
+        $ap_obj = new ActivitypubObject();
+        foreach ($map as $prop => $val) {
+            $set = Formatting::snakeCaseToCamelCase("set_{$prop}");
+            $ap_obj->{$set}($val);
+        }
+        DB::persist($ap_obj);
+
         return $obj;
     }
 
@@ -179,15 +223,15 @@ class Note extends Model
         }
 
         $attr = [
-            '@context'     => 'https://www.w3.org/ns/activitystreams',
-            'type'         => 'Note',
-            'id'           => Router::url('note_view', ['id' => $object->getId()], Router::ABSOLUTE_URL),
-            'published'    => $object->getCreated()->format(DateTimeInterface::RFC3339),
+            '@context' => 'https://www.w3.org/ns/activitystreams',
+            'type' => 'Note',
+            'id' => Router::url('note_view', ['id' => $object->getId()], Router::ABSOLUTE_URL),
+            'published' => $object->getCreated()->format(DateTimeInterface::RFC3339),
             'attributedTo' => $object->getActor()->getUri(Router::ABSOLUTE_URL),
-            'to'           => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
-            'cc'           => ['https://www.w3.org/ns/activitystreams#Public'],
-            'content'      => $object->getRendered(),
-            'attachment'   => [],
+            'to' => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
+            'cc' => ['https://www.w3.org/ns/activitystreams#Public'],
+            'content' => $object->getRendered(),
+            'attachment' => [],
         ];
 
         // Attachments

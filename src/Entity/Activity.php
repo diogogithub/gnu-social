@@ -51,7 +51,6 @@ class Activity extends Entity
     private string $verb;
     private string $object_type;
     private int $object_id;
-    private bool $is_local;
     private ?string $source;
     private \DateTimeInterface $created;
 
@@ -108,17 +107,6 @@ class Activity extends Entity
     public function getObjectId(): int
     {
         return $this->object_id;
-    }
-
-    public function setIsLocal(bool $is_local): self
-    {
-        $this->is_local = $is_local;
-        return $this;
-    }
-
-    public function getIsLocal(): bool
-    {
-        return $this->is_local;
     }
 
     public function setSource(?string $source): self
@@ -212,7 +200,6 @@ class Activity extends Entity
                 'verb'        => ['type' => 'varchar',  'length' => 32,     'not null' => true, 'description' => 'internal activity verb, influenced by activity pub verbs'],
                 'object_type' => ['type' => 'varchar',  'length' => 32,     'not null' => true, 'description' => 'the name of the table this object refers to'],
                 'object_id'   => ['type' => 'int',      'not null' => true, 'description' => 'id in the referenced table'],
-                'is_local'    => ['type' => 'bool',     'not null' => true, 'description' => 'whether this was a locally generated or an imported activity'],
                 'source'      => ['type' => 'varchar',  'length' => 32,     'description' => 'the source of this activity'],
                 'created'     => ['type' => 'datetime', 'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
             ],

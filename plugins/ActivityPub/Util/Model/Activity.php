@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace Plugin\ActivityPub\Util\Model;
 
+use ActivityPhp\Type;
 use ActivityPhp\Type\AbstractObject;
 use App\Core\DB\DB;
 use App\Core\Event;
@@ -40,10 +41,15 @@ use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchActorException;
 use DateTime;
 use DateTimeInterface;
+use Exception;
 use InvalidArgumentException;
 use Plugin\ActivityPub\ActivityPub;
 use Plugin\ActivityPub\Entity\ActivitypubActivity;
 use Plugin\ActivityPub\Util\Model;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * This class handles translation between JSON and ActivityPub Activities
@@ -60,72 +66,75 @@ class Activity extends Model
      * @param string|AbstractObject $json
      * @param array $options
      * @return ActivitypubActivity
-     * @throws ClientException
      * @throws NoSuchActorException
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      */
     public static function fromJson(string|AbstractObject $json, array $options = []): ActivitypubActivity
     {
         $type_activity = is_string($json) ? self::jsonToType($json) : $json;
-        $source = $options['source'];
 
-        $activity_stream_two_verb_to_gs_verb = fn(string $verb): string => match ($verb) {
-            'Create' => 'create',
-            default => throw new ClientException('Invalid verb'),
-        };
-
-        $activity_stream_two_object_type_to_gs_table = fn(string $object): string => match ($object) {
-            'Note' => 'note',
-            default => throw new ClientException('Invalid verb'),
-        };
-
+        // Ditch known activities
         $ap_act = ActivitypubActivity::getWithPK(['activity_uri' => $type_activity->get('id')]);
-        if (is_null($ap_act)) {
-            $actor = ActivityPub::getActorByUri($type_activity->get('actor'));
-            if (!$type_activity->has('object') || !$type_activity->get('object')->has('type')) {
-                throw new InvalidArgumentException('Activity Object or Activity Object Type is missing.');
+        if (!is_null($ap_act)) {
+            return $ap_act;
+        }
+
+        // Find Actor and Object
+        $actor = ActivityPub::getActorByUri($type_activity->get('actor'));
+        $type_object = $type_activity->get('object');
+        if (is_string($type_object)) { // Retrieve it
+            $type_object = ActivityPub::getObjectByUri($type_object, try_online: true);
+        } else { // Encapsulated, if we have it locally, prefer it
+            $type_object = ActivityPub::getObjectByUri($type_object->get('id'), try_online: false) ?? $type_object;
+        }
+
+        if (($type_object instanceof Type\AbstractObject)) { // It's a new object apparently
+            if (Event::handle('NewActivityPubActivity', [$actor, $type_activity, $type_object, &$ap_act]) !== Event::stop) {
+                return self::handle_core_activity($actor, $type_activity, $type_object, $ap_act);
             }
-            // Store Object if new
-            $ap_act = ActivitypubActivity::getWithPK(['object_uri' => $type_activity->get('object')->get('id')]);
-            if (!is_null($ap_act)) {
-                $obj = $ap_act->getActivity()->getObject();
+        } else { // Object was already stored locally then
+            if (Event::handle('NewActivityPubActivityWithObject', [$actor, $type_activity, $type_object, &$ap_act]) !== Event::stop) {
+                return self::handle_core_activity($actor, $type_activity, $type_object, $ap_act);
+            }
+        }
+
+        return $ap_act;
+    }
+
+    private static function handle_core_activity(\App\Entity\Actor $actor, AbstractObject $type_activity, mixed $type_object, ?ActivitypubActivity &$ap_act): ActivitypubActivity
+    {
+        if ($type_activity->get('type') === 'Create' && $type_object->get('type') === 'Note') {
+            if ($type_object instanceof AbstractObject) {
+                $note = Note::fromJson($type_object, ['test_authority' => true, 'actor_uri' => $type_activity->get('actor'), 'actor' => $actor, 'actor_id' => $actor->getId()]);
             } else {
-                $obj = null;
-                switch ($type_activity->get('object')->get('type')) {
-                    case 'Note':
-                        $obj = Note::fromJson($type_activity->get('object'), ['source' => $source, 'actor_uri' => $type_activity->get('actor'), 'actor_id' => $actor->getId()]);
-                        break;
-                    default:
-                        if (!Event::handle('ActivityPubObject', [$type_activity->get('object')->get('type'), $type_activity->get('object'), &$obj])) {
-                            throw new ClientException('Unsupported Object type.');
-                        }
-                        break;
+                if ($type_object instanceof \App\Entity\Note) {
+                    $note = $type_object;
+                } else {
+                    throw new Exception('dunno bro');
                 }
-                DB::persist($obj);
             }
             // Store Activity
             $act = GSActivity::create([
                 'actor_id' => $actor->getId(),
-                'verb' => $activity_stream_two_verb_to_gs_verb($type_activity->get('type')),
-                'object_type' => $activity_stream_two_object_type_to_gs_table($type_activity->get('object')->get('type')),
-                'object_id' => $obj->getId(),
-                'is_local' => false,
+                'verb' => 'create',
+                'object_type' => 'note',
+                'object_id' => $note->getId(),
                 'created' => new DateTime($type_activity->get('published') ?? 'now'),
-                'source' => $source,
+                'source' => 'ActivityPub',
             ]);
             DB::persist($act);
             // Store ActivityPub Activity
             $ap_act = ActivitypubActivity::create([
                 'activity_id' => $act->getId(),
                 'activity_uri' => $type_activity->get('id'),
-                'object_uri' => $type_activity->get('object')->get('id'),
-                'is_local' => false,
                 'created' => new DateTime($type_activity->get('published') ?? 'now'),
                 'modified' => new DateTime(),
             ]);
             DB::persist($ap_act);
         }
-
-        Event::handle('ActivityPubNewActivity', [&$ap_act, &$act, &$obj]);
         return $ap_act;
     }
 

@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace Plugin\ActivityPub;
 
+use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\HTTPClient;
 use App\Core\Log;
@@ -40,6 +41,7 @@ use App\Core\Router\Router;
 use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
+use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Nickname;
@@ -47,7 +49,9 @@ use Component\FreeNetwork\Entity\FreeNetworkActorProtocol;
 use Component\FreeNetwork\Util\Discovery;
 use Exception;
 use Plugin\ActivityPub\Controller\Inbox;
+use Plugin\ActivityPub\Entity\ActivitypubActivity;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
+use Plugin\ActivityPub\Entity\ActivitypubObject;
 use Plugin\ActivityPub\Util\HTTPSignature;
 use Plugin\ActivityPub\Util\Model;
 use Plugin\ActivityPub\Util\Response\ActorResponse;
@@ -377,6 +381,62 @@ class ActivityPub extends Plugin
         } catch (Exception $e) {
             Log::error('ActivityPub Webfinger Mention check failed: ' . $e->getMessage());
             return Event::next;
+        }
+    }
+
+    /**
+     * Get a Note from ActivityPub URI, if it doesn't exist, attempt to fetch it
+     * This should only be necessary internally.
+     *
+     * @param string $resource
+     * @param bool $try_online
+     * @return null|Note|mixed got from URI
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public static function getObjectByUri(string $resource, bool $try_online = true)
+    {
+        // Try known objects
+        $known_object = ActivitypubObject::getWithPK(['object_uri' => $resource]);
+        if ($known_object instanceof ActivitypubObject) {
+            return $known_object->getObject();
+        }
+
+        // Try known activities
+        $known_activity = ActivitypubActivity::getWithPK(['activity_uri' => $resource]);
+        if ($known_activity instanceof ActivitypubActivity) {
+            return $known_activity->getActivity();
+        }
+
+        // Try local Notes (pretty incomplete effort, I know)
+        if (Common::isValidHttpUrl($resource)) {
+            // This means $resource is a valid url
+            $resource_parts = parse_url($resource);
+            // TODO: Use URLMatcher
+            if ($resource_parts['host'] === $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
+                $local_note = DB::find('note', ['url' => $resource]);
+                if ($local_note instanceof Note) {
+                    return $local_note;
+                }
+            }
+        }
+
+        // Try remote
+        if (!$try_online) {
+            return null;
+        }
+
+        $response = HTTPClient::get($resource, ['headers' => ActivityPub::HTTP_CLIENT_HEADERS]);
+        // If it was deleted
+        if ($response->getStatusCode() == 410) {
+            //$obj = Type::create('Tombstone', ['id' => $resource]);
+            return null;
+        } elseif (!HTTPClient::statusCodeIsOkay($response)) { // If it is unavailable
+            throw new Exception('Non Ok Status Code for given Object id.');
+        } else {
+            return Model::jsonToType($response->getContent());
         }
     }
 
