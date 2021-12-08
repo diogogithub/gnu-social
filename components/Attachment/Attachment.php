@@ -25,6 +25,7 @@ use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
 use Component\Attachment\Controller as C;
+use Component\Attachment\Entity as E;
 
 class Attachment extends Component
 {
@@ -35,5 +36,16 @@ class Attachment extends Component
         $r->connect('attachment_download', '/object/attachment/{id<\d+>}/download', [C\Attachment::class, 'attachment_download']);
         $r->connect('attachment_thumbnail', '/object/attachment/{id<\d+>}/thumbnail/{size<big|medium|small>}', [C\Attachment::class, 'attachment_thumbnail']);
         return Event::next;
+    }
+
+    /**
+     * Get a unique representation of a file on disk
+     *
+     * This can be used in the future to deduplicate images by visual content
+     */
+    public function onHashFile(string $filename, ?string &$out_hash): bool
+    {
+        $out_hash = hash_file(E\Attachment::FILEHASH_ALGO, $filename);
+        return Event::stop;
     }
 }

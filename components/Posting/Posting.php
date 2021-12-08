@@ -251,24 +251,4 @@ class Posting extends Component
                 return Event::next;
         }
     }
-
-    /**
-     * Get a unique representation of a file on disk
-     *
-     * This can be used in the future to deduplicate images by visual content
-     */
-    public function onHashFile(string $filename, ?string &$out_hash): bool
-    {
-        $out_hash = hash_file(Attachment::FILEHASH_ALGO, $filename);
-        return Event::stop;
-    }
-
-    /**
-     * Fill the list with allowed sizes for an attachment, to prevent potential DoS'ing by requesting thousands of different thumbnail sizes
-     */
-    public function onGetAllowedThumbnailSizes(?array &$sizes): bool
-    {
-        $sizes[] = ['width' => Common::config('thumbnail', 'width'), 'height' => Common::config('thumbnail', 'height')];
-        return Event::next;
-    }
 }
