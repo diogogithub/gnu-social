@@ -36,10 +36,10 @@ class Directory extends FeedController
      */
     public function actors(Request $request): array
     {
-        return $this->process_feed([
+        return [
             '_template' => 'directory/actors.html.twig',
             'actors'    => DB::dql('select a from actor a order by a.nickname ASC'),
-        ]);
+        ];
     }
 
     /**
@@ -49,9 +49,9 @@ class Directory extends FeedController
      */
     public function groups(Request $request): array
     {
-        return $this->process_feed([
+        return [
             '_template' => 'directory/groups.html.twig',
             'groups'    => DB::dql('select g from group g order by g.nickname ASC'),
-        ]);
+        ];
     }
 }

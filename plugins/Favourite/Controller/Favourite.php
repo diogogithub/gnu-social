@@ -175,11 +175,11 @@ class Favourite extends FeedController
             ['id' => $id],
         );
 
-        return $this->process_feed([
+        return [
             '_template'  => 'feeds/feed.html.twig',
             'page_title' => 'Favourites feed.',
             'notes'      => $notes,
-        ]);
+        ];
     }
 
     public function favouritesByActorNickname(Request $request, string $nickname)
@@ -208,11 +208,11 @@ class Favourite extends FeedController
             ['id' => $id],
         );
 
-        return $this->process_feed([
+        return [
             '_template'  => 'feeds/feed.html.twig',
             'page_title' => 'Reverse favourites feed.',
             'notes'      => $notes,
-        ]);
+        ];
     }
 
     public function reverseFavouritesByActorNickname(Request $request, string $nickname)

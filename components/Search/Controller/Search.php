@@ -56,12 +56,12 @@ class Search extends FeedController
             $actors = $actor_qb->getQuery()->execute();
         }
 
-        return $this->process_feed([
+        return [
             '_template' => 'search/show.html.twig',
             'query'     => $q,
             'notes'     => $notes,
             'actors'    => $actors,
             'page'      => 1, // TODO paginate
-        ]);
+        ];
     }
 }

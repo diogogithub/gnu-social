@@ -55,11 +55,11 @@ class Feeds extends FeedController
     public function public(Request $request)
     {
         $notes = Note::getAllNotes($this->instance_scope);
-        return $this->process_feed([
+        return [
             '_template'  => 'feeds/feed.html.twig',
             'page_title' => 'Public feed',
             'notes'      => $notes,
-        ]);
+        ];
     }
 
     public function home(Request $request, string $nickname)
@@ -97,20 +97,20 @@ class Feeds extends FeedController
             END;
         $notes = DB::sql($query, ['target_actor_id' => $target->getId()]);
 
-        return $this->process_feed([
+        return [
             '_template'  => 'feeds/feed.html.twig',
             'page_title' => 'Home feed',
             'notes'      => $notes,
-        ]);
+        ];
     }
 
     public function network(Request $request)
     {
         $notes = Note::getAllNotes($this->public_scope);
-        return $this->process_feed([
+        return [
             '_template'  => 'feeds/feed.html.twig',
             'page_title' => 'Network feed',
             'notes'      => $notes,
-        ]);
+        ];
     }
 }

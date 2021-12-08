@@ -38,7 +38,7 @@ use App\Util\Common;
 
 abstract class FeedController extends Controller
 {
-    protected function process_feed(array $result)
+    public static function post_process(array $result)
     {
         $actor = Common::actor();
 

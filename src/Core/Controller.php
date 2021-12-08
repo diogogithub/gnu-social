@@ -33,6 +33,7 @@ declare(strict_types = 1);
 
 namespace App\Core;
 
+use App\Core\Controller\FeedController;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -129,6 +130,15 @@ abstract class Controller extends AbstractController implements EventSubscriberI
         $template = $this->vars['_template'] ?? null;
         Event::handle('OverrideTemplate', [$this->vars, &$template]); // Allow plugins to replace the template used for anything
         unset($this->vars['_template'], $response['_template']);
+
+        $controller = $request->get('_controller');
+        if (\is_array($controller)) {
+            $controller = $controller[0];
+        }
+
+        if (is_subclass_of($controller, FeedController::class)) {
+            $this->vars = FeedController::post_process($this->vars);
+        }
 
         // Respond in the most preferred acceptable content type
         $route              = $request->get('_route');
