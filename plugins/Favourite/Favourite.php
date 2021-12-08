@@ -25,10 +25,10 @@ namespace Plugin\Favourite;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
+use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
@@ -38,47 +38,85 @@ use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
 use App\Util\Nickname;
+use Plugin\Favourite\Entity\Favourite as FavouriteEntity;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 class Favourite extends NoteHandlerPlugin
 {
+    public static function favourNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
+    {
+        $opts = ['note_id' => $note_id, 'actor_id' => $actor_id];
+        $note_already_favoured = DB::find('favourite', $opts);
+        if (is_null($note_already_favoured)) {
+            DB::persist(FavouriteEntity::create($opts));
+            $act = Activity::create([
+                'actor_id' => $actor_id,
+                'verb' => 'favourite',
+                'object_type' => 'note',
+                'object_id' => $note_id,
+                'source' => $source,
+            ]);
+            DB::persist($act);
+        }
+        return $act ?? null;
+    }
+
+    public static function unfavourNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
+    {
+        $note_already_favoured = DB::find('favourite', ['note_id' => $note_id, 'actor_id' => $actor_id]);
+        if (!is_null($note_already_favoured)) {
+            DB::remove($note_already_favoured);
+            $favourite_activity = DB::findOneBy('activity', ['verb' => 'favourite', 'object_type' => 'note', 'object_id' => $note_id]);
+            $act = Activity::create([
+                'actor_id' => $actor_id,
+                'verb' => 'undo', // 'undo_favourite',
+                'object_type' => 'activity', // 'note',
+                'object_id' => $favourite_activity->getId(), // $note_id,
+                'source' => $source,
+            ]);
+            DB::persist($act);
+        }
+        return $act ?? null;
+    }
+
     /**
      * HTML rendering event that adds the favourite form as a note
      * action, if a user is logged in
      *
-     * @throws InvalidFormException
+     * @return bool Event hook
      * @throws NoSuchNoteException
      * @throws RedirectException
      *
-     * @return bool Event hook
+     * @throws InvalidFormException
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
-        if (\is_null($user = Common::user())) {
+        if (is_null($user = Common::user())) {
             return Event::next;
         }
 
         // If note is favourite, "is_favourite" is 1
-        $opts         = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
+        $opts = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
         $is_favourite = DB::find('favourite', $opts) !== null;
 
         // Generating URL for favourite action route
-        $args                 = ['id' => $note->getId()];
-        $type                 = Router::ABSOLUTE_PATH;
+        $args = ['id' => $note->getId()];
+        $type = Router::ABSOLUTE_PATH;
         $favourite_action_url = $is_favourite
             ? Router::url('favourite_remove', $args, $type)
             : Router::url('favourite_add', $args, $type);
 
         $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
-        $favourite_action_url .= !\is_null($query_string) ? '?from=' . mb_substr($query_string, 2) : '';
+        $favourite_action_url .= !is_null($query_string) ? '?from=' . mb_substr($query_string, 2) : '';
 
-        $extra_classes    = $is_favourite ? 'note-actions-set' : 'note-actions-unset';
+        $extra_classes = $is_favourite ? 'note-actions-set' : 'note-actions-unset';
         $favourite_action = [
-            'url'     => $favourite_action_url,
-            'title'   => $is_favourite ? 'Remove this note from favourites' : 'Favourite this note!',
+            'url' => $favourite_action_url,
+            'title' => $is_favourite ? 'Remove this note from favourites' : 'Favourite this note!',
             'classes' => "button-container favourite-button-container {$extra_classes}",
-            'id'      => 'favourite-button-container-' . $note->getId(),
+            'id' => 'favourite-button-container-' . $note->getId(),
         ];
 
         $actions[] = $favourite_action;
@@ -87,9 +125,9 @@ class Favourite extends NoteHandlerPlugin
 
     public function onAppendCardNote(array $vars, array &$result)
     {
-        // if note is the original, append on end "user favourited this"
+        // if note is the original, append on end "user favoured this"
         $actor = $vars['actor'];
-        $note  = $vars['note'];
+        $note = $vars['note'];
 
         return Event::next;
     }
@@ -114,16 +152,16 @@ class Favourite extends NoteHandlerPlugin
     {
         DB::persist(Feed::create([
             'actor_id' => $actor_id,
-            'url'      => Router::url($route = 'favourites_view_by_nickname', ['nickname' => $user->getNickname()]),
-            'route'    => $route,
-            'title'    => _m('Favourites'),
+            'url' => Router::url($route = 'favourites_view_by_nickname', ['nickname' => $user->getNickname()]),
+            'route' => $route,
+            'title' => _m('Favourites'),
             'ordering' => $ordering++,
         ]));
         DB::persist(Feed::create([
             'actor_id' => $actor_id,
-            'url'      => Router::url($route = 'favourites_reverse_view_by_nickname', ['nickname' => $user->getNickname()]),
-            'route'    => $route,
-            'title'    => _m('Reverse favourites'),
+            'url' => Router::url($route = 'favourites_reverse_view_by_nickname', ['nickname' => $user->getNickname()]),
+            'route' => $route,
+            'title' => _m('Reverse favourites'),
             'ordering' => $ordering++,
         ]));
         return Event::next;
