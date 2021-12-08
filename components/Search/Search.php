@@ -99,8 +99,8 @@ class Search extends Component
     {
         if (Formatting::startsWith($term, ['lang', 'language'])) {
             $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
-            $note_expr   = $eb->eq('language.locale', $search_term);
-            $actor_expr  = $eb->eq('language.locale', $search_term);
+            $note_expr   = $eb->startsWith('language.locale', $search_term);
+            $actor_expr  = $eb->startsWith('language.locale', $search_term);
             return Event::stop;
         }
         return Event::next;

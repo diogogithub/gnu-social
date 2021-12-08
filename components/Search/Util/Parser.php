@@ -80,12 +80,12 @@ abstract class Parser
                     $ret      = Event::handle('SearchCreateExpression', [$eb, $term, $language, &$note_res, &$actor_res]);
                     if (\is_null($note_res) && \is_null($actor_res)) {
                         throw new ServerException("No one claimed responsibility for a match term: {$term}");
-                    } elseif (!\is_null($note_res)) {
+                    }
+                    if (!\is_null($note_res)) {
                         $note_parts[] = $note_res;
-                    } elseif (!\is_null($actor_res)) {
+                    }
+                    if (!\is_null($actor_res)) {
                         $actor_parts[] = $actor_res;
-                    } else {
-                        throw new ServerException('Unexpected state in Search parser');
                     }
 
                     $right = $left = $index + 1;
@@ -109,7 +109,8 @@ abstract class Parser
         if (!empty($note_parts)) {
             self::connectParts($note_parts, $note_criteria_arr, $last_op, $eb, force: true);
             $note_criteria = new Criteria($eb->orX(...$note_criteria_arr));
-        } elseif (!empty($actor_parts)) {
+        }
+        if (!empty($actor_parts)) {
             self::connectParts($actor_parts, $actor_criteria_arr, $last_op, $eb, force: true);
             $actor_criteria = new Criteria($eb->orX(...$actor_criteria_arr));
         }

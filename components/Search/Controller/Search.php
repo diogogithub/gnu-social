@@ -47,11 +47,14 @@ class Search extends FeedController
         $note_qb->select('note')->from('App\Entity\Note', 'note')->orderBy('note.created', 'DESC');
         $actor_qb->select('actor')->from('App\Entity\Actor', 'actor')->orderBy('actor.created', 'DESC');
         Event::handle('SearchQueryAddJoins', [&$note_qb, &$actor_qb]);
+
         $notes = $actors = [];
         if (!\is_null($note_criteria)) {
             $note_qb->addCriteria($note_criteria);
             $notes = $note_qb->getQuery()->execute();
-        } elseif (!\is_null($actor_criteria)) {
+        }
+
+        if (!\is_null($actor_criteria)) {
             $actor_qb->addCriteria($actor_criteria);
             $actors = $actor_qb->getQuery()->execute();
         }
