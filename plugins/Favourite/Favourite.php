@@ -166,4 +166,69 @@ class Favourite extends NoteHandlerPlugin
         ]));
         return Event::next;
     }
+
+    // ActivityPub
+
+    private function activitypub_handler(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
+    {
+        if (!in_array($type_activity->get('type'), ['Like', 'Undo'])) {
+            return Event::next;
+        }
+        if ($type_activity->get('type') === 'Like') { // Favourite
+            if ($type_object instanceof \ActivityPhp\Type\AbstractObject) {
+                if ($type_object->get('type') === 'Note') {
+                    $note_id = \Plugin\ActivityPub\Util\Model\Note::fromJson($type_object)->getId();
+                } else {
+                    return Event::next;
+                }
+            } else if ($type_object instanceof Note) {
+                $note_id = $type_object->getId();
+            } else {
+                return Event::next;
+            }
+        } else { // Undo Favourite
+            if ($type_object instanceof \ActivityPhp\Type\AbstractObject) {
+                $ap_prev_favourite_act = \Plugin\ActivityPub\Util\Model\Activity::fromJson($type_object);
+                $prev_favourite_act = $ap_prev_favourite_act->getActivity();
+                if ($prev_favourite_act->getVerb() === 'favourite' && $prev_favourite_act->getObjectType() === 'note') {
+                    $note_id = $prev_favourite_act->getObjectId();
+                } else {
+                    return Event::next;
+                }
+            } else if ($type_object instanceof Activity) {
+                if ($type_object->getVerb() === 'favourite' && $type_object->getObjectType() === 'note') {
+                    $note_id = $type_object->getObjectId();
+                } else {
+                    return Event::next;
+                }
+            } else {
+                return Event::next;
+            }
+        }
+
+        if ($type_activity->get('type') === 'Like') {
+            $act = self::favourNote($note_id, $actor->getId(), source: 'ActivityPub');
+        } else {
+            $act = self::unfavourNote($note_id, $actor->getId(), source: 'ActivityPub');
+        }
+        // Store ActivityPub Activity
+        $ap_act = \Plugin\ActivityPub\Entity\ActivitypubActivity::create([
+            'activity_id' => $act->getId(),
+            'activity_uri' => $type_activity->get('id'),
+            'created' => new \DateTime($type_activity->get('published') ?? 'now'),
+            'modified' => new \DateTime(),
+        ]);
+        DB::persist($ap_act);
+        return Event::stop;
+    }
+
+    public function onNewActivityPubActivity(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, \ActivityPhp\Type\AbstractObject $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
+    {
+        return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
+    }
+
+    public function onNewActivityPubActivityWithObject(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
+    {
+        return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
+    }
 }
