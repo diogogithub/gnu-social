@@ -39,6 +39,7 @@ use App\Util\HTML;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
+use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -72,8 +73,9 @@ class Tag extends Component
         $matched_tags   = [];
         $processed_tags = false;
         preg_match_all(self::TAG_REGEX, $content, $matched_tags, \PREG_SET_ORDER);
+        $matched_tags = array_unique(F\map($matched_tags, fn ($m) => $m[2]));
         foreach ($matched_tags as $match) {
-            $tag           = self::ensureValid($match[2]);
+            $tag           = self::ensureValid($match);
             $canonical_tag = self::canonicalTag($tag, Language::getById($note->getLanguageId())->getLocale());
             DB::persist(NoteTag::create([
                 'tag'           => $tag,
