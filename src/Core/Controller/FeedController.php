@@ -45,9 +45,7 @@ abstract class FeedController extends Controller
         if (\array_key_exists('notes', $result)) {
             $notes = $result['notes'];
             if (!\is_null($actor)) {
-                $notes_out = null;
-                Event::handle('FilterNoteList', [$actor, $notes, &$notes_out]);
-                $notes = $notes_out;
+                Event::handle('FilterNoteList', [$actor, &$notes]);
             }
 
             $notes_out = null;

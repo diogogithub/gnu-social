@@ -76,7 +76,7 @@ class TagBasedFiltering extends Plugin
         ];
     }
 
-    public function onFilterNoteList(Actor $actor, array $notes, ?array &$notes_out)
+    public function onFilterNoteList(Actor $actor, array &$notes)
     {
         $blocked_note_tags = Cache::get(
             self::cacheKeys($actor)['note'],
@@ -87,7 +87,7 @@ class TagBasedFiltering extends Plugin
             fn () => DB::dql('select atb from actor_tag_block atb where atb.blocker = :blocker', ['blocker' => $actor->getId()]),
         );
 
-        $notes_out = F\reject(
+        $notes = F\reject(
             $notes,
             fn (Note $n) => (
                 $n->getActor()->getId() != $actor->getId()
