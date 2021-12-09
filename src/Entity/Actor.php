@@ -370,6 +370,7 @@ class Actor extends Entity
      */
     public function setSelfTags(array $tags, ?array $existing = null): self
     {
+        $tags = array_unique($tags);
         if (\is_null($existing)) {
             [$_, $existing] = $this->getSelfTags();
         }
