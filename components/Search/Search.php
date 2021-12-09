@@ -97,10 +97,16 @@ class Search extends Component
      */
     public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
     {
+        $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
         if (Formatting::startsWith($term, ['lang', 'language'])) {
-            $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
-            $note_expr   = $eb->startsWith('language.locale', $search_term);
-            $actor_expr  = $eb->startsWith('language.locale', $search_term);
+            $note_expr  = $eb->startsWith('language.locale', $search_term);
+            $actor_expr = $eb->startsWith('language.locale', $search_term);
+            return Event::stop;
+        } elseif (Formatting::startsWith($term, ['note-lang', 'note-language', 'note_lang', 'note_language', 'post_lang', 'post_language', 'post-lang', 'post-language'])) {
+            $note_expr = $eb->startsWith('language.locale', $search_term);
+            return Event::stop;
+        } elseif (Formatting::startsWith($term, ['actor-lang', 'actor-language', 'actor_lang', 'actor_language', 'people_lang', 'people_language', 'people-lang', 'people-language'])) {
+            $actor_expr = $eb->startsWith('language.locale', $search_term);
             return Event::stop;
         }
         return Event::next;
