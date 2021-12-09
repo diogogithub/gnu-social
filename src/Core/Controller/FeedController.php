@@ -52,7 +52,7 @@ abstract class FeedController extends Controller
 
             $notes_out = null;
             Event::handle('FormatNoteList', [$notes, &$notes_out]);
-            $result['notes'] = $notes;
+            $result['notes'] = $notes_out;
         }
 
         return $result;
