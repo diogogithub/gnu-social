@@ -122,7 +122,7 @@ class Note extends Entity
 
     public function getReplyTo(): ?int
     {
-        return $this->reply_to;
+        return $this->reply_to ?: null;
     }
 
     public function setIsLocal(bool $is_local): self
@@ -317,9 +317,10 @@ class Note extends Entity
         return self::getWithPK($this->getReplyTo());
     }
 
-    public function getReplies(): array
+    public function getReplies()
     {
-        return Cache::getList('note-replies-' . $this->id, fn () => DB::dql('select n from note n where n.reply_to = :id', ['id' => $this->id]));
+        $id = $this->getId();
+        return Cache::get('note-replies-' . $id, fn () => DB::dql('select n from note n where n.reply_to = :id', ['id' => $id]));
     }
 
     /**

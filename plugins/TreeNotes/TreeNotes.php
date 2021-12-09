@@ -23,7 +23,6 @@ namespace Plugin\TreeNotes;
 
 use App\Core\Modules\Plugin;
 use App\Entity\Note;
-use Component\Reply\Entity\NoteReply;
 
 class TreeNotes extends Plugin
 {
@@ -32,7 +31,7 @@ class TreeNotes extends Plugin
      */
     public function onFormatNoteList(array $notes_in, ?array &$notes_out)
     {
-        $roots     = array_filter($notes_in, fn (Note $note) => \is_null($note->getReplyTo()));
+        $roots     = array_filter($notes_in, static fn (Note $note) => is_null($note->getReplyTo()));
         $notes_out = $this->build_tree($roots, $notes_in);
     }
 
@@ -47,7 +46,7 @@ class TreeNotes extends Plugin
 
     private function build_subtree(Note $parent, array $notes)
     {
-        $children = array_filter($notes, fn (Note $note) => $parent->getId() === $note->getReplyTo());
+        $children = array_filter($notes, fn (Note $note) => $note->getReplyTo() === $parent->getId());
         return ['note' => $parent, 'replies' => $this->build_tree($children, $notes)];
     }
 }

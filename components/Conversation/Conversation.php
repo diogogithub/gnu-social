@@ -99,7 +99,7 @@ class Conversation extends Component
 
         // Get actors who replied
         foreach ($note_replies as $reply) {
-            $reply_actor[] = Actor::getWithPK(Note::getWithPK($reply)->getActorId());
+            $reply_actor[] = Actor::getWithPK($reply->getActorId());
         }
         if (\count($reply_actor) < 1) {
             return Event::next;
