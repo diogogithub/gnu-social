@@ -29,6 +29,7 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
+use App\Util\Exception\BugFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Form\FormFields;
 use Component\Search as Comp;
@@ -67,10 +68,12 @@ class Search extends FeedController
         }
 
         $search_builder_form = Form::create([
-            FormFields::language($actor, context_actor: null, label: _m('Search for notes in these languages'), multiple: true, required: false, use_short_display: false, form_id: 'note-langs'),
-            ['note-tags', TextType::class, ['required' => false, 'label' => _m('Include notes with all the following tags')]],
-            FormFields::language($actor, context_actor: null, label: _m('Search for actors in these languages'), multiple: true, required: false, use_short_display: false, form_id: 'actor-langs'),
-            ['actor-tags', TextType::class, ['required' => false, 'label' => _m('Include people with all the following tags')]],
+            /* note-langs */ FormFields::language($actor, context_actor: null, label: _m('Search for notes in these languages'), multiple: true, required: false, use_short_display: false, form_id: 'note-langs', use_no_selection: true),
+            ['note-tags', TextType::class, ['required' => false, 'label' => _m('Include only notes with all the following tags')]],
+            /* note-actor-langs */ FormFields::language($actor, context_actor: null, label: _m('Search for notes by people who know these languages'), multiple: true, required: false, use_short_display: false, form_id: 'note-actor-langs', use_no_selection: true),
+            ['note-actor-tags', TextType::class, ['required' => false, 'label' => _m('Include only notes by people with all the following tags')]],
+            /* actor-langs */ FormFields::language($actor, context_actor: null, label: _m('Search for people that know these languages'), multiple: true, required: false, use_short_display: false, form_id: 'actor-langs', use_no_selection: true),
+            ['actor-tags', TextType::class, ['required' => false, 'label' => _m('Include only people with all the following tags')]],
             [$form_name = 'search_builder', SubmitType::class, ['label' => _m('Search')]],
         ]);
 
@@ -78,9 +81,23 @@ class Search extends FeedController
             $search_builder_form->handleRequest($request);
             if ($search_builder_form->isSubmitted() && $search_builder_form->isValid()) {
                 $data  = $search_builder_form->getData();
-                $query = '';
-
-                throw new RedirectException('search', ['q' => $data[$form_name]]);
+                $query = [];
+                foreach ($data as $key => $value) {
+                    if (!\is_null($value) && !empty($value)) {
+                        if (str_contains($key, 'tags')) {
+                            $query[] = "{$key}:#{$value}";
+                        } elseif (str_contains($key, 'lang')) {
+                            if (!\in_array('null', $value)) {
+                                $langs   = implode(',', $value);
+                                $query[] = "{$key}:{$langs}";
+                            }
+                        } else {
+                            throw new BugFoundException('Search form seems to have new fields the code did not expect');
+                        }
+                    }
+                }
+                $query = implode(' ', $query);
+                throw new RedirectException('search', ['q' => $query]);
             }
         }
 
