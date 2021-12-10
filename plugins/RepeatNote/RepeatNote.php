@@ -31,6 +31,8 @@ use App\Entity\Actor;
 use App\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\DuplicateFoundException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Component\Posting\Posting;
@@ -57,28 +59,28 @@ class RepeatNote extends NoteHandlerPlugin
                     'object_type' => 'note',
                     'object_id' => $note->getId()
                 ], order_by: ['created' => 'dsc'])[0];
-        } else {
-            // Create a new note with the same content as the original
-            $repeat = Posting::storeLocalNote(
-                actor: Actor::getById($actor_id),
-                content: $note->getContent(),
-                content_type: $note->getContentType(),
-                language: Language::getById($note->getLanguageId())->getLocale(),
-                processed_attachments: $note->getAttachmentsWithTitle(),
-            );
+        }
 
-            // Find the id of the note we just created
-            $repeat_id = $repeat?->getId();
-            $og_id = $note->getId();
+        // Create a new note with the same content as the original
+        $repeat = Posting::storeLocalNote(
+            actor: Actor::getById($actor_id),
+            content: $note->getContent(),
+            content_type: $note->getContentType(),
+            language: is_null($lang_id = $note->getLanguageId()) ? null : Language::getById($lang_id)->getLocale(),
+            processed_attachments: $note->getAttachmentsWithTitle(),
+        );
 
-            // Add it to note_repeat table
-            if (!is_null($repeat_id)) {
-                DB::persist(NoteRepeat::create([
-                    'note_id' => $repeat_id,
-                    'actor_id' => $actor_id,
-                    'repeat_of' => $og_id,
-                ]));
-            }
+        // Find the id of the note we just created
+        $repeat_id = $repeat?->getId();
+        $og_id = $note->getId();
+
+        // Add it to note_repeat table
+        if (!is_null($repeat_id)) {
+            DB::persist(NoteRepeat::create([
+                'note_id' => $repeat_id,
+                'actor_id' => $actor_id,
+                'repeat_of' => $og_id,
+            ]));
         }
 
         // Log an activity
@@ -90,6 +92,9 @@ class RepeatNote extends NoteHandlerPlugin
             'source' => $source,
         ]);
         DB::persist($repeat_activity);
+
+        Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $repeat_activity, [], "{$actor->getNickname()} repeated note {$note->getUrl()}"]);
+
         return $repeat_activity;
     }
 
@@ -121,6 +126,9 @@ class RepeatNote extends NoteHandlerPlugin
                 'source' => $source,
             ]);
             DB::persist($undo_repeat_activity);
+
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $undo_repeat_activity, [], "{$actor->getNickname()} unrepeated note {$note_id}"]);
+
             return $undo_repeat_activity;
         } else {
             // Either was undoed already
@@ -173,7 +181,7 @@ class RepeatNote extends NoteHandlerPlugin
             ])) {
                 return Event::next;
             }
-        } catch (\Exception) {
+        } catch (DuplicateFoundException|NotFoundException) {
             // It's okay
         }
 
@@ -269,4 +277,68 @@ class RepeatNote extends NoteHandlerPlugin
 
     // ActivityPub
 
+    private function activitypub_handler(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
+    {
+        if (!in_array($type_activity->get('type'), ['Announce', 'Undo'])) {
+            return Event::next;
+        }
+        if ($type_activity->get('type') === 'Announce') { // Repeat
+            if ($type_object instanceof \ActivityPhp\Type\AbstractObject) {
+                if ($type_object->get('type') === 'Note') {
+                    $note = \Plugin\ActivityPub\Util\Model\Note::fromJson($type_object);
+                    $note_id = $note->getId();
+                } else {
+                    return Event::next;
+                }
+            } else if ($type_object instanceof Note) {
+                $note = $type_object;
+                $note_id = $$note->getId();
+            } else {
+                return Event::next;
+            }
+        } else { // Undo Repeat
+            if ($type_object instanceof \ActivityPhp\Type\AbstractObject) {
+                $ap_prev_repeat_act = \Plugin\ActivityPub\Util\Model\Activity::fromJson($type_object);
+                $prev_repeat_act = $ap_prev_repeat_act->getActivity();
+                if ($prev_repeat_act->getVerb() === 'repeat' && $prev_repeat_act->getObjectType() === 'note') {
+                    $note_id = $prev_repeat_act->getObjectId();
+                } else {
+                    return Event::next;
+                }
+            } else if ($type_object instanceof Activity) {
+                if ($type_object->getVerb() === 'repeat' && $type_object->getObjectType() === 'note') {
+                    $note_id = $type_object->getObjectId();
+                } else {
+                    return Event::next;
+                }
+            } else {
+                return Event::next;
+            }
+        }
+
+        if ($type_activity->get('type') === 'Announce') {
+            $act = self::repeatNote($note ?? Note::getById($note_id), $actor->getId(), source: 'ActivityPub');
+        } else {
+            $act = self::unrepeatNote($note_id, $actor->getId(), source: 'ActivityPub');
+        }
+        // Store ActivityPub Activity
+        $ap_act = \Plugin\ActivityPub\Entity\ActivitypubActivity::create([
+            'activity_id' => $act->getId(),
+            'activity_uri' => $type_activity->get('id'),
+            'created' => new \DateTime($type_activity->get('published') ?? 'now'),
+            'modified' => new \DateTime(),
+        ]);
+        DB::persist($ap_act);
+        return Event::stop;
+    }
+
+    public function onNewActivityPubActivity(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, \ActivityPhp\Type\AbstractObject $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
+    {
+        return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
+    }
+
+    public function onNewActivityPubActivityWithObject(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
+    {
+        return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
+    }
 }
