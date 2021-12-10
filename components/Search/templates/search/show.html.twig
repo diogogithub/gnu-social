@@ -16,8 +16,18 @@
     {% endif %}
 
     <div class="section-widget-padded">
-        {% set query = query|escape %}
-        <h2>{% trans %}Search results for %query%{% endtrans %}</h2>
+        {{ form(search_form) }}
+        <hr>
+        <details>
+            <summary>
+                <h3>
+                    {% trans %}Build a search query{% endtrans %}
+                    {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                </h3>
+            </summary>
+            {{ form(search_builder_form) }}
+        </details>
+        <hr>
     </div>
 
     {# Backwards compatibility with hAtom 0.1 #}
@@ -27,8 +37,7 @@
                 {% for note in notes %}
                     {% block current_note %} 
                         <div class="section-widget">
-                            {{ noteView.macro_note(note) }}
-                            <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                            {{ noteView.macro_note(note['note'], []) }}
                         </div>
                     {% endblock current_note %} 
                 {% endfor %}

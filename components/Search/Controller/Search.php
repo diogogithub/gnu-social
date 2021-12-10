@@ -26,8 +26,15 @@ namespace Component\Search\Controller;
 use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use App\Core\Event;
+use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Util\Common;
+use App\Util\Exception\RedirectException;
+use App\Util\Form\FormFields;
+use Component\Search as Comp;
 use Component\Search\Util\Parser;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
 class Search extends FeedController
@@ -59,12 +66,31 @@ class Search extends FeedController
             $actors = $actor_qb->getQuery()->execute();
         }
 
+        $search_builder_form = Form::create([
+            FormFields::language($actor, context_actor: null, label: _m('Search for notes in these languages'), multiple: true, required: false, use_short_display: false, form_id: 'note-langs'),
+            ['note-tags', TextType::class, ['required' => false, 'label' => _m('Include notes with all the following tags')]],
+            FormFields::language($actor, context_actor: null, label: _m('Search for actors in these languages'), multiple: true, required: false, use_short_display: false, form_id: 'actor-langs'),
+            ['actor-tags', TextType::class, ['required' => false, 'label' => _m('Include people with all the following tags')]],
+            [$form_name = 'search_builder', SubmitType::class, ['label' => _m('Search')]],
+        ]);
+
+        if ('POST' === $request->getMethod() && $request->request->has($form_name)) {
+            $search_builder_form->handleRequest($request);
+            if ($search_builder_form->isSubmitted() && $search_builder_form->isValid()) {
+                $data  = $search_builder_form->getData();
+                $query = '';
+
+                throw new RedirectException('search', ['q' => $data[$form_name]]);
+            }
+        }
+
         return [
-            '_template' => 'search/show.html.twig',
-            'query'     => $q,
-            'notes'     => $notes,
-            'actors'    => $actors,
-            'page'      => 1, // TODO paginate
+            '_template'           => 'search/show.html.twig',
+            'search_form'         => Comp\Search::searchForm($request, $q),
+            'search_builder_form' => $search_builder_form->createView(),
+            'notes'               => $notes,
+            'actors'              => $actors,
+            'page'                => 1, // TODO paginate
         ];
     }
 }

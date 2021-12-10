@@ -80,11 +80,11 @@ abstract class FormFields
     /**
      * Create a from field for `select`ing a language for $actor, in reply or related to $context_actor
      */
-    public static function language(Actor $actor, ?Actor $context_actor, string $label, ?string $help = null, bool $multiple = false, bool $required = true, ?bool $use_short_display = null): array
+    public static function language(Actor $actor, ?Actor $context_actor, string $label, ?string $help = null, bool $multiple = false, bool $required = true, ?bool $use_short_display = null, ?string $form_id = null): array
     {
         [$language_choices, $preferred_language_choices] = Language::getSortedLanguageChoices($actor, $context_actor, use_short_display: $use_short_display);
         return [
-            'language' . ($multiple ? 's' : ''),
+            $form_id ?? 'language' . ($multiple ? 's' : ''),
             ChoiceType::class,
             [
                 'label'             => $label,

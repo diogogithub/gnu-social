@@ -28,12 +28,9 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Util\Exception\RedirectException;
-use App\Util\Formatting;
-use Doctrine\Common\Collections\ExpressionBuilder;
-use Doctrine\ORM\Query\Expr;
-use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 
 class Search extends Component
@@ -50,13 +47,13 @@ class Search extends Component
                 'attr' => ['placeholder' => _m('Input desired query...'), 'value' => $query],
             ]],
             [$form_name = 'submit_search', SubmitType::class,
-             [
-                 'label' => _m('Search'),
-                 'attr'  => [
-                     //'class' => 'button-container search-button-container',
-                     'title' => _m('Query notes for specific tags.'),
-                 ],
-             ],
+                [
+                    'label' => _m('Search'),
+                    'attr'  => [
+                        //'class' => 'button-container search-button-container',
+                        'title' => _m('Query notes for specific tags.'),
+                    ],
+                ],
             ],
         ]);
 
@@ -91,36 +88,6 @@ class Search extends Component
     public function onEndShowStyles(array &$styles, string $route): bool
     {
         $styles[] = 'components/Search/assets/css/view.css';
-        return Event::next;
-    }
-
-    /**
-     * Populate $note_expr with an expression to match a tag, if the term looks like a tag
-     *
-     * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
-     */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
-    {
-        $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
-        if (Formatting::startsWith($term, ['lang', 'language'])) {
-            $note_expr  = $eb->startsWith('language.locale', $search_term);
-            $actor_expr = $eb->startsWith('language.locale', $search_term);
-            return Event::stop;
-        } elseif (Formatting::startsWith($term, ['note-lang', 'note-language', 'note_lang', 'note_language', 'post_lang', 'post_language', 'post-lang', 'post-language'])) {
-            $note_expr = $eb->startsWith('language.locale', $search_term);
-            return Event::stop;
-        } elseif (Formatting::startsWith($term, ['actor-lang', 'actor-language', 'actor_lang', 'actor_language', 'people_lang', 'people_language', 'people-lang', 'people-language'])) {
-            $actor_expr = $eb->startsWith('language.locale', $search_term);
-            return Event::stop;
-        }
-        return Event::next;
-    }
-
-    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
-    {
-        $note_qb->leftJoin('App\Entity\Language', 'language', Expr\Join::WITH, 'note.language_id = language.id');
-        $actor_qb->leftJoin('App\Entity\ActorLanguage', 'actor_language', Expr\Join::WITH, 'actor.id = actor_language.actor_id')
-            ->leftJoin('App\Entity\Language', 'language', Expr\Join::WITH, 'actor_language.language_id = language.id');
         return Event::next;
     }
 }
