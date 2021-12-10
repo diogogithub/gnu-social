@@ -26,6 +26,11 @@ use App\Core\Modules\Component;
 use App\Entity\Actor;
 use App\Entity\ActorLanguage;
 use App\Entity\Note;
+use App\Util\Formatting;
+use App\Util\Functional as GSF;
+use Doctrine\Common\Collections\ExpressionBuilder;
+use Doctrine\ORM\Query\Expr;
+use Doctrine\ORM\QueryBuilder;
 use Functional as F;
 
 class Language extends Component
@@ -37,6 +42,39 @@ class Language extends Component
             fn (Note $n) => \in_array($n->getLanguageId(), ActorLanguage::getActorRelatedLanguagesIds($actor)),
         );
 
+        return Event::next;
+    }
+
+    /**
+     * Populate $note_expr or $actor_expr with an expression to match a language
+     */
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
+    {
+        $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
+        if (Formatting::startsWith($term, ['lang', 'language'])) {
+            $note_expr  = $eb->startsWith('note_language.locale', $search_term);
+            $actor_expr = $eb->startsWith('language.locale', $search_term);
+            return Event::stop;
+        } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['note', 'post'], ['lang', 'language']))) {
+            $note_expr = $eb->startsWith('note_language.locale', $search_term);
+            return Event::stop;
+        } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['note', 'post'], ['author', 'actor', 'people', 'person'], ['lang', 'language']))) {
+            $note_expr = $eb->startsWith('note_actor_language.locale', $search_term);
+            return Event::stop;
+        } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['actor', 'people', 'person'], ['lang', 'language']))) {
+            $actor_expr = $eb->startsWith('language.locale', $search_term);
+            return Event::stop;
+        }
+        return Event::next;
+    }
+
+    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
+    {
+        $note_qb->leftJoin('App\Entity\Language', 'note_language', Expr\Join::WITH, 'note.language_id = note_language.id')
+            ->leftJoin('App\Entity\ActorLanguage', 'actor_language', Expr\Join::WITH, 'note.actor_id = actor_language.actor_id')
+            ->leftJoin('App\Entity\Language', 'note_actor_language', Expr\Join::WITH, 'note_actor_language.id = actor_language.language_id');
+        $actor_qb->leftJoin('App\Entity\ActorLanguage', 'actor_language', Expr\Join::WITH, 'actor.id = actor_language.actor_id')
+            ->leftJoin('App\Entity\Language', 'language', Expr\Join::WITH, 'actor_language.language_id = language.id');
         return Event::next;
     }
 }

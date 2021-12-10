@@ -43,25 +43,20 @@ class Search extends Component
         $r->connect('search', '/search', Controller\Search::class);
     }
 
-    /**
-     * Add the search form to the site header
-     *
-     * @throws RedirectException
-     */
-    public function onAddExtraHeaderForms(Request $request, array &$elements)
+    public static function searchForm(Request $request, ?string $query = null): FormView
     {
         $form = Form::create([
-            ['search_tags', TextType::class, [
-                'attr' => ['placeholder' => _m('Input desired query...')],
+            ['search_query', TextType::class, [
+                'attr' => ['placeholder' => _m('Input desired query...'), 'value' => $query],
             ]],
             [$form_name = 'submit_search', SubmitType::class,
-                [
-                    'label' => _m('Submit'),
-                    'attr'  => [
-                        //'class' => 'button-container search-button-container',
-                        'title' => _m('Query notes for specific tags.'),
-                    ],
-                ],
+             [
+                 'label' => _m('Search'),
+                 'attr'  => [
+                     //'class' => 'button-container search-button-container',
+                     'title' => _m('Query notes for specific tags.'),
+                 ],
+             ],
             ],
         ]);
 
@@ -69,11 +64,20 @@ class Search extends Component
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 $data = $form->getData();
-                throw new RedirectException('search', ['q' => $data['search_tags']]);
+                throw new RedirectException('search', ['q' => $data['search_query']]);
             }
         }
+        return $form->createView();
+    }
 
-        $elements[] = $form->createView();
+    /**
+     * Add the search form to the site header
+     *
+     * @throws RedirectException
+     */
+    public function onAddExtraHeaderForms(Request $request, array &$elements)
+    {
+        $elements[] = self::searchForm($request);
         return Event::next;
     }
 
