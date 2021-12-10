@@ -360,6 +360,23 @@ class Note extends Entity
         return $mentioned;
     }
 
+    public function delete(?int $actor_id = null, string $source = 'web'): bool
+    {
+        if (Event::handle('NoteDeleteRelated', [&$this]) === Event::next) {
+            DB::persist(Activity::create([
+                'actor_id' => $actor_id ?? $this->getActorId(),
+                'verb' => 'delete',
+                'object_type' => 'note',
+                'object_id' => $this->getId(),
+                'source' => $source
+                ])
+            );
+            DB::remove($this);
+            return true;
+        }
+        return false;
+    }
+
     public static function schemaDef(): array
     {
         return [
