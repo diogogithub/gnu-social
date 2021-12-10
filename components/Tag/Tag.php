@@ -81,7 +81,7 @@ class Tag extends Component
                 'tag'           => $tag,
                 'canonical'     => $canonical_tag,
                 'note_id'       => $note->getId(),
-                'use_canonical' => $extra_args['tag_use_canonical'],
+                'use_canonical' => $extra_args['tag_use_canonical'] ?? false,
             ]));
             Cache::pushList("tag-{$canonical_tag}", $note);
             $processed_tags = true;
