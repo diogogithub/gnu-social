@@ -80,9 +80,16 @@ abstract class FormFields
     /**
      * Create a from field for `select`ing a language for $actor, in reply or related to $context_actor
      */
-    public static function language(Actor $actor, ?Actor $context_actor, string $label, ?string $help = null, bool $multiple = false, bool $required = true, ?bool $use_short_display = null, ?string $form_id = null): array
+    public static function language(Actor $actor, ?Actor $context_actor, string $label, ?string $help = null, bool $multiple = false, bool $required = true, ?bool $use_short_display = null, ?string $form_id = null, bool $use_no_selection = false): array
     {
         [$language_choices, $preferred_language_choices] = Language::getSortedLanguageChoices($actor, $context_actor, use_short_display: $use_short_display);
+        if ($use_no_selection) {
+            $no_select = _m('(no selection)');
+            // Put it at the beginning of $preferred_language_choices
+            $preferred_language_choices = array_merge([$no_select => 'null'], $preferred_language_choices);
+            // but at the top of $language_choices
+            $language_choices[$no_select] = 'null';
+        }
         return [
             $form_id ?? 'language' . ($multiple ? 's' : ''),
             ChoiceType::class,
