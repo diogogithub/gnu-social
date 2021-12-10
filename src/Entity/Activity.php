@@ -187,7 +187,8 @@ class Activity extends Entity
             array_push($target_ids, ...$ids_already_known['additional']);
         }
 
-        return DB::findBy('actor', ['id' => array_unique($target_ids)]);
+        $target_ids = array_unique($target_ids);
+        return $target_ids === [] ? [] : DB::findBy('actor', ['id' => $target_ids]);
     }
 
     public static function schemaDef(): array

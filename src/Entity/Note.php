@@ -350,7 +350,7 @@ class Note extends Entity
     {
         $rendered = null;
         $mentions = [];
-        Event::handle('RenderNoteContent', [$this->getContent(), $this->getContentType(), &$rendered, &$mentions, $this->getActor(), Language::getById($this->getLanguageId())->getLocale()]);
+        Event::handle('RenderNoteContent', [$this->getContent(), $this->getContentType(), &$rendered, $this->getActor(), Language::getById($this->getLanguageId())->getLocale(), &$mentions]);
         $mentioned = [];
         foreach ($mentions as $mention) {
             foreach ($mention['mentioned'] as $m) {
