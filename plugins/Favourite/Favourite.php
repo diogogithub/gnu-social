@@ -58,6 +58,8 @@ class Favourite extends NoteHandlerPlugin
                 'source' => $source,
             ]);
             DB::persist($act);
+
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $act, [], "{$actor->getNickname()} favoured note {$note_id}"]);
         }
         return $act ?? null;
     }
@@ -76,6 +78,8 @@ class Favourite extends NoteHandlerPlugin
                 'source' => $source,
             ]);
             DB::persist($act);
+
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $act, [], "{$actor->getNickname()} unfavoured note {$note_id}"]);
         }
         return $act ?? null;
     }
@@ -84,11 +88,10 @@ class Favourite extends NoteHandlerPlugin
      * HTML rendering event that adds the favourite form as a note
      * action, if a user is logged in
      *
+     * @param Request $request
+     * @param Note $note
+     * @param array $actions
      * @return bool Event hook
-     * @throws NoSuchNoteException
-     * @throws RedirectException
-     *
-     * @throws InvalidFormException
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
