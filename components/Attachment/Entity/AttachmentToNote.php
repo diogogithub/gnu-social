@@ -19,6 +19,8 @@
 
 namespace Component\Attachment\Entity;
 
+use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
 
@@ -91,6 +93,53 @@ class AttachmentToNote extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    /**
+     * @param int $note_id
+     * @param int $attachment_id
+     * @return mixed
+     */
+    public static function removeWhere(int $note_id, int $attachment_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM attachment_to_note atn
+                WHERE (atn.attachment_id = :attachment_id
+                           OR atn.note_id = :note_id)
+                EOF,
+            ['note_id' => $note_id, 'attachment_id' => $attachment_id],
+        );
+    }
+
+    /**
+     * @param int $note_id
+     * @return mixed
+     */
+    public static function removeWhereNoteId(int $note_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM attachment_to_note atn
+                WHERE atn.note_id = :note_id
+                EOF,
+            ['note_id' => $note_id],
+        );
+    }
+
+    /**
+     * @param int $attachment_id
+     * @return mixed
+     */
+    public static function removeWhereAttachmentId(int $attachment_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM attachment_to_note atn
+                WHERE atn.attachment_id = :attachment_id
+                EOF,
+            ['attachment_id' => $attachment_id],
+        );
+    }
 
     public static function schemaDef(): array
     {

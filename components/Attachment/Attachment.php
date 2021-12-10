@@ -21,11 +21,14 @@ declare(strict_types = 1);
 
 namespace Component\Attachment;
 
+use App\Core\Cache;
 use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
+use App\Entity\Note;
 use Component\Attachment\Controller as C;
 use Component\Attachment\Entity as E;
+use Component\Attachment\Entity\AttachmentToNote;
 
 class Attachment extends Component
 {
@@ -47,5 +50,15 @@ class Attachment extends Component
     {
         $out_hash = hash_file(E\Attachment::FILEHASH_ALGO, $filename);
         return Event::stop;
+    }
+
+    public function onNoteDeleteRelated(Note &$note): bool
+    {
+        Cache::delete("note-attachments-{$note->getId()}");
+        E\AttachmentToNote::removeWhereNoteId($note->getId());
+        foreach($note->getAttachments() as $attachment) {
+            $attachment->kill();
+        }
+        return Event::next;
     }
 }

@@ -248,24 +248,42 @@ class Attachment extends Entity
 
     /**
      * Attachment delete always removes dependencies, cleanups and flushes
+     * @see kill() It's more likely that you want to use that rather than call delete directly
      */
     protected function delete(): bool
     {
+        // Friendly warning because the caller usually doesn't want to delete an attachment that is still referred elsewhere
         if ($this->getLives() > 0) {
             // @codeCoverageIgnoreStart
-            Log::warning("Deleting file {$this->getId()} with {$this->getLives()} lives. Why are you killing it so young?");
+            Log::warning("Deleting file {$this->getId()} with {$this->getLives()} lives. Why are you killing it so old?");
             // @codeCoverageIgnoreEnd
         }
-        // Delete related files from storage
+
+        // Collect files starting with the one associated with this attachment
         $files = [];
         if (!is_null($filepath = $this->getPath())) {
             $files[] = $filepath;
         }
+
+        // Collect thumbnail files and delete thumbnails
         foreach ($this->getThumbnails() as $at) {
             $files[] = $at->getPath();
             $at->delete(flush: false);
         }
+
+        // Delete eventual remaining relations with Actors
+        ActorToAttachment::removeWhereAttachmentId($this->getId());
+
+        // Delete eventual remaining relations with Notes
+        AttachmentToNote::removeWhereAttachmentId($this->getId());
+
+        // Delete eventual remaining relations with Links
+        AttachmentToLink::removeWhereAttachmentId($this->getId());
+
+        // Remove this attachment
         DB::remove($this);
+
+        // Delete the files from disk
         foreach ($files as $f) {
             if (file_exists($f)) {
                 if (@unlink($f) === false) {
@@ -279,6 +297,8 @@ class Attachment extends Entity
                 // @codeCoverageIgnoreEnd
             }
         }
+
+        // Flush these changes as we have deleted the files from disk
         DB::flush();
         return true;
     }

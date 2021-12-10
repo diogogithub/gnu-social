@@ -19,6 +19,7 @@
 
 namespace Component\Attachment\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
 
@@ -75,6 +76,53 @@ class AttachmentToLink extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    /**
+     * @param int $attachment_id
+     * @return mixed
+     */
+    public static function removeWhereAttachmentId(int $attachment_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM attachment_to_link atl
+                WHERE atl.attachment_id = :attachment_id
+                EOF,
+            ['attachment_id' => $attachment_id],
+        );
+    }
+
+    /**
+     * @param int $link_id
+     * @param int $attachment_id
+     * @return mixed
+     */
+    public static function removeWhere(int $link_id, int $attachment_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM attachment_to_link atl
+                WHERE (atl.link_id = :link_id
+                           OR atl.attachment_id = :attachment_id)
+                EOF,
+            ['link_id' => $link_id, 'attachment_id' => $attachment_id],
+        );
+    }
+
+    /**
+     * @param int $link_id
+     * @return mixed
+     */
+    public static function removeWhereLinkId(int $link_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM attachment_to_link atl
+                WHERE atl.link_id = :link_id
+                EOF,
+            ['link_id' => $link_id],
+        );
+    }
 
     public static function schemaDef(): array
     {

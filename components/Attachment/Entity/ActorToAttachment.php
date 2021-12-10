@@ -19,6 +19,7 @@
 
 namespace Component\Attachment\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
 
@@ -75,6 +76,53 @@ class ActorToAttachment extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    /**
+     * @param int $attachment_id
+     * @return mixed
+     */
+    public static function removeWhereAttachmentId(int $attachment_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM actor_to_attachment ata
+                WHERE ata.attachment_id = :attachment_id
+                EOF,
+            ['attachment_id' => $attachment_id],
+        );
+    }
+
+    /**
+     * @param int $actor_id
+     * @param int $attachment_id
+     * @return mixed
+     */
+    public static function removeWhere(int $attachment_id, int $actor_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM actor_to_attachment ata
+                WHERE (ata.attachment_id = :attachment_id
+                           OR ata.actor_id = :actor_id)
+                EOF,
+            ['attachment_id' => $attachment_id, 'actor_id' => $actor_id],
+        );
+    }
+
+    /**
+     * @param int $actor_id
+     * @return mixed
+     */
+    public static function removeWhereActorId(int $actor_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM actor_to_attachment ata
+                WHERE ata.actor_id = :actor_id
+                EOF,
+            ['actor_id' => $actor_id],
+        );
+    }
 
     public static function schemaDef(): array
     {
