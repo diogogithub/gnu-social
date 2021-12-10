@@ -27,6 +27,7 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Util\Common;
+use Functional as F;
 
 /**
  * Entity for actor languages
@@ -81,9 +82,13 @@ class ActorLanguage extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public static function collectionCacheKey(LocalUser|Actor $actor, ?Actor $context = null)
+    public static function cacheKeys(LocalUser|Actor|int $actor, ?Actor $context = null): array
     {
-        return 'actor-' . $actor->getId() . '-langs' . (!\is_null($context) ? '-cxt-' . $context->getId() : '');
+        $actor_id = \is_int($actor) ? $actor : $actor->getId();
+        return [
+            'related-ids' => "actor-{$actor_id}-lang-related-ids",
+            'actor-langs' => "actor-{$actor_id}-langs" . (!\is_null($context) ? "-cxt-{$context->getId()}" : ''),
+        ];
     }
 
     public static function normalizeOrdering(LocalUser|Actor $actor)
@@ -99,16 +104,40 @@ class ActorLanguage extends Entity
     /**
      * @return Language[]
      */
-    public static function getActorLanguages(LocalUser|Actor $actor, ?Actor $context): array
+    public static function getActorLanguages(LocalUser|Actor $actor, ?Actor $context = null): array
     {
         $id = $context?->getId() ?? $actor->getId();
         return Cache::getList(
-            self::collectionCacheKey($actor, context: $context),
+            self::cacheKeys($actor, context: $context)['actor-langs'],
             fn () => DB::dql(
                 'select l from actor_language al join language l with al.language_id = l.id where al.actor_id = :id order by al.ordering ASC',
                 ['id' => $id],
             ),
         ) ?: [Language::getByLocale(Common::config('site', 'language'))];
+    }
+
+    public static function getActorRelatedLanguagesIds(Actor $actor): array
+    {
+        return Cache::getList(
+            self::cacheKeys($actor)['related-ids'],
+            function () use ($actor) {
+                return F\map(
+                    F\flat_map(
+                        self::getActorLanguages($actor),
+                        function ($language) {
+                            if (str_contains($language->getLocale(), '_')) {
+                                // Actor selected a language with a country, so don't attempt to provide alternatives
+                                return $language;
+                            } else {
+                                // Actor selected a language without a country, so find all variants of the language
+                                return DB::dql('select l from language l where l.locale like :locale', ['locale' => $language->getLocale() . '%']);
+                            }
+                        },
+                    ),
+                    fn ($l) => $l->getId(),
+                );
+            },
+        );
     }
 
     public static function schemaDef(): array

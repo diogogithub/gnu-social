@@ -215,9 +215,9 @@ class UserPanel extends Controller
                     }
                 }
 
-                Cache::delete(ActorLanguage::collectionCacheKey($user));
-                DB::flush();
+                Cache::delete(ActorLanguage::cacheKeys($user)['actor-langs']);
                 ActorLanguage::normalizeOrdering($user); // In case the user doesn't submit the other page
+                DB::flush();
                 unset($data['languages']);
 
                 throw new RedirectException('settings_sort_languages', ['_fragment' => null]); // TODO doesn't clear fragment
