@@ -72,9 +72,10 @@ class Extension extends AbstractExtension
             new TwigFunction('is_firefox', [Runtime::class, 'isFirefox']),
             new TwigFunction('handle_override_template_import', [Runtime::class, 'handleOverrideTemplateImport']),
             new TwigFunction('handle_override_stylesheet', [Runtime::class, 'handleOverrideStylesheet']),
-
             new TwigFunction('open_details', [Runtime::class, 'openDetails']),
             new TwigFunction('get_feeds', [Runtime::class, 'getFeeds']),
+            new TwigFunction('die', 'die'),
+            new TwigFunction('dd', 'dd'),
         ];
     }
 }
