@@ -48,9 +48,11 @@ abstract class FeedController extends Controller
                 Event::handle('FilterNoteList', [$actor, &$notes]);
             }
 
-            $notes_out = null;
-            Event::handle('FormatNoteList', [$notes, &$notes_out]);
-            $result['notes'] = $notes_out;
+            if ($result['should_format'] ?? true) {
+                $notes_out = null;
+                Event::handle('FormatNoteList', [$notes, &$notes_out]);
+                $result['notes'] = $notes_out;
+            }
         }
 
         return $result;

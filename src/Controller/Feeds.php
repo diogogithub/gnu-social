@@ -58,6 +58,7 @@ class Feeds extends FeedController
         return [
             '_template'  => 'feeds/feed.html.twig',
             'page_title' => 'Public feed',
+            'should_format' => true,
             'notes'      => $notes,
         ];
     }
@@ -100,6 +101,7 @@ class Feeds extends FeedController
         return [
             '_template'  => 'feeds/feed.html.twig',
             'page_title' => 'Home feed',
+            'should_format' => true,
             'notes'      => $notes,
         ];
     }
@@ -110,6 +112,7 @@ class Feeds extends FeedController
         return [
             '_template'  => 'feeds/feed.html.twig',
             'page_title' => 'Network feed',
+            'should_format' => true,
             'notes'      => $notes,
         ];
     }
