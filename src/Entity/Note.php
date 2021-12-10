@@ -169,7 +169,7 @@ class Note extends Entity
         return $this;
     }
 
-    public function getLanguageId(): int
+    public function getLanguageId(): ?int
     {
         return $this->language_id;
     }

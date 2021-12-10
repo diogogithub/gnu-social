@@ -168,7 +168,7 @@ class Posting extends Component
         Actor $actor,
         string $content,
         string $content_type,
-        string $language,
+        ?string $language = null,
         array $attachments = [],
         array $processed_attachments = [],
         array $process_note_content_extra_args = [],
@@ -181,7 +181,7 @@ class Posting extends Component
             'content'      => $content,
             'content_type' => $content_type,
             'rendered'     => $rendered,
-            'language_id'  => Language::getByLocale($language)->getId(),
+            'language_id'  => !is_null($language) ? Language::getByLocale($language)->getId() : null,
             'is_local'     => true,
         ]);
 
