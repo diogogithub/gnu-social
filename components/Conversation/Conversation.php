@@ -43,7 +43,7 @@ use Symfony\Component\HttpFoundation\Request;
 class Conversation extends Component
 {
     /**
-     * HTML rendering event that adds the repeat form as a note
+     * HTML rendering event that adds a reply link as a note
      * action, if a user is logged in
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
@@ -122,6 +122,14 @@ class Conversation extends Component
         $complementary_info .= ' replied to this note.';
         $result[] = Formatting::twigRenderString($complementary_info, []);
 
+        return Event::next;
+    }
+
+    public function onProcessNoteContent(Note $note, string $content): bool
+    {
+        // If the source lacks capability of sending the "reply_to"
+        // metadata, let's try to find an inline reply_to-reference.
+        // TODO: preg match any reply_to reference and handle reply to funky business (see Link component)
         return Event::next;
     }
 

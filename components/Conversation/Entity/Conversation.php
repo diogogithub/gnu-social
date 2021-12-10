@@ -47,8 +47,8 @@ class Conversation extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private string $uri;    // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
-    private int $note_id;
+    private string $uri;
+    private int $initial_note_id;
 
     public function setId(int $id): self
     {
@@ -72,15 +72,15 @@ class Conversation extends Entity
         return $this->uri;
     }
 
-    public function setNoteId(int $note_id): self
+    public function setInitialNoteId(int $initial_note_id): self
     {
-        $this->note_id = $note_id;
+        $this->initial_note_id = $initial_note_id;
         return $this;
     }
 
-    public function getNoteId(): int
+    public function getInitialNoteId(): int
     {
-        return $this->note_id;
+        return $this->initial_note_id;
     }
 
 
@@ -94,14 +94,14 @@ class Conversation extends Entity
             'fields' => [
                 'id' => ['type' => 'serial', 'not null' => true, 'description' => 'Serial identifier, since any additional meaning would require updating its value for every reply upon receiving a new aparent root'],
                 'uri' => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'URI of the conversation'],
-                'note_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'Root of note for this conversation'],
+                'initial_note_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'Initial note seen on this host for this conversation'],
             ],
             'primary key'  => ['id'],
             'unique keys' => [
                 'conversation_uri_uniq' => ['uri'],
             ],
             'foreign keys' => [
-                'note_id_to_id_fkey' => ['note', ['note_id' => 'id']],
+                'initial_note_id_to_id_fkey' => ['note', ['initial_note_id' => 'id']],
             ],
         ];
     }

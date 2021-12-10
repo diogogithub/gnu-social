@@ -74,7 +74,15 @@ class Reply extends FeedController
             throw new NoSuchNoteException();
         }
 
-        // TODO shouldn't this be the posting form?
+        /*
+         * TODO shouldn't this be the posting form?
+         * Posting needs to be improved to do that. Currently, if it was used here,
+         * there are only slow ways to retrieve the resulting note.
+         * Not only is it part of a right panel event, there's an immediate redirect exception
+         * after submitting it.
+         * That event needs to be extended to allow this component to automagically fill the To: field and get the
+         * resulting note
+         */
         $form = Form::create([
             ['content', TextareaType::class, ['label' => _m('Reply'), 'label_attr' => ['class' => 'section-form-label'], 'help' => _m('Please input your reply.')]],
             FormFields::language(
