@@ -51,18 +51,41 @@ class Language extends Component
     public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
     {
         $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
+
+        $temp_note_expr       = null;
+        $temp_note_actor_expr = null;
+        $temp_actor_expr      = null;
+        if (str_contains($search_term, ',')) {
+            foreach ([
+                ['note_language.locale', &$temp_note_expr],
+                ['note_actor_language.locale', &$temp_note_actor_expr],
+                ['language.locale', &$temp_note_actor_expr],
+            ] as $tmp) {
+                [$column, &$var] = $tmp;
+                $exprs           = [];
+                foreach (explode(',', $search_term) as $s) {
+                    $exprs[] = $eb->startsWith($column, $s);
+                }
+                $var = $eb->orX(...$exprs);
+            }
+        } else {
+            $temp_note_expr       = $eb->startsWith('note_language.locale', $search_term);
+            $temp_note_actor_expr = $eb->startsWith('note_actor_language.locale', $search_term);
+            $temp_actor_expr      = $eb->startsWith('language.locale', $search_term);
+        }
+
         if (Formatting::startsWith($term, ['lang', 'language'])) {
-            $note_expr  = $eb->startsWith('note_language.locale', $search_term);
-            $actor_expr = $eb->startsWith('language.locale', $search_term);
+            $note_expr  = $temp_note_expr;
+            $actor_expr = $temp_actor_expr;
             return Event::stop;
         } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['note', 'post'], ['lang', 'language']))) {
-            $note_expr = $eb->startsWith('note_language.locale', $search_term);
+            $note_expr = $temp_note_expr;
             return Event::stop;
         } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['note', 'post'], ['author', 'actor', 'people', 'person'], ['lang', 'language']))) {
-            $note_expr = $eb->startsWith('note_actor_language.locale', $search_term);
+            $note_expr = $temp_note_actor_expr;
             return Event::stop;
         } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['actor', 'people', 'person'], ['lang', 'language']))) {
-            $actor_expr = $eb->startsWith('language.locale', $search_term);
+            $actor_expr = $temp_actor_expr;
             return Event::stop;
         }
         return Event::next;
