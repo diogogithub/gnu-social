@@ -73,8 +73,11 @@ class Favourite extends FeedController
         $form_add_to_favourite->handleRequest($request);
 
         if ($form_add_to_favourite->isSubmitted()) {
-            \Plugin\Favourite\Favourite::favourNote(note_id: $id, actor_id: $actor_id);
-            DB::flush();
+            if (!is_null(\Plugin\Favourite\Favourite::favourNote(note_id: $id, actor_id: $actor_id))) {
+                DB::flush();
+            } else {
+                throw new ClientException(_m('Note already favoured!'));
+            }
 
             // Redirect user to where they came from
             // Prevent open redirect
@@ -129,8 +132,11 @@ class Favourite extends FeedController
 
         $form_remove_favourite->handleRequest($request);
         if ($form_remove_favourite->isSubmitted()) {
-            \Plugin\Favourite\Favourite::unfavourNote(note_id: $id, actor_id: $actor_id);
-            DB::flush();
+            if (!is_null(\Plugin\Favourite\Favourite::unfavourNote(note_id: $id, actor_id: $actor_id))) {
+                DB::flush();
+            } else {
+                throw new ClientException(_m('Note already unfavoured!'));
+            }
 
             // Redirect user to where they came from
             // Prevent open redirect
