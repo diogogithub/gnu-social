@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 // }}}
 
-namespace Plugin\Repeat\Entity;
+namespace Plugin\RepeatNote\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
@@ -99,13 +99,13 @@ class NoteRepeat extends Entity
                 'actor_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'description' => 'Who made this repeat'],
                 'repeat_of' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'Note this is a repeat of'],
             ],
-            'primary key'  => ['note_id'],
+            'primary key' => ['note_id'],
             'foreign keys' => [
                 'note_id_to_id_fkey' => ['note', ['note_id' => 'id']],
                 'note_repeat_of_id_fkey' => ['note', ['repeat_of' => 'id']],
                 'actor_reply_to_id_fkey' => ['actor', ['actor_id' => 'id']],
             ],
-            'indexes'     => [
+            'indexes' => [
                 'note_repeat_of_idx' => ['repeat_of'],
             ],
         ];
