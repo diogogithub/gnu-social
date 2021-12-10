@@ -27,9 +27,9 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Entity\Note;
-use App\Entity\NoteToLink;
 use App\Util\Common;
 use App\Util\HTML;
+use Component\Link\Entity\NoteToLink;
 use InvalidArgumentException;
 
 class Link extends Component
@@ -257,5 +257,11 @@ class Link extends Component
         }
 
         return HTML::html(['a' => ['attrs' => $attrs, $url]], options: ['indent' => false]);
+    }
+
+    public function onNoteDeleteRelated(Note &$note): bool
+    {
+        NoteToLink::removeWhereNoteId($note->getId());
+        return Event::next;
     }
 }

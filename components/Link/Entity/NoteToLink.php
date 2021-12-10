@@ -17,7 +17,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Link\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
@@ -91,6 +91,53 @@ class NoteToLink extends Entity
         Event::handle('NewLinkFromNote', [$link, $note]);
         $obj = new self();
         return parent::create($args, $obj);
+    }
+
+    /**
+     * @param int $note_id
+     * @return mixed
+     */
+    public static function removeWhereNoteId(int $note_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM note_to_link ntl
+                WHERE ntl.note_id = :note_id
+                EOF,
+            ['note_id' => $note_id],
+        );
+    }
+
+    /**
+     * @param int $link_id
+     * @param int $note_id
+     * @return mixed
+     */
+    public static function removeWhere(int $link_id, int $note_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM note_to_link ntl
+                WHERE (ntl.link_id = :link_id
+                           OR ntl.note_id = :note_id)
+                EOF,
+            ['link_id' => $link_id, 'note_id' => $note_id],
+        );
+    }
+
+    /**
+     * @param int $link_id
+     * @return mixed
+     */
+    public static function removeWhereLinkId(int $link_id): mixed
+    {
+        return DB::dql(
+            <<<'EOF'
+                DELETE FROM note_to_link ntl
+                WHERE ntl.link_id = :link_id
+                EOF,
+            ['link_id' => $link_id],
+        );
     }
 
     public static function schemaDef(): array
