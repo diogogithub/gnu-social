@@ -40,7 +40,6 @@ use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
-use App\Util\Exception\NotImplementedException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
@@ -143,20 +142,15 @@ class Reply extends FeedController
 
     public function replies(Request $request)
     {
-        // TODO replies
-        throw new NotImplementedException;
         $actor_id = Common::ensureLoggedIn()->getId();
         $notes    = DB::dql('select n from App\Entity\Note n '
                             . 'where n.reply_to is not null and n.actor_id = :id '
                             . 'order by n.created DESC', ['id' => $actor_id], );
-
-        $notes_out = null;
-        Event::handle('FormatNoteList', [$notes, &$notes_out]);
-
-        return $this->process_feed([
+        return [
             '_template'  => 'feeds/feed.html.twig',
-            'notes'      => $notes_out,
+            'notes'      => $notes,
+            'should_format' => false,
             'page_title' => 'Replies feed',
-        ]);
+        ];
     }
 }

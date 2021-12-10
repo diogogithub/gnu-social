@@ -132,6 +132,7 @@ class Conversation extends Component
     {
         $r->connect('reply_add', '/object/note/{id<\d+>}/reply', [ReplyController::class, 'replyAddNote']);
         $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [ReplyController::class, 'replies']);
+        $r->connect('conversation', '/conversation/{id<\d+>}', [ReplyController::class, 'conversation']);
 
         return Event::next;
     }

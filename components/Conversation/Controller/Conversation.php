@@ -26,6 +26,7 @@ declare(strict_types = 1);
 
 namespace Component\Conversation\Controller;
 
+use _PHPStan_76800bfb5\Nette\NotImplementedException;
 use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use App\Core\Form;
@@ -55,6 +56,7 @@ class Conversation extends FeedController
     // if note is a reply -> link from above plus anchor
     public function ConversationShow(Request $request)
     {
+        throw new NotImplementedException();
         $actor_id = Common::ensureLoggedIn()->getId();
         $notes    = DB::dql('select n from App\Entity\Note n '
             . 'where n.reply_to is not null and n.actor_id = :id '

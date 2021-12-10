@@ -48,17 +48,18 @@ class Note extends Entity
     // @codeCoverageIgnoreStart
     private int $id;
     private int $actor_id;
-    private ?string $content_type = null;
-    private ?string $content      = null;
-    private ?string $rendered     = null;
+    private ?string $content;
+    private string $content_type = 'text/plain';
+    private ?string $rendered;
+    private int $conversation_id;
     private ?int $reply_to;
     private bool $is_local;
     private ?string $source;
-    private int $scope = VisibilityScope::PUBLIC;
-    private string $url;
-    private ?int $language_id = null;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private int $scope = 1;
+    private ?string $url;
+    private ?int $language_id;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -82,17 +83,6 @@ class Note extends Entity
         return $this->actor_id;
     }
 
-    public function getContentType(): string
-    {
-        return $this->content_type;
-    }
-
-    public function setContentType(string $content_type): self
-    {
-        $this->content_type = $content_type;
-        return $this;
-    }
-
     public function setContent(?string $content): self
     {
         $this->content = $content;
@@ -102,6 +92,17 @@ class Note extends Entity
     public function getContent(): ?string
     {
         return $this->content;
+    }
+
+    public function setContentType(string $content_type): self
+    {
+        $this->content_type = $content_type;
+        return $this;
+    }
+
+    public function getContentType(): string
+    {
+        return $this->content_type;
     }
 
     public function setRendered(?string $rendered): self
@@ -115,6 +116,17 @@ class Note extends Entity
         return $this->rendered;
     }
 
+    public function setConversationId(int $conversation_id): self
+    {
+        $this->conversation_id = $conversation_id;
+        return $this;
+    }
+
+    public function getConversationId(): int
+    {
+        return $this->conversation_id;
+    }
+
     public function setReplyTo(?int $reply_to): self
     {
         $this->reply_to = $reply_to;
@@ -123,7 +135,7 @@ class Note extends Entity
 
     public function getReplyTo(): ?int
     {
-        return $this->reply_to ?: null;
+        return $this->reply_to;
     }
 
     public function setIsLocal(bool $is_local): self
@@ -159,20 +171,15 @@ class Note extends Entity
         return $this->scope;
     }
 
-    public function getUrl(): string
-    {
-        return $this->url;
-    }
-
-    public function setUrl(string $url): self
+    public function setUrl(?string $url): self
     {
         $this->url = $url;
         return $this;
     }
 
-    public function getLanguageId(): ?int
+    public function getUrl(): ?string
     {
-        return $this->language_id;
+        return $this->url;
     }
 
     public function setLanguageId(?int $language_id): self
@@ -181,27 +188,33 @@ class Note extends Entity
         return $this;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function getLanguageId(): ?int
+    {
+        return $this->language_id;
+    }
+
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }
+
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
@@ -420,19 +433,20 @@ class Note extends Entity
         return [
             'name'   => 'note',
             'fields' => [
-                'id'           => ['type' => 'serial',    'not null' => true],
-                'actor_id'     => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'who made the note'],
-                'content'      => ['type' => 'text',      'description' => 'note content'],
-                'content_type' => ['type' => 'varchar',   'not null' => true, 'default' => 'text/plain', 'length' => 129,      'description' => 'A note can be written in a multitude of formats such as text/plain, text/markdown, application/x-latex, and text/html'],
-                'rendered'     => ['type' => 'text',      'description' => 'rendered note content, so we can keep the microtags (if not local)'],
-                'reply_to'     => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'note replied to, null if root of a conversation'],
-                'is_local'     => ['type' => 'bool',      'not null' => true, 'description' => 'was this note generated by a local actor'],
-                'source'       => ['type' => 'varchar',   'foreign key' => true, 'length' => 32, 'target' => 'NoteSource.code', 'multiplicity' => 'many to one', 'description' => 'fkey to source of note, like "web", "im", or "clientname"'],
-                'scope'        => ['type' => 'int',       'not null' => true, 'default' => VisibilityScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = subscribers; 16 = messages; null = default'],
-                'url'          => ['type' => 'text',      'description' => 'Permalink to Note'],
-                'language_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'one to many', 'description' => 'The language for this note'],
-                'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'                => ['type' => 'serial',    'not null' => true],
+                'actor_id'          => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'who made the note'],
+                'content'           => ['type' => 'text',      'description' => 'note content'],
+                'content_type'      => ['type' => 'varchar',   'not null' => true, 'default' => 'text/plain', 'length' => 129,      'description' => 'A note can be written in a multitude of formats such as text/plain, text/markdown, application/x-latex, and text/html'],
+                'rendered'          => ['type' => 'text',      'description' => 'rendered note content, so we can keep the microtags (if not local)'],
+                'conversation_id'   => ['type' => 'serial',    'not null' => true, 'foreign key' => true, 'target' => 'Conversation.id', 'multiplicity' => 'one to one', 'description' => 'the conversation identifier'],
+                'reply_to'          => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'note replied to, null if root of a conversation'],
+                'is_local'          => ['type' => 'bool',      'not null' => true, 'description' => 'was this note generated by a local actor'],
+                'source'            => ['type' => 'varchar',   'foreign key' => true, 'length' => 32, 'target' => 'NoteSource.code', 'multiplicity' => 'many to one', 'description' => 'fkey to source of note, like "web", "im", or "clientname"'],
+                'scope'             => ['type' => 'int',       'not null' => true, 'default' => VisibilityScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = subscribers; 16 = messages; null = default'],
+                'url'               => ['type' => 'text',      'description' => 'Permalink to Note'],
+                'language_id'       => ['type' => 'int',       'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'one to many', 'description' => 'The language for this note'],
+                'created'           => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'          => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'indexes'     => [
