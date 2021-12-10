@@ -17,7 +17,7 @@
     "doctrine/orm": "^2.9",
     "erusev/parsedown": "^1.7",
     "knplabs/knp-time-bundle": "^1.17",
-    "lstrojny/functional-php": "^1.11",
+    "lstrojny/functional-php": "^1.17",
     "nyholm/psr7": "^1.4",
     "odolbeau/phone-number-bundle": "^3.1",
     "oro/doctrine-extensions": "^2.0",
