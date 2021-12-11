@@ -29,6 +29,8 @@ use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
+use App\Util\Formatting;
+use Doctrine\Common\Collections\ExpressionBuilder;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormView;
@@ -129,6 +131,22 @@ class Search extends Component
     public function onEndShowStyles(array &$styles, string $route): bool
     {
         $styles[] = 'components/Search/assets/css/view.css';
+        return Event::next;
+    }
+
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
+    {
+        $include_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
+        if (Formatting::startsWith($term, ['note-types:', 'notes-incude:', 'note-filter:'])) {
+            if (\is_null($note_expr)) {
+                $note_expr = [];
+            }
+            if (array_intersect(explode(',', $include_term), ['text', 'words']) !== []) {
+                $note_expr[] = $eb->neq('note.rendered', null);
+            } else {
+                $note_expr[] = $eb->eq('note.rendered', null);
+            }
+        }
         return Event::next;
     }
 }

@@ -26,9 +26,12 @@ use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
+use App\Util\Formatting;
 use Component\Attachment\Controller as C;
 use Component\Attachment\Entity as E;
-use Component\Attachment\Entity\AttachmentToNote;
+use Doctrine\Common\Collections\ExpressionBuilder;
+use Doctrine\ORM\Query\Expr;
+use Doctrine\ORM\QueryBuilder;
 
 class Attachment extends Component
 {
@@ -56,8 +59,30 @@ class Attachment extends Component
     {
         Cache::delete("note-attachments-{$note->getId()}");
         E\AttachmentToNote::removeWhereNoteId($note->getId());
-        foreach($note->getAttachments() as $attachment) {
+        foreach ($note->getAttachments() as $attachment) {
             $attachment->kill();
+        }
+        return Event::next;
+    }
+
+    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
+    {
+        $note_qb->leftJoin(E\AttachmentToNote::class, 'attachment_to_note', Expr\Join::WITH, 'note.id = attachment_to_note.note_id');
+        return Event::next;
+    }
+
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
+    {
+        $include_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
+        if (Formatting::startsWith($term, ['note-types:', 'notes-incude:', 'note-filter:'])) {
+            if (\is_null($note_expr)) {
+                $note_expr = [];
+            }
+            if (array_intersect(explode(',', $include_term), ['media', 'image', 'images', 'attachment']) !== []) {
+                $note_expr[] = $eb->neq('attachment_to_note.note_id', null);
+            } else {
+                $note_expr[] = $eb->eq('attachment_to_note.note_id', null);
+            }
         }
         return Event::next;
     }
