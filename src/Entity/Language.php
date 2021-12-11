@@ -150,9 +150,12 @@ class Language extends Entity
      * Get all the available languages as well as the languages $actor
      * prefers and are appropriate for posting in/to $context_actor
      */
-    public static function getSortedLanguageChoices(Actor $actor, ?Actor $context_actor, ?bool $use_short_display): array
+    public static function getSortedLanguageChoices(?Actor $actor, ?Actor $context_actor, ?bool $use_short_display): array
     {
-        $language_choices           = self::getLanguageChoices();
+        $language_choices = self::getLanguageChoices();
+        if (\is_null($actor)) {
+            return [$language_choices, []];
+        }
         $preferred_language_choices = $actor->getPreferredLanguageChoices($context_actor);
         ksort($language_choices);
         if ($use_short_display ?? Common::config('posting', 'use_short_language_display')) {
