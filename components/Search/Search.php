@@ -27,10 +27,12 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
+use App\Util\Common;
 use App\Util\Exception\RedirectException;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 
 class Search extends Component
@@ -40,28 +42,67 @@ class Search extends Component
         $r->connect('search', '/search', Controller\Search::class);
     }
 
-    public static function searchForm(Request $request, ?string $query = null): FormView
+    public static function searchForm(Request $request, ?string $query = null, bool $add_subscribe = false): FormView
     {
-        $form = Form::create([
+        $actor = Common::actor();
+        if (\is_null($actor)) {
+            $add_subscribe = false;
+        }
+
+        $form_definition = [
             ['search_query', TextType::class, [
                 'attr' => ['placeholder' => _m('Input desired query...'), 'value' => $query],
             ]],
-            [$form_name = 'submit_search', SubmitType::class,
+        ];
+
+        if ($add_subscribe) {
+            $form_definition[] = [
+                'title', TextType::class, ['label' => _m('Title'), 'attr' => ['title' => _m('Title for this new feed in your left panel')]],
+            ];
+            $form_definition[] = [
+                'subscribe_to_search',
+                SubmitType::class,
                 [
-                    'label' => _m('Search'),
+                    'label' => _m('Subscribe to this search'),
                     'attr'  => [
-                        //'class' => 'button-container search-button-container',
-                        'title' => _m('Query notes for specific tags.'),
+                        'title' => _m('Add this search as a feed in your feeds section of the left panel'),
                     ],
                 ],
+            ];
+        }
+
+        $form_definition[] = [
+            $form_name = 'submit_search',
+            SubmitType::class,
+            [
+                'label' => _m('Search'),
+                'attr'  => [
+                    //'class' => 'button-container search-button-container',
+                    'title' => _m('Query notes for specific tags.'),
+                ],
             ],
-        ]);
+        ];
+
+        $form = Form::create($form_definition);
 
         if ('POST' === $request->getMethod() && $request->request->has($form_name)) {
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
-                $data = $form->getData();
-                throw new RedirectException('search', ['q' => $data['search_query']]);
+                $data     = $form->getData();
+                $redirect = false;
+                if ($add_subscribe) {
+                    /** @var SubmitButton $subscribe */
+                    $subscribe = $form->get('subscribe_to_search');
+                    if ($subscribe->isClicked()) {
+                        Event::handle('AppendFeed', [$actor, $data['title'], 'search', ['q' => $data['search_query']]]);
+                        $redirect = true;
+                    }
+                }
+                /** @var SubmitButton $submit */
+                $submit = $form->get($form_name);
+                if ($submit->isClicked() || $redirect) {
+                    throw new RedirectException('search', ['q' => $data['search_query']]);
+                }
             }
         }
         return $form->createView();

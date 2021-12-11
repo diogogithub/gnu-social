@@ -21,9 +21,16 @@ declare(strict_types = 1);
 
 namespace Component\LeftPanel;
 
+use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
+use App\Core\Router\Router;
+use App\Entity\Actor;
+use App\Entity\Feed;
+use App\Util\Exception\ClientException;
 use Component\LeftPanel\Controller as C;
 
 class LeftPanel extends Component
@@ -32,6 +39,27 @@ class LeftPanel extends Component
     {
         $r->connect('edit_feeds', '/edit-feeds', C\EditFeeds::class);
         return Event::next;
+    }
+
+    public function onAppendFeed(Actor $actor, string $title, string $route, array $route_params)
+    {
+        $cache_key = Feed::cacheKey($actor);
+        $feeds     = Feed::getFeeds($actor);
+        $ordering  = end($feeds)->getOrdering();
+        $url       = Router::url($route, $route_params);
+        if (DB::count('feed', ['actor_id' => $actor->getId(), 'url' => $url]) === 0) {
+            DB::persist(Feed::create([
+                'actor_id' => $actor->getId(),
+                'url'      => $url,
+                'route'    => $route,
+                'title'    => $title,
+                'ordering' => $ordering + 1,
+            ]));
+            DB::flush();
+            Cache::delete($cache_key);
+            return Event::stop;
+        }
+        throw new ClientException(_m('Cannot add feed with url "{url}" because it already exists', ['{url}' => $url]));
     }
 
     /**

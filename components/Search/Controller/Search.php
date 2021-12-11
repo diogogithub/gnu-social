@@ -92,7 +92,7 @@ class Search extends FeedController
                                 $query[] = "{$key}:{$langs}";
                             }
                         } else {
-                            throw new BugFoundException('Search form seems to have new fields the code did not expect');
+                            throw new BugFoundException('Search builder form seems to have new fields the code did not expect');
                         }
                     }
                 }
@@ -103,7 +103,7 @@ class Search extends FeedController
 
         return [
             '_template'           => 'search/show.html.twig',
-            'search_form'         => Comp\Search::searchForm($request, $q),
+            'search_form'         => Comp\Search::searchForm($request, query: $q, add_subscribe: true),
             'search_builder_form' => $search_builder_form->createView(),
             'notes'               => $notes,
             'actors'              => $actors,
