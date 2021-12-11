@@ -27,6 +27,7 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
+use App\Entity\Actor;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
 use App\Util\Formatting;
@@ -146,6 +147,23 @@ class Search extends Component
                 $note_expr[] = $eb->neq('note.rendered', null);
             } else {
                 $note_expr[] = $eb->eq('note.rendered', null);
+            }
+        } elseif (Formatting::startsWith($term, ['actor-types:', 'actors-incude:', 'actor-filter:'])) {
+            if (\is_null($actor_expr)) {
+                $actor_expr = [];
+            }
+            foreach ([
+                Actor::PERSON => ['person', 'people'],
+                Actor::GROUP => ['group', 'groups'],
+                Actor::ORGANIZATION => ['org', 'orgs', 'organization', 'organizations', 'organisation', 'organisations'],
+                Actor::BUSINESS => ['business', 'businesses'],
+                Actor::BOT => ['bot', 'bots'],
+            ] as $type => $match) {
+                if (array_intersect(explode(',', $include_term), $match) !== []) {
+                    $actor_expr[] = $eb->eq('actor.type', $type);
+                } else {
+                    $actor_expr[] = $eb->neq('actor.type', $type);
+                }
             }
         }
         return Event::next;

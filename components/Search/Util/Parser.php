@@ -37,7 +37,6 @@ abstract class Parser
         foreach ([' ' => 'orX', '|' => 'orX', '&' => 'andX'] as $op => $func) {
             if ($last_op === $op || $force) {
                 $criteria_arr[] = $eb->{$func}(...$parts);
-                $note_parts     = [];
                 break;
             }
         }
@@ -81,13 +80,13 @@ abstract class Parser
                     if (\is_null($note_res) && \is_null($actor_res)) {
                         throw new ServerException("No one claimed responsibility for a match term: {$term}");
                     }
-                    if (!\is_null($note_res)) {
+                    if (!\is_null($note_res) && !empty($note_res)) {
                         if (\is_array($note_res)) {
                             $note_res = $eb->orX(...$note_res);
                         }
                         $note_parts[] = $note_res;
                     }
-                    if (!\is_null($actor_res)) {
+                    if (!\is_null($actor_res) && !empty($note_res)) {
                         if (\is_array($actor_res)) {
                             $actor_res = $ex->orX(...$actor_res);
                         }
