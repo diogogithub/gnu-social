@@ -59,6 +59,7 @@ class Actor extends Entity
     private string $nickname;
     private ?string $fullname = null;
     private int $roles        = 4;
+    private int $type;
     private ?string $homepage;
     private ?string $bio;
     private ?string $location;
@@ -115,6 +116,17 @@ class Actor extends Entity
     public function getRoles(): int
     {
         return $this->roles;
+    }
+
+    public function setType(int $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+    public function getType(): int
+    {
+        return $this->type;
     }
 
     public function setHomepage(?string $homepage): self
@@ -229,6 +241,12 @@ class Actor extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public const PERSON       = 1;
+    public const GROUP        = 2;
+    public const ORGANIZATION = 3;
+    public const BUSINESS     = 4;
+    public const BOT          = 5;
 
     public static function cacheKeys(int $actor_id, mixed $other = null): array
     {
@@ -519,6 +537,7 @@ class Actor extends Entity
                 'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
                 'fullname'         => ['type' => 'text', 'description' => 'display name'],
                 'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this actor has'],
+                'type'             => ['type' => 'int', 'not null' => true, 'description' => 'The type of actor (person, group, bot, etc)'],
                 'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
                 'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
                 'location'         => ['type' => 'text', 'description' => 'physical location'],
