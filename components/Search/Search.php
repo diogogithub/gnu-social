@@ -59,7 +59,7 @@ class Search extends Component
 
         if ($add_subscribe) {
             $form_definition[] = [
-                'title', TextType::class, ['label' => _m('Title'), 'attr' => ['title' => _m('Title for this new feed in your left panel')]],
+                'title', TextType::class, ['label' => _m('Title'), 'required' => false, 'attr' => ['title' => _m('Title for this new feed in your left panel')]],
             ];
             $form_definition[] = [
                 'subscribe_to_search',
@@ -96,6 +96,7 @@ class Search extends Component
                     /** @var SubmitButton $subscribe */
                     $subscribe = $form->get('subscribe_to_search');
                     if ($subscribe->isClicked()) {
+                        // TODO ensure title is set
                         Event::handle('AppendFeed', [$actor, $data['title'], 'search', ['q' => $data['search_query']]]);
                         $redirect = true;
                     }
