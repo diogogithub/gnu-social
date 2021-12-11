@@ -16,16 +16,70 @@
     {% endif %}
 
     <div class="section-widget-padded">
-        {{ form(search_form) }}
+        {{ form_start(search_form) }}
+        <div>
+            {{ form_row(search_form.search_query) }}
+            {{ form_row(search_form.submit_search) }}
+        </div>
+        <details class="section-widget">
+            <summary>
+                <h3>
+                    {% trans %}Save this search as a feed{% endtrans %}
+                    {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                </h3>
+            </summary>
+            {{ form_row(search_form.title) }}
+            {{ form_row(search_form.subscribe_to_search) }}
+        </details>
+        {{ form_end(search_form)}}
         <hr>
-        <details>
+        <details class="section-widget">
             <summary>
                 <h3>
                     {% trans %}Build a search query{% endtrans %}
                     {{ icon('arrow-down', 'icon icon-details-open') | raw }}
                 </h3>
             </summary>
-            {{ form(search_builder_form) }}
+
+            {{ form_start(search_builder_form) }}
+
+            {# actor options, display if first checked, with checkbox trick #}
+            <details class="section-widget">
+                <summary>
+                    <h3>
+                        {% trans %}People search options{% endtrans %}
+                        {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                    </h3>
+                </summary>
+                {{ form_row(search_builder_form.include_actors) }}
+                {{ form_row(search_builder_form.include_actors_people) }}
+                {{ form_row(search_builder_form.include_actors_groups) }}
+                {{ form_row(search_builder_form.include_actors_lists) }}
+                {{ form_row(search_builder_form.include_actors_businesses) }}
+                {{ form_row(search_builder_form.include_actors_organizations) }}
+                {{ form_row(search_builder_form.include_actors_bots) }}
+                {{ form_row(search_builder_form.actor_langs) }}
+                {{ form_row(search_builder_form.actor_tags) }}
+            </details>
+
+            <details class="section-widget">
+                <summary>
+                    <h3>
+                        {% trans %}Note search options{% endtrans %}
+                        {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                    </h3>
+                </summary>
+                {{ form_row(search_builder_form.include_notes) }}
+                {{ form_row(search_builder_form.include_notes_text) }}
+                {{ form_row(search_builder_form.include_notes_media) }}
+                {{ form_row(search_builder_form.include_notes_polls) }}
+                {{ form_row(search_builder_form.include_notes_bookmarks) }}
+                {{ form_row(search_builder_form.note_langs) }}
+                {{ form_row(search_builder_form.note_tags) }}
+                {{ form_row(search_builder_form.note_actor_langs) }}
+                {{ form_row(search_builder_form.note_actor_tags) }}
+            </details>
+            {{ form_end(search_builder_form) }}
         </details>
         <hr>
     </div>
