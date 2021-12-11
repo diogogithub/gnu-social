@@ -31,6 +31,7 @@ use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\NotFoundException;
 use Component\LeftPanel\Controller as C;
 
 class LeftPanel extends Component
@@ -47,7 +48,13 @@ class LeftPanel extends Component
         $feeds     = Feed::getFeeds($actor);
         $ordering  = end($feeds)->getOrdering();
         $url       = Router::url($route, $route_params);
-        if (DB::count('feed', ['actor_id' => $actor->getId(), 'url' => $url]) === 0) {
+        try {
+            $feed = DB::findOneBy('feed', ['actor_id' => $actor->getId(), 'url' => $url]);
+            throw new ClientException(_m(
+                'Cannot add feed with url "{url}" because it already exists with title "{title}"',
+                ['{url}' => $url, '{title}' => $feed->getTitle()],
+            ));
+        } catch (NotFoundException) {
             DB::persist(Feed::create([
                 'actor_id' => $actor->getId(),
                 'url'      => $url,
@@ -59,7 +66,6 @@ class LeftPanel extends Component
             Cache::delete($cache_key);
             return Event::stop;
         }
-        throw new ClientException(_m('Cannot add feed with url "{url}" because it already exists', ['{url}' => $url]));
     }
 
     /**
