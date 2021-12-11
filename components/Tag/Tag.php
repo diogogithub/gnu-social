@@ -30,6 +30,7 @@ use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\Router;
 use App\Entity\Actor;
+use App\Entity\ActorTag;
 use App\Entity\Language;
 use App\Entity\Note;
 use App\Entity\NoteTag;
@@ -158,11 +159,11 @@ class Tag extends Component
         $canon_search_term = self::canonicalTag($search_term, $language);
         $temp_note_expr    = $eb->eq('note_tag.canonical', $canon_search_term);
         $temp_actor_expr   = $eb->eq('actor_tag.canonical', $canon_search_term);
-        if (Formatting::startsWith($term, ['note', 'tag'])) {
+        if (Formatting::startsWith($term, ['note:', 'tag:', 'people:'])) {
             $note_expr = $temp_note_expr;
-        } elseif (Formatting::startsWith($term, ['people', 'actor'])) {
+        } elseif (Formatting::startsWith($term, ['people:', 'actor:'])) {
             $actor_expr = $temp_actor_expr;
-        } else {
+        } elseif (str_contains($term, '#')) {
             $note_expr  = $temp_note_expr;
             $actor_expr = $temp_actor_expr;
             return Event::next;
@@ -172,8 +173,8 @@ class Tag extends Component
 
     public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
-        $note_qb->leftJoin('App\Entity\NoteTag', 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
-        $actor_qb->leftJoin('App\Entity\ActorTag', 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id');
+        $note_qb->leftJoin(NoteTag::class, 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
+        $actor_qb->leftJoin(ActorTag::class, 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id');
         return Event::next;
     }
 

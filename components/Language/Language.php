@@ -74,17 +74,17 @@ class Language extends Component
             $temp_actor_expr      = $eb->startsWith('language.locale', $search_term);
         }
 
-        if (Formatting::startsWith($term, ['lang', 'language'])) {
+        if (Formatting::startsWith($term, ['lang:', 'language:'])) {
             $note_expr  = $temp_note_expr;
             $actor_expr = $temp_actor_expr;
             return Event::stop;
-        } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['note', 'post'], ['lang', 'language']))) {
+        } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['note', 'post'], ['lang', 'language'], [':']))) {
             $note_expr = $temp_note_expr;
             return Event::stop;
-        } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['note', 'post'], ['author', 'actor', 'people', 'person'], ['lang', 'language']))) {
+        } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['note', 'post'], ['author', 'actor', 'people', 'person'], ['lang', 'language'], [':']))) {
             $note_expr = $temp_note_actor_expr;
             return Event::stop;
-        } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['actor', 'people', 'person'], ['lang', 'language']))) {
+        } elseif (Formatting::startsWith($term, GSF::cartesianProduct(['-', '_'], ['actor', 'people', 'person'], ['lang', 'language'], [':']))) {
             $actor_expr = $temp_actor_expr;
             return Event::stop;
         }
