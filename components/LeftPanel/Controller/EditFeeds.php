@@ -25,12 +25,14 @@ namespace Component\LeftPanel\Controller;
 
 use App\Core\Cache;
 use App\Core\Controller;
+use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Router\Router;
 use App\Entity\Feed;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -139,8 +141,12 @@ class EditFeeds extends Controller
 
             // Add feed
             try {
-                $match = Router::match($data['url']);
-                $route = $match['_route'];
+                $match      = Router::match($data['url']);
+                $route      = $match['_route'];
+                $controller = $match['_controller'];
+                if (!is_subclass_of($controller, FeedController::class)) {
+                    throw new ClientException(_m('The page with url "{url}" is not a valid feed', ['{url}' => $data['url']]));
+                }
                 DB::persist(Feed::create([
                     'actor_id' => $user->getId(),
                     'url'      => $data['url'],
@@ -152,9 +158,7 @@ class EditFeeds extends Controller
                 Cache::delete($key);
                 throw new RedirectException();
             } catch (ResourceNotFoundException) {
-                // TODO add error (flash?)
-                // throw new ClientException(_m('Invalid route'));
-                // continue bellow
+                throw new ClientException(_m('Invalid route with url "{url}"', ['{url}' => $data['url']]), code: 404);
             }
         }
 
