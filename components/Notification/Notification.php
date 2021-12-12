@@ -36,7 +36,7 @@ class Notification extends Component
      */
     public function onNewNotification(Actor $sender, Activity $activity, array $ids_already_known = [], ?string $reason = null): bool
     {
-        $targets = $activity->getNotificationTargets($ids_already_known);
+        $targets = $activity->getNotificationTargets($ids_already_known, sender_id: $sender->getId());
         $this->notify($sender, $activity, $targets, $reason);
 
         return Event::next;

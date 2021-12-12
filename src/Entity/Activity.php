@@ -157,7 +157,7 @@ class Activity extends Entity
      *
      * @return array of Actors
      */
-    public function getNotificationTargets(array $ids_already_known = []): array
+    public function getNotificationTargets(array $ids_already_known = [], ?int $sender_id = null): array
     {
         $target_ids = [];
 
@@ -179,6 +179,9 @@ class Activity extends Entity
         if (array_key_exists('object', $ids_already_known)) {
             array_push($target_ids, ...$ids_already_known['object']);
         } else {
+            if (!is_null($author = $this->getObject()?->getActorId()) && $author !== $sender_id) {
+                $target_ids[] = $this->getObject()->getActorId();
+            }
             array_push($target_ids, ...$this->getObject()->getNotificationTargets($ids_already_known));
         }
 
