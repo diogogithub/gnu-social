@@ -316,7 +316,7 @@ abstract class Formatting
                         'text'      => $match[0],
                         'position'  => $match[1],
                         'length'    => mb_strlen($match[0]),
-                        'title'     => $mentioned->getFullname(),
+                        'title'     => $mentioned->getFullname() ?? $mentioned->getNickname(),
                         'url'       => $url,
                     ];
 
@@ -370,7 +370,7 @@ abstract class Formatting
                     'position'  => $group_match[1],
                     'length'    => mb_strlen($group_match[0]),
                     'url'       => $group->getUri(),
-                    'title'     => $group->getFullname(),
+                    'title'     => $group->getFullname() ?? $group->getNickname(),
                 ];
             }
 

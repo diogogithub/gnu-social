@@ -77,7 +77,7 @@ class Actor extends Model
         // Actor
         $actor_map = [
             'nickname' => $person->get('preferredUsername'),
-            'fullname' => $person->get('name'),
+            'fullname' => !empty($person->get('name')) ? $person->get('name') : null,
             'created' => new DateTime($person->get('published') ?? 'now'),
             'bio' => $person->has('summary') ? mb_substr(Security::sanitize($person->get('summary')), 0, 1000) : null,
             'is_local' => false,

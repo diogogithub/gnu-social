@@ -373,7 +373,7 @@ class FreeNetwork extends Component
             }
             assert($actor instanceof Actor);
 
-            $displayName = $actor->getFullname() ?? $actor->getNickname() ?? $target; // TODO: we could do getBestName() or getFullname() here
+            $displayName = !empty($actor->getFullname()) ? $actor->getFullname() : $actor->getNickname() ?? $target; // TODO: we could do getBestName() or getFullname() here
 
             $matches[$pos] = [
                 'mentioned' => [$actor],
