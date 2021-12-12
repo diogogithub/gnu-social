@@ -70,6 +70,7 @@ use function count;
 use function is_null;
 use const PHP_URL_HOST;
 use const PREG_SET_ORDER;
+use InvalidArgumentException;
 
 /**
  * Adds ActivityPub support to GNU social when enabled
@@ -115,13 +116,13 @@ class ActivityPub extends Plugin
             'activitypub_inbox',
             '/inbox.json',
             [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]],
+            options: ['format' => self::$accept_headers[0]],
         );
         $r->connect(
             'activitypub_actor_inbox',
             '/actor/{gsactor_id<\d+>}/inbox.json',
             [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]],
+            options: ['format' => self::$accept_headers[0]],
         );
         $r->connect(
             'activitypub_actor_outbox',
@@ -140,7 +141,7 @@ class ActivityPub extends Plugin
      * @param string|null $url
      * @return bool
      */
-    public function onStartGetActorUrl(Actor $actor, int $type, ?string &$url): bool
+    public function onStartGetActorUri(Actor $actor, int $type, ?string &$url): bool
     {
         if (
             // Is remote?
@@ -382,6 +383,34 @@ class ActivityPub extends Plugin
             Log::error('ActivityPub Webfinger Mention check failed: ' . $e->getMessage());
             return Event::next;
         }
+    }
+
+    /**
+     * @param mixed $object
+     * @return string got from URI
+     */
+    public static function getUriByObject(mixed $object): string
+    {
+        if ($object instanceof Note) {
+            if($object->getIsLocal()) {
+                return $object->getUrl();
+            } else {
+                // Try known remote objects
+                $known_object = ActivitypubObject::getByPK(['object_type' => 'note', 'object_id' => $object->getId()]);
+                if ($known_object instanceof ActivitypubObject) {
+                    return $known_object->getObjectUri();
+                }
+            }
+        } else if ($object instanceof Activity) {
+			// Try known remote activities
+			$known_activity = ActivitypubActivity::getByPK(['activity_id' => $object->getId()]);
+			if ($known_activity instanceof ActivitypubActivity) {
+				return $known_activity->getActivityUri();
+			} else {
+                return Router::url('activity_view', ['id' => $object->getId()], Router::ABSOLUTE_URL);
+            }
+		}
+        throw new InvalidArgumentException('ActivityPub::getUriByObject found a limitation with: '.var_export($object, true));
     }
 
     /**

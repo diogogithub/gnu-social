@@ -151,22 +151,26 @@ class Activity extends Model
         if ($object::class !== 'App\Entity\Activity') {
             throw new InvalidArgumentException('First argument type is Activity');
         }
-
-        $gs_verb_to_activity_stream_two_verb = fn($verb): string => match ($verb) {
-            'create' => 'Create',
-            default => throw new ClientException('Invalid verb'),
-        };
+        
+		$gs_verb_to_activity_stream_two_verb = null;
+		if (Event::handle('GSVerbToActivityStreamsTwoActivityType', [($verb = $object->getVerb()), &$gs_verb_to_activity_stream_two_verb]) === Event::next) {
+			$gs_verb_to_activity_stream_two_verb = match ($verb) {
+				'create' => 'Create',
+				'undo' => 'Undo',
+				default => throw new ClientException('Invalid verb'),
+			};
+		}
 
         $attr = [
-            'type' => $gs_verb_to_activity_stream_two_verb($object->getVerb()),
+            'type' => $gs_verb_to_activity_stream_two_verb,
             '@context' => 'https://www.w3.org/ns/activitystreams',
             'id' => Router::url('activity_view', ['id' => $object->getId()], Router::ABSOLUTE_URL),
             'published' => $object->getCreated()->format(DateTimeInterface::RFC3339),
             'actor' => $object->getActor()->getUri(Router::ABSOLUTE_URL),
             'to' => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
             'cc' => ['https://www.w3.org/ns/activitystreams#Public'],
-            'object' => self::jsonToType(self::toJson($object->getObject())),
         ];
+        $attr['object'] = $attr['type'] === 'Create' ? self::jsonToType(Model::toJson($object->getObject())) : ActivityPub::getUriByObject($object->getObject());
 
         $type = self::jsonToType($attr);
         Event::handle('ActivityPubAddActivityStreamsTwoData', [$type->get('type'), &$type]);
