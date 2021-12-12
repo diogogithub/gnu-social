@@ -262,7 +262,6 @@ class GNUsocial implements EventSubscriberInterface
             }
         }
         $container->setParameter('gnusocial_defaults', $defaults);
-        $container->setParameter('gnusocial', $defaults);
     }
 
     /**
