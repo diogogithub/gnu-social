@@ -22,6 +22,7 @@ declare(strict_types = 1);
 
 namespace Plugin\ProfileColor;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Plugin;
@@ -84,7 +85,7 @@ class ProfileColor extends Plugin
             $actor_id = $actor->getId();
 
             try {
-                $profile_color_tab = DB::findOneBy('profile_color', ['actor_id' => $actor_id]);
+                $profile_color_tab = Cache::get("profile-color-{$actor_id}", DB::findOneBy('profile_color', ['actor_id' => $actor_id]));
             } catch (NotFoundException $e) {
                 return Event::next;
             }
