@@ -135,25 +135,84 @@ abstract class Cache
         }
     }
 
+    private static function redisMaybeRecompute(string $key, callable $recompute, callable $no_recompute, string $pool = 'default', float $beta = 1.0): mixed
+    {
+        $should_recompute = $beta === \INF || !self::$redis[$pool]->exists($key);
+        if (!$should_recompute) {
+            $er = Common::config('cache', 'early_recompute');
+            if (\is_float($er)) {
+                if ($should_recompute = (mt_rand() / mt_getrandmax() > $er)) {
+                    Log::info('Item "{key}" elected for early recomputation', ['key' => $key]);
+                }
+            } elseif ($er === true) {
+                if ($should_recompute = ($idletime = self::$redis[$pool]->object('idletime', $key) ?? false) && ($expiry = self::$redis[$pool]->ttl($key) ?? false) && $expiry <= $idletime / 1000 * $beta * log(random_int(1, \PHP_INT_MAX) / \PHP_INT_MAX)) {
+                    // @codeCoverageIgnoreStart
+                    Log::info('Item "{key}" elected for early recomputation {delta}s before its expiration', [
+                        'key'   => $key,
+                        'delta' => sprintf('%.1f', $expiry - microtime(true)),
+                    ]);
+                    // @codeCoverageIgnoreEnd
+                }
+            } else {
+                $should_recompute = false;
+            }
+        }
+        if ($should_recompute) {
+            return $recompute();
+        } else {
+            return $no_recompute();
+        }
+    }
+
     public static function set(string $key, mixed $value, string $pool = 'default')
     {
-        // there's no set method, must be done this way
-        return self::$pools[$pool]->get($key, fn ($i) => $value, \INF);
+        if (isset(self::$redis[$pool])) {
+            return self::$redis[$pool]->set($key, $value);
+        } else {
+            // there's no set method, must be done this way
+            return self::$pools[$pool]->get($key, fn ($i) => $value, \INF);
+        }
     }
 
     public static function get(string $key, callable $calculate, string $pool = 'default', float $beta = 1.0)
     {
-        return self::$pools[$pool]->get($key, $calculate, $beta);
+        if (isset(self::$redis[$pool])) {
+            return self::redisMaybeRecompute(
+                $key,
+                recompute: function () use ($key, $calculate, $pool) {
+                    $save = true; // Pass by reference
+                    $res = $calculate(null, $save);
+                    if ($save) {
+                        self::set($key, $res, $pool);
+                    }
+                    return $res;
+                },
+                no_recompute: fn () => self::$redis[$pool]->get($key),
+                pool: $pool,
+                beta: $beta,
+            );
+        } else {
+            return self::$pools[$pool]->get($key, $calculate, $beta);
+        }
     }
 
     public static function delete(string $key, string $pool = 'default'): bool
     {
-        return self::$pools[$pool]->delete($key);
+        if (isset(self::$redis[$pool])) {
+            return self::$redis[$pool]->del($key);
+        } else {
+            return self::$pools[$pool]->delete($key);
+        }
     }
 
     public static function exists(string $key, string $pool = 'default'): bool
     {
-        return self::$pools[$pool]->hasItem($key);
+        if (isset(self::$redis[$pool])) {
+            return self::$redis[$pool]->exists($key);
+        } else {
+            // there's no set method, must be done this way
+            return self::$pools[$pool]->hasItem($key);
+        }
     }
 
     /**
@@ -165,26 +224,14 @@ abstract class Cache
     public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, ?int $left = null, ?int $right = null, float $beta = 1.0): array
     {
         if (isset(self::$redis[$pool])) {
-            if (!($recompute = $beta === \INF || !(self::$redis[$pool]->exists($key)))) {
-                if (\is_float($er = Common::config('cache', 'early_recompute'))) {
-                    $recompute = (mt_rand() / mt_getrandmax() > $er);
-                    Log::info('Item "{key}" elected for early recomputation', ['key' => $key]);
-                } else {
-                    if ($recompute = ($idletime = self::$redis[$pool]->object('idletime', $key) ?? false) && ($expiry = self::$redis[$pool]->ttl($key) ?? false) && $expiry <= $idletime / 1000 * $beta * log(random_int(1, \PHP_INT_MAX) / \PHP_INT_MAX)) {
-                        // @codeCoverageIgnoreStart
-                        Log::info('Item "{key}" elected for early recomputation {delta}s before its expiration', [
-                            'key'   => $key,
-                            'delta' => sprintf('%.1f', $expiry - microtime(true)),
-                        ]);
-                        // @codeCoverageIgnoreEnd
+            return self::redisMaybeRecompute(
+                $key,
+                recompute: function () use ($key, $calculate, $pool, $max_count, $left, $right, $beta) {
+                    $save = true; // Pass by reference
+                    $res = $calculate(null, $save);
+                    if ($save) {
+                        self::setList($key, $res, $pool, $max_count, $beta);
                     }
-                }
-            }
-            if ($recompute) {
-                $save = true; // Pass by reference
-                $res  = $calculate(null, $save);
-                if ($save) {
-                    self::setList($key, $res, $pool, $max_count, $beta);
                     $offset = $left ?? 0;
                     if (\is_null($right) && \is_null($max_count)) {
                         $length = null;
@@ -192,9 +239,11 @@ abstract class Cache
                         $length = ($right ?? $max_count) - $offset;
                     }
                     return \array_slice($res, $offset, $length);
-                }
-            }
-            return self::$redis[$pool]->lRange($key, $left ?? 0, ($right ?? $max_count ?? 0) - 1);
+                },
+                no_recompute: fn () => self::$redis[$pool]->lRange($key, $left ?? 0, ($right ?? $max_count ?? 0) - 1),
+                pool: $pool,
+                beta: $beta,
+            );
         } else {
             return self::get($key, function () use ($calculate, $max_count) {
                 $save = true;
@@ -274,30 +323,20 @@ abstract class Cache
     public static function getHashMap(string $map_key, callable $calculate, string $pool = 'default', float $beta = 1.0): array
     {
         if (isset(self::$redis[$pool])) {
-            if (!($recompute = $beta === \INF || !(self::$redis[$pool]->exists($map_key)))) {
-                if (\is_float($er = Common::config('cache', 'early_recompute'))) {
-                    $recompute = (mt_rand() / mt_getrandmax() > $er);
-                    Log::info('Item "{map_key}" elected for early recomputation', ['key' => $map_key]);
-                } else {
-                    if ($recompute = ($idletime = self::$redis[$pool]->object('idletime', $map_key) ?? false) && ($expiry = self::$redis[$pool]->ttl($map_key) ?? false) && $expiry <= $idletime / 1000 * $beta * log(random_int(1, \PHP_INT_MAX) / \PHP_INT_MAX)) {
-                        // @codeCoverageIgnoreStart
-                        Log::info('Item "{key}" elected for early recomputation {delta}s before its expiration', [
-                            'key'   => $map_key,
-                            'delta' => sprintf('%.1f', $expiry - microtime(true)),
-                        ]);
-                        // @codeCoverageIgnoreEnd
+            return self::redisMaybeRecompute(
+                $map_key,
+                recompute: function () use ($map_key, $calculate, $pool) {
+                    $save = true; // Pass by reference
+                    $res = $calculate(null, $save);
+                    if ($save) {
+                        self::setHashMap($map_key, $res, $pool);
                     }
-                }
-            }
-            if ($recompute) {
-                $save = true; // Pass by reference
-                $res  = $calculate(null, $save);
-                if ($save) {
-                    self::setHashMap($map_key, $res, $pool);
                     return $res;
-                }
-            }
-            return self::$redis[$pool]->hGetAll($map_key);
+                },
+                no_recompute: fn () => self::$redis[$pool]->hGetAll($map_key),
+                pool: $pool,
+                beta: $beta,
+            );
         } else {
             throw new NotImplementedException();
         }
