@@ -32,7 +32,6 @@ use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\NicknameInvalidException;
 use App\Util\Exception\NicknameNotAllowedException;
-use App\Util\Exception\NicknameNotFoundException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
 use App\Util\Nickname;
@@ -41,7 +40,6 @@ use Exception;
 use libphonenumber\PhoneNumber;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use function App\Core\I18n\_m;
 
 /**
  * Entity for users
@@ -332,8 +330,6 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
      * Returns the username used to authenticate the user.
      * Part of the Symfony UserInterface
      *
-     * @return string
-     *
      * @deprecated since Symfony 5.3, use getUserIdentifier() instead
      */
     public function getUsername(): string
@@ -344,7 +340,6 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
     /**
      * returns the identifier for this user (e.g. its nickname)
      * Part of the Symfony UserInterface
-     * @return string
      */
     public function getUserIdentifier(): string
     {
@@ -356,18 +351,20 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
      * Checks if desired nickname is allowed, and in case it is, it sets Actor's nickname cache to newly set nickname
      *
      * @param string $nickname Desired new nickname
-     * @param int $actor_id Used to cache Actor nickname
-     * @return $this
+     * @param int    $actor_id Used to cache Actor nickname
+     *
      * @throws NicknameEmptyException
      * @throws NicknameInvalidException
      * @throws NicknameNotAllowedException
      * @throws NicknameTakenException
      * @throws NicknameTooLongException
+     *
+     * @return $this
      */
     public function setNicknameSanitizedAndCached(string $nickname, int $actor_id): self
     {
         try {
-            $nickname = Nickname::normalize($nickname, check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: true);
+            $nickname       = Nickname::normalize($nickname, check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: true);
             $this->nickname = $nickname;
             Cache::set('actor-nickname-id-' . $actor_id, $nickname);
         } catch (NicknameEmptyException $e) {
@@ -386,9 +383,9 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
         return $this;
     }
 
-    public function getActor()
+    public function getActor(): Actor
     {
-        return DB::find('actor', ['id' => $this->id]);
+        return Actor::getById($this->id);
     }
 
     /**
@@ -399,10 +396,24 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
         return UserRoles::toArray($this->getActor()->getRoles());
     }
 
+    public static function cacheKeys(mixed $identifier): array
+    {
+        return [
+            'id'       => "user-id-{$identifier}",
+            'nickname' => "user-nickname-{$identifier}",
+            'email'    => "user-email-{$identifier}",
+        ];
+    }
+
+    public static function getById(int $id): ?self
+    {
+        return Cache::get(self::cacheKeys($id)['id'], fn () => DB::findOneBy('local_user', ['id' => $id]));
+    }
+
     public static function getByNickname(string $nickname): ?self
     {
         $key = str_replace('_', '-', $nickname);
-        return Cache::get("user-nickname-{$key}", fn () => DB::findOneBy('local_user', ['nickname' => $nickname]));
+        return Cache::get(self::cacheKeys($key)['nickname'], fn () => DB::findOneBy('local_user', ['nickname' => $nickname]));
     }
 
     /**
@@ -411,7 +422,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
     public static function getByEmail(string $email): ?self
     {
         $key = str_replace('@', '-', $email);
-        return Cache::get("user-email-{$key}", fn () => DB::findOneBy('local_user', ['or' => ['outgoing_email' => $email, 'incoming_email' => $email]]));
+        return Cache::get(self::cacheKeys($key)['email'], fn () => DB::findOneBy('local_user', ['or' => ['outgoing_email' => $email, 'incoming_email' => $email]]));
     }
 
     public static function schemaDef(): array
