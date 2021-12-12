@@ -34,7 +34,7 @@ parameters:
       mirror:
 
     cache:
-      early_recompute: 0.95
+      early_recompute: false
       max_note_count: 128
       adapters:
         default: redis://redis
