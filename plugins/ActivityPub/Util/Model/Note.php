@@ -225,14 +225,24 @@ class Note extends Model
         $attr = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
             'type' => 'Note',
-            'id' => Router::url('note_view', ['id' => $object->getId()], Router::ABSOLUTE_URL),
+            'id' => $object->getUrl(),
             'published' => $object->getCreated()->format(DateTimeInterface::RFC3339),
             'attributedTo' => $object->getActor()->getUri(Router::ABSOLUTE_URL),
             'to' => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
             'cc' => ['https://www.w3.org/ns/activitystreams#Public'],
             'content' => $object->getRendered(),
             'attachment' => [],
+            'tag' => [],
         ];
+
+        // Mentions
+        foreach ($object->getNotificationTargets() as $mention) {
+            $attr['tag'][] = [
+                'type' => 'Mention',
+                'href' => ($href = $mention->getUri()),
+                'name' => '@'.$mention->getNickname().'@'.parse_url($href, PHP_URL_HOST)
+            ];
+        }
 
         // Attachments
         foreach ($object->getAttachments() as $attachment) {
