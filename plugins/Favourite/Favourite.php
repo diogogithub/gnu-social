@@ -69,7 +69,7 @@ class Favourite extends NoteHandlerPlugin
         $note_already_favoured = DB::find('favourite', ['note_id' => $note_id, 'actor_id' => $actor_id]);
         if (!is_null($note_already_favoured)) {
             DB::remove($note_already_favoured);
-            $favourite_activity = DB::findOneBy('activity', ['verb' => 'favourite', 'object_type' => 'note', 'object_id' => $note_id]);
+            $favourite_activity = DB::findBy('activity', ['verb' => 'favourite', 'object_type' => 'note', 'object_id' => $note_id], order_by: ['created' => 'DESC'])[0];
             $act = Activity::create([
                 'actor_id' => $actor_id,
                 'verb' => 'undo', // 'undo_favourite',
@@ -234,4 +234,13 @@ class Favourite extends NoteHandlerPlugin
     {
         return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
     }
+    
+    public function onGSVerbToActivityStreamsTwoActivityType(string $verb, ?string &$gs_verb_to_activity_stream_two_verb): bool
+    {
+		if ($verb === 'favourite') {
+			$gs_verb_to_activity_stream_two_verb = 'Like';
+			return Event::stop;
+		}
+		return Event::next;
+	}
 }
