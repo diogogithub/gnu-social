@@ -165,6 +165,8 @@ class Search extends Component
                     $actor_expr[] = $eb->neq('actor.type', $type);
                 }
             }
+        } elseif (!str_contains($term, ':')) {
+            $note_expr = $eb->contains('note.rendered', $term);
         }
         return Event::next;
     }
