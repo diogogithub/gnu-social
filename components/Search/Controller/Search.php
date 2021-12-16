@@ -47,26 +47,28 @@ class Search extends FeedController
      */
     public function handle(Request $request)
     {
-        $actor                            = Common::actor();
-        $language                         = !\is_null($actor) ? $actor->getTopLanguage()->getLocale() : null;
-        $q                                = $this->string('q');
-        [$note_criteria, $actor_criteria] = Parser::parse($q, $language);
+        $actor    = Common::actor();
+        $language = !\is_null($actor) ? $actor->getTopLanguage()->getLocale() : null;
+        $q        = $this->string('q');
+        if (!empty($q) && !empty($q = trim($q))) {
+            [$note_criteria, $actor_criteria] = Parser::parse($q, $language);
 
-        $note_qb  = DB::createQueryBuilder();
-        $actor_qb = DB::createQueryBuilder();
-        $note_qb->select('note')->from('App\Entity\Note', 'note')->orderBy('note.created', 'DESC');
-        $actor_qb->select('actor')->from('App\Entity\Actor', 'actor')->orderBy('actor.created', 'DESC');
-        Event::handle('SearchQueryAddJoins', [&$note_qb, &$actor_qb]);
+            $note_qb  = DB::createQueryBuilder();
+            $actor_qb = DB::createQueryBuilder();
+            $note_qb->select('note')->from('App\Entity\Note', 'note')->orderBy('note.created', 'DESC');
+            $actor_qb->select('actor')->from('App\Entity\Actor', 'actor')->orderBy('actor.created', 'DESC');
+            Event::handle('SearchQueryAddJoins', [&$note_qb, &$actor_qb]);
 
-        $notes = $actors = [];
-        if (!\is_null($note_criteria)) {
-            $note_qb->addCriteria($note_criteria);
-            $notes = $note_qb->getQuery()->execute();
-        }
+            $notes = $actors = [];
+            if (!\is_null($note_criteria)) {
+                $note_qb->addCriteria($note_criteria);
+                $notes = $note_qb->getQuery()->execute();
+            }
 
-        if (!\is_null($actor_criteria)) {
-            $actor_qb->addCriteria($actor_criteria);
-            $actors = $actor_qb->getQuery()->execute();
+            if (!\is_null($actor_criteria)) {
+                $actor_qb->addCriteria($actor_criteria);
+                $actors = $actor_qb->getQuery()->execute();
+            }
         }
 
         $search_builder_form = Form::create([
@@ -150,8 +152,8 @@ class Search extends FeedController
             '_template'           => 'search/show.html.twig',
             'search_form'         => Comp\Search::searchForm($request, query: $q, add_subscribe: true),
             'search_builder_form' => $search_builder_form->createView(),
-            'notes'               => $notes,
-            'actors'              => $actors,
+            'notes'               => $notes ?? [],
+            'actors'              => $actors ?? [],
             'page'                => 1, // TODO paginate
         ];
     }
