@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Entity;
 
 use App\Core\Entity;
+use DateTimeInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
 
 class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterface
@@ -13,8 +16,8 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
     private int $user_id;
     private ?string $selector;
     private ?string $token;
-    private \DateTimeInterface $expires;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $expires;
+    private DateTimeInterface $created;
 
     public function setId(int $id): self
     {
@@ -60,24 +63,24 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
         return $this->token;
     }
 
-    public function setExpires(\DateTimeInterface $expires): self
+    public function setExpires(DateTimeInterface $expires): self
     {
         $this->expires = $expires;
         return $this;
     }
 
-    public function getExpires(): \DateTimeInterface
+    public function getExpires(): DateTimeInterface
     {
         return $this->expires;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
@@ -87,7 +90,7 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
 
     // {{{ Interface
     // @codeCoverageIgnoreStart
-    public function __construct(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
+    public function __construct(object $user, DateTimeInterface $expiresAt, string $selector, string $hashedToken)
     {
         $this->user_id  = $user->getId();
         $this->expires  = $expiresAt;
@@ -97,10 +100,10 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
 
     public function getUser(): object
     {
-        return LocalUser::getWithPK($this->user_id);
+        return LocalUser::getByPK($this->user_id);
     }
 
-    public function getRequestedAt(): \DateTimeInterface
+    public function getRequestedAt(): DateTimeInterface
     {
         return $this->created;
     }
@@ -110,7 +113,7 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
         return $this->expires->getTimestamp() <= time();
     }
 
-    public function getExpiresAt(): \DateTimeInterface
+    public function getExpiresAt(): DateTimeInterface
     {
         return $this->expires;
     }

@@ -146,7 +146,7 @@ class ActivityPub extends Plugin
             // Is remote?
             !$actor->getIsLocal()
             // Is in ActivityPub?
-            && !is_null($ap_actor = ActivitypubActor::getWithPK(['actor_id' => $actor->getId()]))
+            && !is_null($ap_actor = ActivitypubActor::getByPK(['actor_id' => $actor->getId()]))
             // We can only provide a full URL (anything else wouldn't make sense)
             && $type === Router::ABSOLUTE_URL
         ) {
@@ -236,7 +236,7 @@ class ActivityPub extends Plugin
         $to_addr = [];
         foreach ($targets as $actor) {
             if (FreeNetworkActorProtocol::canIActor('activitypub', $actor->getId())) {
-                if (is_null($ap_target = ActivitypubActor::getWithPK(['actor_id' => $actor->getId()]))) {
+                if (is_null($ap_target = ActivitypubActor::getByPK(['actor_id' => $actor->getId()]))) {
                     continue;
                 }
                 $to_addr[$ap_target->getInboxSharedUri() ?? $ap_target->getInboxUri()][] = $actor;
@@ -399,13 +399,13 @@ class ActivityPub extends Plugin
     public static function getObjectByUri(string $resource, bool $try_online = true)
     {
         // Try known objects
-        $known_object = ActivitypubObject::getWithPK(['object_uri' => $resource]);
+        $known_object = ActivitypubObject::getByPK(['object_uri' => $resource]);
         if ($known_object instanceof ActivitypubObject) {
             return $known_object->getObject();
         }
 
         // Try known activities
-        $known_activity = ActivitypubActivity::getWithPK(['activity_uri' => $resource]);
+        $known_activity = ActivitypubActivity::getByPK(['activity_uri' => $resource]);
         if ($known_activity instanceof ActivitypubActivity) {
             return $known_activity->getActivity();
         }
@@ -462,7 +462,7 @@ class ActivityPub extends Plugin
                 // actor_view_id
                 $reuri = '/\/actor\/(\d+)\/?/m';
                 if (preg_match_all($renick, $str, $matches, PREG_SET_ORDER, 0) === 1) {
-                    return LocalUser::getWithPK(['nickname' => $matches[0][1]])->getActor();
+                    return LocalUser::getByPK(['nickname' => $matches[0][1]])->getActor();
                 } elseif (preg_match_all($reuri, $str, $matches, PREG_SET_ORDER, 0) === 1) {
                     return Actor::getById((int)$matches[0][1]);
                 }

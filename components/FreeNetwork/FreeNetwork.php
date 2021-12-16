@@ -147,7 +147,7 @@ class FreeNetwork extends Component
                 }
 
                 $nick              = Nickname::normalize(nickname: $nick, check_already_used: false, check_is_allowed: false);
-                $freenetwork_actor = LocalUser::getWithPK(['nickname' => $nick]);
+                $freenetwork_actor = LocalUser::getByPK(['nickname' => $nick]);
                 if (!($freenetwork_actor instanceof LocalUser)) {
                     throw new NoSuchActorException($nick);
                 }
@@ -166,7 +166,7 @@ class FreeNetwork extends Component
                         // actor_view_id
                         $reuri = '/\/actor\/(\d+)\/?/m';
                         if (preg_match_all($renick, $str, $matches, PREG_SET_ORDER, 0) === 1) {
-                            $profile = LocalUser::getWithPK(['nickname' => $matches[0][1]])->getActor();
+                            $profile = LocalUser::getByPK(['nickname' => $matches[0][1]])->getActor();
                         } elseif (preg_match_all($reuri, $str, $matches, PREG_SET_ORDER, 0) === 1) {
                             $profile = Actor::getById((int) $matches[0][1]);
                         }
@@ -197,9 +197,9 @@ class FreeNetwork extends Component
             return Event::stop; // We got our target, stop handler execution
         }
 
-        $APNote = ActivitypubActivity::getWithPK(['object_uri' => $resource]);
+        $APNote = ActivitypubActivity::getByPK(['object_uri' => $resource]);
         if ($APNote instanceof ActivitypubActivity) {
-            $target = new WebfingerResourceNote(Note::getWithPK(['id' => $APNote->getObjectId()]));
+            $target = new WebfingerResourceNote(Note::getByPK(['id' => $APNote->getObjectId()]));
             return Event::stop; // We got our target, stop handler execution
         }
 
@@ -364,7 +364,7 @@ class FreeNetwork extends Component
 
             $resource_parts = explode($preMention, $target);
             if ($resource_parts[1] === $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
-                $actor = LocalUser::getWithPK(['nickname' => $resource_parts[0]])->getActor();
+                $actor = LocalUser::getByPK(['nickname' => $resource_parts[0]])->getActor();
             } else {
                 Event::handle('FreeNetworkFindMentions', [$target, &$actor]);
                 if (is_null($actor)) {
@@ -399,7 +399,7 @@ class FreeNetwork extends Component
                     // actor_view_id
                     $reuri = '/\/actor\/(\d+)\/?/m';
                     if (preg_match_all($renick, $str, $matches, PREG_SET_ORDER, 0) === 1) {
-                        $actor = LocalUser::getWithPK(['nickname' => $matches[0][1]])->getActor();
+                        $actor = LocalUser::getByPK(['nickname' => $matches[0][1]])->getActor();
                     } elseif (preg_match_all($reuri, $str, $matches, PREG_SET_ORDER, 0) === 1) {
                         $actor = Actor::getById((int) $matches[0][1]);
                     } else {

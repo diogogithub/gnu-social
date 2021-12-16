@@ -228,8 +228,8 @@ class Explorer
      */
     public static function get_aprofile_by_url(string $v): ActivitypubActor|bool
     {
-        $aprofile = ActivitypubActor::getWithPK(['uri' => $v]);
-        return is_null($aprofile) ? false : ActivitypubActor::getWithPK(['uri' => $v]);
+        $aprofile = ActivitypubActor::getByPK(['uri' => $v]);
+        return is_null($aprofile) ? false : ActivitypubActor::getByPK(['uri' => $v]);
     }
 
     /**

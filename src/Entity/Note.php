@@ -232,12 +232,12 @@ class Note extends Entity
 
     public function getNoteLanguageShortDisplay(): ?string
     {
-        return !is_null($this->language_id) ? Language::getById($this->language_id)->getShortDisplay() : null;
+        return !\is_null($this->language_id) ? Language::getById($this->language_id)->getShortDisplay() : null;
     }
 
     public function getLanguageLocale(): ?string
     {
-        return !is_null($this->language_id) ? Language::getById($this->language_id)->getLocale() : null;
+        return !\is_null($this->language_id) ? Language::getById($this->language_id)->getLocale() : null;
     }
 
     public static function getAllNotesByActor(Actor $actor): array
@@ -312,9 +312,9 @@ class Note extends Entity
         });
     }
 
-    public function getReplyToNote(): ?Note
+    public function getReplyToNote(): ?self
     {
-        return self::getWithPK($this->getReplyTo());
+        return self::getByPK($this->getReplyTo());
     }
 
     public function getReplies()
@@ -363,13 +363,14 @@ class Note extends Entity
     public function delete(?int $actor_id = null, string $source = 'web'): bool
     {
         if (Event::handle('NoteDeleteRelated', [&$this]) === Event::next) {
-            DB::persist(Activity::create([
-                'actor_id' => $actor_id ?? $this->getActorId(),
-                'verb' => 'delete',
-                'object_type' => 'note',
-                'object_id' => $this->getId(),
-                'source' => $source
-                ])
+            DB::persist(
+                Activity::create([
+                    'actor_id'    => $actor_id ?? $this->getActorId(),
+                    'verb'        => 'delete',
+                    'object_type' => 'note',
+                    'object_id'   => $this->getId(),
+                    'source'      => $source,
+                ]),
             );
             DB::remove($this);
             return true;

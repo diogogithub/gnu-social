@@ -77,7 +77,7 @@ class Activity extends Model
         $type_activity = is_string($json) ? self::jsonToType($json) : $json;
 
         // Ditch known activities
-        $ap_act = ActivitypubActivity::getWithPK(['activity_uri' => $type_activity->get('id')]);
+        $ap_act = ActivitypubActivity::getByPK(['activity_uri' => $type_activity->get('id')]);
         if (!is_null($ap_act)) {
             return $ap_act;
         }

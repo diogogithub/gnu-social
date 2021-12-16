@@ -29,9 +29,6 @@ namespace Component\Conversation\Controller;
 use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use App\Core\Form;
-use App\Util\Exception\DuplicateFoundException;
-use App\Util\Exception\NoLoggedInUser;
-use App\Util\Exception\ServerException;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
@@ -39,10 +36,13 @@ use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\NotImplementedException;
 use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use Component\Posting\Posting;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -52,27 +52,25 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Reply extends FeedController
 {
-
     /**
      * Controller for the note reply non-JS page
      *
-     * @param Request $request
-     * @param int $id
-     * @return array
      * @throws ClientException
+     * @throws DuplicateFoundException
      * @throws InvalidFormException
+     * @throws NoLoggedInUser
      * @throws NoSuchNoteException
      * @throws RedirectException
-     * @throws DuplicateFoundException
-     * @throws NoLoggedInUser
      * @throws ServerException
+     *
+     * @return array
      */
     public function replyAddNote(Request $request, int $id)
     {
         $user     = Common::ensureLoggedIn();
         $actor_id = $user->getId();
 
-        $note = Note::getWithPK($id);
+        $note = Note::getByPK($id);
         if (\is_null($note) || !$note->isVisibleTo($user)) {
             throw new NoSuchNoteException();
         }
@@ -80,9 +78,11 @@ class Reply extends FeedController
         // TODO shouldn't this be the posting form?
         $form = Form::create([
             ['content', TextareaType::class, ['label' => _m('Reply'), 'label_attr' => ['class' => 'section-form-label'], 'help' => _m('Please input your reply.')]],
-            FormFields::language($user->getActor(),
+            FormFields::language(
+                $user->getActor(),
                 context_actor: $note->getActor(),
-                label: _m('Note language')),
+                label: _m('Note language'),
+            ),
             ['attachments', FileType::class, ['label' => ' ', 'multiple' => true, 'required' => false]],
             ['replyform', SubmitType::class, ['label' => _m('Submit')]],
         ]);
@@ -94,7 +94,7 @@ class Reply extends FeedController
             if ($form->isValid()) {
                 // Create a new note with the same content as the original
                 $reply = Posting::storeLocalNote(
-                    actor: Actor::getWithPK($actor_id),
+                    actor: Actor::getByPK($actor_id),
                     content: $data['content'],
                     content_type: 'text/plain', // TODO
                     language: $data['language'],
@@ -108,7 +108,7 @@ class Reply extends FeedController
                 // Find the id of the note we just created
                 $reply_id       = $reply->getId();
                 $parent_id      = $note->getId();
-                $resulting_note = Note::getWithPK($reply_id);
+                $resulting_note = Note::getByPK($reply_id);
                 $resulting_note->setReplyTo($parent_id);
 
                 // Update DB one last time

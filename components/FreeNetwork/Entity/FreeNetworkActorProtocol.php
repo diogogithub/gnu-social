@@ -120,7 +120,7 @@ class FreeNetworkActorProtocol extends Entity
     public static function protocolSucceeded(string $protocol, int|Actor $actor_id, string $addr): void
     {
         $actor_id = is_int($actor_id) ? $actor_id : $actor_id->getId();
-        $attributed_protocol = self::getWithPK(['actor_id' => $actor_id]);
+        $attributed_protocol = self::getByPK(['actor_id' => $actor_id]);
         if (is_null($attributed_protocol)) {
             $attributed_protocol = self::create([
                 'actor_id' => $actor_id,
@@ -136,7 +136,7 @@ class FreeNetworkActorProtocol extends Entity
     public static function canIActor(string $protocol, int|Actor $actor_id): bool
     {
         $actor_id = is_int($actor_id) ? $actor_id : $actor_id->getId();
-        $attributed_protocol = self::getWithPK(['actor_id' => $actor_id])?->getProtocol();
+        $attributed_protocol = self::getByPK(['actor_id' => $actor_id])?->getProtocol();
         if (is_null($attributed_protocol)) {
             // If it is not attributed, you can go ahead.
             return true;
@@ -150,7 +150,7 @@ class FreeNetworkActorProtocol extends Entity
     {
         // Normalize $addr, i.e. add 'acct:' if missing
         $addr = Discovery::normalize($target);
-        $attributed_protocol = self::getWithPK(['addr' => $addr])?->getProtocol();
+        $attributed_protocol = self::getByPK(['addr' => $addr])?->getProtocol();
         if (is_null($attributed_protocol)) {
             // If it is not attributed, you can go ahead.
             return true;

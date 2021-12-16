@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 
@@ -26,6 +26,7 @@ namespace Plugin\RepeatNote\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
 use App\Entity\Note;
@@ -37,32 +38,30 @@ use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
-use function is_null;
 
 class Repeat extends Controller
 {
     /**
      * Controller for the note repeat non-JS page
      *
-     * @throws ServerException
      * @throws ClientException
      * @throws NoLoggedInUser
      * @throws NoSuchNoteException
      * @throws RedirectException
+     * @throws ServerException
      */
     public function repeatAddNote(Request $request, int $id): bool|array
     {
         $user = Common::ensureLoggedIn();
 
         $actor_id = $user->getId();
-        $note = Note::getWithPK(['id' => $id]);
+        $note     = Note::getByPK(['id' => $id]);
 
         $form_add_to_repeat = Form::create([
             ['add_repeat', SubmitType::class,
                 [
                     'label' => _m('Repeat note!'),
-                    'attr' => [
+                    'attr'  => [
                         'title' => _m('Repeat this note!'),
                     ],
                 ],
@@ -76,7 +75,7 @@ class Repeat extends Controller
 
             // Redirect user to where they came from
             // Prevent open redirect
-            if (!is_null($from = $this->string('from'))) {
+            if (!\is_null($from = $this->string('from'))) {
                 if (Router::isAbsolute($from)) {
                     Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
@@ -91,18 +90,18 @@ class Repeat extends Controller
         }
 
         return [
-            '_template' => 'repeat/add_to_repeats.html.twig',
-            'note' => $note,
+            '_template'  => 'repeat/add_to_repeats.html.twig',
+            'note'       => $note,
             'add_repeat' => $form_add_to_repeat->createView(),
         ];
     }
 
     /**
-     * @throws ServerException
      * @throws ClientException
      * @throws NoLoggedInUser
      * @throws NoSuchNoteException
      * @throws RedirectException
+     * @throws ServerException
      */
     public function repeatRemoveNote(Request $request, int $id): array
     {
@@ -114,7 +113,7 @@ class Repeat extends Controller
             ['remove_repeat', SubmitType::class,
                 [
                     'label' => _m('Remove repeat'),
-                    'attr' => [
+                    'attr'  => [
                         'title' => _m('Remove note from repeats.'),
                     ],
                 ],
@@ -123,7 +122,7 @@ class Repeat extends Controller
 
         $form_remove_repeat->handleRequest($request);
         if ($form_remove_repeat->isSubmitted()) {
-            if (!is_null(\Plugin\RepeatNote\RepeatNote::unrepeatNote(note_id: $id, actor_id: $actor_id))) {
+            if (!\is_null(\Plugin\RepeatNote\RepeatNote::unrepeatNote(note_id: $id, actor_id: $actor_id))) {
                 DB::flush();
             } else {
                 throw new ClientException(_m('Note wasn\'t repeated!'));
@@ -131,7 +130,7 @@ class Repeat extends Controller
 
             // Redirect user to where they came from
             // Prevent open redirect
-            if (!is_null($from = $this->string('from'))) {
+            if (!\is_null($from = $this->string('from'))) {
                 if (Router::isAbsolute($from)) {
                     Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
@@ -146,8 +145,8 @@ class Repeat extends Controller
         }
 
         return [
-            '_template' => 'repeat/remove_from_repeats.html.twig',
-            'note' => Note::getById($id),
+            '_template'     => 'repeat/remove_from_repeats.html.twig',
+            'note'          => Note::getById($id),
             'remove_repeat' => $form_remove_repeat->createView(),
         ];
     }

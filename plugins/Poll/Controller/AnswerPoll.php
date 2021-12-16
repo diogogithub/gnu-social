@@ -64,7 +64,7 @@ class AnswerPoll
     {
         $user = Common::ensureLoggedIn();
 
-        $poll = Poll::getWithPk((int) $id);
+        $poll = Poll::getByPk((int) $id);
         if ($poll == null) {
             throw new NotFoundException('Poll does not exist');
         }

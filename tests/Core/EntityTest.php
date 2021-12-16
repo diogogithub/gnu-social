@@ -61,13 +61,13 @@ class EntityTest extends GNUsocialTestCase
         static::assertTrue($is_update);
     }
 
-    public function testGetWithPK()
+    public function testGetByPK()
     {
         $user         = DB::findOneBy('local_user', ['nickname' => 'taken_user']);
-        $user_with_pk = LocalUser::getWithPK($user->getId());
+        $user_with_pk = LocalUser::getByPK($user->getId());
         static::assertSame($user, $user_with_pk);
-        $user_with_pk = LocalUser::getWithPK(['id' => $user->getId()]);
+        $user_with_pk = LocalUser::getByPK(['id' => $user->getId()]);
         static::assertSame($user, $user_with_pk);
-        static::assertNull(LocalUser::getWithPK(0));
+        static::assertNull(LocalUser::getByPK(0));
     }
 }

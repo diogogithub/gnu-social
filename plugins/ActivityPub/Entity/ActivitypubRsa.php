@@ -144,7 +144,7 @@ class ActivitypubRsa extends Entity
      */
     public static function getByActor(Actor $gsactor, bool $fetch = true): self
     {
-        $apRSA = self::getWithPK(['actor_id' => ($actor_id = $gsactor->getId())]);
+        $apRSA = self::getByPK(['actor_id' => ($actor_id = $gsactor->getId())]);
         if (is_null($apRSA)) {
             // Nonexistent key pair for this profile
             if ($gsactor->getIsLocal()) {

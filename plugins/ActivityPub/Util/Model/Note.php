@@ -240,7 +240,7 @@ class Note extends Model
                 'type' => 'Document',
                 'mediaType' => $attachment->getMimetype(),
                 'url' => $attachment->getUrl(Router::ABSOLUTE_URL),
-                'name' => AttachmentToNote::getWithPK(['attachment_id' => $attachment->getId(), 'note_id' => $object->getId()])->getTitle(),
+                'name' => AttachmentToNote::getByPK(['attachment_id' => $attachment->getId(), 'note_id' => $object->getId()])->getTitle(),
                 'width' => $attachment->getWidth(),
                 'height' => $attachment->getHeight(),
             ];

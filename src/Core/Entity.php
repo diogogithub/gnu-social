@@ -59,8 +59,8 @@ abstract class Entity
     {
         $class = static::class;
 
-        $date  = new DateTime();
-        if (!is_null($obj)) { // Update modified
+        $date = new DateTime();
+        if (!\is_null($obj)) { // Update modified
             if (property_exists($class, 'modified')) {
                 $args['modified'] = $date;
             }
@@ -117,13 +117,13 @@ abstract class Entity
      *  - array[string => mixed] $values - Perform a regular find
      *
      * Examples:
-     *     Entity::getWithPK(42);
-     *     Entity::getWithPK([42, 'foo']);
-     *     Entity::getWithPK(['key1' => 42, 'key2' => 'foo'])
+     *     Entity::getByPK(42);
+     *     Entity::getByPK([42, 'foo']);
+     *     Entity::getByPK(['key1' => 42, 'key2' => 'foo'])
      *
      * @return null|static
      */
-    public static function getWithPK(mixed $values): ?self
+    public static function getByPK(mixed $values): ?self
     {
         $values  = \is_array($values) ? $values : [$values];
         $class   = \get_called_class();
@@ -144,7 +144,6 @@ abstract class Entity
     }
 
     /**
-     *
      * @return array of Actors
      */
     public function getNotificationTargets(array $ids_already_known = []): array

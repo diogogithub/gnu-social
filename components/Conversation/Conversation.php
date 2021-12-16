@@ -25,9 +25,9 @@ namespace Component\Conversation;
 
 use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
-use function App\Core\I18n\_m;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Feed;
@@ -42,15 +42,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Conversation extends Component
 {
-
     /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
-     *
-     * @param Request $request
-     * @param Note $note
-     * @param array $actions
-     * @return bool
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
@@ -78,13 +72,8 @@ class Conversation extends Component
         return Event::next;
     }
 
-
     /**
      * Append on note information about user actions
-     *
-     * @param array $vars
-     * @param array $result
-     * @return bool
      */
     public function onAppendCardNote(array $vars, array &$result): bool
     {
@@ -99,7 +88,7 @@ class Conversation extends Component
 
         // Get actors who replied
         foreach ($note_replies as $reply) {
-            $reply_actor[] = Actor::getWithPK($reply->getActorId());
+            $reply_actor[] = Actor::getByPK($reply->getActorId());
         }
         if (\count($reply_actor) < 1) {
             return Event::next;
@@ -137,7 +126,6 @@ class Conversation extends Component
     }
 
     /**
-     * @param RouteLoader $r
      * @return bool
      */
     public function onAddRoute(RouteLoader $r)
