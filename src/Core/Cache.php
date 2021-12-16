@@ -135,6 +135,11 @@ abstract class Cache
         }
     }
 
+    /**
+     * Worker function for doing redis requests that may need to be recomputed. Given a key, it
+     * either uses the configuration value or the object lifetime to statistically determine if a
+     * cache entry specified by $key should be recomputed, to avoid cache stampedes (when a lot of keys expire at once)
+     */
     private static function redisMaybeRecompute(string $key, callable $recompute, callable $no_recompute, string $pool = 'default', float $beta = 1.0): mixed
     {
         $should_recompute = $beta === \INF || !self::$redis[$pool]->exists($key);
@@ -226,7 +231,10 @@ abstract class Cache
         if (isset(self::$redis[$pool])) {
             return self::redisMaybeRecompute(
                 $key,
-                recompute: function () use ($key, $calculate, $pool, $max_count, $left, $right, $beta) {
+                recompute: /**
+                 * Caculate and trim the list to the correct size
+                 */
+                function () use ($key, $calculate, $pool, $max_count, $left, $right, $beta) {
                     $save = true; // Pass by reference
                     $res = $calculate(null, $save);
                     if ($save) {
@@ -240,19 +248,30 @@ abstract class Cache
                     }
                     return \array_slice($res, $offset, $length);
                 },
-                no_recompute: fn () => self::$redis[$pool]->lRange($key, $left ?? 0, ($right ?? $max_count ?? 0) - 1),
+                no_recompute: /**
+                 * Fetch (a portion of) the list from the cache
+                 */
+                fn () => self::$redis[$pool]->lRange($key, $left ?? 0, ($right ?? $max_count ?? 0) - 1),
                 pool: $pool,
                 beta: $beta,
             );
         } else {
-            return self::get($key, function () use ($calculate, $max_count) {
-                $save = true;
-                $res = $calculate(null, $save);
-                if ($max_count != -1) {
-                    $res = \array_slice($res, 0, $max_count);
-                }
-                return $res;
-            }, $pool, $beta);
+            return self::get(
+                $key,
+                /**
+                 * Fetch the list from the cache and possibly trim the length
+                 */
+                function () use ($calculate, $max_count) {
+                    $save = true;
+                    $res = $calculate(null, $save);
+                    if ($max_count != -1) {
+                        $res = \array_slice($res, 0, $max_count);
+                    }
+                    return $res;
+                },
+                $pool,
+                $beta,
+            );
         }
     }
 
