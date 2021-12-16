@@ -71,6 +71,9 @@ class Attachment extends Component
         return Event::next;
     }
 
+    /**
+     * Populate $note_expr with the criteria for looking for notes with attachments
+     */
     public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
     {
         $include_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;

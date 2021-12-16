@@ -45,6 +45,11 @@ class Search extends Component
         $r->connect('search', '/search', Controller\Search::class);
     }
 
+    /**
+     * Helper function for generating and processing the search form, so it can be embedded in
+     * multiple places. Can be provided with a $query, which will prefill the query field. If
+     * $add_subscribe, allow the user to add the current query to their left panel
+     */
     public static function searchForm(Request $request, ?string $query = null, bool $add_subscribe = false): FormView
     {
         $actor = Common::actor();
@@ -136,6 +141,10 @@ class Search extends Component
         return Event::next;
     }
 
+    /**
+     * Convert $term to $note_expr and $actor_expr, search criteria. Handles searching for text
+     * notes, for different types of actors and for the content of text notes
+     */
     public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
     {
         $include_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
