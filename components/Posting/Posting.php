@@ -38,7 +38,6 @@ use App\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
-use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
@@ -123,10 +122,16 @@ class Posting extends Component
         if ($form->isSubmitted()) {
             try {
                 if ($form->isValid()) {
-                    $data         = $form->getData();
+                    $data = $form->getData();
+                    if (empty($data['content']) && empty($data['attachments'])) {
+                        // TODO Display error: At least one of `content` and `attachments` must be provided
+                        throw new ClientException(_m('You must enter content or provide at least one attachment to post a note'));
+                    }
+
                     $content_type = $data['content_type'] ?? $available_content_types[array_key_first($available_content_types)];
                     $extra_args   = [];
                     Event::handle('PostingHandleForm', [$request, $actor, $data, &$extra_args, $form_params, $form]);
+
                     self::storeLocalNote(
                         $user->getActor(),
                         $data['content'],
@@ -139,8 +144,6 @@ class Posting extends Component
                 }
             } catch (FormSizeFileException $sizeFileException) {
                 throw new FormSizeFileException();
-            } catch (InvalidFormException $invalidFormException) {
-                throw new InvalidFormException();
             }
         }
 
@@ -166,7 +169,7 @@ class Posting extends Component
      */
     public static function storeLocalNote(
         Actor $actor,
-        string $content,
+        ?string $content,
         string $content_type,
         ?string $language = null,
         array $attachments = [],
@@ -175,13 +178,16 @@ class Posting extends Component
     ) {
         $rendered = null;
         $mentions = [];
-        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $language, &$mentions]);
+        if (!empty($content)) {
+            Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $language, &$mentions]);
+        }
+
         $note = Note::create([
             'actor_id'     => $actor->getId(),
             'content'      => $content,
             'content_type' => $content_type,
             'rendered'     => $rendered,
-            'language_id'  => !is_null($language) ? Language::getByLocale($language)->getId() : null,
+            'language_id'  => !\is_null($language) ? Language::getByLocale($language)->getId() : null,
             'is_local'     => true,
         ]);
 
@@ -201,7 +207,9 @@ class Posting extends Component
 
         // Need file and note ids for the next step
         $note->setUrl(Router::url('note_view', ['id' => $note->getId()], Router::ABSOLUTE_URL));
-        Event::handle('ProcessNoteContent', [$note, $content, $content_type, $process_note_content_extra_args]);
+        if (!empty($content)) {
+            Event::handle('ProcessNoteContent', [$note, $content, $content_type, $process_note_content_extra_args]);
+        }
 
         if ($processed_attachments !== []) {
             foreach ($processed_attachments as [$a, $fname]) {
