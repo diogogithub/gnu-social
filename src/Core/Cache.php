@@ -204,7 +204,7 @@ abstract class Cache
     public static function delete(string $key, string $pool = 'default'): bool
     {
         if (isset(self::$redis[$pool])) {
-            return self::$redis[$pool]->del($key);
+            return self::$redis[$pool]->del($key) === 1;
         } else {
             return self::$pools[$pool]->delete($key);
         }
@@ -326,7 +326,7 @@ abstract class Cache
     public static function deleteList(string $key, string $pool = 'default'): bool
     {
         if (isset(self::$redis[$pool])) {
-            return self::$redis[$pool]->del($key) == 1;
+            return self::$redis[$pool]->del($key) === 1;
         } else {
             return self::delete($key, $pool);
         }
