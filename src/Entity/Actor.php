@@ -536,7 +536,7 @@ class Actor extends Entity
                 'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
                 'fullname'         => ['type' => 'text', 'description' => 'display name'],
-                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this actor has'],
+                'roles'            => ['type' => 'int', 'not null' => true, 'description' => 'Bitmap of permissions this actor has'],
                 'type'             => ['type' => 'int', 'not null' => true, 'description' => 'The type of actor (person, group, bot, etc)'],
                 'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
                 'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
