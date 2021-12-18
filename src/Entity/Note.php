@@ -255,14 +255,7 @@ class Note extends Entity
 
     public static function getAllNotes(int $note_scope): array
     {
-        return DB::sql(
-            <<<'EOF'
-                select {select} from note n
-                where (n.scope & :scope) <> 0
-                order by n.created DESC
-                EOF,
-            ['scope' => $note_scope],
-        );
+        return DB::findBy('note', ['scope' => $note_scope], order_by: ['created' => 'DESC']);
     }
 
     public function getAttachments(): array
