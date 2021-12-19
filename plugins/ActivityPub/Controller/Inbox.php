@@ -63,7 +63,10 @@ class Inbox extends Controller
      */
     public function handle(?int $gsactor_id = null): TypeResponse
     {
-        $error = fn(string $m): TypeResponse => new TypeResponse(json_encode(['error' => $m]));
+        $error = function (string $m, ?Exception $e = null): TypeResponse {
+            Log::error('ActivityPub Error Answer: ' . ($json = json_encode(['error' => $m, 'exception' => var_export($e, true)])));
+            return new TypeResponse($json, 400);
+        };
         $path = Router::url('activitypub_inbox', type: Router::ABSOLUTE_PATH);
 
         if (!is_null($gsactor_id)) {
@@ -94,7 +97,7 @@ class Inbox extends Controller
             }
             unset($resource_parts);
         } catch (Exception $e) {
-            return $error('Invalid actor: ' . $e->getMessage());
+            return $error('Invalid actor.', $e);
         }
 
         $activitypub_rsa = ActivitypubRsa::getByActor($actor);
@@ -108,7 +111,7 @@ class Inbox extends Controller
 
         if (!isset($headers['signature'])) {
             Log::debug('ActivityPub Inbox: HTTP Signature: Missing Signature header.');
-            return $error('Missing Signature header.', 400);
+            return $error('Missing Signature header.');
             // TODO: support other methods beyond HTTP Signatures
         }
 
@@ -117,7 +120,7 @@ class Inbox extends Controller
         Log::debug('ActivityPub Inbox: HTTP Signature Data: ' . print_r($signatureData, true));
         if (isset($signatureData['error'])) {
             Log::debug('ActivityPub Inbox: HTTP Signature: ' . json_encode($signatureData, JSON_PRETTY_PRINT));
-            return $error(json_encode($signatureData, JSON_PRETTY_PRINT), 400);
+            return $error(json_encode($signatureData, JSON_PRETTY_PRINT));
         }
 
         [$verified, /*$headers*/] = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
@@ -127,15 +130,15 @@ class Inbox extends Controller
             try {
                 $res = Explorer::get_remote_user_activity($ap_actor->getUri());
                 if (is_null($res)) {
-                    return $error('Invalid remote actor.');
+                    return $error('Invalid remote actor (null response).');
                 }
-            } catch (Exception) {
-                return $error('Invalid remote actor.');
+            } catch (Exception $e) {
+                return $error('Invalid remote actor.', $e);
             }
             try {
                 ActivitypubActor::update_profile($ap_actor, $actor, $activitypub_rsa, $res);
-            } catch (Exception) {
-                return $error('Failed to updated remote actor information.');
+            } catch (Exception $e) {
+                return $error('Failed to updated remote actor information.', $e);
             }
 
             [$verified, /*$headers*/] = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);

@@ -38,7 +38,7 @@ use App\Core\GSFile;
 use App\Core\HTTPClient;
 use App\Core\Log;
 use App\Core\Router\Router;
-use App\Core\Security;
+use App\Core\UserRoles;
 use App\Entity\Actor as GSActor;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
@@ -79,8 +79,10 @@ class Actor extends Model
             'nickname' => $person->get('preferredUsername'),
             'fullname' => !empty($person->get('name')) ? $person->get('name') : null,
             'created' => new DateTime($person->get('published') ?? 'now'),
-            'bio' => $person->has('summary') ? mb_substr(Security::sanitize($person->get('summary')), 0, 1000) : null,
+            'bio' => $person->get('summary'),
             'is_local' => false,
+            'type' => GSActor::PERSON,
+            'roles' => UserRoles::USER,
             'modified' => new DateTime(),
         ];
 
