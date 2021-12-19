@@ -142,7 +142,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
 
         // Respond in the most preferred acceptable content type
         $route              = $request->get('_route');
-        $accept             = $request->getAcceptableContentTypes() ?: ['text/html'];
+        $accept             = $request->getAcceptableContentTypes() ?: ['text/html']; // Assume html if not specified, */* is considered specified
         $format             = $request->getFormat($accept[0]);
         $potential_response = null;
         if (Event::handle('ControllerResponseInFormat', [
@@ -155,7 +155,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
             case 'json':
                 $event->setResponse(new JsonResponse($response));
                 break;
-            case 'html':
+            default: // html (assume if not specified)
                 if ($template !== null) {
                     $event->setResponse($this->render($template, $this->vars));
 
@@ -170,11 +170,8 @@ abstract class Controller extends AbstractController implements EventSubscriberI
 
                     break;
                 } else {
-                    // no break, goto default
+                    throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
                 }
-                // no break
-            default:
-                throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
             }
         } else {
             if (\is_null($potential_response)) {
