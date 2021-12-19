@@ -38,10 +38,49 @@ use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use App\Util\Nickname;
 use Component\Conversation\Controller\Reply as ReplyController;
+use Component\Conversation\Entity\Conversation as ConversationEntity;
+use const SORT_REGULAR;
 use Symfony\Component\HttpFoundation\Request;
 
 class Conversation extends Component
 {
+    /**
+     * **Assigns** the given local Note it's corresponding **Conversation**
+     *
+     * **If a _$parent_id_ is not given**, then the Actor is not attempting a reply,
+     * therefore, we can assume (for now) that we need to create a new Conversation and assign it
+     * to the newly created Note (please look at Component\Posting::storeLocalNote, where this function is used)
+     *
+     * **On the other hand**, given a _$parent_id_, the Actor is attempting to post a reply. Meaning that,
+     * this Note conversation_id should be same as the parent Note
+     */
+    public static function assignLocalConversation(Note $current_note, ?int $parent_id): void
+    {
+        if (!$parent_id) {
+            // If none found, we don't know yet if it is a reply or root
+            // Let's assume for now that it's a new conversation and deal with stitching later
+            $conversation = ConversationEntity::create(['initial_note_id' => $current_note->getId()]);
+
+            // We need the Conversation id itself, so a persist is in order
+            DB::persist($conversation);
+
+            // Set the Uri and current_note's own conversation_id
+            $conversation->setUri(Router::url('conversation', ['conversation_id' => $conversation->getId()], Router::ABSOLUTE_URL));
+            $current_note->setConversationId($conversation->getId());
+        } else {
+            // It's a reply for sure
+            // Set reply_to property in newly created Note to parent's id
+            $current_note->setReplyTo($parent_id);
+
+            // Parent will have a conversation of its own, the reply should have the same one
+            $parent_note = Note::getById($parent_id);
+            $current_note->setConversationId($parent_note->getConversationId());
+        }
+
+        DB::merge($current_note);
+        DB::flush();
+    }
+
     /**
      * HTML rendering event that adds a reply link as a note
      * action, if a user is logged in
@@ -52,14 +91,15 @@ class Conversation extends Component
             return Event::next;
         }
 
-        // Generating URL for repeat action route
-        $args             = ['id' => $note->getId()];
+        // Generating URL for reply action route
+        $args             = ['note_id' => $note->getId(), 'actor_id' => $note->getActor()->getId()];
         $type             = Router::ABSOLUTE_PATH;
         $reply_action_url = Router::url('reply_add', $args, $type);
 
         $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
-        $reply_action_url .= !\is_null($query_string) ? '?from=' . mb_substr($query_string, 2) : '';
+        $reply_action_url .= !\is_null($query_string) ? '?from=' : '&from=';
+        $reply_action_url .= mb_substr($query_string, 2);
 
         $reply_action = [
             'url'     => $reply_action_url,
@@ -69,6 +109,14 @@ class Conversation extends Component
         ];
 
         $actions[] = $reply_action;
+        return Event::next;
+    }
+
+    public function onAddExtraArgsToNoteContent(Request $request, Actor $actor, array $data, array &$extra_args): bool
+    {
+        // If Actor is adding a reply, get parent's Note id
+        // Else it's null
+        $extra_args['reply_to'] = $request->get('_route') === 'reply_add' ? (int) $request->get('note_id') : null;
         return Event::next;
     }
 
@@ -95,7 +143,7 @@ class Conversation extends Component
         }
 
         // Filter out multiple replies from the same actor
-        $reply_actor = array_unique($reply_actor, \SORT_REGULAR);
+        $reply_actor = array_unique($reply_actor, SORT_REGULAR);
 
         // Add to complementary info
         foreach ($reply_actor as $actor) {
@@ -125,27 +173,16 @@ class Conversation extends Component
         return Event::next;
     }
 
-    public function onProcessNoteContent(Note $note, string $content): bool
+    public function onAddRoute(RouteLoader $r): bool
     {
-        // If the source lacks capability of sending the "reply_to"
-        // metadata, let's try to find an inline reply_to-reference.
-        // TODO: preg match any reply_to reference and handle reply to funky business (see Link component)
-        return Event::next;
-    }
-
-    /**
-     * @return bool
-     */
-    public function onAddRoute(RouteLoader $r)
-    {
-        $r->connect('reply_add', '/object/note/{id<\d+>}/reply', [ReplyController::class, 'replyAddNote']);
-        $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [ReplyController::class, 'replies']);
-        $r->connect('conversation', '/conversation/{id<\d+>}', [ReplyController::class, 'conversation']);
+        $r->connect('reply_add', '/object/note/new?to={actor_id<\d+>}&reply_to={note_id<\d+>}', [ReplyController::class, 'addReply']);
+        $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [ReplyController::class, 'showReplies']);
+        $r->connect('conversation', '/conversation/{conversation_id<\d+>}', [Controller\Conversation::class, 'showConversation']);
 
         return Event::next;
     }
 
-    public function onCreateDefaultFeeds(int $actor_id, LocalUser $user, int &$ordering)
+    public function onCreateDefaultFeeds(int $actor_id, LocalUser $user, int &$ordering): bool
     {
         DB::persist(Feed::create([
             'actor_id' => $actor_id,

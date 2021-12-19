@@ -184,7 +184,7 @@ class Tag extends Component
         return Event::next;
     }
 
-    public function onPostingHandleForm(Request $request, Actor $actor, array $data, array &$extra_args)
+    public function onAddExtraArgsToNoteContent(Request $request, Actor $actor, array $data, array &$extra_args)
     {
         if (!isset($data['tag_use_canonical'])) {
             throw new ClientException;

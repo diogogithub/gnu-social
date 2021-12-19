@@ -23,9 +23,7 @@ declare(strict_types = 1);
 
 namespace Component\Conversation\Entity;
 
-use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Entity\Note;
 
 /**
  * Entity class for Conversations
@@ -83,7 +81,6 @@ class Conversation extends Entity
         return $this->initial_note_id;
     }
 
-
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
@@ -92,11 +89,11 @@ class Conversation extends Entity
         return [
             'name'   => 'conversation',
             'fields' => [
-                'id' => ['type' => 'serial', 'not null' => true, 'description' => 'Serial identifier, since any additional meaning would require updating its value for every reply upon receiving a new aparent root'],
-                'uri' => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'URI of the conversation'],
-                'initial_note_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'Initial note seen on this host for this conversation'],
+                'id'              => ['type' => 'serial', 'not null' => true, 'description' => 'Serial identifier, since any additional meaning would require updating its value for every reply upon receiving a new aparent root'],
+                'uri'             => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'URI of the conversation'],
+                'initial_note_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'Initial note seen on this host for this conversation'],
             ],
-            'primary key'  => ['id'],
+            'primary key' => ['id'],
             'unique keys' => [
                 'conversation_uri_uniq' => ['uri'],
             ],

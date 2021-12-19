@@ -26,46 +26,31 @@ declare(strict_types = 1);
 
 namespace Component\Conversation\Controller;
 
-use _PHPStan_76800bfb5\Nette\NotImplementedException;
 use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
-use App\Core\Form;
-use App\Util\Exception\DuplicateFoundException;
-use App\Util\Exception\NoLoggedInUser;
-use App\Util\Exception\ServerException;
-use function App\Core\I18n\_m;
-use App\Core\Log;
-use App\Core\Router\Router;
-use App\Entity\Actor;
-use App\Entity\Note;
-use App\Util\Common;
-use App\Util\Exception\ClientException;
-use App\Util\Exception\InvalidFormException;
-use App\Util\Exception\NoSuchNoteException;
-use App\Util\Exception\RedirectException;
-use App\Util\Form\FormFields;
-use Component\Posting\Posting;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
 
 class Conversation extends FeedController
 {
-    // if note is root -> just link
-    // if note is a reply -> link from above plus anchor
-    public function ConversationShow(Request $request)
+    /**
+     * Render conversation page
+     *
+     * @return array
+     */
+    public function showConversation(Request $request, int $conversation_id)
     {
-        throw new NotImplementedException();
-        $actor_id = Common::ensureLoggedIn()->getId();
-        $notes    = DB::dql('select n from App\Entity\Note n '
-            . 'where n.reply_to is not null and n.actor_id = :id '
-            . 'order by n.created DESC', ['id' => $actor_id], );
+        // TODO:
+        // if note is root -> just link
+        // if note is a reply -> link from above plus anchor
+
+        $notes = DB::dql('select n from App\Entity\Note n '
+            . 'on n.conversation_id = :id '
+            . 'order by n.created DESC', ['id' => $conversation_id], );
         return [
-            '_template'  => 'feeds/feed.html.twig',
-            'notes'      => $notes,
+            '_template'     => 'feeds/feed.html.twig',
+            'notes'         => $notes,
             'should_format' => false,
-            'page_title' => 'Replies feed',
+            'page_title'    => 'Conversation',
         ];
     }
 }

@@ -25,6 +25,7 @@ namespace Component\Posting;
 
 use App\Core\Cache;
 use App\Core\DB\DB;
+use App\Core\Entity;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\GSFile;
@@ -39,6 +40,7 @@ use App\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
@@ -46,6 +48,7 @@ use App\Util\Formatting;
 use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\Attachment;
 use Component\Attachment\Entity\AttachmentToNote;
+use Component\Conversation\Conversation;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -67,7 +70,7 @@ class Posting extends Component
      */
     public function onAppendRightPostingBlock(Request $request, array &$res): bool
     {
-        if (($user = Common::user()) === null) {
+        if (\is_null($user = Common::user())) {
             return Event::next;
         }
 
@@ -95,8 +98,22 @@ class Posting extends Component
         ];
         Event::handle('PostingAvailableContentTypes', [&$available_content_types]);
 
-        $context_actor = null; // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
-        $form_params   = [
+        // TODO: this needs work
+        // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
+        // store local note needs to know what conversation it is
+        // Conversation adds the respective query string on route url, for groups it should be handled by an event
+        $to_query      = $request->get('actor_id');
+        $context_actor = null;
+
+        // Actor is posting in a group?
+        if (!\is_null($to_query)) {
+            // Getting the actor itself
+            $context_actor = Actor::getById((int) $to_query);
+            // Adding it to the to_tags array TODO: this is wrong
+            $to_tags[] = $context_actor->getNickname();
+        }
+
+        $form_params = [
             ['to', ChoiceType::class, ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
             ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
             ['content', TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]],
@@ -131,7 +148,7 @@ class Posting extends Component
 
                     $content_type = $data['content_type'] ?? $available_content_types[array_key_first($available_content_types)];
                     $extra_args   = [];
-                    Event::handle('PostingHandleForm', [$request, $actor, $data, &$extra_args, $form_params, $form]);
+                    Event::handle('AddExtraArgsToNoteContent', [$request, $actor, $data, &$extra_args, $form_params, $form]);
 
                     self::storeLocalNote(
                         $user->getActor(),
@@ -141,6 +158,7 @@ class Posting extends Component
                         $data['attachments'],
                         process_note_content_extra_args: $extra_args,
                     );
+
                     throw new RedirectException();
                 }
             } catch (FormSizeFileException $sizeFileException) {
@@ -162,11 +180,11 @@ class Posting extends Component
      * @param array $processed_attachments           Array of [Attachment, Attachment's name] to be associated to this $actor and Note
      * @param array $process_note_content_extra_args Extra arguments for the event ProcessNoteContent
      *
-     * @throws \App\Util\Exception\DuplicateFoundException
      * @throws ClientException
+     * @throws DuplicateFoundException
      * @throws ServerException
      *
-     * @return \App\Core\Entity|mixed
+     * @return Entity|mixed
      */
     public static function storeLocalNote(
         Actor $actor,
@@ -211,6 +229,11 @@ class Posting extends Component
         if (!empty($content)) {
             Event::handle('ProcessNoteContent', [$note, $content, $content_type, $process_note_content_extra_args]);
         }
+
+        // Assign conversation to this note
+        // AddExtraArgsToNoteContent already added the info we need
+        $reply_to = $process_note_content_extra_args['reply_to'];
+        Conversation::assignLocalConversation($note, $reply_to);
 
         if ($processed_attachments !== []) {
             foreach ($processed_attachments as [$a, $fname]) {
