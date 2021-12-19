@@ -28,6 +28,8 @@ use DateTimeInterface;
 
 /**
  * Entity for List of actors
+ * This entity only makes sense when considered together with the ActorTag one.
+ * Because, every circle entry will be an ActorTag.
  *
  * @category  DB
  * @package   GNUsocial
@@ -166,8 +168,10 @@ class ActorCircle extends Entity
             'description' => 'a actor can have lists of actors, to separate their feed',
             'fields'      => [
                 'id'          => ['type' => 'serial',    'not null' => true, 'description' => 'unique identifier'],
+                // An actor can be tagged by many actors
                 'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
-                'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.canonical', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
+                // Many Actor Circles can reference (and probably will) an Actor Tag
+                'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
                 'description' => ['type' => 'text',      'description' => 'description of the people tag'],
                 'private'     => ['type' => 'bool',      'default' => false, 'description' => 'is this tag private'],
                 'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],

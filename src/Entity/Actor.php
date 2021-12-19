@@ -378,16 +378,14 @@ class Actor extends Entity
     }
 
     /**
-     * @param array      $tags     array of strings to become self tags
+     * @param array $tags array of strings to become self tags
      * @param null|array $existing array of existing self tags (ActorTag[])
-     *
-     * @throws \App\Util\Exception\DuplicateFoundException
-     * @throws NotFoundException
      *
      * @return $this
      */
-    public function setSelfTags(array $tags, ?array $existing = null): self
+        public function setSelfTags(array $tags, ?array $existing = null): self
     {
+        $tags = F\filter($tags, fn ($tag) => Nickname::isCanonical($tag)); // TODO: Have an actual #Tag test
         $tags = array_unique($tags);
         if (\is_null($existing)) {
             [$_, $existing] = $this->getSelfTags();
@@ -398,13 +396,12 @@ class Actor extends Entity
         $actor_tags_to_remove = F\filter($existing, fn ($actor_tag) => \in_array($actor_tag->getTag(), $tags_to_remove));
         foreach ($tags_to_add as $tag) {
             $canonical_tag = TagComponent::canonicalTag($tag, $this->getTopLanguage()->getLocale());
-            DB::persist(ActorCircle::create(['tagger' => $this->getId(), 'tag' => $canonical_tag, 'private' => false]));
-            DB::persist(ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag, 'canonical' => $canonical_tag, 'use_canonical' => true])); // TODO make use canonical configurable
+            DB::persist(ActorCircle::create(['tagger' => $this->getId(), 'tag' => $tag, 'private' => false]));
+            DB::persist(ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag, 'canonical' => $canonical_tag, 'use_canonical' => false])); // TODO make use canonical configurable
         }
         foreach ($actor_tags_to_remove as $actor_tag) {
-            $canonical_tag = TagComponent::canonicalTag($actor_tag->getTag(), $this->getTopLanguage()->getLocale());
-            DB::removeBy('actor_tag', ['tagger' => $this->getId(), 'tagged' => $this->getId(), 'canonical' => $canonical_tag]);
-            DB::removeBy('actor_circle', ['tagger' => $this->getId(), 'tag' => $canonical_tag]); // TODO only remove if unused
+            DB::removeBy('actor_tag', ['tagger' => $this->getId(), 'tagged' => $this->getId(), 'tag' => $actor_tag->getTag(), 'use_canonical' => $actor_tag->getUseCanonical()]);
+            DB::removeBy('actor_circle', ['tagger' => $this->getId(), 'tag' => $actor_tag->getTag()]); // TODO only remove if unused
         }
         Cache::delete(self::cacheKeys($this->getId())['tags']);
         Cache::delete(self::cacheKeys($this->getId(), $this->getId())['tags']);

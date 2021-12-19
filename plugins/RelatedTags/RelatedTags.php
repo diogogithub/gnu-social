@@ -68,7 +68,7 @@ class RelatedTags extends Plugin
                 'related-actor-tags-' . implode('-', $tags),
                 fn () => DB::sql(
                     <<<'EOQ'
-                        select distinct on (at.canonical) canonical, at.tagger, at.tagged, at.tag, at.modified
+                        select distinct on (at.canonical) canonical, at.tagger, at.tagged, at.tag, at.use_canonical, at.modified
                         from actor_tag at
                         where at.tagged in (select at.tagged from actor_tag at where at.canonical in (:tags))
                               and not at.canonical in (:tags)

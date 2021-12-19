@@ -30,6 +30,10 @@ use DateTimeInterface;
 
 /**
  * Entity for Actor Tag
+ * This entity represents the relationship between an Actor and a Tag.
+ * That relationship works as follows:
+ * An Actor A tags an Actor B (which can be A - a self tag).
+ * For every tagging that happens between two actors, a new ActorTag is born.
  *
  * @category  DB
  * @package   GNUsocial
@@ -39,6 +43,7 @@ use DateTimeInterface;
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
  * @author    Hugo Sales <hugo@hsal.es>
+ * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -156,10 +161,10 @@ class ActorTag extends Entity
                 'use_canonical' => ['type' => 'bool',      'not null' => true, 'description' => 'whether the user wanted to block canonical tags'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['tagger', 'tagged', 'canonical'],
+            'primary key' => ['tagger', 'tagged', 'tag', 'use_canonical'],
             'indexes'     => [
                 'actor_tag_modified_idx'         => ['modified'],
-                'actor_tag_tagger_canonical_idx' => ['tagger', 'canonical'], // For Circles
+                'actor_tag_tagger_tag_idx' => ['tagger', 'tag'], // For Circles
                 'actor_tag_tagged_idx'           => ['tagged'],
             ],
         ];

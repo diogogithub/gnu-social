@@ -24,6 +24,8 @@ use DateTimeInterface;
 
 /**
  * Entity for actor circle subscriptions
+ * This entity only makes sense when considered with the ActorCircle entity.
+ * Because you can only subscribe a Circle that exists.
  *
  * @category  DB
  * @package   GNUsocial
@@ -96,10 +98,11 @@ class ActorCircleSubscription extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name' => 'actor_tag_subscription',
+            'name' => 'actor_circle_subscription',
             'fields' => [
                 'actor_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_circle_subscription_actor_id_fkey', 'not null' => true, 'description' => 'foreign key to actor table'],
-                'circle_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'ActorCircle.id', 'multiplicity' => 'one to one', 'name' => 'actor_circle_subscription_actor_circle_fkey', 'not null' => true, 'description' => 'foreign key to actor_circle'],
+                // An actor subscribes many circles; A Circle is subscribed by many actors.
+                'circle_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'ActorCircle.id', 'multiplicity' => 'one to many', 'name' => 'actor_circle_subscription_actor_circle_fkey', 'not null' => true, 'description' => 'foreign key to actor_circle'],
                 'created'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'  => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
