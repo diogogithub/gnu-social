@@ -60,9 +60,9 @@ class Actor extends Entity
     private ?string $fullname = null;
     private int $roles        = 4;
     private int $type;
-    private ?string $homepage;
-    private ?string $bio;
-    private ?string $location;
+    private ?string $homepage = null;
+    private ?string $bio      = null;
+    private ?string $location = null;
     private ?float $lat;
     private ?float $lon;
     private ?int $location_id;
@@ -378,12 +378,12 @@ class Actor extends Entity
     }
 
     /**
-     * @param array $tags array of strings to become self tags
+     * @param array      $tags     array of strings to become self tags
      * @param null|array $existing array of existing self tags (ActorTag[])
      *
      * @return $this
      */
-        public function setSelfTags(array $tags, ?array $existing = null): self
+    public function setSelfTags(array $tags, ?array $existing = null): self
     {
         $tags = F\filter($tags, fn ($tag) => Nickname::isCanonical($tag)); // TODO: Have an actual #Tag test
         $tags = array_unique($tags);
