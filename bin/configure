@@ -47,7 +47,7 @@ Choose whether you prefer social to handle all the services it needs though dock
                        3>&1 1>&2 2>&3)
 validate_exit $?
 case ${SERVICES} in
-    'docker') DOCKER='"nginx" "certbot" "php" "db" "redis"' ;; # TODO enable and configure "mail"
+    'docker') DOCKER='"nginx" "certbot" "php" "db" "redis" "worker"' ;; # TODO enable and configure "mail"
     'mixed')
         DOCKER=$(${WHIPTAIL} --title 'GNU social Docker services' --clear --backtitle 'GNU social' \
                              --checklist "\nPick which of the following services you'd like to add to docker-compose.\n* indicates a service that has extra configuration" 0 0 0 \
@@ -57,6 +57,7 @@ case ${SERVICES} in
                              db 'Configure a DBMS*' on \
                              redis 'Configure Redis (optional, recommended)' on \
                              mail 'Confugure a mail server*' on \
+                             worker 'Confugure container with worker queues' on \
                              3>&1 1>&2 2>&3)
         validate_exit $?
         ;;
@@ -141,6 +142,7 @@ fi
 if echo "${DOCKER}" | grep -Fq '"php"'; then
     ${WHIPTAIL} --title "Build PHP container locally?" --clear --backtitle 'GNU social' \
                 --yesno "\nDo you want to compile the needed PHP extensions and build the container locally? (May provide better performance but requires more than 1GiB of RAM)" 0 0 \
+                --defaultno \
                 3>&1 1>&2 2>&3
     BUILD_PHP=$((1-$?)) # Invert output
 fi

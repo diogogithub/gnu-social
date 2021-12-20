@@ -2,12 +2,12 @@
 
 if [ "${BUILD_PHP}" -ne 0 ]; then
     cat <<EOF
-    php:
+    worker:
         build: docker/php
 EOF
 else
     cat <<EOF
-    php:
+    worker:
         image: gsocial/php
 EOF
 fi
@@ -23,13 +23,12 @@ fi
 cat <<EOF
         restart: always
         tty: true
-        ports:
-            - ${PHP_PORT}:9000
         volumes:
             # Entrypoint
             - ./docker/php/entrypoint.sh:/entrypoint.sh
             - ./docker/db/wait_for_db.sh:/wait_for_db.sh
             - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
+            - ./docker/worker/worker.sh:/var/entrypoint.d/social_worker.sh
             # Main files
             - .:/var/www/social
             - /var/www/social/docker # exclude docker folder

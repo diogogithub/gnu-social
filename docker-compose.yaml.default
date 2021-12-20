@@ -17,7 +17,7 @@ services:
             # Certbot
             - ./docker/certbot/www:/var/www/certbot
             - ./docker/certbot/.files:/etc/letsencrypt
-            # Social
+            # social
             - ./public:/var/www/social/public
         env_file:
             - ./docker/bootstrap/bootstrap.env
@@ -43,7 +43,7 @@ services:
           - ./docker/certbot/.files:/etc/letsencrypt
 
     php:
-        build: docker/php
+        image: gsocial/php
         restart: always
         tty: true
         ports:
@@ -55,25 +55,7 @@ services:
             - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
             # Main files
             - .:/var/www/social
-            - /var/www/social/docker # don't map docker folder
-        env_file:
-            - ./docker/social/social.env
-            - ./docker/db/db.env
-        command: /entrypoint.sh
-
-    worker:
-        build: docker/php
-        restart: always
-        tty: true
-        volumes:
-            # Entrypoint
-            - ./docker/php/entrypoint.sh:/entrypoint.sh
-            - ./docker/db/wait_for_db.sh:/wait_for_db.sh
-            - ./docker/social/install.sh:/var/entrypoint.d/10_social_install.sh
-            - ./docker/social/worker.sh:/var/entrypoint.d/20_social_worker.sh
-            # Main files
-            - .:/var/www/social
-            - /var/www/social/docker # don't map docker folder
+            - /var/www/social/docker # exclude docker folder
         env_file:
             - ./docker/social/social.env
             - ./docker/db/db.env
@@ -84,32 +66,41 @@ services:
         restart: always
         tty: false
         ports:
-            - 3306:3306
+            - 5432:5432
+        environment:
+            - PGDATA=/var/lib/postgres/data
         env_file:
             - ./docker/db/db.env
+        volumes:
+            - database:/var/lib/postgres/data
 
     redis:
         image: redis:alpine
         restart: always
         tty: false
+        volumes:
+            - ./docker/redis/redis.conf:/etc/redis/redis.conf
         ports:
             - 6379:6379
+        command: redis-server /etc/redis/redis.conf
 
-    mail:
-        build: docker/mail
-        env_file:
-          - ./docker/mail/mail.env
-        ports:
-          - 25:25
-          - 110:110
-          - 143:143
-          - 587:587
-          - 993:993
+    worker:
+        image: gsocial/php
+        restart: always
+        tty: true
         volumes:
-          - ./docker/mail/mail:/var/mail
-          - ./docker/mail/config:/etc/mail
-          # Certbot
-          - ./docker/certbot/www:/var/www/certbot
-          - ./docker/certbot/.files:/etc/letsencrypt
+            # Entrypoint
+            - ./docker/php/entrypoint.sh:/entrypoint.sh
+            - ./docker/db/wait_for_db.sh:/wait_for_db.sh
+            - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
+            - ./docker/social/worker.sh:/var/entrypoint.d/social_worker.sh
+            # Main files
+            - .:/var/www/social
+            - /var/www/social/docker # exclude docker folder
+        env_file:
+            - ./docker/social/social.env
+            - ./docker/db/db.env
+        command: /entrypoint.sh
+
 volumes:
     database:
