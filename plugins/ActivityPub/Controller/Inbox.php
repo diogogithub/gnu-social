@@ -80,6 +80,7 @@ class Inbox extends Controller
 
         Log::debug('ActivityPub Inbox: Received a POST request.');
         $body = (string)$this->request->getContent();
+        Log::debug('ActivityPub Inbox: Request Body content: '.$body);
         $type = Model::jsonToType($body);
 
         if ($type->has('actor') === false) {
@@ -104,6 +105,7 @@ class Inbox extends Controller
         $actor_public_key = $activitypub_rsa->getPublicKey();
 
         $headers = $this->request->headers->all();
+        Log::debug('ActivityPub Inbox: Request Headers: '.var_export($headers, true));
         // Flattify headers
         foreach ($headers as $key => $val) {
             $headers[$key] = $val[0];
