@@ -505,7 +505,7 @@ class Actor extends Entity
                 break;
             case self::GROUP:
                 $uri = Router::url('group_actor_view_id', ['id' => $this->getId()], $type);
-                // no break
+                break;
             default:
                 throw new BugFoundException('Actor type added but `Actor::getUri` was not updated');
             }
@@ -531,7 +531,7 @@ class Actor extends Entity
                     break;
                 case self::GROUP:
                     $url = Router::url('group_actor_view_nickname', ['nickname' => $this->getNickname()], $type);
-                    // no break
+                    break;
                 default:
                     throw new BugFoundException('Actor type added but `Actor::getUrl` was not updated');
                 }
