@@ -43,7 +43,7 @@ abstract class Subscriptions
     public const LOAD_ORDER = 32;
     public static function load(RouteLoader $r): void
     {
-        $r->connect(id: 'actor_subscriptions_id', uri_path: '/actor/{id<\d+>}/subscriptions', target: [C\Subscriptions::class, 'SubscriptionsByActorId']);
-        $r->connect(id: 'actor_subscriptions_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/subscriptions', target: [C\Subscriptions::class, 'SubscriptionsByActorNickname']);
+        $r->connect(id: 'actor_subscriptions_id', uri_path: '/actor/{id<\d+>}/subscriptions', target: [C\Subscriptions::class, 'subscriptionsByActorId']);
+        $r->connect(id: 'actor_subscriptions_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/subscriptions', target: [C\Subscriptions::class, 'subscriptionsByActorNickname']);
     }
 }
