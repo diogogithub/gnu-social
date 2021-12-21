@@ -87,9 +87,9 @@ class Actor extends ActorController
                 if ($form->isSubmitted() && $form->isValid()) {
                     Log::info(
                         _m(
-                        'Actor id:{actor_id} nick:{actor_nick} created the group {nickname}',
-                        ['{actor_id}' => $actor->getId(), 'actor_nick' => $actor->getNickname(), 'nickname' => $nickname],
-                    ),
+                            'Actor id:{actor_id} nick:{actor_nick} created the group {nickname}',
+                            ['{actor_id}' => $actor->getId(), 'actor_nick' => $actor->getNickname(), 'nickname' => $nickname],
+                        ),
                     );
 
                     $group = E\Actor::create([
@@ -112,8 +112,8 @@ class Actor extends ActorController
                         'is_admin' => true,
                     ]));
                     DB::flush();
-                    Cache::delete(self::cacheKeys($actor->getId())['subscriber']);
-                    Cache::delete(self::cacheKeys($actor->getId())['subscribed']);
+                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscriber']);
+                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribed']);
                     throw new RedirectException;
                 }
 

@@ -33,6 +33,10 @@ declare(strict_types = 1);
 namespace App\Core\Controller;
 
 use App\Core\Controller;
+use App\Core\DB\DB;
+use function App\Core\I18n\_m;
+use App\Util\Exception\ClientException;
+use App\Util\Exception\RedirectException;
 
 abstract class ActorController extends Controller
 {
@@ -43,7 +47,7 @@ abstract class ActorController extends Controller
     {
         $actor = DB::findOneBy('actor', ['id' => $id]);
         if ($actor->getIsLocal()) {
-            return new RedirectResponse($actor->getUrl());
+            throw new RedirectException($actor->getUrl());
         }
         if (empty($actor)) {
             throw new ClientException(_m('No such actor.'), 404);

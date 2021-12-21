@@ -29,6 +29,7 @@ use App\Core\Entity;
 use App\Core\Event;
 use App\Core\Router\Router;
 use App\Core\UserRoles;
+use App\Util\Exception\BugFoundException;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\NotFoundException;
@@ -501,6 +502,9 @@ class Actor extends Entity
                 break;
             case self::GROUP:
                 $uri = Router::url('group_actor_view_id', ['id' => $this->getId()], $type);
+                // no break
+            default:
+                throw new BugFoundException('Actor type added but `Actor::getUri` was not updated');
             }
             Event::handle('EndGetActorUri', [$this, $type, &$uri]);
         }
@@ -521,6 +525,9 @@ class Actor extends Entity
                     break;
                 case self::GROUP:
                     $url = Router::url('group_actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+                    // no break
+                default:
+                    throw new BugFoundException('Actor type added but `Actor::getUrl` was not updated');
                 }
             } else {
                 return $this->getUri($type);
@@ -540,6 +547,8 @@ class Actor extends Entity
             return Router::url('actor_view_nickname', ['nickname' => $nickname], $uri_type);
         case self::GROUP:
             return Router::url('group_actor_view_nickname', ['nickname' => $nickname], $uri_type);
+        default:
+            throw new BugFoundException('Actor type added but `Actor::getPlaceholderUri` was not updated');
         }
     }
 
