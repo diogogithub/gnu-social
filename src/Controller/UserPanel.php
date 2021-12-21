@@ -44,8 +44,6 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
-use App\Entity\ActorLanguage;
-use App\Entity\Language;
 use App\Util\Common;
 use App\Util\Exception\AuthenticationException;
 use App\Util\Exception\NicknameEmptyException;
@@ -54,25 +52,22 @@ use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NoLoggedInUser;
-use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\ActorArrayTransformer;
 use App\Util\Form\ArrayTransformer;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;
+use Component\Language\Controller\Language as LanguageController;
 use Component\Notification\Entity\UserNotificationPrefs;
 use Doctrine\DBAL\Types\Types;
 use Exception;
-use Functional as F;
 use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 
 // }}} Imports
@@ -84,12 +79,12 @@ class UserPanel extends Controller
      *
      * @throws Exception
      */
-    public function allSettings(Request $request): array
+    public function allSettings(Request $request, LanguageController $language): array
     {
         $personal_form = $this->personalInfo($request);
         $email_form    = $this->email($request);
         $password_form = $this->password($request);
-        $language_form = $this->language($request);
+        $language_form = $language->settings($request);
 
         $notifications_form_array = $this->notifications($request);
 
@@ -172,56 +167,6 @@ class UserPanel extends Controller
                 }
             }
             DB::flush();
-        }
-        return $form;
-    }
-
-    /**
-     * @throws NoLoggedInUser
-     * @throws RedirectException
-     * @throws ServerException
-     */
-    public function language(Request $request): FormInterface
-    {
-        $user = Common::ensureLoggedIn();
-        // TODO Add support missing settings
-
-        $form = Form::create([
-            FormFields::language($user->getActor(), context_actor: null, label: _m('Languages'), help: _m('The languages you understand, so you can see primarily content in those'), multiple: true, required: false, use_short_display: false),
-            ['save_languages', SubmitType::class, ['label' => _m('Proceed to order selected languages')]],
-        ]);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-
-            if (!\is_null($data['languages'])) {
-                $selected_langs = DB::findBy('language', ['locale' => $data['languages']]);
-                $existing_langs = DB::dql(
-                    'select l from language l join actor_language al with l.id = al.language_id where al.actor_id = :actor_id',
-                    ['actor_id' => $user->getId()],
-                );
-
-                $new_langs      = array_udiff($selected_langs, $existing_langs, fn ($l, $r) => $l->getId() <=> $r->getId());
-                $removing_langs = array_udiff($existing_langs, $selected_langs, fn ($l, $r) => $l->getId() <=> $r->getId());
-                foreach ($new_langs as $l) {
-                    DB::persist(ActorLanguage::create(['actor_id' => $user->getId(), 'language_id' => $l->getId(), 'ordering' => 0]));
-                }
-
-                if (!empty($removing_langs)) {
-                    $actor_langs_to_remove = DB::findBy('actor_language', ['actor_id' => $user->getId(), 'language_id' => F\map($removing_langs, fn ($l) => $l->getId())]);
-                    foreach ($actor_langs_to_remove as $lang) {
-                        DB::remove($lang);
-                    }
-                }
-
-                Cache::delete(ActorLanguage::cacheKeys($user)['actor-langs']);
-                ActorLanguage::normalizeOrdering($user); // In case the user doesn't submit the other page
-                DB::flush();
-                unset($data['languages']);
-
-                throw new RedirectException('settings_sort_languages', ['_fragment' => null]); // TODO doesn't clear fragment
-            }
         }
         return $form;
     }
@@ -357,55 +302,5 @@ class UserPanel extends Controller
         }
 
         return $tabbed_forms;
-    }
-
-    /**
-     * Controller for defining the ordering of a users' languages
-     *
-     * @throws NoLoggedInUser
-     * @throws RedirectException
-     * @throws ServerException
-     */
-    public function sortLanguages(Request $request): array
-    {
-        $user = Common::ensureLoggedIn();
-
-        $langs = DB::dql('select l.locale, l.long_display, al.ordering from language l join actor_language al with l.id = al.language_id where al.actor_id = :id order by al.ordering ASC', ['id' => $user->getId()]);
-
-        $form_entries = [];
-        foreach ($langs as $l) {
-            $form_entries[] = [$l['locale'], IntegerType::class, ['label' => _m($l['long_display']), 'data' => $l['ordering']]];
-        }
-
-        $form_entries[] = ['save_language_order', SubmitType::class, []];
-        $form_entries[] = ['go_back', SubmitType::class, ['label' => _m('Return to settings page')]];
-        $form           = Form::create($form_entries);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var SubmitButton $button */
-            $button  = $form->get('go_back');
-            $go_back = $button->isClicked();
-            $data    = $form->getData();
-            asort($data); // Sort by the order value
-            $data = array_keys($data); // This keeps the order and gives us a unique number for each
-            foreach ($data as $order => $locale) {
-                $lang       = Language::getByLocale($locale);
-                $actor_lang = DB::getReference('actor_language', ['actor_id' => $user->getId(), 'language_id' => $lang->getId()]);
-                $actor_lang->setOrdering($order + 1);
-            }
-            DB::flush();
-            if (!$go_back) {
-                // Stay on same page, but force update and prevent resubmission
-                throw new RedirectException('settings_sort_languages');
-            } else {
-                throw new RedirectException('settings', ['open' => 'account', '_fragment' => 'save_account_info_languages']);
-            }
-        }
-
-        return [
-            '_template' => 'settings/sort_languages.html.twig',
-            'form'      => $form->createView(),
-        ];
     }
 }

@@ -70,6 +70,5 @@ abstract class Main
         }
 
         $r->connect('settings', '/settings', [C\UserPanel::class, 'allSettings']);
-        $r->connect('settings_sort_languages', '/settings/sort_languages', [C\UserPanel::class, 'sortLanguages']);
     }
 }

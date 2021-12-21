@@ -23,11 +23,13 @@ namespace Component\Language;
 
 use App\Core\Event;
 use App\Core\Modules\Component;
+use App\Core\Router\RouteLoader;
 use App\Entity\Actor;
 use App\Entity\ActorLanguage;
 use App\Entity\Note;
 use App\Util\Formatting;
 use App\Util\Functional as GSF;
+use Component\Language\Controller as C;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Query\Expr;
@@ -36,6 +38,12 @@ use Functional as F;
 
 class Language extends Component
 {
+    public function onAddRoute(RouteLoader $r)
+    {
+        $r->connect('settings_sort_languages', '/settings/sort_languages', [C\Language::class, 'sortLanguages']);
+        return Event::next;
+    }
+
     public function onFilterNoteList(?Actor $actor, array &$notes, Request $request)
     {
         if (\is_null($actor)) return Event::next;
