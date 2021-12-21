@@ -23,7 +23,8 @@ declare(strict_types = 1);
 
 namespace App\Controller;
 
-use App\Core\Controller;
+use App\Core\Cache;
+use App\Core\Controller\ActorController;
 use App\Core\DB\DB;
 use App\Core\Router\Router;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -31,35 +32,30 @@ use function App\Core\I18n\_m;
 use App\Util\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Request;
 
-class Actor extends Controller
+class Actor extends ActorController
 {
-    /**
-     * Generic function that handles getting a representation for an actor from id
-     */
-    private function ActorById(int $id, callable $handle)
+
+    public function actorViewId(Request $request, int $id)
     {
-        $actor = DB::findOneBy('actor', ['id' => $id]);
-        if ($actor->getIsLocal()) {
-            return new RedirectResponse(Router::url('actor_view_nickname', ['nickname' => $actor->getNickname()]));
-        }
-        if (empty($actor)) {
-            throw new ClientException(_m('No such actor.'), 404);
-        } else {
-            return $handle($actor);
-        }
+        return $this->handleActorById(
+            $id,
+            fn ($actor) => [
+                '_template' => 'actor/view.html.twig',
+                'actor' => $actor
+            ]
+        );
     }
-    /**
-     * Generic function that handles getting a representation for an actor from nickname
-     */
-    private function ActorByNickname(string $nickname, callable $handle)
+
+    public function actorViewNickname(Request $request, string $nickname)
     {
-        $user  = DB::findOneBy('local_user', ['nickname' => $nickname]);
-        $actor = DB::findOneBy('actor', ['id' => $user->getId()]);
-        if (empty($actor)) {
-            throw new ClientException(_m('No such actor.'), 404);
-        } else {
-            return $handle($actor);
-        }
+        return $this->handleActorByNickname(
+            $nickname,
+            fn ($actor) => [
+                '_template' => 'actor/view.html.twig',
+                'actor' => $actor,
+                'notes' => \App\Entity\Note::getAllNotesByActor($actor)
+            ]
+        );
     }
 
     /**

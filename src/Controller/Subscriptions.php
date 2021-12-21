@@ -23,49 +23,33 @@ declare(strict_types = 1);
 
 namespace App\Controller;
 
-use App\Core\Controller;
-use App\Core\DB\DB;
-use function App\Core\I18n\_m;
-use App\Util\Exception\ClientException;
+use App\Core\Controller\ActorController;
 use Symfony\Component\HttpFoundation\Request;
 
-class Subscriptions extends Controller
+/**
+ * Collection of an actor's subscriptions
+ */
+class Subscriptions extends ActorController
 {
-    /**
-     * Generic function that handles getting a representation for an actor from id
-     */
-    private function ActorById(int $id, callable $handle)
+    public function subscriptionsByActorId(Request $request, int $id)
     {
-        $actor = DB::findOneBy('actor', ['id' => $id]);
-        if (empty($actor)) {
-            throw new ClientException(_m('No such actor.'), 404);
-        } else {
-            return $handle($actor);
-        }
-    }
-    /**
-     * Generic function that handles getting a representation for an actor from nickname
-     */
-    private function ActorByNickname(string $nickname, callable $handle)
-    {
-        $user  = DB::findOneBy('local_user', ['nickname' => $nickname]);
-        $actor = DB::findOneBy('actor', ['id' => $user->getId()]);
-        if (empty($actor)) {
-            throw new ClientException(_m('No such actor.'), 404);
-        } else {
-            return $handle($actor);
-        }
+        return $this->handleActorById(
+            $id,
+            fn ($actor) => [
+                '_template' => 'subscriptions/view.html.twig',
+                'actor'     => $actor,
+            ],
+        );
     }
 
-    /**
-     * Collection of an actor's subscriptions
-     */
-    public function ActorShowId(Request $request, int $id)
+    public function subscriptionsByActorNickname(Request $request, string $nickname)
     {
-        return $this->ActorById($id, fn ($actor) => ['_template' => 'subscriptions/view.html.twig', 'actor' => $actor]);
-    }
-    public function ActorShowNickname(Request $request, string $nickname)
-    {
-        return $this->ActorByNickname($nickname, fn ($actor) => ['_template' => 'subscriptions/view.html.twig', 'actor' => $actor]);
+        return $this->handleActorByNickname(
+            $nickname,
+            fn ($actor) => [
+                '_template' => 'subscriptions/view.html.twig',
+                'actor'     => $actor,
+            ],
+        );
     }
 }
