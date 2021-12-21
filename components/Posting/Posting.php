@@ -34,6 +34,7 @@ use App\Core\Router\Router;
 use App\Core\Security;
 use App\Entity\Activity;
 use App\Entity\Actor;
+use App\Entity\GroupInbox;
 use App\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
@@ -229,17 +230,23 @@ class Posting extends Component
         ]);
         DB::persist($activity);
 
-        DB::flush();
-
         $mentioned = [];
         foreach ($mentions as $mention) {
             foreach ($mention['mentioned'] as $m) {
                 if (!\is_null($m)) {
                     $mentioned[] = $m->getId();
+
+                    if ($m->isGroup()) {
+                        DB::persist(GroupInbox::create([
+                            'group_id'    => $m->getId(),
+                            'activity_id' => $activity->getId(),
+                        ]));
+                    }
                 }
             }
         }
 
+        DB::flush();
         Event::handle('NewNotification', [$actor, $activity, ['object' => $mentioned], "{$actor->getNickname()} created note {$note->getUrl()}"]);
 
         return $note;
