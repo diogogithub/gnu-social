@@ -3,7 +3,7 @@
 
 {% set nickname = nickname|escape %}
 
-{% block title %}{% trans with {'%nick%': actor.getNickname()} %}%nick%'s profile{% endtrans %}{% endblock %}y
+{% block title %}{% trans %}%nickname%'s profile{% endtrans %}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}

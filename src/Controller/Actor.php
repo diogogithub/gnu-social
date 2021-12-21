@@ -45,6 +45,7 @@ class Actor extends ActorController
             fn ($actor) => [
                 '_template' => 'actor/view.html.twig',
                 'actor'     => $actor,
+                'nickname'  => $actor->getNickname(),
             ],
         );
     }
@@ -56,6 +57,7 @@ class Actor extends ActorController
             fn ($actor) => [
                 '_template' => 'actor/view.html.twig',
                 'actor'     => $actor,
+                'nickname'  => $actor->getNickname(),
                 'notes'     => \App\Entity\Note::getAllNotesByActor($actor),
             ],
         );
