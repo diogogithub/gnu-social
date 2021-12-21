@@ -32,13 +32,13 @@ declare(strict_types = 1);
 
 namespace App\Core\Controller;
 
-use App\Core\Controller;
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
+use App\Core\Router\Router;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 
-abstract class ActorController extends Controller
+abstract class ActorController extends FeedController
 {
     /**
      * Generic function that handles getting a representation for an actor from id
@@ -47,7 +47,7 @@ abstract class ActorController extends Controller
     {
         $actor = DB::findOneBy('actor', ['id' => $id]);
         if ($actor->getIsLocal()) {
-            throw new RedirectException($actor->getUrl());
+            throw new RedirectException(url: $actor->getUrl(Router::ABSOLUTE_PATH));
         }
         if (empty($actor)) {
             throw new ClientException(_m('No such actor.'), 404);
