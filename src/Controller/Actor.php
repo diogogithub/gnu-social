@@ -72,6 +72,9 @@ class Actor extends ActorController
         );
     }
 
+    /**
+     * View a group feed and give the option of creating it if it doesn't exist
+     */
     public function groupViewNickname(Request $request, string $nickname)
     {
         Nickname::validate($nickname, which: Nickname::CHECK_LOCAL_GROUP); // throws

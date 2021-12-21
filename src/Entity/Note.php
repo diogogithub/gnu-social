@@ -346,6 +346,11 @@ class Note extends Entity
             ));
     }
 
+    /**
+     * Find all mentioned actors in this note
+     *
+     * @TODO: Seems rather inneficient to be rendering just for this
+     */
     public function getNotificationTargets(array $ids_already_known = []): array
     {
         $rendered = null;
@@ -354,8 +359,8 @@ class Note extends Entity
             $this->getContentType(),
             &$rendered,
             $this->getActor(),
-            is_null($this->getLanguageId()) ? null : Language::getById($this->getLanguageId())->getLocale(),
-            &$mentions]);
+            \is_null($this->getLanguageId()) ? null : Language::getById($this->getLanguageId())->getLocale(),
+            &$mentions, ]);
         $mentioned = [];
         foreach ($mentions as $mention) {
             foreach ($mention['mentioned'] as $m) {

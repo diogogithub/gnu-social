@@ -38,6 +38,11 @@ use App\Util\Common;
 
 abstract class FeedController extends Controller
 {
+    /**
+     * Post process the result of a feed controller, to remove any
+     * notes or actors the user specified, as well as format the raw
+     * list of notes into a usable format
+     */
     public static function post_process(array $result)
     {
         $actor = Common::actor();

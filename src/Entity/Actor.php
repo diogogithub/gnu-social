@@ -489,6 +489,9 @@ class Actor extends Entity
         );
     }
 
+    /**
+     * Get a URI for this actor, i.e. a unique and stable identifier, using the ID
+     */
     public function getUri(int $type = Router::ABSOLUTE_URL): string
     {
         $uri = null;
@@ -511,6 +514,9 @@ class Actor extends Entity
         return $uri;
     }
 
+    /**
+     * Get a URL for this actor, i.e. a user friendly URL, using the nickname
+     */
     public function getUrl(int $type = Router::ABSOLUTE_URL): string
     {
         $url = null;
