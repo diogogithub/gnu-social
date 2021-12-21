@@ -1,7 +1,9 @@
 {% extends 'stdgrid.html.twig' %}
 {% import '/cards/note/view.html.twig' as noteView %}
 
-{% block title %}{{ actor.getNickname() ~ '\'s profile' | trans }}{% endblock %}
+{% set nickname = nickname|escape %}
+
+{% block title %}{% trans with {'%nick%': actor.getNickname()} %}%nick%'s profile{% endtrans %}{% endblock %}y
 
 {% block stylesheets %}
     {{ parent() }}

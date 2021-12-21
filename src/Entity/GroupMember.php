@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -44,8 +46,8 @@ class GroupMember extends Entity
     private int $actor_id;
     private ?bool $is_admin;
     private ?string $uri;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {
@@ -121,7 +123,7 @@ class GroupMember extends Entity
         return [
             'name'   => 'group_member',
             'fields' => [
-                'group_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'one to one', 'name' => 'group_member_group_id_fkey', 'not null' => true,  'description' => 'foreign key to group table'],
+                'group_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'group_member_group_id_fkey', 'not null' => true,  'description' => 'foreign key to group table'],
                 'actor_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'group_member_actor_id_fkey', 'not null' => true,  'description' => 'foreign key to actor table'],
                 'is_admin' => ['type' => 'bool',      'default' => false,    'description' => 'is this actor an admin?'],
                 'uri'      => ['type' => 'varchar',   'length' => 191,       'description' => 'universal identifier'],

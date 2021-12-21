@@ -29,8 +29,10 @@ use App\Core\Entity;
 use App\Core\Event;
 use App\Core\Router\Router;
 use App\Core\UserRoles;
+use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\NotFoundException;
+use App\Util\Formatting;
 use App\Util\Nickname;
 use Component\Avatar\Avatar;
 use Component\Tag\Tag as TagComponent;
@@ -261,7 +263,7 @@ class Actor extends Entity
         ];
     }
 
-    public function getLocalUser()
+    public function getLocalUser(): ?LocalUser
     {
         if ($this->getIsLocal()) {
             return DB::findOneBy('local_user', ['id' => $this->getId()]);
@@ -270,10 +272,33 @@ class Actor extends Entity
         }
     }
 
-    public function isGroup()
+    /**
+     * @return ?self
+     */
+    public static function getByNickname(string $nickname, int $type = self::PERSON): ?self
     {
-        // TODO: implement
-        return false;
+        try {
+            return DB::findOneBy(self::class, ['nickname' => $nickname, 'type' => $type]);
+        } catch (NotFoundException) {
+            return null;
+        } catch (DuplicateFoundException $e) {
+            throw new BugFoundException("Multiple actors with the same nickname '{$nickname}' found", previous: $e);
+        }
+    }
+
+    public function __call(string $name, array $arguments): mixed
+    {
+        if (Formatting::startsWith($name, 'is')) {
+            $type  = Formatting::removePrefix($name, 'is');
+            $const = self::class . '::' . mb_strtoupper($type);
+            if (\defined($const)) {
+                return $this->type === \constant($const);
+            } else {
+                throw new BugFoundException("Actor cannot be a '{$type}', check your spelling");
+            }
+        } else {
+            return parent::__call($name, $arguments);
+        }
     }
 
     public function getAvatarUrl(string $size = 'full')
@@ -467,7 +492,16 @@ class Actor extends Entity
     {
         $uri = null;
         if (Event::handle('StartGetActorUri', [$this, $type, &$uri]) === Event::next) {
-            $uri = Router::url('actor_view_id', ['id' => $this->getId()], $type);
+            switch ($this->type) {
+            case self::PERSON:
+            case self::ORGANIZATION:
+            case self::BUSINESS:
+            case self::BOT:
+                $uri = Router::url('actor_view_id', ['id' => $this->getId()], $type);
+                break;
+            case self::GROUP:
+                $uri = Router::url('group_actor_view_id', ['id' => $this->getId()], $type);
+            }
             Event::handle('EndGetActorUri', [$this, $type, &$uri]);
         }
         return $uri;
@@ -478,7 +512,16 @@ class Actor extends Entity
         $url = null;
         if (Event::handle('StartGetActorUrl', [$this, $type, &$url]) === Event::next) {
             if ($this->getIsLocal()) {
-                $url = Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+                switch ($this->type) {
+                case self::PERSON:
+                case self::ORGANIZATION:
+                case self::BUSINESS:
+                case self::BOT:
+                    $url = Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+                    break;
+                case self::GROUP:
+                    $url = Router::url('group_actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+                }
             } else {
                 return $this->getUri($type);
             }

@@ -1,0 +1,41 @@
+{% extends 'stdgrid.html.twig' %}
+{% import '/cards/note/view.html.twig' as noteView %}
+
+{% set nickname = nickname|escape %}
+
+{% block title %}{{ nickname }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
+{% endblock stylesheets %}
+
+{% block body %}
+
+    {% if actor is defined and actor is not null %}
+        {% block profile_view %}
+            {% include 'cards/profile/view.html.twig' %}
+        {% endblock profile_view %}
+
+        <main class="feed" tabindex="0" role="feed">
+            <div class="h-feed hfeed notes">
+                {% if notes is defined and notes is not empty %}
+                    {% for note in notes %}
+                        {% block current_note %}
+                            {{ noteView.macro_note(note, null) }}
+                            <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                        {% endblock current_note %}
+                    {% endfor %}
+                {% else %}
+                    <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
+                {% endif %}
+            </div>
+        </main>
+        
+    {% else %}
+        <div class="section-widget-padded section-widget">
+            <p>{% trans with { '%group%': nickname } %}The group <em>%group%</em> doesn't exist. Would you like to create it?{% endtrans %}</p>
+            {{ form(create_form) }}
+        </div>
+    {% endif %}
+{% endblock body %}
