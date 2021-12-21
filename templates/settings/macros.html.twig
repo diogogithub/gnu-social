@@ -1,0 +1,47 @@
+{% macro settings_details_element(title, summary, id, details_content, context, details_ids) %}
+    {% if details_ids is null %}
+        {% set details_ids = [id] %}
+    {% endif %}
+    <details class="section-title-settings" {{ open_details(context.open_details_query, details_ids) }} id={{ id }}>
+        <summary>
+            <h3>
+                {{ title | trans }}
+                {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+            </h3>
+            <em>
+                {{ summary | trans }}
+            </em>
+        </summary>
+
+        {% if details_content is instanceof('Twig\\Markup') %}
+            {{ details_content }}
+        {% else %}
+            {{ form(details_content) }}
+        {% endif %}
+    </details>
+{% endmacro settings_details_element %}
+
+{% macro settings_details_container(title, summary, container_id, tabs, context) %}
+    {% set children_ids = [container_id] %}
+    {% set details_content %}
+        <nav class='section-settings-nav'>
+            <ul>
+                {% for tab in tabs %}
+                    <hr>
+                    <li>
+                        {% set content %}
+                        {% if tab['controller'] is defined %}
+                            {% include tab['controller']['_template'] with tab['controller'] only %}
+                        {% else %}
+                            {{ form(tab['form']) }}
+                        {% endif %}
+                    {% endset %}
+                    {{ _self.settings_details_element(tab['title'], tab['desc'], tab['id'] ~ '-details', content, context) }}
+                    {% set children_ids = children_ids|merge([tab['id'] ~ '-details']) %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </nav>
+    {% endset %}
+    {{ _self.settings_details_element(title, summary, container_id, details_content, context, children_ids) }}
+{% endmacro settings_details_container %}
