@@ -1,8 +1,7 @@
 {% extends 'stdgrid.html.twig' %}
 {% import '/cards/note/view.html.twig' as noteView %}
 
-
-
+{% set nickname = nickname|escape %}
 {% block title %}{{ nickname }}{% endblock %}
 
 {% block stylesheets %}
@@ -38,8 +37,11 @@
         
     {% else %}
         <div class="section-widget-padded section-widget">
-            <p>{% trans with { '%group%': nickname } %}The group <em>%group%</em> doesn't exist. Would you like to create it?{% endtrans %}</p>
-            {{ form(create_form) }}
+            <p>{% trans with { '%group%': nickname } %}The group <em>%group%</em> doesn't exist.{% endtrans %}</p>
+            {% if create_form is defined and create_form is not null %}
+                <p>{% trans %}Would you like to create it?{% endtrans %}</p>
+                {{ form(create_form) }}
+            {% endif %}
         </div>
     {% endif %}
 {% endblock body %}

@@ -130,7 +130,7 @@ class Actor extends ActorController
             }
         }
 
-        $notes = DB::dql(
+        $notes = !\is_null($group) ? DB::dql(
             <<<'EOF'
                 select n from note n
                     join activity a with n.id = a.object_id
@@ -138,12 +138,12 @@ class Actor extends ActorController
                 where a.object_type = 'note' and gi.group_id = :group_id
                 EOF,
             ['group_id' => $group->getId()],
-        );
+        ) : [];
 
         return [
             '_template' => 'actor/group_view.html.twig',
             'actor'     => $group,
-            'nickname'  => $group->getNickname(),
+            'nickname'  => $group?->getNickname() ?? $nickname,
             'notes'     => $notes,
         ];
     }
