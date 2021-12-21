@@ -39,7 +39,7 @@ abstract class HTML
      */
     public const NO_INDENT_TAGS = ['a', 'b', 'em', 'i', 'q', 's', 'p', 'sub', 'sup', 'u'];
 
-    public const ALLOWED_TAGS = ['p', 'br', 'a', 'span', 'div'];
+    public const ALLOWED_TAGS = ['p', 'b', 'br', 'a', 'span', 'div', 'hr'];
 
     public const FORBIDDEN_ATTRIBUTES = [
         'onerror', 'form', 'onforminput', 'onbeforescriptexecute', 'formaction', 'onfocus', 'onload',
