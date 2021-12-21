@@ -84,7 +84,7 @@ class DB
         }
 
         self::$sql_table_entity_pattern = '/(' . implode('|', array_keys(self::$table_map)) . ')\s([^\s]+)/';
-        self::$dql_table_name_patterns  = F\map(self::$table_map, fn ($_, $s) => "/(?<!\\.)\\b{$s}\\b/");
+        self::$dql_table_name_patterns  = F\map(self::$table_map, fn ($_, $s) => "/(?<![\\.'])\\b{$s}\\b/");
     }
 
     public static function getTableForClass(string $class)
