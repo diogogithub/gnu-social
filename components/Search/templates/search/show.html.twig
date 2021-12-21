@@ -21,16 +21,18 @@
             {{ form_row(search_form.search_query) }}
             {{ form_row(search_form.submit_search) }}
         </div>
-        <details class="section-widget">
-            <summary>
-                <h3>
-                    {% trans %}Save this search as a feed{% endtrans %}
-                    {{ icon('arrow-down', 'icon icon-details-open') | raw }}
-                </h3>
-            </summary>
-            {{ form_row(search_form.title) }}
-            {{ form_row(search_form.subscribe_to_search) }}
-        </details>
+        {% if actor is not null %}
+            <details class="section-widget">
+                <summary>
+                    <h3>
+                        {% trans %}Save this search as a feed{% endtrans %}
+                        {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                    </h3>
+                </summary>
+                {{ form_row(search_form.title) }}
+                {{ form_row(search_form.subscribe_to_search) }}
+            </details>
+        {% endif %}
         {{ form_end(search_form)}}
         <hr>
         <details class="section-widget">

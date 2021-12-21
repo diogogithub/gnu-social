@@ -150,7 +150,8 @@ class Search extends FeedController
 
         return [
             '_template'           => 'search/show.html.twig',
-            'search_form'         => Comp\Search::searchForm($request, query: $q, add_subscribe: true),
+            'actor'               => $actor,
+            'search_form'         => Comp\Search::searchForm($request, query: $q, add_subscribe: !\is_null($actor)),
             'search_builder_form' => $search_builder_form->createView(),
             'notes'               => $notes ?? [],
             'actors'              => $actors ?? [],
