@@ -9,6 +9,9 @@
 {% endblock stylesheets %}
 
 {% block body %}
+    {% for block in handle_event('BeforeFeed') %}
+        {{ block | raw }}
+    {% endfor %}
     {# Backwards compatibility with hAtom 0.1 #}
     <main class="feed" tabindex="0" role="feed">
         <div class="h-feed hfeed notes">
