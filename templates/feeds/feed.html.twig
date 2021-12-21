@@ -9,7 +9,7 @@
 {% endblock stylesheets %}
 
 {% block body %}
-    {% for block in handle_event('BeforeFeed') %}
+    {% for block in handle_event('BeforeFeed', app.request) %}
         {{ block | raw }}
     {% endfor %}
     {# Backwards compatibility with hAtom 0.1 #}

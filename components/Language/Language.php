@@ -29,14 +29,16 @@ use App\Entity\Note;
 use App\Util\Formatting;
 use App\Util\Functional as GSF;
 use Doctrine\Common\Collections\ExpressionBuilder;
+use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use Functional as F;
 
 class Language extends Component
 {
-    public function onFilterNoteList(Actor $actor, array &$notes)
+    public function onFilterNoteList(?Actor $actor, array &$notes, Request $request)
     {
+        if (\is_null($actor)) return Event::next;
         $notes = F\select(
             $notes,
             fn (Note $n) => \in_array($n->getLanguageId(), ActorLanguage::getActorRelatedLanguagesIds($actor)),
