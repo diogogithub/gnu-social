@@ -233,6 +233,7 @@ class Note extends Model
             'content' => $object->getRendered(),
             'attachment' => [],
             'tag' => [],
+            'directMessage' => false, // // TODO: implement proper scope address
         ];
 
         // Mentions
@@ -242,6 +243,7 @@ class Note extends Model
                 'href' => ($href = $mention->getUri()),
                 'name' => '@'.$mention->getNickname().'@'.parse_url($href, PHP_URL_HOST)
             ];
+            $attr['cc'][] = $href;
         }
 
         // Attachments
