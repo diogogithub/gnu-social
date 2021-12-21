@@ -50,12 +50,7 @@ abstract class FeedController extends Controller
         if (\array_key_exists('notes', $result)) {
             $notes = $result['notes'];
             Event::handle('FilterNoteList', [$actor, &$notes, $result['request']]);
-
-            if ($result['should_format'] ?? true) {
-                $notes_out = null;
-                Event::handle('FormatNoteList', [$notes, &$notes_out]);
-                $result['notes'] = $notes_out;
-            }
+            Event::handle('FormatNoteList', [$notes, &$result['notes']]);
         }
 
         return $result;

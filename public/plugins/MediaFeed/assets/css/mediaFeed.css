@@ -1,0 +1,16 @@
+.media-feed-tabs {
+  border: 2px solid var(--border);
+  border-radius: var(--smaller) var(--smaller) 0 0;
+  border-bottom: none;
+  display: flex;
+}
+.media-feed-tabs > a {
+  flex: 0% 1 1;
+  padding: 10px 12px;
+  text-align: center;
+}
+.media-feed-tabs > .separator {
+  width: 2px;
+  flex: 0% 0 0;
+  background-color: var(--border);
+}

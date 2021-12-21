@@ -1,0 +1,5 @@
+<nav class=media-feed-tabs role=navigation>
+    <a {{ main.active ? 'class="active"' : '' }} href="{{ main.url }}">{% trans %}All{% endtrans %}</a>
+    <div tabindex="0" class=separator>&nbsp;</div>
+    <a {{ media.active ? 'class="active"' : '' }} href="{{ media.url }}">{% trans %}Media{% endtrans %}</a>
+</nav>
