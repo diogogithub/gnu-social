@@ -1,36 +1,13 @@
-{% extends 'stdgrid.html.twig' %}
-{% import '/cards/note/view.html.twig' as noteView %}
+{% extends 'feeds/feed.html.twig' %}
 
 {% set nickname = nickname|escape %}
 
 {% block title %}{% trans %}%nickname%'s profile{% endtrans %}{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
-{% endblock stylesheets %}
 
 {% block body %}
     {% block profile_view %}
         {% include 'cards/profile/view.html.twig' %}
     {% endblock profile_view %}
 
-    <main class="feed" tabindex="0" role="feed">
-        <div class="h-feed hfeed notes">
-            {% if notes is defined and notes is not empty %}
-                {% for conversation in notes %}
-                    {% block current_note %}
-                        {% if conversation is instanceof('array') %}
-                            {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
-                        {% else %}
-                            {{ noteView.macro_note(conversation) }}
-                        {% endif %}
-                        <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
-                    {% endblock current_note %}
-                {% endfor %}
-            {% else %}
-                <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
-            {% endif %}
-        </div>
-    </main>
+    {{ parent() }}
 {% endblock body %}
