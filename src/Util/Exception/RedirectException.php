@@ -39,15 +39,11 @@ class RedirectException extends Exception
     public function __construct(string $route_id_or_path = '', array $params = [], string $message = '', int $code = 302, ?string $url = null, bool $allow_open_redirect = false, ?Exception $previous_exception = null)
     {
         if (!empty($route_id_or_path) || !empty($url)) {
-            if ($route_id_or_path[0] === '/') {
-                $url = "https://{$_ENV['SOCIAL_DOMAIN']}{$route_id_or_path}";
-            } else {
-                $url ??= Router::url($route_id_or_path, $params, Router::ABSOLUTE_PATH); // Absolute path doesn't include host
-                if (!$allow_open_redirect) {
-                    if (Router::isAbsolute($url)) {
-                        Log::warning("A RedirectException that shouldn't allow open redirects attempted to redirect to {$url}");
-                        throw new ServerException(_m('Can not redirect to outside the website from here'), 5400); // 500 Internal server error (likely a bug)
-                    }
+            $url ??= Router::url($route_id_or_path, $params, Router::ABSOLUTE_PATH); // Absolute path doesn't include host
+            if (!$allow_open_redirect) {
+                if (Router::isAbsolute($url)) {
+                    Log::warning("A RedirectException that shouldn't allow open redirects attempted to redirect to {$url}");
+                    throw new ServerException(_m('Can not redirect to outside the website from here'), 5400); // 500 Internal server error (likely a bug)
                 }
             }
             $this->redirect_response = new RedirectResponse($url);
