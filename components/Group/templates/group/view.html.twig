@@ -13,7 +13,7 @@
 
     {% if actor is defined and actor is not null %}
         {% block profile_view %}
-            {% include 'cards/profile/view.html.twig' %}
+            {% include 'cards/profile/view.html.twig' with { 'actor': actor } only %}
         {% endblock profile_view %}
 
         <main class="feed" tabindex="0" role="feed">

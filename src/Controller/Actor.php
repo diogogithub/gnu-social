@@ -23,17 +23,8 @@ declare(strict_types = 1);
 
 namespace App\Controller;
 
-use App\Core\Cache;
 use App\Core\Controller\ActorController;
-use App\Core\DB\DB;
-use App\Core\Form;
-use function App\Core\I18n\_m;
-use App\Core\Log;
 use App\Entity as E;
-use App\Util\Common;
-use App\Util\Exception\RedirectException;
-use App\Util\Nickname;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
 class Actor extends ActorController
@@ -58,93 +49,8 @@ class Actor extends ActorController
                 '_template' => 'actor/view.html.twig',
                 'actor'     => $actor,
                 'nickname'  => $actor->getNickname(),
-                'notes'     => \App\Entity\Note::getAllNotesByActor($actor),
+                'notes'     => E\Note::getAllNotesByActor($actor),
             ],
         );
-    }
-
-    public function groupViewId(Request $request, int $id)
-    {
-        return $this->handleActorById(
-            $id,
-            fn ($actor) => [
-                '_template' => 'actor/group_view.html.twig',
-                'actor'     => $actor,
-            ],
-        );
-    }
-
-    /**
-     * View a group feed and give the option of creating it if it doesn't exist
-     */
-    public function groupViewNickname(Request $request, string $nickname)
-    {
-        Nickname::validate($nickname, which: Nickname::CHECK_LOCAL_GROUP); // throws
-        $group = E\Actor::getByNickname($nickname, type: E\Actor::GROUP);
-        if (\is_null($group)) {
-            $actor = Common::actor();
-            if (!\is_null($actor)) {
-                $form = Form::create([
-                    ['create', SubmitType::class, ['label' => _m('Create this group')]],
-                ]);
-
-                $form->handleRequest($request);
-                if ($form->isSubmitted() && $form->isValid()) {
-                    Log::info(
-                        _m(
-                            'Actor id:{actor_id} nick:{actor_nick} created the group {nickname}',
-                            ['{actor_id}' => $actor->getId(), 'actor_nick' => $actor->getNickname(), 'nickname' => $nickname],
-                        ),
-                    );
-
-                    $group = E\Actor::create([
-                        'nickname' => $nickname,
-                        'type'     => E\Actor::GROUP,
-                        'is_local' => true,
-                    ]);
-                    DB::persist($group);
-                    DB::persist(E\Subscription::create([
-                        'subscriber' => $group->getId(),
-                        'subscribed' => $group->getId(),
-                    ]));
-                    DB::persist(E\Subscription::create([
-                        'subscriber' => $actor->getId(),
-                        'subscribed' => $group->getId(),
-                    ]));
-                    DB::persist(E\GroupMember::create([
-                        'group_id' => $group->getId(),
-                        'actor_id' => $actor->getId(),
-                        'is_admin' => true,
-                    ]));
-                    DB::flush();
-                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscriber']);
-                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribed']);
-                    throw new RedirectException;
-                }
-
-                return [
-                    '_template'   => 'actor/group_view.html.twig',
-                    'nickname'    => $nickname,
-                    'create_form' => $form->createView(),
-                ];
-            }
-        }
-
-        $notes = !\is_null($group) ? DB::dql(
-            <<<'EOF'
-                select n from note n
-                    join activity a with n.id = a.object_id
-                    join group_inbox gi with a.id = gi.activity_id
-                where a.object_type = 'note' and gi.group_id = :group_id
-                EOF,
-            ['group_id' => $group->getId()],
-        ) : [];
-
-        return [
-            '_template' => 'actor/group_view.html.twig',
-            'actor'     => $group,
-            'nickname'  => $group?->getNickname() ?? $nickname,
-            'notes'     => $notes,
-        ];
     }
 }

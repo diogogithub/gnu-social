@@ -3,7 +3,6 @@
 declare(strict_types = 1);
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -18,34 +17,31 @@ declare(strict_types = 1);
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
-/**
- * Define social's Actor routes
- *
- * @package  GNUsocial
- * @category Router
- *
- * @author    Diogo Cordeiro <mail@diogo.site>
- * @author    Hugo Sales <hugo@hsal.es>
- * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
+namespace Component\Group;
 
-namespace App\Routes;
-
-use App\Controller as C;
+use App\Core\Event;
+use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
 use App\Util\Nickname;
+use Component\Group\Controller as C;
 
-abstract class Actor
+class Group extends Component
 {
-    public const LOAD_ORDER = 30;
-
-    public static function load(RouteLoader $r): void
+    public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect(id: 'actor_view_id', uri_path: '/actor/{id<\d+>}', target: [C\Actor::class, 'actorViewId']);
-        $r->connect(id: 'actor_view_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\Actor::class, 'actorViewNickname'], options: ['is_system_path' => false]);
+        $r->connect(id: 'group_actor_view_id', uri_path: '/group/{id<\d+>}', target: [C\Group::class, 'groupViewId']);
+        $r->connect(id: 'group_actor_view_nickname', uri_path: '/!{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\Group::class, 'groupViewNickname'], options: ['is_system_path' => false]);
+        return Event::next;
+    }
+
+    public function onAppendCardProfile(array $vars, array &$res): bool
+    {
+        $actor = $vars['actor'];
+        if ($actor->isGroup()) {
+            dd($actor);
+        }
+        return Event::next;
     }
 }
