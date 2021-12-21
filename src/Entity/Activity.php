@@ -154,10 +154,11 @@ class Activity extends Entity
     }
 
     /**
+     * Who should be notified about this object?
      *
-     * @return array of Actors
+     * @return array of ids of Actors
      */
-    public function getNotificationTargets(array $ids_already_known = [], ?int $sender_id = null): array
+    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null): array
     {
         $target_ids = [];
 
@@ -182,7 +183,7 @@ class Activity extends Entity
             if (!is_null($author = $this->getObject()?->getActorId()) && $author !== $sender_id) {
                 $target_ids[] = $this->getObject()->getActorId();
             }
-            array_push($target_ids, ...$this->getObject()->getNotificationTargets($ids_already_known));
+            array_push($target_ids, ...$this->getObject()->getNotificationTargetIds($ids_already_known));
         }
 
         // Additional actors that should know about this
@@ -190,8 +191,7 @@ class Activity extends Entity
             array_push($target_ids, ...$ids_already_known['additional']);
         }
 
-        $target_ids = array_unique($target_ids);
-        return $target_ids === [] ? [] : DB::findBy('actor', ['id' => $target_ids]);
+        return array_unique($target_ids);
     }
 
     public static function schemaDef(): array

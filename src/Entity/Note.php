@@ -28,6 +28,7 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
 use App\Core\VisibilityScope;
+use App\Util\Formatting;
 use Component\Avatar\Avatar;
 use DateTimeInterface;
 
@@ -347,26 +348,52 @@ class Note extends Entity
     }
 
     /**
-     * Find all mentioned actors in this note
      *
-     * @TODO: Seems rather inneficient to be rendering just for this
+     * @return array of ids of Actors
      */
-    public function getNotificationTargets(array $ids_already_known = []): array
+    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null): array
     {
-        $rendered = null;
-        $mentions = [];
-        Event::handle('RenderNoteContent', [$this->getContent(),
-            $this->getContentType(),
-            &$rendered,
-            $this->getActor(),
-            \is_null($this->getLanguageId()) ? null : Language::getById($this->getLanguageId())->getLocale(),
-            &$mentions, ]);
-        $mentioned = [];
-        foreach ($mentions as $mention) {
-            foreach ($mention['mentioned'] as $m) {
-                $mentioned[] = $m;
+        $target_ids = [];
+        if (!array_key_exists('object', $ids_already_known)) {
+            $mentions = Formatting::findMentions($this->getContent(), $this->getActor());
+            foreach ($mentions as $mention) {
+                foreach ($mention['mentioned'] as $m) {
+                    $target_ids[] = $m->getId();
+                }
             }
         }
+
+        // Additional actors that should know about this
+        if (array_key_exists('additional', $ids_already_known)) {
+            array_push($target_ids, ...$ids_already_known['additional']);
+        }
+
+        return array_unique($target_ids);
+    }
+
+    /**
+     *
+     * @return array of Actors
+     */
+    public function getNotificationTargets(array $ids_already_known = [], ?int $sender_id = null): array
+    {
+        if (array_key_exists('additional', $ids_already_known)) {
+            $target_ids = $this->getNotificationTargetIds($ids_already_known, $sender_id);
+            return $target_ids === [] ? [] : DB::findBy('actor', ['id' => $target_ids]);
+        }
+
+        $mentioned = [];
+        if (!array_key_exists('object', $ids_already_known)) {
+            $mentions = Formatting::findMentions($this->getContent(), $this->getActor());
+            foreach ($mentions as $mention) {
+                foreach ($mention['mentioned'] as $m) {
+                    $mentioned[] = $m;
+                }
+            }
+        } else {
+            $mentioned = $ids_already_known['object'] === [] ? [] : DB::findBy('actor', ['id' => $ids_already_known['object']]);
+        }
+
         return $mentioned;
     }
 

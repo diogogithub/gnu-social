@@ -144,10 +144,27 @@ abstract class Entity
     }
 
     /**
+     * Who should be notified about this object?
+     *
+     * @return array of ids of Actors
+     */
+    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null): array
+    {
+        // Additional actors that should know about this
+        if (array_key_exists('additional', $ids_already_known)) {
+            return $ids_already_known['additional'];
+        }
+        return [];
+    }
+
+    /**
+     * Who should be notified about this object?
+     *
      * @return array of Actors
      */
-    public function getNotificationTargets(array $ids_already_known = []): array
+    public function getNotificationTargets(array $ids_already_known = [], ?int $sender_id = null): array
     {
-        return [];
+        $target_ids = $this->getNotificationTargetIds($ids_already_known, $sender_id);
+        return $target_ids === [] ? [] : DB::findBy('actor', ['id' => $target_ids]);
     }
 }
