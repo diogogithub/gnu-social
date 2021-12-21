@@ -261,6 +261,7 @@ class Actor extends Entity
             'subscriber'        => "subscriber-{$actor_id}",
             'subscribed'        => "subscribed-{$actor_id}",
             'relative-nickname' => "actor-{$actor_id}-relative-nickname-{$other}", // $other is $nickname
+            'can-admin'         => "actor-{$actor_id}-can-admin-{$other}", // $other is an actor id
         ];
     }
 
@@ -593,6 +594,29 @@ class Actor extends Entity
     public function isVisibleTo(null|LocalUser|self $other): bool
     {
         return true; // TODO
+    }
+
+    /**
+     * Check whether $this has permission for performing actions on behalf of $other
+     */
+    public function canAdmin(self $other): bool
+    {
+        switch ($other->getType()) {
+        case self::GROUP:
+            return Cache::get(
+                self::cacheKeys($this->getId(), $other->getId())['can-admin'],
+                function () use ($other) {
+                    try {
+                        return DB::findOneBy('group_member', ['group_id' => $other->getId(), 'actor_id' => $this->getId()])->getIsAdmin();
+                    } catch (NotFoundException) {
+                        return false;
+                    }
+                },
+            );
+            break;
+        default:
+            return false;
+        }
     }
 
     public static function schemaDef(): array
