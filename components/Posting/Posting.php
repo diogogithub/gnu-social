@@ -220,25 +220,27 @@ class Posting extends Component
             }
         }
 
-        $act = Activity::create([
+        $activity = Activity::create([
             'actor_id'    => $actor->getId(),
             'verb'        => 'create',
             'object_type' => 'note',
             'object_id'   => $note->getId(),
             'source'      => 'web',
         ]);
-        DB::persist($act);
+        DB::persist($activity);
 
         DB::flush();
 
         $mentioned = [];
         foreach ($mentions as $mention) {
             foreach ($mention['mentioned'] as $m) {
-                $mentioned[] = $m->getId();
+                if (!\is_null($m)) {
+                    $mentioned[] = $m->getId();
+                }
             }
         }
 
-        Event::handle('NewNotification', [$actor, $act, ['object' => $mentioned], "{$actor->getNickname()} created note {$note->getUrl()}"]);
+        Event::handle('NewNotification', [$actor, $activity, ['object' => $mentioned], "{$actor->getNickname()} created note {$note->getUrl()}"]);
 
         return $note;
     }

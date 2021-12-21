@@ -35,7 +35,6 @@ namespace App\Util;
 use App\Core\Event;
 use App\Core\Log;
 use App\Entity\Actor;
-use App\Entity\Group;
 use App\Entity\Note;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\ServerException;
@@ -355,22 +354,16 @@ abstract class Formatting
             $group_matches = self::findMentionsRaw($text, '!');
             foreach ($group_matches as $group_match) {
                 $nickname = Nickname::normalize($group_match[0], check_already_used: false, check_is_allowed: false);
-                $group    = Group::getByNickname($nickname, $actor);
-
-                if (!$group instanceof Group) {
-                    continue;
-                }
-
-                $profile = $group->getActor();
+                $group    = Actor::getByNickname($nickname, Actor::GROUP);
 
                 $mentions[] = [
-                    'mentioned' => [$profile],
+                    'mentioned' => [$group],
                     'type'      => 'group',
                     'text'      => $group_match[0],
                     'position'  => $group_match[1],
                     'length'    => mb_strlen($group_match[0]),
-                    'url'       => $group->getUri(),
-                    'title'     => $group->getFullname() ?? $group->getNickname(),
+                    'url'       => !\is_null($group) ? $group->getUri() : Actor::getPlaceholderUri($nickname, Actor::GROUP),
+                    'title'     => $group?->getFullname() ?? $group?->getNickname(),
                 ];
             }
 
