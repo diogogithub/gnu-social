@@ -35,7 +35,9 @@ namespace App\Util;
 use App\Core\GNUsocial;
 use Functional as F;
 use ReflectionClass;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class GNUsocialTestCase extends WebTestCase
 {
@@ -44,14 +46,14 @@ class GNUsocialTestCase extends WebTestCase
     /**
      * Provide our own initialization for testing
      */
-    public static function createClient(array $options = [], array $server = [])
+    public static function createClient(array $options = [], array $server = []): KernelBrowser
     {
         $client = parent::createClient($options, $server);
         self::do_setup();
         return $client;
     }
 
-    public static function bootKernel(array $options = [])
+    public static function bootKernel(array $options = []): KernelInterface
     {
         $kernel = parent::bootKernel();
         self::do_setup();
