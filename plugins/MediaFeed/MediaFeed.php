@@ -37,7 +37,6 @@ use App\Entity\Actor;
 use App\Util\Formatting;
 use App\Core\Modules\Plugin;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Config\Definition\Exception\Exception;
 
 class MediaFeed extends Plugin
 {
