@@ -18,6 +18,15 @@ declare(strict_types=1);
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
+/**
+ * Media Feed Plugin for GNU social
+ *
+ * @package   GNUsocial
+ * @category  Plugin
+ * @author    Phablulo <phablulo@gmail.com>
+ * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 
 namespace Plugin\MediaFeed;
 
