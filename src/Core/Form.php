@@ -33,6 +33,7 @@ declare(strict_types = 1);
 namespace App\Core;
 
 use App\Core\DB\DB;
+use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -134,19 +135,10 @@ abstract class Form
         return $form[$field][2]['required'] ?? true;
     }
 
-
     /**
      * Handle the full life cycle of a form. Creates it with @see
      * self::create and inserts the submitted values into the database
      *
-     * @param array $form_definition
-     * @param Request $request
-     * @param object|null $target
-     * @param array $extra_args
-     * @param callable|null $extra_step
-     * @param array $create_args
-     * @param SymfForm|null $testing_only_form
-     * @return mixed
      * @throws ServerException
      */
     public static function handle(array $form_definition, Request $request, ?object $target, array $extra_args = [], ?callable $extra_step = null, array $create_args = [], ?SymfForm $testing_only_form = null): mixed
@@ -154,34 +146,45 @@ abstract class Form
         $form = $testing_only_form ?? self::create($form_definition, $target, ...$create_args);
 
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $data = $form->getData();
-            if (is_null($target)) {
-                return $data;
-            }
-
-            unset($data['translation_domain'], $data['save']);
-            foreach ($data as $key => $val) {
-                $method = 'set' . ucfirst(Formatting::snakeCaseToCamelCase($key));
-                if (method_exists($target, $method)) {
-                    if (isset($extra_args[$key])) {
-                        // @codeCoverageIgnoreStart
-                        $target->{$method}($val, $extra_args[$key]);
-                        // @codeCoverageIgnoreEnd
-                    } else {
-                        $target->{$method}($val);
+        if ($request->getMethod() === 'POST' && $form->isSubmitted()) {
+            if (!$form->isValid()) {
+                $errors = [];
+                foreach ($form->all() as $child) {
+                    if (!$child->isValid()) {
+                        $errors[$child->getName()] = (string) $form[$child->getName()]->getErrors();
                     }
                 }
-            }
+                return $errors;
+            } else {
+                $data = $form->getData();
+                if (\is_null($target)) {
+                    return $data;
+                }
 
-            if (isset($extra_step)) {
-                // @codeCoverageIgnoreStart
-                $extra_step($data, $extra_args);
-                // @codeCoverageIgnoreEnd
-            }
+                unset($data['translation_domain'], $data['save']);
+                foreach ($data as $key => $val) {
+                    $method = 'set' . ucfirst(Formatting::snakeCaseToCamelCase($key));
+                    if (method_exists($target, $method)) {
+                        if (isset($extra_args[$key])) {
+                            // @codeCoverageIgnoreStart
+                            $target->{$method}($val, $extra_args[$key]);
+                        // @codeCoverageIgnoreEnd
+                        } else {
+                            $target->{$method}($val);
+                        }
+                    }
+                }
 
-            DB::flush();
+                if (isset($extra_step)) {
+                    // @codeCoverageIgnoreStart
+                    $extra_step($data, $extra_args);
+                    // @codeCoverageIgnoreEnd
+                }
+
+                DB::merge($target);
+                DB::flush();
+                throw new RedirectException(url: $request->getPathInfo());
+            }
         }
 
         return $form;
