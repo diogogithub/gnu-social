@@ -37,7 +37,6 @@ namespace App\Controller;
 
 // {{{ Imports
 
-use App\Core\Cache;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
@@ -46,25 +45,19 @@ use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Util\Common;
 use App\Util\Exception\AuthenticationException;
-use App\Util\Exception\NicknameEmptyException;
-use App\Util\Exception\NicknameInvalidException;
-use App\Util\Exception\NicknameNotAllowedException;
-use App\Util\Exception\NicknameTakenException;
-use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\ServerException;
 use App\Util\Form\ActorArrayTransformer;
+use App\Util\Form\ActorForms;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;
 use Component\Language\Controller\Language as LanguageController;
 use Component\Notification\Entity\UserNotificationPrefs;
 use Doctrine\DBAL\Types\Types;
 use Exception;
-use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,12 +73,15 @@ class UserPanel extends Controller
      */
     public function allSettings(Request $request, LanguageController $language): array
     {
-        $personal_form = $this->personalInfo($request);
-        $email_form    = $this->email($request);
-        $password_form = $this->password($request);
-        $language_form = $language->settings($request);
+        // Ensure the user is logged in and retrieve Actor object for given user
+        $user  = Common::ensureLoggedIn();
+        $actor = $user->getActor();
 
-        $notifications_form_array = $this->notifications($request);
+        $personal_form            = ActorForms::personalInfo($request, $actor);
+        $email_form               = self::email($request);
+        $password_form            = self::password($request);
+        $notifications_form_array = self::notifications($request);
+        $language_form            = $language->settings($request);
 
         return [
             '_template'           => 'settings/base.html.twig',
@@ -104,7 +100,7 @@ class UserPanel extends Controller
      * @throws NoLoggedInUser
      * @throws ServerException
      */
-    public function email(Request $request): FormInterface
+    private static function email(Request $request): FormInterface
     {
         $user = Common::ensureLoggedIn();
         // TODO Add support missing settings
@@ -137,7 +133,7 @@ class UserPanel extends Controller
      * @throws NoLoggedInUser
      * @throws ServerException
      */
-    public function password(Request $request): FormInterface
+    private static function password(Request $request): FormInterface
     {
         $user = Common::ensureLoggedIn();
         // TODO Add support missing settings
@@ -171,51 +167,9 @@ class UserPanel extends Controller
     }
 
     /**
-     * Local user personal information panel
-     *
-     * @throws NicknameEmptyException
-     * @throws NicknameInvalidException
-     * @throws NicknameNotAllowedException
-     * @throws NicknameTakenException
-     * @throws NicknameTooLongException
-     * @throws NoLoggedInUser
-     * @throws ServerException
-     */
-    public function personalInfo(Request $request): mixed
-    {
-        // Ensure the user is logged in and retrieve Actor object for given user
-        $user  = Common::ensureLoggedIn();
-        $actor = $user->getActor();
-
-        // Defining the various form fields
-        $form_definition = [
-            ['nickname', TextType::class, ['label' => _m('Nickname'), 'required' => true, 'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
-            ['full_name', TextType::class, ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
-            ['homepage', TextType::class, ['label' => _m('Homepage'), 'required' => false, 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
-            ['bio', TextareaType::class, ['label' => _m('Bio'), 'required' => false, 'help' => _m('Describe yourself and your interests.')]],
-            ['phone_number', PhoneNumberType::class, ['label' => _m('Phone number'), 'required' => false, 'help' => _m('Your phone number'), 'data_class' => null]],
-            ['location', TextType::class, ['label' => _m('Location'), 'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
-            ['save_personal_info', SubmitType::class, ['label' => _m('Save personal info')]],
-        ];
-
-        // Setting nickname normalised and setting actor cache
-        $extra_step = function ($data, $extra_args) use ($user, $actor) {
-            $user->setNicknameSanitizedAndCached($data['nickname'], $actor->getId());
-        };
-
-        return Form::handle(
-            $form_definition,
-            $request,
-            target: $actor,
-            extra_args: [],
-            extra_step: $extra_step,
-        );
-    }
-
-    /**
      * Local user notification settings tabbed panel
      */
-    public function notifications(Request $request): array
+    private static function notifications(Request $request): array
     {
         $user      = Common::ensureLoggedIn();
         $schema    = DB::getConnection()->getSchemaManager();
