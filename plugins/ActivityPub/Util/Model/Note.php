@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -31,11 +32,14 @@ declare(strict_types=1);
 
 namespace Plugin\ActivityPub\Util\Model;
 
+use ActivityPhp\Type;
 use ActivityPhp\Type\AbstractObject;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
+use function App\Core\I18n\_m;
+use App\Core\Log;
 use App\Core\Router\Router;
 use App\Entity\Language;
 use App\Entity\Note as GSNote;
@@ -48,6 +52,7 @@ use App\Util\Formatting;
 use App\Util\TemporaryFile;
 use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\AttachmentToNote;
+use Component\Conversation\Conversation;
 use DateTime;
 use DateTimeInterface;
 use Exception;
@@ -59,9 +64,6 @@ use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use function App\Core\I18n\_m;
-use function is_null;
-use function is_string;
 
 /**
  * This class handles translation between JSON and GSNotes
@@ -71,33 +73,48 @@ use function is_string;
  */
 class Note extends Model
 {
-
     /**
      * Create an Entity from an ActivityStreams 2.0 JSON string
      * This will persist a new GSNote
      *
-     * @param string|AbstractObject $json
-     * @param array $options
-     * @return GSNote
      * @throws ClientException
+     * @throws ClientExceptionInterface
      * @throws DuplicateFoundException
      * @throws NoSuchActorException
-     * @throws ServerException
-     * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
+     * @throws ServerException
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
     public static function fromJson(string|AbstractObject $json, array $options = []): GSNote
     {
-        $source = $options['source'] ?? 'ActivityPub';
-        $type_note = is_string($json) ? self::jsonToType($json) : $json;
-        $actor = null;
-        $actor_id = null;
+        $handleInReplyTo = function (AbstractObject|string $type_note): ?int {
+            try {
+                $parent_note = is_null($type_note->get('inReplyTo')) ? null : ActivityPub::getObjectByUri($type_note->get('inReplyTo'), try_online: true);
+                if ($parent_note instanceof \App\Entity\Note) {
+                    return $parent_note->getId();
+                } elseif ($parent_note instanceof Type\AbstractObject && $parent_note->get('type') === 'Note') {
+                    return self::fromJson($parent_note)->getId();
+                } else {
+                    return null;
+                }
+            } catch (Exception $e) {
+                Log::debug('ActivityStreams:Model:Note-> An error occurred retrieving parent note.', [$e]);
+                // Sadly we won't be able to have this note inside the correct conversation for now.
+                // TODO: Create an entity that registers notes falsely without parent so, when the parent is retrieved,
+                // we can update the child with the correct parent.
+                return null;
+            }
+        };
+
+        $source    = $options['source'] ?? 'ActivityPub';
+        $type_note = \is_string($json) ? self::jsonToType($json) : $json;
+        $actor     = null;
+        $actor_id  = null;
         if ($json instanceof AbstractObject
-            && array_key_exists('test_authority', $options)
+            && \array_key_exists('test_authority', $options)
             && $options['test_authority']
-            && array_key_exists('actor_uri', $options)
+            && \array_key_exists('actor_uri', $options)
         ) {
             $actor_uri = $options['actor_uri'];
             if ($actor_uri !== $type_note->get('attributedTo')) {
@@ -105,26 +122,27 @@ class Note extends Model
                     throw new Exception('You don\'t seem to have enough authority to create this note.');
                 }
             } else {
-                $actor = $options['actor'] ?? null;
+                $actor    = $options['actor']    ?? null;
                 $actor_id = $options['actor_id'] ?? $actor?->getId();
             }
         }
 
-        if (is_null($actor_id)) {
-            $actor = ActivityPub::getActorByUri($type_note->get('attributedTo'));
+        if (\is_null($actor_id)) {
+            $actor    = ActivityPub::getActorByUri($type_note->get('attributedTo'));
             $actor_id = $actor->getId();
         }
         $map = [
-            'is_local' => false,
-            'created' => new DateTime($type_note->get('published') ?? 'now'),
-            'content' => $type_note->get('content') ?? null,
-            'rendered' => null,
+            'is_local'     => false,
+            'created'      => new DateTime($type_note->get('published') ?? 'now'),
+            'content'      => $type_note->get('content') ?? null,
+            'rendered'     => null,
             'content_type' => 'text/html',
-            'language_id' => $type_note->get('contentLang') ?? null,
-            'url' => $type_note->get('url') ?? $type_note->get('id'),
-            'actor_id' => $actor_id,
-            'modified' => new DateTime(),
-            'source' => $source,
+            'language_id'  => $type_note->get('contentLang') ?? null,
+            'url'          => $type_note->get('url') ?? $type_note->get('id'),
+            'actor_id'     => $actor_id,
+            'reply_to'     => $reply_to = $handleInReplyTo($type_note),
+            'modified'     => new DateTime(),
+            'source'       => $source,
         ];
         if ($map['content'] !== null) {
             $mentions = [];
@@ -140,7 +158,7 @@ class Note extends Model
 
         $obj = new GSNote();
 
-        if (!is_null($map['language_id'])) {
+        if (!\is_null($map['language_id'])) {
             $map['language_id'] = Language::getByLocale($map['language_id'])->getId();
         } else {
             $map['language_id'] = null;
@@ -157,18 +175,18 @@ class Note extends Model
             if ($attachment->get('type') === 'Document') {
                 // Retrieve media
                 $get_response = HTTPClient::get($attachment->get('url'));
-                $media = $get_response->getContent();
+                $media        = $get_response->getContent();
                 unset($get_response);
                 // Ignore empty files
                 if (!empty($media)) {
                     // Create an attachment for this
                     $temp_file = new TemporaryFile();
                     $temp_file->write($media);
-                    $filesize = $temp_file->getSize();
+                    $filesize      = $temp_file->getSize();
                     $max_file_size = Common::getUploadLimit();
                     if ($max_file_size < $filesize) {
                         throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. '
-                            . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize],));
+                            . 'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize], ));
                     }
                     Event::handle('EnforceUserFileQuota', [$filesize, $actor_id]);
 
@@ -178,6 +196,9 @@ class Note extends Model
         }
 
         DB::persist($obj);
+
+        // Assign conversation to this note
+        Conversation::assignLocalConversation($obj, $reply_to);
 
         // Need file and note ids for the next step
         Event::handle('ProcessNoteContent', [$obj, $obj->getContent(), $obj->getContentType(), $process_note_content_extra_args = []]);
@@ -192,11 +213,11 @@ class Note extends Model
         }
 
         $map = [
-            'object_uri' => $type_note->get('id'),
+            'object_uri'  => $type_note->get('id'),
             'object_type' => 'note',
-            'object_id' => $obj->getId(),
-            'created' => new DateTime($type_note->get('published') ?? 'now'),
-            'modified' => new DateTime(),
+            'object_id'   => $obj->getId(),
+            'created'     => new DateTime($type_note->get('published') ?? 'now'),
+            'modified'    => new DateTime(),
         ];
         $ap_obj = new ActivitypubObject();
         foreach ($map as $prop => $val) {
@@ -211,9 +232,6 @@ class Note extends Model
     /**
      * Get a JSON
      *
-     * @param mixed $object
-     * @param int|null $options
-     * @return string
      * @throws Exception
      */
     public static function toJson(mixed $object, ?int $options = null): string
@@ -223,17 +241,18 @@ class Note extends Model
         }
 
         $attr = [
-            '@context' => 'https://www.w3.org/ns/activitystreams',
-            'type' => 'Note',
-            'id' => $object->getUrl(),
-            'published' => $object->getCreated()->format(DateTimeInterface::RFC3339),
-            'attributedTo' => $object->getActor()->getUri(Router::ABSOLUTE_URL),
-            'to' => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
-            'cc' => ['https://www.w3.org/ns/activitystreams#Public'],
-            'content' => $object->getRendered(),
-            'attachment' => [],
-            'tag' => [],
-            'directMessage' => false, // // TODO: implement proper scope address
+            '@context'      => 'https://www.w3.org/ns/activitystreams',
+            'type'          => 'Note',
+            'id'            => $object->getUrl(),
+            'published'     => $object->getCreated()->format(DateTimeInterface::RFC3339),
+            'attributedTo'  => $object->getActor()->getUri(Router::ABSOLUTE_URL),
+            'to'            => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
+            'cc'            => ['https://www.w3.org/ns/activitystreams#Public'],
+            'content'       => $object->getRendered(),
+            'attachment'    => [],
+            'tag'           => [],
+            'conversation'  => $object->getConversationUri(),
+            'directMessage' => false, // TODO: implement proper scope address
         ];
 
         // Mentions
@@ -241,7 +260,7 @@ class Note extends Model
             $attr['tag'][] = [
                 'type' => 'Mention',
                 'href' => ($href = $mention->getUri()),
-                'name' => '@'.$mention->getNickname().'@'.parse_url($href, PHP_URL_HOST)
+                'name' => '@' . $mention->getNickname() . '@' . parse_url($href, \PHP_URL_HOST),
             ];
             $attr['cc'][] = $href;
         }
@@ -249,12 +268,12 @@ class Note extends Model
         // Attachments
         foreach ($object->getAttachments() as $attachment) {
             $attr['attachment'][] = [
-                'type' => 'Document',
+                'type'      => 'Document',
                 'mediaType' => $attachment->getMimetype(),
-                'url' => $attachment->getUrl(Router::ABSOLUTE_URL),
-                'name' => AttachmentToNote::getByPK(['attachment_id' => $attachment->getId(), 'note_id' => $object->getId()])->getTitle(),
-                'width' => $attachment->getWidth(),
-                'height' => $attachment->getHeight(),
+                'url'       => $attachment->getUrl(Router::ABSOLUTE_URL),
+                'name'      => AttachmentToNote::getByPK(['attachment_id' => $attachment->getId(), 'note_id' => $object->getId()])->getTitle(),
+                'width'     => $attachment->getWidth(),
+                'height'    => $attachment->getHeight(),
             ];
         }
 
