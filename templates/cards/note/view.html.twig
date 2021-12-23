@@ -94,7 +94,7 @@
     <div class="note-info">
         {{ block('note_author') }}
         <em>
-            <a href="{{ note.getUrl() }}" class="note-url">{{ 'in conversation' | trans }} {{ note.getModified() | ago }}</a>
+            <a href="{{ note.getConversationUrl() }}" class="note-url">{{ 'in conversation' | trans }}</a> <a href="{{ note.getUrl() }}" class="note-url">{{ note.getModified() | ago }}</a>
         </em>
 
         {{ block('note_actions') }}

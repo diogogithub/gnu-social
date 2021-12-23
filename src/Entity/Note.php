@@ -27,9 +27,11 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
+use App\Core\Router\Router;
 use App\Core\VisibilityScope;
 use App\Util\Formatting;
 use Component\Avatar\Avatar;
+use Component\Conversation\Entity\Conversation;
 use DateTimeInterface;
 
 /**
@@ -217,6 +219,21 @@ class Note extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public function getConversation(): Conversation
+    {
+        return Conversation::getByPK(['id' => $this->getConversationId()]);
+    }
+
+    public function getConversationUrl(int $type = Router::ABSOLUTE_URL): ?string
+    {
+        return Router::url('conversation', ['conversation_id' => $this->getConversationId()], $type);
+    }
+
+    public function getConversationUri(): string
+    {
+        return $this->getConversationUrl(type: Router::ABSOLUTE_URL);
+    }
 
     public function getActor(): Actor
     {
