@@ -24,6 +24,7 @@ declare(strict_types = 1);
 namespace Component\Conversation\Entity;
 
 use App\Core\Entity;
+use App\Core\Router\Router;
 
 /**
  * Entity class for Conversations
@@ -59,17 +60,6 @@ class Conversation extends Entity
         return $this->id;
     }
 
-    public function setUri(string $uri): self
-    {
-        $this->uri = $uri;
-        return $this;
-    }
-
-    public function getUri(): string
-    {
-        return $this->uri;
-    }
-
     public function setInitialNoteId(int $initial_note_id): self
     {
         $this->initial_note_id = $initial_note_id;
@@ -84,19 +74,25 @@ class Conversation extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public function getUrl(int $type = Router::ABSOLUTE_URL): string
+    {
+        return Router::url('conversation', ['conversation_id' => $this->getId()], $type);
+    }
+
+    public function getUri(): string
+    {
+        return $this->getUrl(type: Router::ABSOLUTE_URL);
+    }
+
     public static function schemaDef(): array
     {
         return [
             'name'   => 'conversation',
             'fields' => [
                 'id'              => ['type' => 'serial', 'not null' => true, 'description' => 'Serial identifier, since any additional meaning would require updating its value for every reply upon receiving a new aparent root'],
-                'uri'             => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'URI of the conversation'],
                 'initial_note_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'Initial note seen on this host for this conversation'],
             ],
-            'primary key' => ['id'],
-            'unique keys' => [
-                'conversation_uri_uniq' => ['uri'],
-            ],
+            'primary key'  => ['id'],
             'foreign keys' => [
                 'initial_note_id_to_id_fkey' => ['note', ['initial_note_id' => 'id']],
             ],

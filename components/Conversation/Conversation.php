@@ -30,16 +30,11 @@ use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
-use App\Entity\Feed;
-use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exception\ServerException;
 use App\Util\Formatting;
-use App\Util\Nickname;
 use Component\Conversation\Controller\Reply as ReplyController;
 use Component\Conversation\Entity\Conversation as ConversationEntity;
-use const SORT_REGULAR;
 use Symfony\Component\HttpFoundation\Request;
 
 class Conversation extends Component
@@ -64,8 +59,7 @@ class Conversation extends Component
             // We need the Conversation id itself, so a persist is in order
             DB::persist($conversation);
 
-            // Set the Uri and current_note's own conversation_id
-            $conversation->setUri(Router::url('conversation', ['conversation_id' => $conversation->getId()], Router::ABSOLUTE_URL));
+            // Set current_note's own conversation_id
             $current_note->setConversationId($conversation->getId());
         } else {
             // It's a reply for sure
@@ -103,7 +97,7 @@ class Conversation extends Component
 
         $reply_action = [
             'url'     => $reply_action_url,
-            'title'   => 'Reply to this note!',
+            'title'   => _m('Reply to this note!'),
             'classes' => 'button-container reply-button-container note-actions-unset',
             'id'      => 'reply-button-container-' . $note->getId(),
         ];
@@ -143,7 +137,7 @@ class Conversation extends Component
         }
 
         // Filter out multiple replies from the same actor
-        $reply_actor = array_unique($reply_actor, SORT_REGULAR);
+        $reply_actor = array_unique($reply_actor, \SORT_REGULAR);
 
         // Add to complementary info
         foreach ($reply_actor as $actor) {
@@ -152,12 +146,7 @@ class Conversation extends Component
 
             if ($check_user && $actor->getId() === (Common::actor())->getId()) {
                 // If the reply is yours
-                try {
-                    $you_translation = _m('You');
-                } catch (ServerException $e) {
-                    $you_translation = 'You';
-                }
-
+                $you_translation    = _m('You');
                 $prepend            = "<a href={$reply_actor_url}>{$you_translation}</a>, " . ($prepend = &$complementary_info);
                 $complementary_info = $prepend;
             } else {
@@ -167,7 +156,7 @@ class Conversation extends Component
         }
 
         $complementary_info = rtrim(trim($complementary_info), ',');
-        $complementary_info .= ' replied to this note.';
+        $complementary_info .= _m(' replied to this note.');
         $result[] = Formatting::twigRenderString($complementary_info, []);
 
         return Event::next;

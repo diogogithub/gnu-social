@@ -224,16 +224,16 @@ class Posting extends Component
 
         DB::persist($note);
 
+        // Assign conversation to this note
+        // AddExtraArgsToNoteContent already added the info we need
+        $reply_to = $process_note_content_extra_args['reply_to'];
+        Conversation::assignLocalConversation($note, $reply_to);
+
         // Need file and note ids for the next step
         $note->setUrl(Router::url('note_view', ['id' => $note->getId()], Router::ABSOLUTE_URL));
         if (!empty($content)) {
             Event::handle('ProcessNoteContent', [$note, $content, $content_type, $process_note_content_extra_args]);
         }
-
-        // Assign conversation to this note
-        // AddExtraArgsToNoteContent already added the info we need
-        $reply_to = $process_note_content_extra_args['reply_to'];
-        Conversation::assignLocalConversation($note, $reply_to);
 
         if ($processed_attachments !== []) {
             foreach ($processed_attachments as [$a, $fname]) {
