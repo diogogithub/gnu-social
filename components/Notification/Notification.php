@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -21,15 +21,39 @@ declare(strict_types=1);
 
 namespace Component\Notification;
 
+use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Component;
+use App\Core\Router\RouteLoader;
+use App\Core\Router\Router;
 use App\Entity\Activity;
 use App\Entity\Actor;
+use App\Entity\LocalUser;
 use Component\FreeNetwork\FreeNetwork;
+use Component\Notification\Controller\Feed;
 
 class Notification extends Component
 {
+    public function onAddRoute(RouteLoader $m): bool
+    {
+        $m->connect('feed_notifications', '/feed/notifications', [Feed::class, 'notifications']);
+        return Event::next;
+    }
+
+    public function onCreateDefaultFeeds(int $actor_id, LocalUser $user, int &$ordering)
+    {
+        DB::persist(\App\Entity\Feed::create([
+            'actor_id' => $actor_id,
+            'url'      => Router::url($route = 'feed_notifications', ['nickname' => $user->getNickname()]),
+            'route'    => $route,
+            'title'    => _m('Notifications'),
+            'ordering' => $ordering++,
+        ]));
+        return Event::next;
+    }
+
     /**
      * Enqueues a notification for an Actor (user or group) which means
      * it shows up in their home feed and such.
@@ -44,12 +68,6 @@ class Notification extends Component
 
     /**
      * Bring given Activity to Targets's attention
-     *
-     * @param Actor $sender
-     * @param Activity $activity
-     * @param array $targets
-     * @param string|null $reason
-     * @return bool
      */
     public function notify(Actor $sender, Activity $activity, array $targets, ?string $reason = null): bool
     {
