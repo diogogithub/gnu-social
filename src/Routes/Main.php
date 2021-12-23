@@ -38,7 +38,6 @@ namespace App\Routes;
 
 use App\Controller as C;
 use App\Core\Router\RouteLoader;
-use App\Util\Nickname;
 use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
 
 abstract class Main
@@ -54,10 +53,9 @@ abstract class Main
         $r->connect('security_recover_password', '/main/recover-password', [C\ResetPassword::class, 'requestPasswordReset']);
         $r->connect('security_recover_password_token', '/main/recover-password/{token?}', [C\ResetPassword::class, 'reset']);
 
-        $r->connect('root', '/', RedirectController::class, ['defaults' => ['route' => 'main_all']]);
-        $r->connect('main_public', '/main/public', [C\Feeds::class, 'public']);
-        $r->connect('main_all', '/main/all', [C\Feeds::class, 'network']);
-        $r->connect('home_all', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/all', [C\Feeds::class, 'home']);
+        $r->connect('root', '/', RedirectController::class, ['defaults' => ['route' => 'feed_public']]);
+        $r->connect('feed_public', '/feed/public', [C\Feeds::class, 'public']);
+        $r->connect('feed_home', '/feed/home', [C\Feeds::class, 'home']);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);

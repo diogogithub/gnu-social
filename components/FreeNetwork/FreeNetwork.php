@@ -21,31 +21,31 @@ declare(strict_types = 1);
 
 namespace Component\FreeNetwork;
 
+use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
+use function App\Core\I18n\_m;
+use App\Core\Log;
+use App\Core\Modules\Component;
+use App\Core\Router\RouteLoader;
+use App\Core\Router\Router;
 use App\Entity\Activity;
+use App\Entity\Actor;
+use App\Entity\LocalUser;
+use App\Entity\Note;
+use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\NicknameInvalidException;
 use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
-use Plugin\ActivityPub\Entity\ActivitypubActor;
-use XML_XRD;
-use function App\Core\I18n\_m;
-use App\Core\Log;
-use App\Core\Modules\Component;
-use App\Core\Router\RouteLoader;
-use App\Core\Router\Router;
-use App\Entity\Actor;
-use App\Entity\LocalUser;
-use App\Entity\Note;
-use App\Util\Common;
-use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Exception\ServerException;
 use App\Util\Nickname;
+use Component\FreeNetwork\Controller\Feeds;
 use Component\FreeNetwork\Controller\HostMeta;
 use Component\FreeNetwork\Controller\OwnerXrd;
 use Component\FreeNetwork\Controller\Webfinger;
@@ -56,12 +56,11 @@ use Component\FreeNetwork\Util\WebfingerResource\WebfingerResourceNote;
 use Exception;
 use Plugin\ActivityPub\Entity\ActivitypubActivity;
 use Plugin\ActivityPub\Util\TypeResponse;
+use const PREG_SET_ORDER;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use XML_XRD;
 use XML_XRD_Element_Link;
-use function count;
-use function in_array;
-use const PREG_SET_ORDER;
 
 /**
  * Implements WebFinger (RFC7033) for GNU social, as well as Link-based Resource Descriptor Discovery based on RFC6415,
@@ -82,6 +81,11 @@ class FreeNetwork extends Component
 
     public function onAddRoute(RouteLoader $m): bool
     {
+        // Feeds
+        $m->connect('feed_network', '/feed/network', [Feeds::class, 'network']);
+        $m->connect('feed_clique', '/feed/clique', [Feeds::class, 'clique']);
+        $m->connect('feed_federated', '/feed/federated', [Feeds::class, 'federated']);
+
         $m->connect('freenetwork_hostmeta', '.well-known/host-meta', [HostMeta::class, 'handle']);
         $m->connect(
             'freenetwork_hostmeta_format',
@@ -101,6 +105,14 @@ class FreeNetwork extends Component
         return Event::next;
     }
 
+    public function onCreateDefaultFeeds(int $actor_id, LocalUser $user, int &$ordering)
+    {
+        DB::persist(\App\Entity\Feed::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'feed_network'), 'route' => $route, 'title' => _m('Meteorites'), 'ordering' => $ordering++]));
+        DB::persist(\App\Entity\Feed::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'feed_clique'), 'route' => $route, 'title' => _m('Planetary System'), 'ordering' => $ordering++]));
+        DB::persist(\App\Entity\Feed::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'feed_federated'), 'route' => $route, 'title' => _m('Galaxy'), 'ordering' => $ordering++]));
+        return Event::next;
+    }
+
     public function onStartGetProfileAcctUri(Actor $profile, &$acct): bool
     {
         $wfr = new WebFingerResourceActor($profile);
@@ -116,18 +128,18 @@ class FreeNetwork extends Component
     /**
      * Last attempts getting a WebFingerResource object
      *
-     * @param string $resource String that contains the requested URI
-     * @param WebfingerResource|null $target WebFingerResource extended object goes here
-     * @param array $args Array which may contains arguments such as 'rel' filtering values
-     * @return bool
-     * @throws NoSuchActorException
-     * @throws ServerException
+     * @param string                 $resource String that contains the requested URI
+     * @param null|WebfingerResource $target   WebFingerResource extended object goes here
+     * @param array                  $args     Array which may contains arguments such as 'rel' filtering values
+     *
      * @throws NicknameEmptyException
      * @throws NicknameException
      * @throws NicknameInvalidException
      * @throws NicknameNotAllowedException
      * @throws NicknameTakenException
      * @throws NicknameTooLongException
+     * @throws NoSuchActorException
+     * @throws ServerException
      */
     public function onEndGetWebFingerResource(string $resource, ?WebfingerResource &$target = null, array $args = []): bool
     {
@@ -140,7 +152,7 @@ class FreeNetwork extends Component
         $profile = null;
         if (Discovery::isAcct($resource)) {
             $parts = explode('@', mb_substr(urldecode($resource), 5)); // 5 is strlen of 'acct:'
-            if (count($parts) === 2) {
+            if (\count($parts) === 2) {
                 [$nick, $domain] = $parts;
                 if ($domain !== $_ENV['SOCIAL_DOMAIN']) {
                     throw new ServerException(_m('Remote profiles not supported via WebFinger yet.'));
@@ -260,7 +272,7 @@ class FreeNetwork extends Component
      */
     public function onControllerResponseInFormat(string $route, array $accept_header, array $vars, ?TypeResponse &$response = null): bool
     {
-        if (!in_array($route, ['freenetwork_hostmeta', 'freenetwork_hostmeta_format', 'freenetwork_webfinger', 'freenetwork_webfinger_format', 'freenetwork_ownerxrd'])) {
+        if (!\in_array($route, ['freenetwork_hostmeta', 'freenetwork_hostmeta_format', 'freenetwork_webfinger', 'freenetwork_webfinger_format', 'freenetwork_ownerxrd'])) {
             return Event::next;
         }
 
@@ -274,7 +286,7 @@ class FreeNetwork extends Component
          *                                       -- RFC 7033 (WebFinger)
          *                            http://tools.ietf.org/html/rfc7033
          */
-        $mimeType = count($mimeType) !== 0 ? array_pop($mimeType) : $vars['default_mimetype'];
+        $mimeType = \count($mimeType) !== 0 ? array_pop($mimeType) : $vars['default_mimetype'];
 
         $headers = [];
 
@@ -294,23 +306,24 @@ class FreeNetwork extends Component
     /**
      * Webfinger matches: @user@example.com or even @user--one.george_orwell@1984.biz
      *
-     * @param string $text The text from which to extract webfinger IDs
+     * @param string $text       The text from which to extract webfinger IDs
      * @param string $preMention Character(s) that signals a mention ('@', '!'...)
-     * @return  array   The matching IDs (without $preMention) and each respective position in the given string.
+     *
+     * @return array the matching IDs (without $preMention) and each respective position in the given string
      */
     public static function extractWebfingerIds(string $text, string $preMention = '@'): array
     {
         $wmatches = [];
-        $result = preg_match_all(
+        $result   = preg_match_all(
             '/' . Nickname::BEFORE_MENTIONS . preg_quote($preMention, '/') . '(' . Nickname::WEBFINGER_FMT . ')/',
             $text,
             $wmatches,
-            PREG_OFFSET_CAPTURE
+            \PREG_OFFSET_CAPTURE,
         );
         if ($result === false) {
             Log::error(__METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error==' . preg_last_error() . ').');
             return [];
-        } elseif (($n_matches = count($wmatches)) != 0) {
+        } elseif (($n_matches = \count($wmatches)) != 0) {
             Log::debug((sprintf('Found %d matches for WebFinger IDs: %s', $n_matches, print_r($wmatches, true))));
         }
         return $wmatches[1];
@@ -318,10 +331,11 @@ class FreeNetwork extends Component
 
     /**
      * Profile URL matches: @param string $text The text from which to extract URL mentions
-     * @param string $preMention Character(s) that signals a mention ('@', '!'...)
-     * @return  array   The matching URLs (without @ or acct:) and each respective position in the given string.
-     * @example.com/mublog/user
      *
+     * @param string $preMention Character(s) that signals a mention ('@', '!'...)
+     *
+     * @return array the matching URLs (without @ or acct:) and each respective position in the given string
+     * @example.com/mublog/user
      */
     public static function extractUrlMentions(string $text, string $preMention = '@'): array
     {
@@ -332,13 +346,13 @@ class FreeNetwork extends Component
             '/' . Nickname::BEFORE_MENTIONS . preg_quote($preMention, '/') . '(' . URL_REGEX_DOMAIN_NAME . '(?:\/[' . URL_REGEX_VALID_PATH_CHARS . ']*)*)/',
             $text,
             $wmatches,
-            PREG_OFFSET_CAPTURE
+            \PREG_OFFSET_CAPTURE,
         );
         if ($result === false) {
             Log::error(__METHOD__ . ': Error parsing profile URL mentions from text (preg_last_error==' . preg_last_error() . ').');
             return [];
-        } elseif (count($wmatches)) {
-            Log::debug((sprintf('Found %d matches for profile URL mentions: %s', count($wmatches), print_r($wmatches, true))));
+        } elseif (\count($wmatches)) {
+            Log::debug((sprintf('Found %d matches for profile URL mentions: %s', \count($wmatches), print_r($wmatches, true))));
         }
         return $wmatches[1];
     }
@@ -347,8 +361,10 @@ class FreeNetwork extends Component
      * Find any explicit remote mentions. Accepted forms:
      *   Webfinger: @user@example.com
      *   Profile link: @param Actor $sender
+     *
      * @param string $text input markup text
      * @param $mentions
+     *
      * @return bool hook return value
      * @example.com/mublog/user
      */
@@ -358,7 +374,7 @@ class FreeNetwork extends Component
 
         foreach (self::extractWebfingerIds($text, $preMention = '@') as $wmatch) {
             [$target, $pos] = $wmatch;
-            Log::info("Checking webfinger person '$target'");
+            Log::info("Checking webfinger person '{$target}'");
 
             $actor = null;
 
@@ -367,27 +383,27 @@ class FreeNetwork extends Component
                 $actor = LocalUser::getByPK(['nickname' => $resource_parts[0]])->getActor();
             } else {
                 Event::handle('FreeNetworkFindMentions', [$target, &$actor]);
-                if (is_null($actor)) {
+                if (\is_null($actor)) {
                     continue;
                 }
             }
-            assert($actor instanceof Actor);
+            \assert($actor instanceof Actor);
 
             $displayName = !empty($actor->getFullname()) ? $actor->getFullname() : $actor->getNickname() ?? $target; // TODO: we could do getBestName() or getFullname() here
 
             $matches[$pos] = [
                 'mentioned' => [$actor],
-                'type' => 'mention',
-                'text' => $displayName,
-                'position' => $pos,
-                'length' => mb_strlen($target),
-                'url' => $actor->getUri()
+                'type'      => 'mention',
+                'text'      => $displayName,
+                'position'  => $pos,
+                'length'    => mb_strlen($target),
+                'url'       => $actor->getUri(),
             ];
         }
 
         foreach (self::extractUrlMentions($text) as $wmatch) {
             [$target, $pos] = $wmatch;
-            $url = "https://$target";
+            $url            = "https://{$target}";
             if (Common::isValidHttpUrl($url)) {
                 // This means $resource is a valid url
                 $resource_parts = parse_url($url);
@@ -407,15 +423,15 @@ class FreeNetwork extends Component
                         throw new ServerException('Unexpected behaviour onEndFindMentions at FreeNetwork');
                     }
                 } else {
-                    Log::info("Checking actor address '$url'");
+                    Log::info("Checking actor address '{$url}'");
 
                     $link = new XML_XRD_Element_Link(
                         Discovery::LRDD_REL,
-                        'https://' . parse_url($url, PHP_URL_HOST) . '/.well-known/webfinger?resource={uri}',
+                        'https://' . parse_url($url, \PHP_URL_HOST) . '/.well-known/webfinger?resource={uri}',
                         Discovery::JRD_MIMETYPE,
-                        true // isTemplate
+                        true, // isTemplate
                     );
-                    $xrd_uri = Discovery::applyTemplate($link->template, $url);
+                    $xrd_uri  = Discovery::applyTemplate($link->template, $url);
                     $response = HTTPClient::get($xrd_uri, ['headers' => ['Accept' => $link->type]]);
                     if ($response->getStatusCode() !== 200) {
                         continue;
@@ -440,18 +456,18 @@ class FreeNetwork extends Component
 
                     $actor = null;
                     Event::handle('FreeNetworkFoundXrd', [$xrd, &$actor]);
-                    if (is_null($actor)) {
+                    if (\is_null($actor)) {
                         continue;
                     }
                 }
-                $displayName = $actor->getFullname() ?? $actor->getNickname() ?? $target; // TODO: we could do getBestName() or getFullname() here
+                $displayName   = $actor->getFullname() ?? $actor->getNickname() ?? $target; // TODO: we could do getBestName() or getFullname() here
                 $matches[$pos] = [
                     'mentioned' => [$actor],
-                    'type' => 'mention',
-                    'text' => $displayName,
-                    'position' => $pos,
-                    'length' => mb_strlen($target),
-                    'url' => $actor->getUri()
+                    'type'      => 'mention',
+                    'text'      => $displayName,
+                    'position'  => $pos,
+                    'length'    => mb_strlen($target),
+                    'url'       => $actor->getUri(),
                 ];
             }
         }
@@ -471,7 +487,6 @@ class FreeNetwork extends Component
         return Event::next;
     }
 
-
     public static function notify(Actor $sender, Activity $activity, array $targets, ?string $reason = null): bool
     {
         $protocols = [];
@@ -480,7 +495,7 @@ class FreeNetwork extends Component
         foreach ($protocols as $protocol) {
             $protocol::freeNetworkDistribute($sender, $activity, $targets, $reason, $delivered);
         }
-        $failed_targets = array_udiff($targets, $delivered, function(Actor $a, Actor $b):int {return $a->getId() <=> $b->getId();});
+        $failed_targets = array_udiff($targets, $delivered, fn (Actor $a, Actor $b): int => $a->getId() <=> $b->getId());
         // TODO: Implement failed queues
         return false;
     }
