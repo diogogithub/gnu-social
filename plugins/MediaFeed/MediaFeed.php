@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -23,6 +23,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  Plugin
+ *
  * @author    Phablulo <phablulo@gmail.com>
  * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -31,11 +32,11 @@ declare(strict_types=1);
 namespace Plugin\MediaFeed;
 
 use App\Core\Event;
-use App\Entity\Note;
-use Functional as F;
-use App\Entity\Actor;
-use App\Util\Formatting;
 use App\Core\Modules\Plugin;
+use App\Entity\Actor;
+use App\Entity\Note;
+use App\Util\Formatting;
+use Functional as F;
 use Symfony\Component\HttpFoundation\Request;
 
 class MediaFeed extends Plugin
@@ -47,38 +48,41 @@ class MediaFeed extends Plugin
         }
         return Event::next;
     }
+
     /**
      * Draw the media feed navigation.
-     * @return bool hook value; true means continue processing, false means stop.
+     *
+     * @return bool hook value; true means continue processing, false means stop
      */
     public function onBeforeFeed(Request $request, &$res): bool
     {
         $isMediaActive = $request->get('filter-type') === 'media';
         // we need two urls: one with filter-type=media and without it.
-        $query    = strpos($request->getRequestUri(), '?');
+        $query    = mb_strpos($request->getRequestUri(), '?');
         $mediaURL = $request->getRequestUri() . ($query !== false ? '&' : '?') . 'filter-type=media';
         $allURL   = $request->getPathInfo();
         if ($query !== false) {
-            $params  = explode('&', substr($request->getRequestUri(), $query + 1));
-            $params  = array_filter($params, fn ($s) => $s !== 'filter-type=media');
-            $params  = implode('&', $params);
+            $params = explode('&', mb_substr($request->getRequestUri(), $query + 1));
+            $params = array_filter($params, fn ($s) => $s !== 'filter-type=media');
+            $params = implode('&', $params);
             if ($params) {
                 $allURL .= '?' . $params;
             }
         }
 
-        $res[] = Formatting::twigRenderFile('mediaFeeed/tabs.html.twig', [
+        $res[] = Formatting::twigRenderFile('mediaFeed/tabs.html.twig', [
             'main' => [
                 'active' => !$isMediaActive,
-                'url' => $isMediaActive ? $allURL : '',
+                'url'    => $isMediaActive ? $allURL : '',
             ],
             'media' => [
                 'active' => $isMediaActive,
-                'url' => $isMediaActive ? '' : $mediaURL,
-            ]
+                'url'    => $isMediaActive ? '' : $mediaURL,
+            ],
         ]);
         return Event::next;
     }
+
     /**
      * Output our dedicated stylesheet
      *
