@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -23,12 +25,8 @@ namespace App\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Core\Event;
-use App\Core\Log;
-use App\Entity\Actor;
 use Component\Notification\Entity\Notification;
 use DateTimeInterface;
-use Exception;
 use Functional as F;
 
 /**
@@ -52,7 +50,7 @@ class Activity extends Entity
     private string $object_type;
     private int $object_id;
     private ?string $source;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $created;
 
     public function setId(int $id): self
     {
@@ -144,12 +142,9 @@ class Activity extends Entity
         return DB::findOneBy($this->getObjectType(), ['id' => $this->getObjectId()]);
     }
 
-    /**
-     * @return array
-     */
     public function getNotificationTargetIdsFromActorTags(): array
     {
-        [$actor_circles, $actor_tags] = $this->getActor()->getSelfTags();
+        $actor_circles = $this->getActor()->getActorCircles();
         return F\flat_map($actor_circles, fn ($circle) => $circle->getSubscribedActors());
     }
 
@@ -163,31 +158,31 @@ class Activity extends Entity
         $target_ids = [];
 
         // Actor Circles
-        if (array_key_exists('actor_circle', $ids_already_known)) {
+        if (\array_key_exists('actor_circle', $ids_already_known)) {
             array_push($target_ids, ...$ids_already_known['actor_circle']);
         } else {
             array_push($target_ids, ...$this->getNotificationTargetIdsFromActorTags());
         }
 
         // Notifications
-        if (array_key_exists('notification_activity', $ids_already_known)) {
+        if (\array_key_exists('notification_activity', $ids_already_known)) {
             array_push($target_ids, ...$ids_already_known['notification_activity']);
         } else {
             array_push($target_ids, ...Notification::getNotificationTargetIdsByActivity($this->getId()));
         }
 
         // Object's targets
-        if (array_key_exists('object', $ids_already_known)) {
+        if (\array_key_exists('object', $ids_already_known)) {
             array_push($target_ids, ...$ids_already_known['object']);
         } else {
-            if (!is_null($author = $this->getObject()?->getActorId()) && $author !== $sender_id) {
+            if (!\is_null($author = $this->getObject()?->getActorId()) && $author !== $sender_id) {
                 $target_ids[] = $this->getObject()->getActorId();
             }
             array_push($target_ids, ...$this->getObject()->getNotificationTargetIds($ids_already_known));
         }
 
         // Additional actors that should know about this
-        if (array_key_exists('additional', $ids_already_known)) {
+        if (\array_key_exists('additional', $ids_already_known)) {
             array_push($target_ids, ...$ids_already_known['additional']);
         }
 

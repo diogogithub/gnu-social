@@ -258,7 +258,8 @@ class Actor extends Entity
             'id'                => "actor-id-{$actor_id}",
             'nickname'          => "actor-nickname-id-{$actor_id}",
             'fullname'          => "actor-fullname-id-{$actor_id}",
-            'tags'              => \is_null($other) ? "actor-circles-and-tags-{$actor_id}" : "actor-circles-and-tags-{$actor_id}-by-{$other}", // $other is $context_id
+            'tags'              => \is_null($other) ? "actor-tags-{$actor_id}" : "actor-tags-{$actor_id}-by-{$other}", // $other is $context_id
+            'circles'           => "actor-circles-{$actor_id}",
             'subscriber'        => "subscriber-{$actor_id}",
             'subscribed'        => "subscribed-{$actor_id}",
             'relative-nickname' => "actor-{$actor_id}-relative-nickname-{$other}", // $other is $nickname
@@ -362,7 +363,7 @@ class Actor extends Entity
     public function getOtherTags(self|int|null $context = null, ?int $offset = null, ?int $limit = null, bool $_test_force_recompute = false): array
     {
         if (\is_null($context)) {
-            return Cache::get(
+            return Cache::getList(
                 self::cacheKeys($this->getId())['tags'],
                 fn () => DB::dql(
                     <<< 'EOQ'
@@ -377,7 +378,7 @@ class Actor extends Entity
             );
         } else {
             $context_id = \is_int($context) ? $context : $context->getId();
-            return Cache::get(
+            return Cache::getList(
                 self::cacheKeys($this->getId(), $context_id)['tags'],
                 fn () => DB::dql(
                     <<< 'EOQ'
@@ -391,6 +392,14 @@ class Actor extends Entity
                 ),
             );
         }
+    }
+
+    public function getActorCircles()
+    {
+        return Cache::getList(
+            self::cacheKeys($this->getId())['circles'],
+            fn () => DB::findBy('actor_circle', ['tagger' => $this->getId()]),
+        );
     }
 
     private function getSubCount(string $which, string $column): int

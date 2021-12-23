@@ -167,9 +167,9 @@ class ActorCircle extends Entity
             'name'        => 'actor_circle',
             'description' => 'a actor can have lists of actors, to separate their feed',
             'fields'      => [
-                'id'          => ['type' => 'serial',    'not null' => true, 'description' => 'unique identifier'],
+                'id' => ['type' => 'serial',    'not null' => true, 'description' => 'unique identifier'],
                 // An actor can be tagged by many actors
-                'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
+                'tagger' => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
                 // Many Actor Circles can reference (and probably will) an Actor Tag
                 'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
                 'description' => ['type' => 'text',      'description' => 'description of the people tag'],
@@ -182,6 +182,7 @@ class ActorCircle extends Entity
                 'actor_list_modified_idx'   => ['modified'],
                 'actor_list_tag_idx'        => ['tag'],
                 'actor_list_tagger_tag_idx' => ['tagger', 'tag'],
+                'actor_list_tagger_idx'     => ['tagger'],
             ],
         ];
     }
