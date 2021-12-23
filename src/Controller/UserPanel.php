@@ -54,7 +54,6 @@ use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\ServerException;
 use App\Util\Form\ActorArrayTransformer;
-use App\Util\Form\ArrayTransformer;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;
 use Component\Language\Controller\Language as LanguageController;
@@ -188,10 +187,6 @@ class UserPanel extends Controller
         $user  = Common::ensureLoggedIn();
         $actor = $user->getActor();
 
-        // Used in Form::handle as an array $extra_args
-        [$_, $actor_tags] = $actor->getSelfTags();
-        $extra            = ['self_tags' => $actor_tags];
-
         // Defining the various form fields
         $form_definition = [
             ['nickname', TextType::class, ['label' => _m('Nickname'), 'required' => true, 'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
@@ -200,7 +195,6 @@ class UserPanel extends Controller
             ['bio', TextareaType::class, ['label' => _m('Bio'), 'required' => false, 'help' => _m('Describe yourself and your interests.')]],
             ['phone_number', PhoneNumberType::class, ['label' => _m('Phone number'), 'required' => false, 'help' => _m('Your phone number'), 'data_class' => null]],
             ['location', TextType::class, ['label' => _m('Location'), 'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
-            ['self_tags', TextType::class, ['label' => _m('Self Tags'), 'required' => false, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.'), 'transformer' => ArrayTransformer::class]],
             ['save_personal_info', SubmitType::class, ['label' => _m('Save personal info')]],
         ];
 
@@ -209,7 +203,13 @@ class UserPanel extends Controller
             $user->setNicknameSanitizedAndCached($data['nickname'], $actor->getId());
         };
 
-        return Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
+        return Form::handle(
+            $form_definition,
+            $request,
+            target: $actor,
+            extra_args: [],
+            extra_step: $extra_step,
+        );
     }
 
     /**
