@@ -176,21 +176,8 @@ class Conversation extends Component
     public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect('reply_add', '/object/note/new?to={actor_id<\d+>}&reply_to={note_id<\d+>}', [ReplyController::class, 'addReply']);
-        $r->connect('replies', '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [ReplyController::class, 'showReplies']);
         $r->connect('conversation', '/conversation/{conversation_id<\d+>}', [Controller\Conversation::class, 'showConversation']);
 
-        return Event::next;
-    }
-
-    public function onCreateDefaultFeeds(int $actor_id, LocalUser $user, int &$ordering): bool
-    {
-        DB::persist(Feed::create([
-            'actor_id' => $actor_id,
-            'url'      => Router::url($route = 'replies', ['nickname' => $user->getNickname()]),
-            'route'    => $route,
-            'title'    => _m('Replies'),
-            'ordering' => $ordering++,
-        ]));
         return Event::next;
     }
 }

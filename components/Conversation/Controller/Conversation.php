@@ -26,8 +26,9 @@ declare(strict_types = 1);
 
 namespace Component\Conversation\Controller;
 
-use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
+use function App\Core\I18n\_m;
+use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
 
 class Conversation extends FeedController
@@ -50,7 +51,7 @@ class Conversation extends FeedController
             '_template'     => 'feed/feed.html.twig',
             'notes'         => $notes,
             'should_format' => false,
-            'page_title'    => 'Conversation',
+            'page_title'    => _m('Conversation'),
         ];
     }
 }

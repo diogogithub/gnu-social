@@ -26,14 +26,13 @@ declare(strict_types = 1);
 
 namespace Component\Conversation\Controller;
 
-use App\Core\Controller\FeedController;
-use App\Core\DB\DB;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\ServerException;
+use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
 
 class Reply extends FeedController
@@ -60,27 +59,6 @@ class Reply extends FeedController
         return [
             '_template' => 'reply/add_reply.html.twig',
             'note'      => $note,
-        ];
-    }
-
-    /**
-     * Render actor replies page
-     *
-     * @throws NoLoggedInUser
-     *
-     * @return array
-     */
-    public function showReplies(Request $request)
-    {
-        $actor_id = Common::ensureLoggedIn()->getId();
-        $notes    = DB::dql('select n from App\Entity\Note n '
-            . 'where n.reply_to is not null and n.actor_id = :id '
-            . 'order by n.created DESC', ['id' => $actor_id], );
-        return [
-            '_template'     => 'feed/feed.html.twig',
-            'notes'         => $notes,
-            'should_format' => false,
-            'page_title'    => 'Replies feed',
         ];
     }
 }
