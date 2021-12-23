@@ -15,7 +15,7 @@
         <h2>Settings</h2>
         <ul>
             <li>
-                {% set profile_tabs = [{'title': 'Personal Info', 'desc': 'Nickname, Homepage, Bio, Self Tags and more.', 'id': 'settings-personal-info', 'form': personal_info_form}] %}
+                {% set profile_tabs = [{'title': 'Personal Info', 'desc': 'Nickname, Homepage, Bio and more.', 'id': 'settings-personal-info', 'form': personal_info_form}] %}
                 {% set profile_tabs = profile_tabs|merge(handle_event('PopulateSettingsTabs', app.request, 'profile')) %}
                 {{ macros.settings_details_container('Profile', 'Personal Information, Avatar and Profile', 'settings-profile-details', profile_tabs, _context) }}
             </li>

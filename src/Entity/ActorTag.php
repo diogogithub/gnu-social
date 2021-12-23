@@ -127,17 +127,9 @@ class ActorTag extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public static function cacheKey(int|Actor $actor_id)
-    {
-        if (!\is_int($actor_id)) {
-            $actor_id = $actor_id->getId();
-        }
-        return "actor-tags-{$actor_id}";
-    }
-
     public static function getByActorId(int $actor_id): array
     {
-        return Cache::getList(self::cacheKey($actor_id), fn () => DB::dql('select at from actor_tag at join actor a with a.id = at.tagger where a.id = :id', ['id' => $actor_id]));
+        return Cache::getList(Actor::cacheKeys($actor_id)['tags'], fn () => DB::dql('select at from actor_tag at join actor a with a.id = at.tagger where a.id = :id', ['id' => $actor_id]));
     }
 
     public function getUrl(?Actor $actor = null): string
@@ -163,9 +155,9 @@ class ActorTag extends Entity
             ],
             'primary key' => ['tagger', 'tagged', 'tag', 'use_canonical'],
             'indexes'     => [
-                'actor_tag_modified_idx'         => ['modified'],
+                'actor_tag_modified_idx'   => ['modified'],
                 'actor_tag_tagger_tag_idx' => ['tagger', 'tag'], // For Circles
-                'actor_tag_tagged_idx'           => ['tagged'],
+                'actor_tag_tagged_idx'     => ['tagged'],
             ],
         ];
     }

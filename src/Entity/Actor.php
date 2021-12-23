@@ -36,7 +36,6 @@ use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;
 use App\Util\Nickname;
 use Component\Avatar\Avatar;
-use Component\Tag\Tag as TagComponent;
 use DateTimeInterface;
 use Functional as F;
 
@@ -251,8 +250,10 @@ class Actor extends Entity
     public const BUSINESS     = 4;
     public const BOT          = 5;
 
-    public static function cacheKeys(int $actor_id, mixed $other = null): array
+    public static function cacheKeys(int|self $actor_id, mixed $other = null): array
     {
+        $actor_id = \is_int($actor_id) ? $actor_id : $actor_id->getId();
+
         return [
             'id'                => "actor-id-{$actor_id}",
             'nickname'          => "actor-nickname-id-{$actor_id}",
@@ -339,7 +340,7 @@ class Actor extends Entity
     /**
      * Tags attributed to self, shortcut function for increased legibility
      *
-     * @return array<int, array> [ActorCircle[], ActorTag[]] resulting lists
+     * @return ActorTag[] resulting lists
      */
     public function getSelfTags(bool $_test_force_recompute = false): array
     {
@@ -356,7 +357,7 @@ class Actor extends Entity
      * @param null|int       $offset  Offset from latest
      * @param null|int       $limit   Max number to get
      *
-     * @return array<int, array> [ActorCircle[], ActorTag[]] resulting lists
+     * @return ActorTag[] resulting lists
      */
     public function getOtherTags(self|int|null $context = null, ?int $offset = null, ?int $limit = null, bool $_test_force_recompute = false): array
     {
@@ -365,11 +366,8 @@ class Actor extends Entity
                 self::cacheKeys($this->getId())['tags'],
                 fn () => DB::dql(
                     <<< 'EOQ'
-                        SELECT circle, tag
+                        SELECT tag
                         FROM actor_tag tag
-                              JOIN actor_circle circle
-                              WITH tag.tagger = circle.tagger
-                                   AND tag.tag = circle.tag
                         WHERE tag.tagged = :id
                         ORDER BY tag.modified DESC, tag.tagged DESC
                         EOQ,
@@ -383,56 +381,16 @@ class Actor extends Entity
                 self::cacheKeys($this->getId(), $context_id)['tags'],
                 fn () => DB::dql(
                     <<< 'EOQ'
-                        SELECT circle, tag
+                        SELECT tag
                         FROM actor_tag tag
-                             JOIN actor_circle circle
-                             WITH tag.tagger = circle.tagger
-                                  AND tag.tag = circle.tag
-                        WHERE
-                             tag.tagged = :id
-                             AND (circle.private != true
-                                  OR (circle.tagger = :scoped
-                                      AND circle.private = true
-                                  )
-                             )
+                        WHERE tag.tagged = :tagged_id AND tag.tagger = :tagger_id
                         ORDER BY tag.modified DESC, tag.tagged DESC
                         EOQ,
-                    ['id' => $this->getId(), 'scoped' => $context_id],
+                    ['tagged_id' => $this->getId(), 'tagger_id' => $context_id],
                     options: ['offset' => $offset, 'limit' => $limit],
                 ),
             );
         }
-    }
-
-    /**
-     * @param array      $tags     array of strings to become self tags
-     * @param null|array $existing array of existing self tags (ActorTag[])
-     *
-     * @return $this
-     */
-    public function setSelfTags(array $tags, ?array $existing = null): self
-    {
-        $tags = F\filter($tags, fn ($tag) => Nickname::isCanonical($tag)); // TODO: Have an actual #Tag test
-        $tags = array_unique($tags);
-        if (\is_null($existing)) {
-            [$_, $existing] = $this->getSelfTags();
-        }
-        $existing_actor_tags  = F\map($existing, fn ($actor_tag) => $actor_tag->getTag());
-        $tags_to_add          = array_diff($tags, $existing_actor_tags);
-        $tags_to_remove       = array_diff($existing_actor_tags, $tags);
-        $actor_tags_to_remove = F\filter($existing, fn ($actor_tag) => \in_array($actor_tag->getTag(), $tags_to_remove));
-        foreach ($tags_to_add as $tag) {
-            $canonical_tag = TagComponent::canonicalTag($tag, $this->getTopLanguage()->getLocale());
-            DB::persist(ActorCircle::create(['tagger' => $this->getId(), 'tag' => $tag, 'private' => false]));
-            DB::persist(ActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag, 'canonical' => $canonical_tag, 'use_canonical' => false])); // TODO make use canonical configurable
-        }
-        foreach ($actor_tags_to_remove as $actor_tag) {
-            DB::removeBy('actor_tag', ['tagger' => $this->getId(), 'tagged' => $this->getId(), 'tag' => $actor_tag->getTag(), 'use_canonical' => $actor_tag->getUseCanonical()]);
-            DB::removeBy('actor_circle', ['tagger' => $this->getId(), 'tag' => $actor_tag->getTag()]); // TODO only remove if unused
-        }
-        Cache::delete(self::cacheKeys($this->getId())['tags']);
-        Cache::delete(self::cacheKeys($this->getId(), $this->getId())['tags']);
-        return $this;
     }
 
     private function getSubCount(string $which, string $column): int
@@ -602,6 +560,8 @@ class Actor extends Entity
     public function canAdmin(self $other): bool
     {
         switch ($other->getType()) {
+        case self::PERSON:
+            return $this->getId() === $other->getId();
         case self::GROUP:
             return Cache::get(
                 self::cacheKeys($this->getId(), $other->getId())['can-admin'],

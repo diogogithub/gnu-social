@@ -6,8 +6,17 @@ namespace Component\Tag\Controller;
 
 use App\Core\Cache;
 use App\Core\Controller;
+use App\Core\DB\DB;
+use function App\Core\I18n\_m;
+use App\Entity as E;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
+use App\Util\Exception\RedirectException;
+use App\Util\Formatting;
+use Component\Tag\Form\SelfTagsForm;
 use Component\Tag\Tag as CompTag;
+use Symfony\Component\Form\SubmitButton;
+use Symfony\Component\HttpFoundation\Request;
 
 class Tag extends Controller
 {
@@ -75,5 +84,91 @@ class Tag extends Controller
             query: 'select a from actor a join actor_tag at with a.id = at.tagged where at.canonical = :canon order by at.modified DESC',
             template: 'actor_tag_feed.html.twig',
         );
+    }
+
+    public static function settingsSelfTags(Request $request, E\Actor $target, string $details_id)
+    {
+        $actor = Common::actor();
+        if (!$actor->canAdmin($target)) {
+            throw new ClientException(_m('You don\'t have enough permissions to edit {nickname}\'s settings', ['{nickname}' => $target->getNickname()]));
+        }
+
+        $actor_tags = $target->getSelfTags();
+
+        [$add_form, $existing_form] = SelfTagsForm::handleTags(
+            $request,
+            $actor_tags,
+            handle_new: function ($form) use ($request, $target, $details_id) {
+                $data = $form->getData();
+                $tags = $data['new-tags'];
+                $language = $target->getTopLanguage()->getLocale();
+                foreach ($tags as $tag) {
+                    $tag = CompTag::ensureValid($tag);
+                    [$at, ] = E\ActorTag::createOrUpdate([
+                        'tagger'        => $target->getId(),
+                        'tagged'        => $target->getId(),
+                        'tag'           => $tag,
+                        'canonical'     => CompTag::canonicalTag($tag, language: $language),
+                        'use_canonical' => $data['new-tags-use-canon'],
+                    ]);
+                    DB::persist($at);
+                }
+                DB::flush();
+                Cache::delete(E\Actor::cacheKeys($target->getId(), $target->getId())['tags']);
+                throw new RedirectException($request->get('_route'), ['open' => $details_id]);
+            },
+            handle_existing: function ($form, array $form_definition) use ($request, $target, $details_id) {
+                $data = $form->getData();
+                $changed = false;
+                foreach (array_chunk($form_definition, 3) as $entry) {
+                    $tag = Formatting::removePrefix($entry[0][2]['data'], '#');
+                    $use_canon = $entry[1][2]['attr']['data'];
+
+                    /** @var SubmitButton $remove */
+                    $remove = $form->get($entry[2][0]);
+                    if ($remove->isClicked()) {
+                        $changed = true;
+                        DB::removeBy(
+                            'actor_tag',
+                            [
+                                'tagger'        => $target->getId(),
+                                'tagged'        => $target->getId(),
+                                'tag'           => $tag,
+                                'use_canonical' => $use_canon,
+                            ],
+                        );
+                    }
+
+                    /** @var SubmitButton $toggle_canon */
+                    $toggle_canon = $form->get($entry[1][0]);
+                    if ($toggle_canon->isSubmitted()) {
+                        $changed = true;
+                        $at = DB::find(
+                            'actor_tag',
+                            [
+                                'tagger'        => $target->getId(),
+                                'tagged'        => $target->getId(),
+                                'tag'           => $tag,
+                                'use_canonical' => $use_canon,
+                            ],
+                        );
+                        DB::persist($at->setUseCanonical(!$use_canon));
+                    }
+                }
+                if ($changed) {
+                    DB::flush();
+                    Cache::delete(E\Actor::cacheKeys($target->getId(), $target->getId())['tags']);
+                    throw new RedirectException($request->get('_route'), ['open' => $details_id]);
+                }
+            },
+            remove_label: _m('Remove self tag'),
+            add_label: _m('Add self tag'),
+        );
+
+        return [
+            '_template'               => 'self_tags_settings.fragment.html.twig',
+            'add_self_tags_form'      => $add_form->createView(),
+            'existing_self_tags_form' => $existing_form?->createView(),
+        ];
     }
 }

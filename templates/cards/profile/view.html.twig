@@ -1,7 +1,7 @@
 {% set actor_nickname = actor.getNickname() %}
 {% set actor_avatar = actor.getAvatarUrl() %}
 {% set actor_avatar_dimensions = actor.getAvatarDimensions() %}
-{% set actor_tags = actor.getSelfTags()[1] %} {# Take only the actor_tags, not the circles #}
+{% set actor_tags = actor.getSelfTags() %}
 {% set actor_bio = actor.getBio() %}
 {% set actor_uri = actor.getUri() %}
 

@@ -34,9 +34,11 @@ use App\Entity\ActorTag;
 use App\Entity\Language;
 use App\Entity\Note;
 use App\Entity\NoteTag;
+use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Formatting;
 use App\Util\HTML;
+use Component\Tag\Controller as C;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
@@ -122,7 +124,12 @@ class Tag extends Component
 
     public static function ensureValid(string $tag)
     {
-        return self::ensureLength(str_replace('#', '', $tag));
+        $tag = self::ensureLength(Formatting::removePrefix($tag, '#'));
+        if (preg_match(self::TAG_REGEX, '#' . $tag)) {
+            return $tag;
+        } else {
+            throw new ClientException(_m('Invalid tag given: {tag}', ['{tag}' => $tag]));
+        }
     }
 
     public static function ensureLength(string $tag): string
@@ -190,6 +197,19 @@ class Tag extends Component
             throw new ClientException;
         }
         $extra_args['tag_use_canonical'] = $data['tag_use_canonical'];
+        return Event::next;
+    }
+
+    public function onPopulateSettingsTabs(Request $request, string $section, array &$tabs)
+    {
+        if ($section === 'profile' && $request->get('_route') === 'settings') {
+            $tabs[] = [
+                'title'      => 'Self tags',
+                'desc'       => 'Add or remove tags on yourself',
+                'id'         => 'settings-self-tags',
+                'controller' => C\Tag::settingsSelfTags($request, Common::actor(), 'settings-self-tags-details'),
+            ];
+        }
         return Event::next;
     }
 }
