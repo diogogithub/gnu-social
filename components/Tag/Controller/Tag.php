@@ -115,7 +115,7 @@ class Tag extends Controller
                 }
                 DB::flush();
                 Cache::delete(E\Actor::cacheKeys($target->getId(), $target->getId())['tags']);
-                throw new RedirectException($request->get('_route'), ['open' => $details_id]);
+                throw new RedirectException($request->get('_route'), ['nickname' => $target->getNickname(), 'open' => $details_id]);
             },
             handle_existing: function ($form, array $form_definition) use ($request, $target, $details_id) {
                 $data = $form->getData();
@@ -158,7 +158,7 @@ class Tag extends Controller
                 if ($changed) {
                     DB::flush();
                     Cache::delete(E\Actor::cacheKeys($target->getId(), $target->getId())['tags']);
-                    throw new RedirectException($request->get('_route'), ['open' => $details_id]);
+                    throw new RedirectException($request->get('_route'), ['nickname' => $target->getNickname(), 'open' => $details_id]);
                 }
             },
             remove_label: _m('Remove self tag'),
