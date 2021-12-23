@@ -28,7 +28,6 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
 use App\Core\Router\Router;
-use App\Core\UserRoles;
 use App\Util\Exception\BugFoundException;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NicknameException;
@@ -290,21 +289,6 @@ class Actor extends Entity
         }
     }
 
-    public function __call(string $name, array $arguments): mixed
-    {
-        if (Formatting::startsWith($name, 'is')) {
-            $type  = Formatting::removePrefix($name, 'is');
-            $const = self::class . '::' . mb_strtoupper($type);
-            if (\defined($const)) {
-                return $this->type === \constant($const);
-            } else {
-                throw new BugFoundException("Actor cannot be a '{$type}', check your spelling");
-            }
-        } else {
-            return parent::__call($name, $arguments);
-        }
-    }
-
     public function getAvatarUrl(string $size = 'full')
     {
         return Avatar::getUrl($this->getId(), $size);
@@ -421,11 +405,6 @@ class Actor extends Entity
     public function getSubscribedCount()
     {
         return $this->getSubCount(which: 'subscribed', column: 'subscriber');
-    }
-
-    public function isPerson(): bool
-    {
-        return ($this->roles & UserRoles::BOT) === 0;
     }
 
     /**
@@ -585,6 +564,28 @@ class Actor extends Entity
             break;
         default:
             return false;
+        }
+    }
+
+    /**
+     * @method bool isPerson()
+     * @method bool isGroup()
+     * @method bool isOrganization()
+     * @method bool isBusiness()
+     * @method bool isBot()
+     */
+    public function __call(string $name, array $arguments): mixed
+    {
+        if (Formatting::startsWith($name, 'is')) {
+            $type  = Formatting::removePrefix($name, 'is');
+            $const = self::class . '::' . mb_strtoupper($type);
+            if (\defined($const)) {
+                return $this->type === \constant($const);
+            } else {
+                throw new BugFoundException("Actor cannot be a '{$type}', check your spelling");
+            }
+        } else {
+            return parent::__call($name, $arguments);
         }
     }
 
