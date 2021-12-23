@@ -32,7 +32,9 @@ use App\Core\Log;
 use App\Entity\Actor;
 use App\Entity as E;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
+use App\Util\Form\ActorForms;
 use App\Util\Nickname;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -122,5 +124,21 @@ class Group extends ActorController
             'nickname'  => $group?->getNickname() ?? $nickname,
             'notes'     => $notes,
         ];
+    }
+
+    public function groupSettings(Request $request, string $nickname)
+    {
+        $group = Actor::getByNickname($nickname, type: Actor::GROUP);
+        $actor = Common::actor();
+        if (!\is_null($group) && $actor->canAdmin($group)) {
+            return [
+                '_template'          => 'group/settings.html.twig',
+                'group'              => $group,
+                'personal_info_form' => ActorForms::personalInfo($request, $group)->createView(),
+                'open_details_query' => $this->string('open'),
+            ];
+        } else {
+            throw new ClientException(_m('You do not have permission to edit settings for the group "{group}"', ['{group}' => $nickname]), code: 404);
+        }
     }
 }
