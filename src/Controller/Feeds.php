@@ -35,13 +35,11 @@ declare(strict_types = 1);
 
 namespace App\Controller;
 
-use App\Core\Controller\FeedController;
-use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Core\VisibilityScope;
-use App\Entity\Note;
-use App\Util\Exception\ClientException;
-use App\Util\Exception\NotFoundException;
+use App\Util\Common;
+use Component\Feed\Feed;
+use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
 
 class Feeds extends FeedController
@@ -52,68 +50,39 @@ class Feeds extends FeedController
     private $message_scope    = VisibilityScope::MESSAGE;
     private $subscriber_scope = VisibilityScope::PUBLIC | VisibilityScope::SUBSCRIBER;
 
-    public function public(Request $request)
+    /**
+     * The Planet feed represents every local post. Which is what this instance has to share with the universe.
+     */
+    public function public(Request $request): array
     {
-        $notes = Note::getAllNotes($this->instance_scope);
+        $data = Feed::query(
+            query: 'note-local:true',
+            page: $this->int('p'),
+            language: Common::actor()?->getTopLanguage()?->getLocale(),
+        );
         return [
-            '_template'  => 'feeds/feed.html.twig',
-            'page_title' => 'Public feed',
+            '_template'     => 'feed/feed.html.twig',
+            'page_title'    => _m(\is_null(Common::user()) ? 'Feed' : 'Planet'),
             'should_format' => true,
-            'notes'      => $notes,
+            'notes'         => $data['notes'],
         ];
     }
 
-    public function home(Request $request, string $nickname)
+    /**
+     * The Home feed represents everything that concerns a certain actor (its subscriptions)
+     */
+    public function home(Request $request): array
     {
-        try {
-            $target = DB::findOneBy('actor', ['nickname' => $nickname, 'is_local' => true]);
-        } catch (NotFoundException) {
-            throw new ClientException(_m('User {nickname} doesn\'t exist', ['{nickname}' => $nickname]));
-        }
-
-        // TODO Handle replies in home stream
-        $query = <<<END
-                    -- Select notes from:
-                    select note.* from note left join -- left join ensures all returned notes' ids are not null
-                    (
-                        -- Subscribed by target
-                        select n.id from note n inner join subscription f on n.actor_id = f.subscribed
-                            where f.subscriber = :target_actor_id
-                        union all
-                        -- Replies to notes by target
-                        -- select n.id from note n inner join note nr on nr.id = nr.reply_to
-                        -- union all
-                        -- Notifications to target
-                        select a.activity_id from notification a inner join note n on a.activity_id = n.id
-                        union all
-                        -- Notes in groups target subscriptions
-                        select gi.activity_id from group_inbox gi inner join group_member gm on gi.group_id = gm.group_id
-                            where gm.actor_id = :target_actor_id
-                    )
-                    as s on s.id = note.id
-                    where
-                        -- Remove direct messages
-                        note.scope <> {$this->message_scope}
-                    order by note.modified DESC
-            END;
-        $notes = DB::sql($query, ['target_actor_id' => $target->getId()]);
-
+        $data = Feed::query(
+            query: 'from:subscribed-actors OR from:subscribed-groups',
+            page: $this->int('p'),
+            language: Common::actor()?->getTopLanguage()?->getLocale(),
+        );
         return [
-            '_template'  => 'feeds/feed.html.twig',
-            'page_title' => 'Home feed',
+            '_template'     => 'feed/feed.html.twig',
+            'page_title'    => _m('Home'),
             'should_format' => true,
-            'notes'      => $notes,
-        ];
-    }
-
-    public function network(Request $request)
-    {
-        $notes = Note::getAllNotes($this->public_scope);
-        return [
-            '_template'  => 'feeds/feed.html.twig',
-            'page_title' => 'Network feed',
-            'should_format' => true,
-            'notes'      => $notes,
+            'notes'         => $data['notes'],
         ];
     }
 }

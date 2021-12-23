@@ -33,12 +33,12 @@ declare(strict_types = 1);
 
 namespace App\Core;
 
-use App\Core\Controller\FeedController;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
+use Component\Feed\Util\FeedController;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -136,6 +136,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
             $controller = $controller[0];
         }
 
+        // XXX: Could we do this differently?
         if (is_subclass_of($controller, FeedController::class)) {
             $this->vars = FeedController::post_process($this->vars);
         }

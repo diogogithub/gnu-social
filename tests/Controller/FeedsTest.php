@@ -76,10 +76,10 @@ class FeedsTest extends GNUsocialTestCase
         $req_stack = $this->createMock(RequestStack::class);
         $feeds     = new Feeds($req_stack);
         if ($route == 'home') {
-            static::assertThrows(ClientException::class, fn () => $feeds->home($req, 'username_not_taken'));
+            static::assertThrows(ClientException::class, fn () => $feeds->home($req));
         }
         $result = $feeds->{$route}($req, ...$extra_args);
-        static::assertSame($result['_template'], 'feeds/feed.html.twig');
+        static::assertSame($result['_template'], 'feed/feed.html.twig');
         foreach ($result['notes'] as $n) {
             static::assertIsArray($n['replies']);
         }

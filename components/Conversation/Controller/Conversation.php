@@ -47,7 +47,7 @@ class Conversation extends FeedController
             . 'on n.conversation_id = :id '
             . 'order by n.created DESC', ['id' => $conversation_id], );
         return [
-            '_template'     => 'feeds/feed.html.twig',
+            '_template'     => 'feed/feed.html.twig',
             'notes'         => $notes,
             'should_format' => false,
             'page_title'    => 'Conversation',

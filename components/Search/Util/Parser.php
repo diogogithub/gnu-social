@@ -48,7 +48,7 @@ abstract class Parser
      * Currently doesn't support nesting with parenthesis and
      * recognises either spaces (currently `or`, should be fuzzy match), `OR` or `|` (`or`) and `AND` or `&` (`and`)
      *
-     * TODO Better fuzzy match, implement exact match with quotes and nesting with parens
+     * TODO: Better fuzzy match, implement exact match with quotes and nesting with parens
      *
      * @return Criteria[]
      */
@@ -58,9 +58,9 @@ abstract class Parser
             $input = trim(preg_replace(['/\s+/', '/\s+AND\s+/', '/\s+OR\s+/'], [' ', '&', '|'], $input), ' |&');
         }
 
-        $left               = $right               = 0;
+        $left               = 0;
+        $right              = 0;
         $lenght             = mb_strlen($input);
-        $stack              = [];
         $eb                 = Criteria::expr();
         $note_criteria_arr  = [];
         $actor_criteria_arr = [];
@@ -74,9 +74,10 @@ abstract class Parser
 
             foreach (['&', '|', ' '] as $delimiter) {
                 if ($input[$index] === $delimiter || $end = ($index === $lenght - 1)) {
-                    $term     = mb_substr($input, $left, $end ? null : $right - $left);
-                    $note_res = $actor_res = null;
-                    $ret      = Event::handle('SearchCreateExpression', [$eb, $term, $language, &$note_res, &$actor_res]);
+                    $term      = mb_substr($input, $left, $end ? null : $right - $left);
+                    $note_res  = null;
+                    $actor_res = null;
+                    Event::handle('SearchCreateExpression', [$eb, $term, $language, &$note_res, &$actor_res]);
                     if (\is_null($note_res) && \is_null($actor_res)) {
                         throw new ServerException("No one claimed responsibility for a match term: {$term}");
                     }
@@ -88,7 +89,7 @@ abstract class Parser
                     }
                     if (!\is_null($actor_res) && !empty($note_res)) {
                         if (\is_array($actor_res)) {
-                            $actor_res = $ex->orX(...$actor_res);
+                            $actor_res = $eb->orX(...$actor_res);
                         }
                         $actor_parts[] = $actor_res;
                     }
@@ -97,7 +98,6 @@ abstract class Parser
 
                     if (!\is_null($last_op) && $last_op !== $delimiter) {
                         self::connectParts($note_parts, $note_criteria_arr, $last_op, $eb, force: false);
-                        self::connectParts($actor_parts, $actor_criteria_arr, $last_op, $eb, force: false);
                     } else {
                         $last_op = $delimiter;
                     }
@@ -110,7 +110,8 @@ abstract class Parser
             }
         }
 
-        $note_criteria = $actor_criteria = null;
+        $note_criteria  = null;
+        $actor_criteria = null;
         if (!empty($note_parts)) {
             self::connectParts($note_parts, $note_criteria_arr, $last_op, $eb, force: true);
             $note_criteria = new Criteria($eb->orX(...$note_criteria_arr));

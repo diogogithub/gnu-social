@@ -37,6 +37,7 @@ use function App\Core\I18n\_m;
 use App\Core\Router\Router;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
+use Component\Feed\Util\FeedController;
 
 abstract class ActorController extends FeedController
 {

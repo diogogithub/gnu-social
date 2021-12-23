@@ -77,7 +77,7 @@ class Reply extends FeedController
             . 'where n.reply_to is not null and n.actor_id = :id '
             . 'order by n.created DESC', ['id' => $actor_id], );
         return [
-            '_template'     => 'feeds/feed.html.twig',
+            '_template'     => 'feed/feed.html.twig',
             'notes'         => $notes,
             'should_format' => false,
             'page_title'    => 'Replies feed',

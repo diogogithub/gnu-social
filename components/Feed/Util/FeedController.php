@@ -30,7 +30,7 @@ declare(strict_types = 1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Core\Controller;
+namespace Component\Feed\Util;
 
 use App\Core\Controller;
 use App\Core\Event;
@@ -43,7 +43,7 @@ abstract class FeedController extends Controller
      * notes or actors the user specified, as well as format the raw
      * list of notes into a usable format
      */
-    public static function post_process(array $result)
+    public static function post_process(array $result): array
     {
         $actor = Common::actor();
 

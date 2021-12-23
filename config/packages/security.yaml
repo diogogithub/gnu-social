@@ -33,7 +33,7 @@ security:
             logout:
                 path: security_logout
                 # where to redirect after logout
-                target: main_all
+                target: root
 
             remember_me:
                 secret: '%kernel.secret%'

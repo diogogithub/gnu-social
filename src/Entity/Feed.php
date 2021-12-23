@@ -152,9 +152,8 @@ class Feed extends Entity
     public static function createDefaultFeeds(int $actor_id, LocalUser $user): void
     {
         $ordering = 1;
-        DB::persist(self::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'main_public'), 'route' => $route, 'title' => _m('Public'), 'ordering' => $ordering++]));
-        DB::persist(self::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'main_all'), 'route' => $route, 'title' => _m('Network'), 'ordering' => $ordering++]));
-        DB::persist(self::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'home_all', ['nickname' => $user->getNickname()]), 'route' => $route, 'title' => _m('Home'), 'ordering' => $ordering++]));
+        DB::persist(self::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'feed_home', ['nickname' => $user->getNickname()]), 'route' => $route, 'title' => _m('Home'), 'ordering' => $ordering++]));
+        DB::persist(self::create(['actor_id' => $actor_id, 'url' => Router::url($route = 'feed_public'), 'route' => $route, 'title' => _m('Planet'), 'ordering' => $ordering++]));
         Event::handle('CreateDefaultFeeds', [$actor_id, $user, &$ordering]);
     }
 

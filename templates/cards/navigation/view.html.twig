@@ -15,13 +15,8 @@
         {% if not app.user %} {# Default feeds #}
           <ul>
             <li>
-              <a href="{{ path('main_public') }}" class='{{ active('main_public') }}'>
-                Public
-              </a>
-            </li>
-            <li>
-              <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>
-                Network
+              <a href="{{ path('feed_public') }}" class='{{ active('feed_public') }}'>
+                {{ 'Feed' | trans }}
               </a>
             </li>
           </ul>

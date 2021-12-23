@@ -52,7 +52,7 @@ class Security extends Controller
     {
         // Skip if already logged in
         if ($this->getUser()) {
-            return $this->redirectToRoute('main_all');
+            return $this->redirectToRoute('root');
         }
 
         // get the login error if there is one
@@ -150,10 +150,10 @@ class Security extends Controller
                 $actor = Actor::create([
                     'nickname' => $nickname,
                     'is_local' => true,
-                    'type' => Actor::PERSON,
-                    'roles' => UserRoles::USER,
+                    'type'     => Actor::PERSON,
+                    'roles'    => UserRoles::USER,
                 ]);
-                $user  = LocalUser::create([
+                $user = LocalUser::create([
                     'nickname'       => $nickname,
                     'outgoing_email' => $data['email'],
                     'incoming_email' => $data['email'],

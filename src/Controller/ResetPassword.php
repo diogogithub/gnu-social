@@ -115,7 +115,7 @@ class ResetPassword extends Controller
         //     // The session is cleaned up after the password has been changed.
         //     $this->cleanSessionAfterReset();
 
-        //     throw new RedirectException('main_all');
+        //     throw new RedirectException('root');
         // }
 
         // return [

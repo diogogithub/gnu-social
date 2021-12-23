@@ -23,9 +23,6 @@ declare(strict_types = 1);
 
 namespace Component\Search\Controller;
 
-use App\Core\Controller\FeedController;
-use App\Core\DB\DB;
-use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
@@ -33,8 +30,9 @@ use App\Util\Exception\BugFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;
+use Component\Feed\Feed;
+use Component\Feed\Util\FeedController;
 use Component\Search as Comp;
-use Component\Search\Util\Parser;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -50,26 +48,10 @@ class Search extends FeedController
         $actor    = Common::actor();
         $language = !\is_null($actor) ? $actor->getTopLanguage()->getLocale() : null;
         $q        = $this->string('q');
-        if (!empty($q) && !empty($q = trim($q))) {
-            [$note_criteria, $actor_criteria] = Parser::parse($q, $language);
 
-            $note_qb  = DB::createQueryBuilder();
-            $actor_qb = DB::createQueryBuilder();
-            $note_qb->select('note')->from('App\Entity\Note', 'note')->orderBy('note.created', 'DESC');
-            $actor_qb->select('actor')->from('App\Entity\Actor', 'actor')->orderBy('actor.created', 'DESC');
-            Event::handle('SearchQueryAddJoins', [&$note_qb, &$actor_qb]);
-
-            $notes = $actors = [];
-            if (!\is_null($note_criteria)) {
-                $note_qb->addCriteria($note_criteria);
-                $notes = $note_qb->getQuery()->execute();
-            }
-
-            if (!\is_null($actor_criteria)) {
-                $actor_qb->addCriteria($actor_criteria);
-                $actors = $actor_qb->getQuery()->execute();
-            }
-        }
+        $data   = Feed::query(query: $q, page: $this->int('p'), language: $language);
+        $notes  = $data['notes'];
+        $actors = $data['actors'];
 
         $search_builder_form = Form::create([
             ['include_actors', CheckboxType::class, ['required' => false, 'data' => false, 'label' => _m('Include people/actors')]],

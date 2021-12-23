@@ -160,7 +160,7 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse(Router::url('main_all'));
+        return new RedirectResponse(Router::url('root'));
     }
 
     public function authenticate(Request $request): PassportInterface

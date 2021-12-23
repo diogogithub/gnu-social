@@ -23,8 +23,8 @@ declare(strict_types = 1);
 
 namespace Plugin\Directory\Controller;
 
-use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
+use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
 
 class Directory extends FeedController

@@ -25,7 +25,6 @@ namespace Component\LeftPanel\Controller;
 
 use App\Core\Cache;
 use App\Core\Controller;
-use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
@@ -34,6 +33,7 @@ use App\Entity\Feed;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
+use Component\Feed\Util\FeedController;
 use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;

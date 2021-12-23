@@ -23,9 +23,9 @@ declare(strict_types = 1);
 
 namespace Plugin\Favourite\Controller;
 
-use App\Core\Controller\FeedController;
 use App\Core\DB\DB;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
 use App\Util\Common;
@@ -35,27 +35,26 @@ use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
+use Component\Feed\Util\FeedController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
-use function is_null;
 
 class Favourite extends FeedController
 {
     /**
-     * @throws ServerException
      * @throws InvalidFormException
      * @throws NoLoggedInUser
      * @throws NoSuchNoteException
      * @throws RedirectException
+     * @throws ServerException
      */
     public function favouriteAddNote(Request $request, int $id): bool|array
     {
-        $user = Common::ensureLoggedIn();
-        $actor_id = $user->getId();
-        $opts = ['id' => $id];
+        $user               = Common::ensureLoggedIn();
+        $actor_id           = $user->getId();
+        $opts               = ['id' => $id];
         $add_favourite_note = DB::find('note', $opts);
-        if (is_null($add_favourite_note)) {
+        if (\is_null($add_favourite_note)) {
             throw new NoSuchNoteException();
         }
 
@@ -63,7 +62,7 @@ class Favourite extends FeedController
             ['add_favourite', SubmitType::class,
                 [
                     'label' => _m('Favourite note!'),
-                    'attr' => [
+                    'attr'  => [
                         'title' => _m('Favourite this note!'),
                     ],
                 ],
@@ -73,7 +72,7 @@ class Favourite extends FeedController
         $form_add_to_favourite->handleRequest($request);
 
         if ($form_add_to_favourite->isSubmitted()) {
-            if (!is_null(\Plugin\Favourite\Favourite::favourNote(note_id: $id, actor_id: $actor_id))) {
+            if (!\is_null(\Plugin\Favourite\Favourite::favourNote(note_id: $id, actor_id: $actor_id))) {
                 DB::flush();
             } else {
                 throw new ClientException(_m('Note already favoured!'));
@@ -81,7 +80,7 @@ class Favourite extends FeedController
 
             // Redirect user to where they came from
             // Prevent open redirect
-            if (!is_null($from = $this->string('from'))) {
+            if (!\is_null($from = $this->string('from'))) {
                 if (Router::isAbsolute($from)) {
                     Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
@@ -96,26 +95,26 @@ class Favourite extends FeedController
         }
 
         return [
-            '_template' => 'favourite/add_to_favourites.html.twig',
-            'note' => $add_favourite_note,
+            '_template'     => 'favourite/add_to_favourites.html.twig',
+            'note'          => $add_favourite_note,
             'add_favourite' => $form_add_to_favourite->createView(),
         ];
     }
 
     /**
-     * @throws ServerException
      * @throws InvalidFormException
      * @throws NoLoggedInUser
      * @throws NoSuchNoteException
      * @throws RedirectException
+     * @throws ServerException
      */
     public function favouriteRemoveNote(Request $request, int $id): array
     {
-        $user = Common::ensureLoggedIn();
-        $actor_id = $user->getId();
-        $opts = ['id' => $id];
+        $user                  = Common::ensureLoggedIn();
+        $actor_id              = $user->getId();
+        $opts                  = ['id' => $id];
         $remove_favourite_note = DB::find('note', $opts);
-        if (is_null($remove_favourite_note)) {
+        if (\is_null($remove_favourite_note)) {
             throw new NoSuchNoteException();
         }
 
@@ -123,7 +122,7 @@ class Favourite extends FeedController
             ['remove_favourite', SubmitType::class,
                 [
                     'label' => _m('Remove favourite'),
-                    'attr' => [
+                    'attr'  => [
                         'title' => _m('Remove note from favourites.'),
                     ],
                 ],
@@ -132,7 +131,7 @@ class Favourite extends FeedController
 
         $form_remove_favourite->handleRequest($request);
         if ($form_remove_favourite->isSubmitted()) {
-            if (!is_null(\Plugin\Favourite\Favourite::unfavourNote(note_id: $id, actor_id: $actor_id))) {
+            if (!\is_null(\Plugin\Favourite\Favourite::unfavourNote(note_id: $id, actor_id: $actor_id))) {
                 DB::flush();
             } else {
                 throw new ClientException(_m('Note already unfavoured!'));
@@ -140,7 +139,7 @@ class Favourite extends FeedController
 
             // Redirect user to where they came from
             // Prevent open redirect
-            if (!is_null($from = $this->string('from'))) {
+            if (!\is_null($from = $this->string('from'))) {
                 if (Router::isAbsolute($from)) {
                     Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
@@ -156,8 +155,8 @@ class Favourite extends FeedController
 
         $note = DB::find('note', ['id' => $id]);
         return [
-            '_template' => 'favourite/remove_from_favourites.html.twig',
-            'note' => $note,
+            '_template'        => 'favourite/remove_from_favourites.html.twig',
+            'note'             => $note,
             'remove_favourite' => $form_remove_favourite->createView(),
         ];
     }
@@ -175,7 +174,7 @@ class Favourite extends FeedController
         );
 
         return [
-            '_template'  => 'feeds/feed.html.twig',
+            '_template'  => 'feed/feed.html.twig',
             'page_title' => 'Favourites feed.',
             'notes'      => $notes,
         ];
@@ -190,9 +189,9 @@ class Favourite extends FeedController
     /**
      *  Reverse favourites stream
      *
-     * @return array template
      * @throws NoLoggedInUser user not logged in
      *
+     * @return array template
      */
     public function reverseFavouritesByActorId(Request $request, int $id): array
     {
@@ -208,7 +207,7 @@ class Favourite extends FeedController
         );
 
         return [
-            '_template'  => 'feeds/feed.html.twig',
+            '_template'  => 'feed/feed.html.twig',
             'page_title' => 'Reverse favourites feed.',
             'notes'      => $notes,
         ];

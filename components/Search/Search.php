@@ -27,11 +27,8 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
-use App\Entity\Actor;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
-use App\Util\Formatting;
-use Doctrine\Common\Collections\ExpressionBuilder;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormView;
@@ -138,45 +135,6 @@ class Search extends Component
     public function onEndShowStyles(array &$styles, string $route): bool
     {
         $styles[] = 'components/Search/assets/css/view.css';
-        return Event::next;
-    }
-
-    /**
-     * Convert $term to $note_expr and $actor_expr, search criteria. Handles searching for text
-     * notes, for different types of actors and for the content of text notes
-     */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
-    {
-        $include_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
-        if (Formatting::startsWith($term, ['note-types:', 'notes-incude:', 'note-filter:'])) {
-            if (\is_null($note_expr)) {
-                $note_expr = [];
-            }
-            if (array_intersect(explode(',', $include_term), ['text', 'words']) !== []) {
-                $note_expr[] = $eb->neq('note.rendered', null);
-            } else {
-                $note_expr[] = $eb->eq('note.rendered', null);
-            }
-        } elseif (Formatting::startsWith($term, ['actor-types:', 'actors-incude:', 'actor-filter:'])) {
-            if (\is_null($actor_expr)) {
-                $actor_expr = [];
-            }
-            foreach ([
-                Actor::PERSON => ['person', 'people'],
-                Actor::GROUP => ['group', 'groups'],
-                Actor::ORGANIZATION => ['org', 'orgs', 'organization', 'organizations', 'organisation', 'organisations'],
-                Actor::BUSINESS => ['business', 'businesses'],
-                Actor::BOT => ['bot', 'bots'],
-            ] as $type => $match) {
-                if (array_intersect(explode(',', $include_term), $match) !== []) {
-                    $actor_expr[] = $eb->eq('actor.type', $type);
-                } else {
-                    $actor_expr[] = $eb->neq('actor.type', $type);
-                }
-            }
-        } elseif (!str_contains($term, ':')) {
-            $note_expr = $eb->contains('note.rendered', $term);
-        }
         return Event::next;
     }
 }

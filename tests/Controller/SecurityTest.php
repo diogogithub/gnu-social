@@ -50,7 +50,7 @@ class SecurityTest extends GNUsocialTestCase
         [, $crawler] = self::testLogin($nickname = 'taken_user', 'foobar');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
-        $this->assertRouteSame('main_all');
+        $this->assertRouteSame('root');
         $this->assertSelectorTextContains('.profile-info .profile-info-nickname', $nickname);
     }
 
@@ -59,7 +59,7 @@ class SecurityTest extends GNUsocialTestCase
         [$client] = self::testLogin('taken_user', 'foobar'); // Normal login
         $crawler  = $client->request('GET', '/main/login'); // attempt to login again
         $client->followRedirect();
-        $this->assertRouteSame('main_all');
+        $this->assertRouteSame('root');
     }
 
     public function testLoginFailure()
@@ -75,7 +75,7 @@ class SecurityTest extends GNUsocialTestCase
         self::testLogin('email@provider', 'foobar');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
-        $this->assertRouteSame('main_all');
+        $this->assertRouteSame('root');
         $this->assertSelectorTextContains('.profile-info .profile-info-nickname', 'taken_user');
     }
 
@@ -102,7 +102,7 @@ class SecurityTest extends GNUsocialTestCase
         $client->followRedirect();
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
-        $this->assertRouteSame('main_all');
+        $this->assertRouteSame('root');
         $this->assertSelectorTextContains('.profile-info .profile-info-nickname', 'new_nickname');
     }
 
