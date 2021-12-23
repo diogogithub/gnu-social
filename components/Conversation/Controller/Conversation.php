@@ -26,8 +26,8 @@ declare(strict_types = 1);
 
 namespace Component\Conversation\Controller;
 
-use App\Core\DB\DB;
 use function App\Core\I18n\_m;
+use Component\Feed\Feed;
 use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -44,9 +44,13 @@ class Conversation extends FeedController
         // if note is root -> just link
         // if note is a reply -> link from above plus anchor
 
-        $notes = DB::dql('select n from App\Entity\Note n '
-            . 'on n.conversation_id = :id '
-            . 'order by n.created DESC', ['id' => $conversation_id], );
+        /*        $notes = DB::findBy(
+                    table: 'note',
+                    criteria: ['conversation_id' => $conversation_id],
+                    order_by: ['created' => 'DESC', 'id' => 'DESC']
+                );*/
+        $data  = Feed::query(query: "note-conversation:{$conversation_id}", page: $this->int('p') ?? 1);
+        $notes = $data['notes'];
         return [
             '_template'     => 'feed/feed.html.twig',
             'notes'         => $notes,

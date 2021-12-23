@@ -87,6 +87,9 @@ class Feed extends Component
                             $note_expr[] = $eb->eq('note.content', null);
                         }
                         break;
+                    case 'note-conversation':
+                        $note_expr = $eb->eq('note.conversation_id', (int)trim($term[1]));
+                        break;
                 }
             } elseif (Formatting::startsWith($term, 'actor-')) {
                 switch ($term[0]) {
