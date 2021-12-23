@@ -53,3 +53,11 @@ phpstan: tooling-docker
 
 stop-tooling: .PHONY
 	cd docker/tooling && docker-compose down
+
+remove-var:
+	rm -rf var/*
+
+flush-redis-cache:
+	docker exec -it $(call translate-container-name,$(strip $(DIR))_redis_1) sh -c 'redis-cli flushall'
+
+force-nuke-everything: remove-var flush-redis-cache database-force-nuke
