@@ -1,13 +1,26 @@
+.feed-header {
+    display: flex;
+    margin-top: var(--m);
+}
+.feed-header .feed-actions {
+    margin-left: auto;
+}
+.feed-header .feed-actions a {
+    margin-left: var(--s);
+}
+.feed-header .feed-actions a:not(.active) {
+    opacity: 0.4;
+}
 .notes hr {
-    margin-top: var(--smaller);
+    margin-top: var(--s);
 }
 .note-wrapper {
     width: 100%;
     height: inherit;
-    border-radius: var(--smaller) var(--smaller) 0 0;
+    border-radius: var(--s) var(--s) 0 0;
 }
 .note-sidebar {
-    padding: var(--smaller);
+    padding: var(--s);
 }
 .note-sidebar * {
     display: flex;
@@ -19,15 +32,15 @@
 .note-sidebar .avatar {
     max-width: 4rem;
     max-height: 4rem;
-    min-width: var(--big);
+    min-width: var(--xxl);
     width: 100%;
     height: auto;
     background: unset;
-    margin-bottom: var(--smaller);
+    margin-bottom: var(--s);
     border-radius: 2px;
 }
 .h-entry:not(:first-child) {
-    margin-top: var(--smaller);
+    margin-top: var(--s);
 }
 .h-entry:not(embed) {
     border: 2px solid var(--border) !important;
@@ -39,17 +52,17 @@
 .embed {
     display: flex;
     flex-wrap: wrap;
-    padding: var(--smaller);
+    padding: var(--s);
     border: unset;
 }
 .embed header {
     width: 100%;
-    margin-bottom: var(--small);
+    margin-bottom: var(--m);
 }
 .embed img {
     width: 25%;
     height: auto;
-    margin-right: var(--smaller);
+    margin-right: var(--s);
 }
 .embed .p-summary {
     width: 60%;
@@ -64,8 +77,8 @@
     max-height: min-content;
 }
 .embed .p-summary hr {
-    margin-top: var(--smaller);
-    margin-bottom: var(--smaller);
+    margin-top: var(--s);
+    margin-bottom: var(--s);
 }
 .h-entry .embed[class*="p-"] {
     padding: unset;
@@ -75,41 +88,39 @@
 }
 .h-entry {
     display: flex;
-    border-radius: var(--smaller);
+    border-radius: var(--s);
     background-color: var(--background-card) !important;
 }
 .h-entry figure {
     margin: unset;
     object-fit: cover;
-    padding: var(--smaller);
+    padding: var(--s);
     background: var(--gradient);
-    border-radius: var(--smaller);
+    border-radius: var(--s);
 }
 .h-entry .replies {
-    margin-bottom: var(--small);
-    padding: var(--smaller) var(--smaller) 0 0;
-    padding-left: var(--small);
+    margin-bottom: var(--m);
+    padding: var(--s) var(--s) 0 0;
+    padding-left: var(--m);
     border-left: 2px solid var(--border);
 }
 .note-info,
 embed header {
     display: flex;
     align-items: center;
-    max-height: var(--big);
+    max-height: var(--xxl);
     border-bottom: unset;
-    border-radius: var(--smaller) var(--smaller) 0 0;
-    padding: 4px var(--smaller) 4px 0;
+    border-radius: var(--s) var(--s) 0 0;
+    padding: 4px var(--s) 4px 0;
 }
 .note-info {
     background: var(--gradient-backwards);
 }
 .note-url {
     opacity: 0.5;
-    font-size: 0.9em;
-    margin-left: var(--smaller);
+    margin-left: var(--s);
 }
 embed header {
-    font-size: var(--small);
     justify-content: space-between;
 }
 .note-author-url {
@@ -149,16 +160,15 @@ embed header {
     position: absolute;
     right: 0;
     flex-direction: column;
-    padding: var(--smaller);
+    padding: var(--s);
     border: 2px solid var(--border);
-    border-radius: var(--smaller);
+    border-radius: var(--s);
     background: var(--background-card);
     box-shadow: var(--shadow);
-    font-size: var(--default);
     width: max-content;
 }
 .note-actions-extra-details[open] > summary + * > li:not(:last-of-type) {
-    margin-bottom: var(--smaller);
+    margin-bottom: var(--s);
 }
 .note-actions-set {
     opacity: 1 !important;
@@ -168,9 +178,9 @@ embed header {
     mask-repeat: no-repeat !important;
     mask-size: cover !important;
     display: inline-block;
-    margin-left: var(--smaller);
-    width: var(--default);
-    height: var(--default);
+    margin-left: var(--s);
+    width: var(--unit);
+    height: var(--unit);
     background-color: var(--foreground);
     opacity: 0.33;
 }
@@ -209,13 +219,8 @@ embed header {
 .note-content {
     display: flex;
     flex-direction: column;
-    border-radius: 0 0 var(--smaller) var(--smaller);
-    padding-top: var(--smaller);
-    padding-bottom: var(--smaller);
-    padding-right: var(--smaller);
-}
-.note-text {
-    margin-bottom: var(--smaller);
+    border-radius: 0 0 var(--s) var(--s);
+    padding-right: var(--s);
 }
 .note-text a {
     text-decoration: underline !important;
@@ -228,28 +233,28 @@ embed header {
     display: flex;
     flex-wrap: wrap;
     max-width: max-content;
-    border-radius: var(--smaller);
-    padding: var(--smaller);
+    border-radius: var(--s);
+    padding: var(--s);
     align-self:flex-start;
     background-color: var(--background-card) !important;
 }
 .note-attachments-unit:not(:only-child) {
-    margin-right: var(--smaller);
+    margin-right: var(--s);
 }
 .note-attachments-unit > figure figcaption {
     display: flex;
     word-break: break-all;
-    margin-bottom: var(--smaller);
+    margin-bottom: var(--s);
 }
 .note-complementary {
     border-left: 2px solid var(--accent);
-    border-end-start-radius: var(--smaller);
-    border-end-end-radius: var(--smaller);
-    padding-left: var(--smaller);
+    border-end-start-radius: var(--s);
+    border-end-end-radius: var(--s);
+    padding-left: var(--s);
     padding-top: 5px;
     padding-bottom: 5px;
-    margin-bottom: var(--smaller);
-    margin-right: var(--smaller);
+    margin-bottom: var(--s);
+    margin-right: var(--s);
     background: var(--gradient) !important;
 }
 .note-complementary a {
@@ -260,7 +265,6 @@ embed header {
     float: right;
     padding: 6px 12px;
     background: var(--gradient-backwards);
-    font-size: var(--default);
     color: var(--foreground);
-    border-radius: 0 0 var(--smaller) 0;
+    border-radius: 0 0 var(--s) 0;
 }

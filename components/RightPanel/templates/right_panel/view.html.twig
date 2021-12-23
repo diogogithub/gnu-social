@@ -1,6 +1,6 @@
 {% block rightpanel %}
     <label class="panel-right-icon" for="panel-right-toggle" aria-hidden="true"
-           tabindex="-1">{{ icon('notes', 'icon icon-right') | raw }}</label>
+           tabindex="-1">{{ icon('chevron-left', 'icon icon-right') | raw }}</label>
     <input type="checkbox" id="panel-right-toggle" aria-hidden="true" tabindex="-1">
 
     <div class="header-panel section-panel-right">
@@ -29,9 +29,9 @@
 
                                 <details class="section-widget-subtitle-details">
                                     <summary class="section-subtitle-summary">
-                                        <h3>
+                                        <strong>
                                             {{ "Additional options" | trans }}
-                                        </h3>
+                                        </strong>
                                         {{ icon('arrow-down', 'icon icon-details-close') | raw }}
                                     </summary>
                                     {{ form_row(blocks['post_form'].language) }}

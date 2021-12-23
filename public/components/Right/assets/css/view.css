@@ -11,7 +11,7 @@
 }
 
 .panel-right-icon {
-    margin-left: var(--small) !important;
+    margin-left: var(--m) !important;
     cursor: pointer !important;
     border: 2px solid transparent;
 }

@@ -8,7 +8,7 @@
 
 {% block body %}
     {% if note is defined or actor is defined %}
-        <div class="section-widget-padded">
+        <div class="section-padding">
             {% if note is defined and note is not null %}
                 {{ noteView.macro_note(note, {}) }}
             {% elseif actor is defined and actor is not null  %}

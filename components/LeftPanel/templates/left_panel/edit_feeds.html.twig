@@ -6,7 +6,7 @@
 {% endblock stylesheets %}
 
 {% block body %}
-  <div class="section-widget section-widget-padded">
+  <div class="section-widget">
     <form class="section-form" action="{{ path('edit_feeds') }}" method="post">
 
       <fieldset>
@@ -16,7 +16,7 @@
         {{ form_start(edit_feeds) }}
         {% for child in edit_feeds.children %}
           {% if 'row_url' in child.vars.block_prefixes %}
-            <div class="section-widget section-widget-padded">
+            <div class="section-widget section-padding">
             {{ form_label(child) }}
             {{ form_widget(child) }}
           {% elseif 'row_title' in child.vars.block_prefixes %}

@@ -9,7 +9,7 @@ html {
     background-color: var(--background-hard);
     background-attachment: fixed;
     font-family: 'Open Sans',sans-serif;
-    font-size: var(--default);
+    font-size: var(--unit);
     display: flex;
     flex-direction: column;
 }
@@ -84,54 +84,53 @@ details > summary::-webkit-details-marker {
 [hidden] {
     display: none;
 }
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    all: unset;
-    display: block;
-    font-family: 'Poppins',sans-serif;
-}
-h1 {
-    font-size: var(--medium);
-    font-weight: 700;
-    margin-bottom: 16.2px;
-}
-h2 {
-    font-size: var(--small);
-    font-weight: 600;
-    margin-bottom: 13px;
-}
-h3 {
-    font-size: var(--default);
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-h4,
-h5 {
-    font-size: var(--default);
+
+html {font-size: 100%;} /*16px*/
+
+body {
+    font-family: 'Open Sans', sans-serif;
     font-weight: 400;
-    margin-bottom: 6.1px;
+    line-height: 1.75;
 }
+
 p {
+    all: unset;
     font-family: 'Open Sans',sans-serif;
-    font-size: var(--default);
-    font-weight: 400;
-    margin: unset;
+    margin-bottom: 1rem;
 }
-p:first-line {
-    padding-left: var(--default);
+
+h1, h2, h3, h4, h5, legend {
+    margin: 3rem 0 1.38rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    line-height: 1.3;
 }
-p:first-line {
+h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, legend:first-child {
+    margin-top: initial;
+}
+
+h1 {
     margin-top: 0;
-    margin-bottom: 10px;
+    font-size: 1.383rem;
 }
-p:not(:first-line) {
-    margin-top: 10px;
-    margin-bottom: 10px;
+
+h2 {font-size: 1.296rem;}
+
+h3 {font-size: 1.215rem;}
+
+h4 {font-size: 1.138rem;}
+
+h5 {font-size: 1.067rem;}
+
+legend {
+    font-size: 1.296em;
 }
+
+small, .text_small {
+    font-family: 'Open Sans',sans-serif;
+    font-size: 0.937rem;
+}
+
 input[type=password],
 input[type=text],
 textarea {

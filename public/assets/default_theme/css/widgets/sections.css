@@ -3,9 +3,9 @@
     flex-direction: column;
     flex-wrap: wrap;
     font-family: 'Open Sans',sans-serif;
-    margin-bottom: var(--smaller);
-    border-radius: var(--smaller);
-    padding: var(--smaller);
+    margin-bottom: var(--s);
+    border-radius: var(--s);
+    padding: var(--s);
     background: var(--gradient) !important;
     box-shadow: var(--shadow);
 }
@@ -18,7 +18,7 @@
     flex-direction: column;
 }
 .profile-info-nickname {
-    font-size: var(--small);
+    font-size: var(--m);
 }
 .profile-info-tags {
     margin: unset;
@@ -27,15 +27,16 @@
     margin-right: 5px;
 }
 .profile-info-stats {
-    margin-top: var(--smaller);
+    margin-top: var(--s);
 }
-.profile-info-bio {
+.profile-info-bio,
+.profile-info-nickname {
     word-break: break-all;
 }
 .profile-avatar {
     max-width: 4rem;
     max-height: 4rem;
-    min-width: var(--big);
+    min-width: var(--xxl);
     width: 100%;
     height: auto;
     margin-right: 5px;
@@ -44,30 +45,28 @@
 .section-widget {
     display: flex;
     flex-direction: column;
-    border-radius: var(--smaller);
-    margin-bottom: var(--small);
+    border-radius: var(--s);
+    margin-bottom: var(--m);
     background-color: var(--background-card) !important;
     box-shadow: var(--shadow);
     border: 2px solid var(--border) !important;
 }
 .section-widget hr {
-    margin-bottom: var(--smaller);
+    margin-bottom: var(--s);
 }
-.section-widget-padded {
-    padding: var(--smaller);
+.section-padding {
+    padding: var(--s);
 }
 .section-widget-paging {
     display: block;
-    margin-top: var(--smaller);
+    margin-top: var(--s);
     margin-left: auto;
 }
-.section-title {
-    font-size: var(--small);
-    font-weight: 700;
-    margin: 0;
+.section-widget-title {
+    margin-left: unset;
 }
 .section-widget-button-like {
-    border-radius: var(--smaller);
+    border-radius: var(--s);
     padding: 6px 10px;
     margin-top: 6px;
     cursor: pointer;
@@ -76,24 +75,22 @@
     font-family: 'Open Sans',sans-serif;
     font-weight: 700;
 }
-.section-widget-subtitle-details :not(summary,svg,h3) {
-    border-radius: var(--smaller);
+.section-widget-subtitle-details :not(summary,svg,strong) {
+    border-radius: var(--s);
     background: var(--gradient);
     padding: 6px 10px;
 }
 .section-widget-title-details summary {
-    font-size: var(--small);
     font-weight: 700;
 }
 .section-widget-subtitle-details summary {
     border: 2px solid var(--border);
-    font-size: var(--default);
-    font-weight: 700;
-    margin-bottom: var(--smaller);
+    margin-bottom: var(--s);
 }
 .section-widget-title-details summary,
 .section-widget-subtitle-details summary {
-    border-radius: var(--smaller);
+    align-items: center;
+    border-radius: var(--s);
     padding: 6px 10px;
     background: var(--gradient) !important;
 }
@@ -111,9 +108,13 @@
 .section-title-summary {
     display: flex;
 }
-.section-subtitle-summary h3,
+.section-subtitle-summary strong,
 .section-title-summary h2 {
     margin-right: auto;
+}
+.section-subtitle-summary a,
+.section-title-summary a {
+    line-height: initial;
 }
 .section-subtitle-summary svg:last-child,
 .section-title-summary svg:last-child {
@@ -124,19 +125,18 @@
     flex-direction: column;
     max-width: 100%;
     width: 100%;
-    padding: var(--smaller);
+    padding: var(--s);
 }
 .section-form-legend {
     margin-top: unset;
-    margin-bottom: 10px;
+    margin-bottom: var(--s);
     font-weight: bold;
-    font-size: var(--medium);
 }
 div[class^="mb-"] {
     display: flex;
     flex-direction: column;
     flex-basis: border-box;
-    margin-bottom: var(--smaller);
+    margin-bottom: var(--s);
 }
 div[class^="mb-"]:last-of-type {
     margin-bottom: unset;
@@ -149,10 +149,9 @@ div[class^="mb-"] textarea {
 .alert-danger {
     display: inline-block;
     font-style: italic;
-    font-size: 1rem;
     border: solid 2px #ff6347;
     background-color: #FF634733;
-    border-radius: var(--smaller);
+    border-radius: var(--s);
     padding: 2px 6px;
     margin-top: 6px;
     margin-bottom: 6px;

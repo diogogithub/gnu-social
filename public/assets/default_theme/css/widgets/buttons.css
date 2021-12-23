@@ -31,7 +31,7 @@ input[type=file] {
     font-family: 'Open Sans',sans-serif !important;
     font-weight: normal !important;
     padding: unset !important;
-    border-radius: var(--smaller);
+    border-radius: var(--s);
     background: var(--gradient) !important;
 }
 input[type=radio] {
@@ -53,18 +53,18 @@ input[type=checkbox]:checked {
 }
 input[type=color] {
     appearance: none;
-    width: var(--big);
-    height: var(--big);
+    width: var(--xxl);
+    height: var(--xxl);
     background-color: transparent;
     border: none;
     cursor: pointer;
 }
 input[type=color]::-webkit-color-swatch {
-    border-radius: var(--smaller);
+    border-radius: var(--s);
     border: none;
 }
 input[type=color]::-moz-color-swatch {
-    border-radius: var(--smaller);
+    border-radius: var(--s);
     border: none;
 }
 ::file-selector-button {
@@ -84,7 +84,7 @@ button {
     display: block !important;
     cursor: pointer !important;
     margin-left: auto !important;
-    margin-top: var(--smaller);
+    margin-top: var(--s);
 }
 button,
 label {
@@ -105,11 +105,18 @@ textarea {
     display: inline-flex;
     overflow: hidden;
     font-size: inherit;
+    line-height: initial !important;
     padding: 6px 8px !important;
-    border-radius: var(--smaller);
+    border-radius: var(--s);
     border: 2px solid var(--border) !important;
     width: inherit;
     max-width: border-box !important;
+}
+button:not(:last-child),
+input:not(:last-child),
+select:not(:last-child),
+textarea:not(:last-child) {
+    margin-bottom: var(--s);
 }
 button,
 select,
@@ -125,7 +132,7 @@ select {
     -moz-appearance: none !important;
     cursor: pointer;
     background-repeat: no-repeat;
-    border-radius: var(--smaller);
+    border-radius: var(--s);
     max-width: 100% !important;
 }
 select[multiple] {

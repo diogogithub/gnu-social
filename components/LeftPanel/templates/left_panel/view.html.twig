@@ -7,7 +7,7 @@
         <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
         <aside class="panel-content accessibility-target">
             {% if app.user %}
-                <section class='section-widget section-widget-padded' title="{{ 'Your profile information.' | trans }}">
+                <section class='section-widget section-padding' title="{{ 'Your profile information.' | trans }}">
                     {% block profile_view %}{% include 'cards/profile/view.html.twig' with { actor: current_actor } %}{% endblock profile_view %}
                     {{ block("profile_current_actor", "cards/navigation/view.html.twig") }}
                 </section>

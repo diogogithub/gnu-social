@@ -11,7 +11,7 @@
         {{ icon('arrow-down', 'icon icon-details-open') | raw }}
       </summary>
 
-      <nav class='section-widget-padded' tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
+      <nav class='section-padding' tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
         {% if not app.user %} {# Default feeds #}
           <ul>
             <li>
@@ -55,7 +55,7 @@
 {% endblock profile_current_actor %}
 
 {% block profile_security %}
-    <section class='section-widget section-widget-padded' title="{{ 'Your profile information.' | trans }}">
+    <section class='section-widget section-padding' title="{{ 'Your profile information.' | trans }}">
         <h2 class="section-title">Account</h2>
         <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
 

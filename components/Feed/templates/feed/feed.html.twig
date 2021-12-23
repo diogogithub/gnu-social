@@ -9,9 +9,15 @@
 {% endblock stylesheets %}
 
 {% block body %}
-    {% for block in handle_event('BeforeFeed', app.request) %}
-        {{ block | raw }}
-    {% endfor %}
+    <header class="feed-header">
+        <h1>{{ page_title | trans }} {{ 'feed' | trans }}</h1>
+        <nav class="feed-actions" role=navigation>
+            {% for block in handle_event('AddFeedActions', app.request) %}
+                {{ block | raw }}
+            {% endfor %}
+        </nav>
+    </header>
+
     {# Backwards compatibility with hAtom 0.1 #}
     <main class="feed" tabindex="0" role="feed">
         <div class="h-feed hfeed notes">

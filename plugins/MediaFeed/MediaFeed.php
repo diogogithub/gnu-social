@@ -54,7 +54,7 @@ class MediaFeed extends Plugin
      *
      * @return bool hook value; true means continue processing, false means stop
      */
-    public function onBeforeFeed(Request $request, &$res): bool
+    public function onAddFeedActions(Request $request, &$res): bool
     {
         $isMediaActive = $request->get('filter-type') === 'media';
         // we need two urls: one with filter-type=media and without it.

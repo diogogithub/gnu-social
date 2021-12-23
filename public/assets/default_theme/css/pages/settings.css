@@ -1,27 +1,32 @@
 .section-settings {
+    background: var(--background-card);
     border: 2px solid var(--border);
     box-shadow: var(--shadow);
 }
 
 .section-settings,
-.section-title-settings {
-    background: var(--background-card);
+.section-settings-details {
     margin-bottom: .6rem;
     border-radius: .6rem;
     padding: .6rem;
     box-sizing: border-box;
 }
-
-.section-title-settings[open] {
+.section-settings-details {
+    border: 2px solid var(--border);
+}
+.section-settings-details-title {
+    display: block;
+}
+.section-settings-details[open] {
     border-left: 2px solid var(--foreground);
 }
 
-.section-title-settings[open] > summary:first-child {
-    margin-bottom: var(--smaller);
+.section-settings-details[open] > summary:first-child {
+    margin-bottom: var(--s);
 }
 
-.section-title-settings summary + form {
-    padding-left: var(--smaller);
+.section-settings-details summary + form {
+    padding-left: var(--s);
 }
 
 .section-settings hr {
@@ -29,24 +34,24 @@
     margin-bottom: .6rem;
 }
 
-.section-title-settings summary h3:first-letter ,.section-title-settings summary em:first-letter {
+.section-settings-details summary h3:first-letter ,.section-settings-details summary em:first-letter {
     text-transform: uppercase;
 }
 
-.section-title-settings summary:focus .icon-details-open,.section-title-settings summary:hover .icon-details-open {
+.section-settings-details summary:focus .icon-details-open,.section-settings-details summary:hover .icon-details-open {
     transition: all 200ms cubic-bezier(0,0.55,0.45,1);
 }
 
-.section-title-settings[open] svg {
+.section-settings-details[open] svg {
     transform: rotate(180deg);
     animation: fadeOut 200ms cubic-bezier(0,0.55,0.45,1);
 }
 
-.section-title-settings[open] .set-nav li:last-of-type {
+.section-settings-details[open] .set-nav li:last-of-type {
     margin-bottom: 0;
 }
 
-.section-title-settings:not([open]) svg {
+.section-settings-details:not([open]) svg {
     transform: initial;
     animation: fadeIn 200ms cubic-bezier(0,0.55,0.45,1);
 }

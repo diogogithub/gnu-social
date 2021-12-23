@@ -1,6 +1,6 @@
 .media-feed-tabs {
   border: 2px solid var(--border);
-  border-radius: var(--smaller) var(--smaller) 0 0;
+  border-radius: var(--s) var(--s) 0 0;
   border-bottom: none;
   display: flex;
 }
