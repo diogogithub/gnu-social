@@ -31,7 +31,7 @@ use App\Util\Formatting;
 
 class AttachmentShowRelated extends Plugin
 {
-    public function onAppendRightPanelBlock($vars, &$res): bool
+    public function onAppendRightPanelBlock($vars, $request, &$res): bool
     {
         if ($vars['path'] === 'attachment_show') {
             $related_notes = DB::dql('select n from attachment_to_note an '

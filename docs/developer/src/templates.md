@@ -9,7 +9,7 @@ Example
 -------
 
 ```php
-public function onAppendRightPanelBlock(array $vars, array &$res): bool
+public function onAppendRightPanelBlock(array $vars, Request $request, array &$res): bool
 {
     if ($vars['path'] == 'attachment_show') {
         $related_notes = DB::dql('select n from attachment_to_note an ' .
