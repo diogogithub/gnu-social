@@ -324,6 +324,11 @@ class Note extends Entity
         });
     }
 
+    public function getTags(): array
+    {
+        return Cache::get('note-tags-' . $this->getId(), fn () => DB::findBy('note_tag', ['note_id' => $this->getId()]));
+    }
+
     /**
      * Returns this Note's reply_to/parent.
      *

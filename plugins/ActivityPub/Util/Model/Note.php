@@ -241,18 +241,18 @@ class Note extends Model
         }
 
         $attr = [
-            '@context'      => 'https://www.w3.org/ns/activitystreams',
-            'type'          => 'Note',
-            'id'            => $object->getUrl(),
-            'published'     => $object->getCreated()->format(DateTimeInterface::RFC3339),
-            'attributedTo'  => $object->getActor()->getUri(Router::ABSOLUTE_URL),
-            'to'            => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
-            'cc'            => ['https://www.w3.org/ns/activitystreams#Public'],
-            'content'       => $object->getRendered(),
-            'attachment'    => [],
-            'tag'           => [],
-            'conversation'  => $object->getConversationUri(),
-            'directMessage' => false, // TODO: implement proper scope address
+            '@context'       => 'https://www.w3.org/ns/activitystreams',
+            'type'           => 'Note',
+            'id'             => $object->getUrl(),
+            'published'      => $object->getCreated()->format(DateTimeInterface::RFC3339),
+            'attributedTo'   => $object->getActor()->getUri(Router::ABSOLUTE_URL),
+            'to'             => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
+            'cc'             => ['https://www.w3.org/ns/activitystreams#Public'],
+            'content'        => $object->getRendered(),
+            'attachment'     => [],
+            'tag'            => [],
+            'inConversation' => $object->getConversationUri(),
+            'directMessage'  => false, // TODO: implement proper scope address
         ];
 
         // Mentions
@@ -263,6 +263,15 @@ class Note extends Model
                 'name' => '@' . $mention->getNickname() . '@' . parse_url($href, \PHP_URL_HOST),
             ];
             $attr['cc'][] = $href;
+        }
+
+        // Hashtags
+        foreach ($object->getTags() as $hashtag) {
+            $attr['tag'][] = [
+                'type' => 'Hashtag',
+                'href' => $hashtag->getUrl(type: Router::ABSOLUTE_URL),
+                'name' => "#{$hashtag->getTag()}",
+            ];
         }
 
         // Attachments

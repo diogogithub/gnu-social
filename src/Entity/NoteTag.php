@@ -123,13 +123,13 @@ class NoteTag extends Entity
         return Cache::getList(self::cacheKey($note_id), fn () => DB::dql('select nt from note_tag nt join note n with n.id = nt.note_id where n.id = :id', ['id' => $note_id]));
     }
 
-    public function getUrl(?Actor $actor = null): string
+    public function getUrl(?Actor $actor = null, int $type = Router::ABSOLUTE_PATH): string
     {
         $params = ['canon' => $this->getCanonical(), 'tag' => $this->getTag()];
         if (!\is_null($actor)) {
             $params['lang'] = $actor->getTopLanguage()->getLocale();
         }
-        return Router::url('single_note_tag', $params);
+        return Router::url(id: 'single_note_tag', args: $params, type: $type);
     }
 
     public static function schemaDef(): array

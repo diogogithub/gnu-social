@@ -74,11 +74,12 @@ class Tag extends Component
     public function onProcessNoteContent(Note $note, string $content, string $content_type, array $extra_args): bool
     {
         $matched_tags = [];
-        preg_match_all(self::TAG_REGEX, $content, $matched_tags, \PREG_SET_ORDER);
+        // XXX: We remove <span> because when content is in html the tag comes as #<span>hashtag</span>
+        preg_match_all(self::TAG_REGEX, str_replace('<span>', '', $content), $matched_tags, \PREG_SET_ORDER);
         $matched_tags = array_unique(F\map($matched_tags, fn ($m) => $m[2]));
         foreach ($matched_tags as $match) {
             $tag           = self::ensureValid($match);
-            $canonical_tag = self::canonicalTag($tag, Language::getById($note->getLanguageId())->getLocale());
+            $canonical_tag = self::canonicalTag($tag, \is_null($lang_id = $note->getLanguageId()) ? null : Language::getById($lang_id)->getLocale());
             DB::persist(NoteTag::create([
                 'tag'           => $tag,
                 'canonical'     => $canonical_tag,
