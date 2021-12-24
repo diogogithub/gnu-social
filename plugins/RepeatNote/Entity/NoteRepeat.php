@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 
@@ -78,30 +78,30 @@ class NoteRepeat extends Entity
 
     public static function getNoteRepeats(Note $note): array
     {
-        return DB::sql(
+        return DB::dql(
             <<<'EOF'
-                select {select} from note n
-                inner join note_repeat nr
-                on nr.note_id = n.id
-                where repeat_of = :note_id
-                order by n.created DESC
+                select n from note as n
+                inner join note_repeat as nr
+                with nr.note_id = n.id
+                where nr.repeat_of = :note_id
+                order by n.created DESC, n.id DESC
                 EOF,
-            ['note_id' => $note->getId()]
+            ['note_id' => $note->getId()],
         );
     }
 
     public static function schemaDef(): array
     {
         return [
-            'name' => 'note_repeat',
+            'name'   => 'note_repeat',
             'fields' => [
-                'note_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'The id of the repeat itself'],
-                'actor_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'description' => 'Who made this repeat'],
+                'note_id'   => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'The id of the repeat itself'],
+                'actor_id'  => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'description' => 'Who made this repeat'],
                 'repeat_of' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'Note this is a repeat of'],
             ],
-            'primary key' => ['note_id'],
+            'primary key'  => ['note_id'],
             'foreign keys' => [
-                'note_id_to_id_fkey' => ['note', ['note_id' => 'id']],
+                'note_id_to_id_fkey'     => ['note', ['note_id' => 'id']],
                 'note_repeat_of_id_fkey' => ['note', ['repeat_of' => 'id']],
                 'actor_reply_to_id_fkey' => ['actor', ['actor_id' => 'id']],
             ],
