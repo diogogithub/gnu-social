@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -48,6 +49,8 @@ use App\Util\Nickname;
 use Component\FreeNetwork\Entity\FreeNetworkActorProtocol;
 use Component\FreeNetwork\Util\Discovery;
 use Exception;
+use InvalidArgumentException;
+use const PHP_URL_HOST;
 use Plugin\ActivityPub\Controller\Inbox;
 use Plugin\ActivityPub\Entity\ActivitypubActivity;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
@@ -59,6 +62,7 @@ use Plugin\ActivityPub\Util\Response\NoteResponse;
 use Plugin\ActivityPub\Util\TypeResponse;
 use Plugin\ActivityPub\Util\Validator\contentLangModelValidator;
 use Plugin\ActivityPub\Util\Validator\manuallyApprovesFollowersModelValidator;
+use const PREG_SET_ORDER;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -66,11 +70,6 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use XML_XRD;
 use XML_XRD_Element_Link;
-use function count;
-use function is_null;
-use const PHP_URL_HOST;
-use const PREG_SET_ORDER;
-use InvalidArgumentException;
 
 /**
  * Adds ActivityPub support to GNU social when enabled
@@ -95,7 +94,7 @@ class ActivityPub extends Plugin
         'as:Public',
     ];
     public const HTTP_CLIENT_HEADERS = [
-        'Accept' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+        'Accept'     => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
         'User-Agent' => 'GNUsocialBot ' . GNUSOCIAL_VERSION . ' - ' . GNUSOCIAL_PROJECT_URL,
     ];
 
@@ -135,11 +134,6 @@ class ActivityPub extends Plugin
 
     /**
      * Fill Actor->getUrl() calls with correct URL coming from ActivityPub
-     *
-     * @param Actor $actor
-     * @param int $type
-     * @param string|null $url
-     * @return bool
      */
     public function onStartGetActorUri(Actor $actor, int $type, ?string &$url): bool
     {
@@ -147,7 +141,7 @@ class ActivityPub extends Plugin
             // Is remote?
             !$actor->getIsLocal()
             // Is in ActivityPub?
-            && !is_null($ap_actor = ActivitypubActor::getByPK(['actor_id' => $actor->getId()]))
+            && !\is_null($ap_actor = ActivitypubActor::getByPK(['actor_id' => $actor->getId()]))
             // We can only provide a full URL (anything else wouldn't make sense)
             && $type === Router::ABSOLUTE_URL
         ) {
@@ -165,7 +159,7 @@ class ActivityPub extends Plugin
      */
     public function onControllerResponseInFormat(string $route, array $accept_header, array $vars, ?TypeResponse &$response = null): bool
     {
-        if (count(array_intersect(self::$accept_headers, $accept_header)) === 0) {
+        if (\count(array_intersect(self::$accept_headers, $accept_header)) === 0) {
             return Event::next;
         }
         switch ($route) {
@@ -186,10 +180,6 @@ class ActivityPub extends Plugin
 
     /**
      * Add ActivityStreams 2 Extensions
-     *
-     * @param string $type_name
-     * @param array $validators
-     * @return bool
      */
     public function onActivityPubValidateActivityStreamsTwoData(string $type_name, array &$validators): bool
     {
@@ -208,9 +198,6 @@ class ActivityPub extends Plugin
 
     /**
      * Let FreeNetwork Component know we exist and which class to use to call the freeNetworkDistribute method
-     *
-     * @param array $protocols
-     * @return bool
      */
     public function onAddFreeNetworkProtocol(array &$protocols): bool
     {
@@ -221,12 +208,6 @@ class ActivityPub extends Plugin
     /**
      * The FreeNetwork component will call this function to distribute this instance's activities
      *
-     * @param Actor $sender
-     * @param Activity $activity
-     * @param array $targets
-     * @param string|null $reason
-     * @param array $delivered
-     * @return bool
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
@@ -237,7 +218,7 @@ class ActivityPub extends Plugin
         $to_addr = [];
         foreach ($targets as $actor) {
             if (FreeNetworkActorProtocol::canIActor('activitypub', $actor->getId())) {
-                if (is_null($ap_target = ActivitypubActor::getByPK(['actor_id' => $actor->getId()]))) {
+                if (\is_null($ap_target = ActivitypubActor::getByPK(['actor_id' => $actor->getId()]))) {
                     continue;
                 }
                 $to_addr[$ap_target->getInboxSharedUri() ?? $ap_target->getInboxUri()][] = $actor;
@@ -257,7 +238,7 @@ class ActivityPub extends Plugin
                 if (!($status_code === 200 || $status_code === 202 || $status_code === 409)) {
                     $res_body = json_decode($res->getContent(), true);
                     $errors[] = $res_body['error'] ?? 'An unknown error occurred.';
-                    //$to_failed[$inbox] = $activity;
+                //$to_failed[$inbox] = $activity;
                 } else {
                     array_push($delivered, ...$dummy);
                     foreach ($dummy as $actor) {
@@ -285,11 +266,6 @@ class ActivityPub extends Plugin
     /**
      * Internal tool to sign and send activities out
      *
-     * @param Actor $sender
-     * @param string $json_activity
-     * @param string $inbox
-     * @param string $method
-     * @return ResponseInterface
      * @throws Exception
      */
     private static function postman(Actor $sender, string $json_activity, string $inbox, string $method = 'post'): ResponseInterface
@@ -308,10 +284,6 @@ class ActivityPub extends Plugin
 
     /**
      * Add activity+json mimetype to WebFinger
-     *
-     * @param XML_XRD $xrd
-     * @param Actor $object
-     * @return bool
      */
     public function onEndWebFingerProfileLinks(XML_XRD $xrd, Actor $object): bool
     {
@@ -328,10 +300,6 @@ class ActivityPub extends Plugin
 
     /**
      * When FreeNetwork component asks us to help with identifying Actors from XRDs
-     *
-     * @param XML_XRD $xrd
-     * @param Actor|null $actor
-     * @return bool
      */
     public function onFreeNetworkFoundXrd(XML_XRD $xrd, ?Actor &$actor = null): bool
     {
@@ -341,7 +309,7 @@ class ActivityPub extends Plugin
                 $addr = Discovery::normalize($alias);
             }
         }
-        if (is_null($addr)) {
+        if (\is_null($addr)) {
             return Event::next;
         } else {
             if (!FreeNetworkActorProtocol::canIAddr('activitypub', $addr)) {
@@ -350,7 +318,7 @@ class ActivityPub extends Plugin
         }
         try {
             $ap_actor = ActivitypubActor::fromXrd($addr, $xrd);
-            $actor = Actor::getById($ap_actor->getActorId());
+            $actor    = Actor::getById($ap_actor->getActorId());
             FreeNetworkActorProtocol::protocolSucceeded('activitypub', $actor, $addr);
             return Event::stop;
         } catch (Exception $e) {
@@ -363,17 +331,13 @@ class ActivityPub extends Plugin
 
     /**
      * When FreeNetwork component asks us to help with identifying Actors from URIs
-     *
-     * @param string $target
-     * @param Actor|null $actor
-     * @return bool
      */
     public function onFreeNetworkFindMentions(string $target, ?Actor &$actor = null): bool
     {
         try {
             if (FreeNetworkActorProtocol::canIAddr('activitypub', $addr = Discovery::normalize($target))) {
                 $ap_actor = ActivitypubActor::getByAddr($addr);
-                $actor = Actor::getById($ap_actor->getActorId());
+                $actor    = Actor::getById($ap_actor->getActorId());
                 FreeNetworkActorProtocol::protocolSucceeded('activitypub', $actor->getId(), $addr);
                 return Event::stop;
             } else {
@@ -386,13 +350,12 @@ class ActivityPub extends Plugin
     }
 
     /**
-     * @param mixed $object
      * @return string got from URI
      */
     public static function getUriByObject(mixed $object): string
     {
         if ($object instanceof Note) {
-            if($object->getIsLocal()) {
+            if ($object->getIsLocal()) {
                 return $object->getUrl();
             } else {
                 // Try known remote objects
@@ -401,29 +364,28 @@ class ActivityPub extends Plugin
                     return $known_object->getObjectUri();
                 }
             }
-        } else if ($object instanceof Activity) {
-			// Try known remote activities
-			$known_activity = ActivitypubActivity::getByPK(['activity_id' => $object->getId()]);
-			if ($known_activity instanceof ActivitypubActivity) {
-				return $known_activity->getActivityUri();
-			} else {
+        } elseif ($object instanceof Activity) {
+            // Try known remote activities
+            $known_activity = ActivitypubActivity::getByPK(['activity_id' => $object->getId()]);
+            if ($known_activity instanceof ActivitypubActivity) {
+                return $known_activity->getActivityUri();
+            } else {
                 return Router::url('activity_view', ['id' => $object->getId()], Router::ABSOLUTE_URL);
             }
-		}
-        throw new InvalidArgumentException('ActivityPub::getUriByObject found a limitation with: '.var_export($object, true));
+        }
+        throw new InvalidArgumentException('ActivityPub::getUriByObject found a limitation with: ' . var_export($object, true));
     }
 
     /**
      * Get a Note from ActivityPub URI, if it doesn't exist, attempt to fetch it
      * This should only be necessary internally.
      *
-     * @param string $resource
-     * @param bool $try_online
-     * @return null|Note|mixed got from URI
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
+     *
+     * @return null|mixed|Note got from URI
      */
     public static function getObjectByUri(string $resource, bool $try_online = true)
     {
@@ -445,7 +407,7 @@ class ActivityPub extends Plugin
             $resource_parts = parse_url($resource);
             // TODO: Use URLMatcher
             if ($resource_parts['host'] === $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
-                $local_note = DB::find('note', ['url' => $resource]);
+                $local_note = DB::findOneBy('note', ['url' => $resource]);
                 if ($local_note instanceof Note) {
                     return $local_note;
                 }
@@ -454,14 +416,14 @@ class ActivityPub extends Plugin
 
         // Try remote
         if (!$try_online) {
-            return null;
+            return;
         }
 
-        $response = HTTPClient::get($resource, ['headers' => ActivityPub::HTTP_CLIENT_HEADERS]);
+        $response = HTTPClient::get($resource, ['headers' => self::HTTP_CLIENT_HEADERS]);
         // If it was deleted
         if ($response->getStatusCode() == 410) {
             //$obj = Type::create('Tombstone', ['id' => $resource]);
-            return null;
+            return;
         } elseif (!HTTPClient::statusCodeIsOkay($response)) { // If it is unavailable
             throw new Exception('Non Ok Status Code for given Object id.');
         } else {
@@ -473,9 +435,9 @@ class ActivityPub extends Plugin
      * Get an Actor from ActivityPub URI, if it doesn't exist, attempt to fetch it
      * This should only be necessary internally.
      *
-     * @param string $resource
-     * @return Actor got from URI
      * @throws NoSuchActorException
+     *
+     * @return Actor got from URI
      */
     public static function getActorByUri(string $resource): Actor
     {
@@ -493,7 +455,7 @@ class ActivityPub extends Plugin
                 if (preg_match_all($renick, $str, $matches, PREG_SET_ORDER, 0) === 1) {
                     return LocalUser::getByPK(['nickname' => $matches[0][1]])->getActor();
                 } elseif (preg_match_all($reuri, $str, $matches, PREG_SET_ORDER, 0) === 1) {
-                    return Actor::getById((int)$matches[0][1]);
+                    return Actor::getById((int) $matches[0][1]);
                 }
             }
         }

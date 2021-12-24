@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -33,6 +34,7 @@ namespace Plugin\ActivityPub\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
 use App\Entity\Actor;
@@ -40,15 +42,13 @@ use App\Util\Exception\ClientException;
 use Component\FreeNetwork\Entity\FreeNetworkActorProtocol;
 use Component\FreeNetwork\Util\Discovery;
 use Exception;
+use const PHP_URL_HOST;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
 use Plugin\ActivityPub\Entity\ActivitypubRsa;
 use Plugin\ActivityPub\Util\Explorer;
 use Plugin\ActivityPub\Util\HTTPSignature;
 use Plugin\ActivityPub\Util\Model;
 use Plugin\ActivityPub\Util\TypeResponse;
-use function App\Core\I18n\_m;
-use function is_null;
-use const PHP_URL_HOST;
 
 /**
  * ActivityPub Inbox Handler
@@ -69,7 +69,7 @@ class Inbox extends Controller
         };
         $path = Router::url('activitypub_inbox', type: Router::ABSOLUTE_PATH);
 
-        if (!is_null($gsactor_id)) {
+        if (!\is_null($gsactor_id)) {
             try {
                 $user = DB::findOneBy('local_user', ['id' => $gsactor_id]);
                 $path = Router::url('activitypub_actor_inbox', ['gsactor_id' => $user->getId()], type: Router::ABSOLUTE_PATH);
@@ -79,8 +79,8 @@ class Inbox extends Controller
         }
 
         Log::debug('ActivityPub Inbox: Received a POST request.');
-        $body = (string)$this->request->getContent();
-        Log::debug('ActivityPub Inbox: Request Body content: '.$body);
+        $body = (string) $this->request->getContent();
+        Log::debug('ActivityPub Inbox: Request Body content: ' . $body);
         $type = Model::jsonToType($body);
 
         if ($type->has('actor') === false) {
@@ -91,7 +91,7 @@ class Inbox extends Controller
             $resource_parts = parse_url($type->get('actor'));
             if ($resource_parts['host'] !== $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
                 $ap_actor = ActivitypubActor::fromUri($type->get('actor'));
-                $actor = Actor::getById($ap_actor->getActorId());
+                $actor    = Actor::getById($ap_actor->getActorId());
                 DB::flush();
             } else {
                 throw new Exception('Only remote actors can use this endpoint.');
@@ -101,11 +101,11 @@ class Inbox extends Controller
             return $error('Invalid actor.', $e);
         }
 
-        $activitypub_rsa = ActivitypubRsa::getByActor($actor);
+        $activitypub_rsa  = ActivitypubRsa::getByActor($actor);
         $actor_public_key = $activitypub_rsa->getPublicKey();
 
         $headers = $this->request->headers->all();
-        Log::debug('ActivityPub Inbox: Request Headers: '.var_export($headers, true));
+        Log::debug('ActivityPub Inbox: Request Headers: ' . var_export($headers, true));
         // Flattify headers
         foreach ($headers as $key => $val) {
             $headers[$key] = $val[0];
@@ -121,8 +121,8 @@ class Inbox extends Controller
         $signatureData = HTTPSignature::parseSignatureHeader($headers['signature']);
         Log::debug('ActivityPub Inbox: HTTP Signature Data: ' . print_r($signatureData, true));
         if (isset($signatureData['error'])) {
-            Log::debug('ActivityPub Inbox: HTTP Signature: ' . json_encode($signatureData, JSON_PRETTY_PRINT));
-            return $error(json_encode($signatureData, JSON_PRETTY_PRINT));
+            Log::debug('ActivityPub Inbox: HTTP Signature: ' . json_encode($signatureData, \JSON_PRETTY_PRINT));
+            return $error(json_encode($signatureData, \JSON_PRETTY_PRINT));
         }
 
         [$verified, /*$headers*/] = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
@@ -131,7 +131,7 @@ class Inbox extends Controller
         if ($verified !== 1) {
             try {
                 $res = Explorer::get_remote_user_activity($ap_actor->getUri());
-                if (is_null($res)) {
+                if (\is_null($res)) {
                     return $error('Invalid remote actor (null response).');
                 }
             } catch (Exception $e) {
@@ -153,7 +153,7 @@ class Inbox extends Controller
         }
 
         // HTTP signature checked out, make sure the "actor" of the activity matches that of the signature
-        Log::debug('ActivityPub Inbox: HTTP Signature: Authorized request. Will now start the inbox handler.');
+        Log::debug('ActivityPub Inbox: HTTP Signature: Authorised request. Will now start the inbox handler.');
 
         // TODO: Check if Actor has authority over payload
 
@@ -162,7 +162,7 @@ class Inbox extends Controller
         FreeNetworkActorProtocol::protocolSucceeded(
             'activitypub',
             $ap_actor->getActorId(),
-            Discovery::normalize($actor->getNickname() . '@' . parse_url($ap_actor->getInboxUri(), PHP_URL_HOST))
+            Discovery::normalize($actor->getNickname() . '@' . parse_url($ap_actor->getInboxUri(), PHP_URL_HOST)),
         );
         DB::flush();
         dd($ap_act, $act = $ap_act->getActivity(), $act->getActor(), $act->getObject());
