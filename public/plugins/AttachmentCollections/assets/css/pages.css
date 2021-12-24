@@ -1,0 +1,73 @@
+.attachment-collection-add, .attachment-collections-list {
+    padding: 10px 12px;
+}
+.attachment-collection-add > form > div {
+    display: flex;
+    align-items: flex-end;
+}
+.attachment-collection-add > form > div .mb-6 {
+    margin-right: 12px;
+}
+.attachment-collection-add > form > div button {
+    margin-top: 0px;
+    margin-bottom: var(--s);
+}
+@media only screen and (max-width:465px) {
+    .attachment-collection-add > form, .attachment-collection-add > form > div .mb-6 {
+        width: 100%;
+        margin: 0px;
+    }
+    .attachment-collection-add > form > div {
+        flex-direction: column;
+    }
+    .attachment-collection-add > form > div button {
+        margin-top: var(--s);;
+        margin-bottom: 0px;
+    }
+}
+
+:root {
+    --collections-list-quantity: 3;
+}
+.attachment-collections-list {
+    display: grid !important;
+    grid-gap: 12px;
+    grid-template-columns: repeat(var(--collections-list-quantity), 1fr);
+}
+.attachment-collections-list h3, .attachment-collections-list h2, .attachment-collections-list h1 {
+    grid-column-start: 1;
+    grid-column-end: calc(var(--collections-list-quantity) + 1);
+}
+.attachment-collections-list .attachment-collection-item {
+    border: 2px solid var(--border);
+    border-radius: var(--s);
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.attachment-collections-list .attachment-collection-item .name {
+    margin-right: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    word-break: break-word;
+    margin-right: 60px;
+}
+.attachment-collections-list .attachment-collection-item summary {
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    width: 16px;
+}
+.attachment-collections-list .attachment-collection-item details + details > summary {
+    right: 20px;
+}
+.attachment-collections-list .attachment-collection-item details {
+    margin-top: 12px;
+}
+.attachment-collections-list .attachment-collection-item details label {
+    display: none;
+}
+.attachment-collections-list .attachment-collection-item details .danger {
+    color: #cb2d2d;
+}

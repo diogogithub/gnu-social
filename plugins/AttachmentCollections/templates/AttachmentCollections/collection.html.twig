@@ -1,0 +1,26 @@
+{% extends 'stdgrid.html.twig' %}
+{% import '/cards/note/view.html.twig' as noteView %}
+
+{% block title %}{{ page_title | trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
+{% endblock stylesheets %}
+
+{% block body %}
+    <h1>{{ page_title | trans }}</h1>
+    {# Backwards compatibility with hAtom 0.1 #}
+    <main class="feed" tabindex="0" role="feed">
+        <div class="h-feed hfeed notes">
+            {% for attachment in attachments %}
+                <section class="section-widget section-padding">
+                    {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': null} only%}
+                    <a class="section-widget-button-like" href="{{ path('attachment_download', {'id': attachment.id}) }}"> {{ 'Download link' | trans }}</a>
+                </section>
+            {% else %}
+                <div id="empty-notes"><h1>{% trans %}No attachments here.{% endtrans %}</h1></div>
+            {% endfor %}
+        </div>
+    </main>
+{% endblock body %}

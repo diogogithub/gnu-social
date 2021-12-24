@@ -1,0 +1,18 @@
+<section class="section-widget section-widget-padded attachment-collections">
+    <details class="section-widget-title-details" title="Expand if you want to access more options.">
+        <summary class="section-title-summary">
+            <h2>{% trans %}Add to collection{% endtrans %}</h2>
+            {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+        </summary>
+        {{ form(add_form) }}
+        <br/>
+        <details class="section-widget-subtitle-details" title="Expand if you want to access more options.">
+            <summary class="section-subtitle-summary">
+                <h3>{% trans %}More options{% endtrans %}</h3>
+                {{ icon('arrow-down', 'icon icon-details-close') | raw }}
+            </summary>
+            {{ form(create_form) }}
+        </details>
+    </details>
+</section>
+

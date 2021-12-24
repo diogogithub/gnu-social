@@ -1,0 +1,12 @@
+.attachment-collections {
+    background-color: red;
+}
+.attachment-collections .attachment-collections-selections-options {
+    display: flex;
+    margin-top: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+.attachment-collections .attachment-collections-selections-options button {
+    margin: 0 !important;
+}
