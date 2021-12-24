@@ -31,10 +31,10 @@ use App\Util\Formatting;
 use App\Util\Functional as GSF;
 use Component\Language\Controller as C;
 use Doctrine\Common\Collections\ExpressionBuilder;
-use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use Functional as F;
+use Symfony\Component\HttpFoundation\Request;
 
 class Language extends Component
 {
@@ -46,7 +46,9 @@ class Language extends Component
 
     public function onFilterNoteList(?Actor $actor, array &$notes, Request $request)
     {
-        if (\is_null($actor)) return Event::next;
+        if (\is_null($actor)) {
+            return Event::next;
+        }
         $notes = F\select(
             $notes,
             fn (Note $n) => \in_array($n->getLanguageId(), ActorLanguage::getActorRelatedLanguagesIds($actor)),
@@ -58,7 +60,7 @@ class Language extends Component
     /**
      * Populate $note_expr or $actor_expr with an expression to match a language
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr)
     {
         $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
 

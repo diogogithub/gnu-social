@@ -74,9 +74,10 @@ class Feeds extends FeedController
     public function home(Request $request): array
     {
         $data = Feed::query(
-            query: 'from:subscribed-actors OR from:subscribed-groups',
+            query: 'note-from:subscribed',
             page: $this->int('p'),
             language: Common::actor()?->getTopLanguage()?->getLocale(),
+            actor: Common::actor(),
         );
         return [
             '_template'     => 'feed/feed.html.twig',

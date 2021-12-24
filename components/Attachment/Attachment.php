@@ -25,6 +25,7 @@ use App\Core\Cache;
 use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
+use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Formatting;
 use Component\Attachment\Controller as C;
@@ -74,7 +75,7 @@ class Attachment extends Component
     /**
      * Populate $note_expr with the criteria for looking for notes with attachments
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr)
     {
         $include_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
         if (Formatting::startsWith($term, ['note-types:', 'notes-incude:', 'note-filter:'])) {

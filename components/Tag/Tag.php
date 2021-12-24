@@ -155,7 +155,7 @@ class Tag extends Component
      *
      * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, &$note_expr, &$actor_expr): bool
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr)
     {
         $search_term       = str_contains($term, ':#') ? explode(':', $term)[1] : $term;
         $canon_search_term = self::canonicalTag($search_term, $language);
