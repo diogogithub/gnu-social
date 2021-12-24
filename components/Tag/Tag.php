@@ -73,8 +73,7 @@ class Tag extends Component
      */
     public function onProcessNoteContent(Note $note, string $content, string $content_type, array $extra_args): bool
     {
-        $matched_tags   = [];
-        $processed_tags = false;
+        $matched_tags = [];
         preg_match_all(self::TAG_REGEX, $content, $matched_tags, \PREG_SET_ORDER);
         $matched_tags = array_unique(F\map($matched_tags, fn ($m) => $m[2]));
         foreach ($matched_tags as $match) {
@@ -87,13 +86,9 @@ class Tag extends Component
                 'use_canonical' => $extra_args['tag_use_canonical'] ?? false,
             ]));
             Cache::pushList("tag-{$canonical_tag}", $note);
-            $processed_tags = true;
             foreach (self::cacheKeys($canonical_tag) as $key) {
                 Cache::delete($key);
             }
-        }
-        if ($processed_tags) {
-            DB::flush();
         }
         return Event::next;
     }
