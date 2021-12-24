@@ -163,7 +163,7 @@ class Link extends Entity
                     'url_hash' => $url_hash,
                     'mimetype' => $headers['content-type'][0] ?? null,
                 ]);
-                DB::persist($link);
+                DB::wrapInTransaction(fn () => DB::persist($link));
                 Event::handle('LinkStoredNew', [&$link]);
                 return $link;
             }
