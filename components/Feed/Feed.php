@@ -36,6 +36,12 @@ use Doctrine\ORM\QueryBuilder;
 
 class Feed extends Component
 {
+    /**
+     * Perform a high level query on notes or actors
+     *
+     * Supports a variety of query terms and is used both in feeds and
+     * in search. Uses query builders to allow for extension
+     */
     public static function query(string $query, int $page, ?string $language = null, ?Actor $actor = null): array
     {
         $note_criteria  = null;

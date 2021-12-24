@@ -44,6 +44,9 @@ class Group extends Component
         return Event::next;
     }
 
+    /**
+     * Add an <a href=group_settings> to the profile card for groups, if the current actor can access them
+     */
     public function onAppendCardProfile(array $vars, array &$res): bool
     {
         $actor = Common::actor();

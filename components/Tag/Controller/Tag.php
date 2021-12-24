@@ -86,6 +86,9 @@ class Tag extends Controller
         );
     }
 
+    /**
+     * Generic settings page for an Actor's self tags
+     */
     public static function settingsSelfTags(Request $request, E\Actor $target, string $details_id)
     {
         $actor = Common::actor();
@@ -98,7 +101,10 @@ class Tag extends Controller
         [$add_form, $existing_form] = SelfTagsForm::handleTags(
             $request,
             $actor_tags,
-            handle_new: function ($form) use ($request, $target, $details_id) {
+            handle_new: /**
+             * Handle adding tags
+             */
+            function ($form) use ($request, $target, $details_id) {
                 $data = $form->getData();
                 $tags = $data['new-tags'];
                 $language = $target->getTopLanguage()->getLocale();
@@ -117,7 +123,10 @@ class Tag extends Controller
                 Cache::delete(E\Actor::cacheKeys($target->getId(), $target->getId())['tags']);
                 throw new RedirectException($request->get('_route'), ['nickname' => $target->getNickname(), 'open' => $details_id]);
             },
-            handle_existing: function ($form, array $form_definition) use ($request, $target, $details_id) {
+            handle_existing: /**
+             * Handle changes to the existing tags
+             */
+            function ($form, array $form_definition) use ($request, $target, $details_id) {
                 $data = $form->getData();
                 $changed = false;
                 foreach (array_chunk($form_definition, 3) as $entry) {
