@@ -90,7 +90,7 @@ class Note extends Model
     {
         $handleInReplyTo = function (AbstractObject|string $type_note): ?int {
             try {
-                $parent_note = is_null($type_note->get('inReplyTo')) ? null : ActivityPub::getObjectByUri($type_note->get('inReplyTo'), try_online: true);
+                $parent_note = \is_null($type_note->get('inReplyTo')) ? null : ActivityPub::getObjectByUri($type_note->get('inReplyTo'), try_online: true);
                 if ($parent_note instanceof \App\Entity\Note) {
                     return $parent_note->getId();
                 } elseif ($parent_note instanceof Type\AbstractObject && $parent_note->get('type') === 'Note') {
@@ -201,7 +201,7 @@ class Note extends Model
         Conversation::assignLocalConversation($obj, $reply_to);
 
         // Need file and note ids for the next step
-        Event::handle('ProcessNoteContent', [$obj, $obj->getContent(), $obj->getContentType(), $process_note_content_extra_args = []]);
+        Event::handle('ProcessNoteContent', [$obj, $obj->getRendered(), $obj->getContentType(), $process_note_content_extra_args = []]);
 
         if ($processed_attachments !== []) {
             foreach ($processed_attachments as [$a, $fname]) {

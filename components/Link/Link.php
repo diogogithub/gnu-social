@@ -41,7 +41,8 @@ class Link extends Component
     {
         if (Common::config('attachments', 'process_links')) {
             $matched_urls = [];
-            preg_match_all($this->getURLRegex(), $content, $matched_urls);
+            // TODO: This solution to ignore mentions when content is in html is far from ideal
+            preg_match_all($this->getURLRegex(), preg_replace('#<a href="(.*?)" class="u-url mention">#', '', $content), $matched_urls);
             $matched_urls = array_unique($matched_urls[1]);
             foreach ($matched_urls as $match) {
                 try {
