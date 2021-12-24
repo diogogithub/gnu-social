@@ -47,7 +47,7 @@ class Feed extends Controller
      */
     public function notifications(Request $request): array
     {
-        $user  = Common::user();
+        $user  = Common::ensureLoggedIn();
         $notes = DB::dql(<<<'EOF'
             SELECT n FROM \App\Entity\Note AS n
             WHERE n.id IN (

@@ -73,6 +73,7 @@ class Feeds extends FeedController
      */
     public function home(Request $request): array
     {
+        Common::ensureLoggedIn();
         $data = Feed::query(
             query: 'note-from:subscribed',
             page: $this->int('p'),

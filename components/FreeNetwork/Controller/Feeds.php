@@ -51,6 +51,7 @@ class Feeds extends FeedController
      */
     public function network(Request $request): array
     {
+        Common::ensureLoggedIn();
         $data = Feed::query(
             query: 'note-local:false',
             page: $this->int('p'),
@@ -71,6 +72,7 @@ class Feeds extends FeedController
      */
     public function clique(Request $request): array
     {
+        Common::ensureLoggedIn();
         $notes = DB::dql(
             <<<'EOF'
                 SELECT n FROM \App\Entity\Note AS n
@@ -98,6 +100,7 @@ class Feeds extends FeedController
      */
     public function federated(Request $request): array
     {
+        Common::ensureLoggedIn();
         $data = Feed::query(
             query: '',
             page: $this->int('p'),
