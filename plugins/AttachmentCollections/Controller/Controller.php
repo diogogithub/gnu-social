@@ -45,6 +45,12 @@ class Controller extends FeedController
     {
         return self::collectionsView($request, $id, null);
     }
+    /**
+     * Generate Collections page
+     * @param int     $id       actor id
+     * @param ?string $nickname actor nickname
+     * @return array            twig template options
+     */
     public function collectionsView(Request $request, int $id, ?string $nickname): array
     {
         $collections = DB::dql(
@@ -52,6 +58,7 @@ class Controller extends FeedController
             . 'where collection.actor_id = :id',
             ['id' => $id]
         );
+        // create collection form
         $create = null;
         if (Common::user()?->getId() === $id) {
             $create = Form::create([
@@ -80,6 +87,13 @@ class Controller extends FeedController
             }
         }
 
+        // We need to inject some functions in twig,
+        // but i don't want to create an enviroment for this
+        // as twig docs suggest in https://twig.symfony.com/doc/2.x/advanced.html#functions.
+        //
+        // Instead, I'm using an anonymous class to encapsulate
+        // the functions and passing how the class to the template.
+        // It's suggested at https://stackoverflow.com/a/50364502.
         $fn = new class ($id, $nickname, $request)
         {
             private $id;
@@ -91,6 +105,10 @@ class Controller extends FeedController
                 $this->nick = $nickname;
                 $this->request = $request;
             }
+            // there's already a injected function called path,
+            // that maps to Router::url(name, args), but since
+            // I want to preserve nicknames, I think it's better
+            // to use that getUrl function
             public function getUrl($cid)
             {
                 if (\is_null($this->nick)) {
@@ -104,6 +122,11 @@ class Controller extends FeedController
                     ['nickname' => $this->nick, 'cid' => $cid]
                 );
             }
+            // There are many collections in this page and we need two
+            // forms for each one of them: one form to edit the collection's
+            // name and another to remove the collection.
+
+            // creating the edit form
             public function editForm($collection)
             {
                 $edit = Form::create([
@@ -129,6 +152,7 @@ class Controller extends FeedController
                 }
                 return $edit->createView();
             }
+            // creating the remove form
             public function rmForm($collection)
             {
                 $rm = Form::create([

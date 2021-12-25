@@ -85,6 +85,11 @@ class AttachmentCollections extends Plugin
         ]));
         return Event::next;
     }
+    /**
+     * Append Attachment Collections widget to the right panel.
+     * It's compose of two forms: one to select collections to add
+     * the current attachment to, and another to create a new collection.
+     */
     public function onAppendRightPanelBlock($vars, Request $request, &$res): bool
     {
         if ($vars['path'] !== 'attachment_show') return Event::next;
@@ -129,6 +134,8 @@ class AttachmentCollections extends Plugin
                 ],
             ]],
         ]);
+
+
         $add_form->handleRequest($request);
         if ($add_form->isSubmitted() && $add_form->isValid()) {
             $collections = $add_form->getData()['collections'];
@@ -140,7 +147,7 @@ class AttachmentCollections extends Plugin
                     . 'where entry.attachment_id = :aid and entry.collection_id in ('
                         . 'select collection.id from Plugin\AttachmentCollections\Entity\Collection collection '
                         . 'where collection.id in (:ids) '
-                        // prevent user from deleting something he doesn't own:
+                        // prevent user from deleting something (s)he doesn't own:
                         . 'and collection.actor_id = :id'
                     . ')',
                     ['aid' => $attachment_id, 'id' => $user->getId(), 'ids' => $removed]
