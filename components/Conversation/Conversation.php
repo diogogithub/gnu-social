@@ -169,4 +169,15 @@ class Conversation extends Component
 
         return Event::next;
     }
+
+    public function onPostingGetContextActor(Request $request, Actor $actor, ?Actor $context_actor)
+    {
+        $to_query = $request->get('actor_id');
+        if (!\is_null($to_query)) {
+            // Getting the actor itself
+            $context_actor = Actor::getById((int) $to_query);
+            return Event::stop;
+        }
+        return Event::next;
+    }
 }

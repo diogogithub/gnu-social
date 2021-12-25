@@ -72,4 +72,39 @@ class Group extends Component
         }
         return Event::next;
     }
+
+    /**
+     * If in a group route, get the current group
+     */
+    private function getGroupFromContext(Request $request): ?Actor
+    {
+        if (str_starts_with($request->get('_route'), 'group_actor_view_')) {
+            if (!\is_null($id = $request->get('id'))) {
+                return Actor::getById((int) $id);
+            } elseif (!\is_null($nickname = $request->get('nickname'))) {
+                return Actor::getByNickname($nickname, type: Actor::GROUP);
+            }
+        }
+        return null;
+    }
+
+    public function onPostingFillTargetChoices(Request $request, Actor $actor, array &$targets)
+    {
+        $group = $this->getGroupFromContext($request);
+        if (!\is_null($group)) {
+            $nick           = '!' . $group->getNickname();
+            $targets[$nick] = $nick;
+        }
+        return Event::next;
+    }
+
+    public function onPostingGetContextActor(Request $request, Actor $actor, ?Actor $context_actor)
+    {
+        $ctx = $this->getGroupFromContext($request);
+        if (!\is_null($ctx)) {
+            $context_actor = $ctx;
+            return Event::stop;
+        }
+        return Event::next;
+    }
 }

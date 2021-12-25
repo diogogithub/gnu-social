@@ -22,7 +22,9 @@
                         <div class="section-form">
                             <fieldset>
                                 {{ form_start(blocks['post_form']) }}
-                                {{ form_row(blocks['post_form'].to) }}
+                                {% if blocks['post_form'].in is defined %}
+                                    {{ form_row(blocks['post_form'].in) }}
+                                {% endif %}
                                 {{ form_row(blocks['post_form'].visibility) }}
                                 {{ form_row(blocks['post_form'].content) }}
                                 {{ form_row(blocks['post_form'].attachments) }}

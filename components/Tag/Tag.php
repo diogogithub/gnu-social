@@ -207,4 +207,18 @@ class Tag extends Component
         }
         return Event::next;
     }
+
+    public function onPostingFillTargetChoices(Request $request, Actor $actor, array &$targets)
+    {
+        $actor_id = $actor->getId();
+        $tags     = Cache::get(
+            "actor-circle-{$actor_id}",
+            fn () => DB::dql('select c.tag from actor_circle c where c.tagger = :tagger', ['tagger' => $actor_id]),
+        );
+        foreach ($tags as $t) {
+            $t           = '#' . $t['tag'];
+            $targets[$t] = $t;
+        }
+        return Event::next;
+    }
 }

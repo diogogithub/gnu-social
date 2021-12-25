@@ -23,7 +23,6 @@ declare(strict_types = 1);
 
 namespace Component\Posting;
 
-use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
@@ -49,6 +48,7 @@ use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\Attachment;
 use Component\Attachment\Entity\AttachmentToNote;
 use Component\Conversation\Conversation;
+use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -76,15 +76,6 @@ class Posting extends Component
 
         $actor    = $user->getActor();
         $actor_id = $user->getId();
-        $to_tags  = [];
-        $tags     = Cache::get(
-            "actor-circle-{$actor_id}",
-            fn () => DB::dql('select c.tag from App\Entity\ActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]),
-        );
-        foreach ($tags as $t) {
-            $t           = $t['tag'];
-            $to_tags[$t] = $t;
-        }
 
         $placeholder_strings = ['How are you feeling?', 'Have something to share?', 'How was your day?'];
         Event::handle('PostingPlaceHolderString', [&$placeholder_strings]);
@@ -94,32 +85,25 @@ class Posting extends Component
         Event::handle('PostingInitialContent', [&$initial_content]);
 
         $available_content_types = [
-            'Plain Text' => 'text/plain',
+            _m('Plain Text') => 'text/plain',
         ];
         Event::handle('PostingAvailableContentTypes', [&$available_content_types]);
 
-        // TODO: this needs work
-        // This is where we'd plug in the group in which the actor is posting, or whom they're replying to
-        // store local note needs to know what conversation it is
-        // Conversation adds the respective query string on route url, for groups it should be handled by an event
-        $to_query      = $request->get('actor_id');
-        $context_actor = null;
+        $in_targets = [];
+        Event::handle('PostingFillTargetChoices', [$request, $actor, &$in_targets]);
 
-        // Actor is posting in a group?
-        if (!\is_null($to_query)) {
-            // Getting the actor itself
-            $context_actor = Actor::getById((int) $to_query);
-            // Adding it to the to_tags array TODO: this is wrong
-            $to_tags[] = $context_actor->getNickname();
+        $context_actor = null;
+        Event::handle('PostingGetContextActor', [$request, $actor, &$context_actor]);
+
+        $form_params = [];
+        if (!empty($in_targets)) {
+            $form_params[] = ['in', ChoiceType::class, ['label' => _m('In:'), 'multiple' => false, 'expanded' => false, 'choices' => $in_targets]];
         }
 
-        $form_params = [
-            ['to', ChoiceType::class, ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
-            ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
-            ['content', TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]],
-            ['attachments', FileType::class, ['label' => _m('Attachments:'), 'multiple' => true, 'required' => false, 'invalid_message' => _m('Attachment not valid.')]],
-            FormFields::language($actor, $context_actor, label: _m('Note language:'), help: _m('The selected language will be federated and added as a lang attribute, preferred language can be set up in settings')),
-        ];
+        $form_params[] = ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]];
+        $form_params[] = ['content', TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]];
+        $form_params[] = ['attachments', FileType::class, ['label' => _m('Attachments:'), 'multiple' => true, 'required' => false, 'invalid_message' => _m('Attachment not valid.')]];
+        $form_params[] = FormFields::language($actor, $context_actor, label: _m('Note language:'), help: _m('The selected language will be federated and added as a lang attribute, preferred language can be set up in settings'));
 
         if (\count($available_content_types) > 1) {
             $form_params[] = ['content_type', ChoiceType::class,
@@ -156,6 +140,7 @@ class Posting extends Component
                         $content_type,
                         $data['language'],
                         $data['attachments'],
+                        target: $data['in'] ?? null,
                         process_note_content_extra_args: $extra_args,
                     );
 
@@ -193,6 +178,7 @@ class Posting extends Component
         ?string $language = null,
         array $attachments = [],
         array $processed_attachments = [],
+        ?string $target = null,
         array $process_note_content_extra_args = [],
     ) {
         $rendered = null;
@@ -253,18 +239,30 @@ class Posting extends Component
         ]);
         DB::persist($activity);
 
-        $mentioned = [];
-        foreach ($mentions as $mention) {
-            foreach ($mention['mentioned'] as $m) {
-                if (!\is_null($m)) {
-                    $mentioned[] = $m->getId();
+        if (!\is_null($target)) {
+            switch ($target[0]) {
+            case '!':
+                $mentions[] = [
+                    'mentioned' => [Actor::getByNickname(mb_substr($target, 1), type: Actor::GROUP)],
+                    'type'      => 'group',
+                    'text'      => mb_substr($target, 1),
+                ];
+                break;
+            default:
+                throw new ClientException(_m('Unkown target type give in \'in\' field: ' . $target));
+            }
+        }
 
-                    if ($m->isGroup()) {
-                        DB::persist(GroupInbox::create([
-                            'group_id'    => $m->getId(),
-                            'activity_id' => $activity->getId(),
-                        ]));
-                    }
+        $mentioned = [];
+        foreach (F\unique(F\flat_map($mentions, fn (array $m) => $m['mentioned'] ?? []), fn (Actor $a) => $a->getId()) as $m) {
+            if (!\is_null($m)) {
+                $mentioned[] = $m->getId();
+
+                if ($m->isGroup()) {
+                    DB::persist(GroupInbox::create([
+                        'group_id'    => $m->getId(),
+                        'activity_id' => $activity->getId(),
+                    ]));
                 }
             }
         }
