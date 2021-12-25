@@ -153,11 +153,15 @@ class AttachmentCollections extends Plugin
                     ['aid' => $attachment_id, 'id' => $user->getId(), 'ids' => $removed]
                 );
             }
+            $collection_ids = \array_map(fn ($x) => $x->getId(), $colls);
             foreach ($added as $cid) {
-                DB::persist(CollectionEntry::create([
-                    'attachment_id' => $attachment_id,
-                    'collection_id' => $cid,
-                ]));
+                // prevent user from putting something in a collection (s)he doesn't own:
+                if (\in_array($cid, $collection_ids)) {
+                    DB::persist(CollectionEntry::create([
+                        'attachment_id' => $attachment_id,
+                        'collection_id' => $cid,
+                    ]));
+                }
             }
             DB::flush();
         }
