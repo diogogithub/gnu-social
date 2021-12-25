@@ -60,7 +60,7 @@ class Notification extends Component
      */
     public function onNewNotification(Actor $sender, Activity $activity, array $ids_already_known = [], ?string $reason = null): bool
     {
-        $targets = $activity->getNotificationTargets($ids_already_known, sender_id: $sender->getId());
+        $targets = $activity->getNotificationTargets(ids_already_known: $ids_already_known, sender_id: $sender->getId());
         $this->notify($sender, $activity, $targets, $reason);
 
         return Event::next;
@@ -83,8 +83,16 @@ class Notification extends Component
                     }
                 }
                 // TODO: use https://symfony.com/doc/current/notifier.html
+                DB::persist(Entity\Notification::create([
+                    'activity_id' => $activity->getId(),
+                    'target_id'   => $target->getId(),
+                    'reason'      => $reason,
+                ]));
             } else {
-                $remote_targets[] = $target;
+                // We have no authority nor responsibility of notifying remote actors of a remote actor's doing
+                if ($sender->getIsLocal()) {
+                    $remote_targets[] = $target;
+                }
             }
         }
 

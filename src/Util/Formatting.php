@@ -263,7 +263,7 @@ abstract class Formatting
         // php-intl is highly recommended...
         if (!\function_exists('transliterator_transliterate')) {
             $str = preg_replace('/[^\pL\pN]/u', '', $str);
-            $str = mb_convert_case($str, \MB_CASE_LOWER, 'UTF-8');
+            $str = mb_convert_case($str, MB_CASE_LOWER, 'UTF-8');
             return mb_substr($str, 0, $length);
         }
         $str = transliterator_transliterate('Any-Latin;'          // any charset to latin compatible
@@ -290,6 +290,8 @@ abstract class Formatting
     public static function findMentions(string $text, Actor $actor): array
     {
         $mentions = [];
+        // XXX: We remove <span> because when content is in html the tag comes as #<span>hashtag</span>
+        $text = str_replace('<span>', '', $text);
         if (Event::handle('StartFindMentions', [$actor, $text, &$mentions])) {
             $matches = self::findMentionsRaw($text, '@');
 

@@ -380,15 +380,25 @@ class Note extends Entity
     /**
      * @return array of ids of Actors
      */
+    private array $object_mentions_ids = [];
+    public function setObjectMentionsIds(array $mentions): self
+    {
+        $this->object_mentions_ids = $mentions;
+        return $this;
+    }
     public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null): array
     {
-        $target_ids = [];
-        if (!\array_key_exists('object', $ids_already_known)) {
-            $mentions = Formatting::findMentions($this->getContent(), $this->getActor());
-            foreach ($mentions as $mention) {
-                foreach ($mention['mentioned'] as $m) {
-                    $target_ids[] = $m->getId();
+        $target_ids = $this->object_mentions_ids ?? [];
+        if ($target_ids === []) {
+            if (!\array_key_exists('object', $ids_already_known)) {
+                $mentions = Formatting::findMentions($this->getContent(), $this->getActor());
+                foreach ($mentions as $mention) {
+                    foreach ($mention['mentioned'] as $m) {
+                        $target_ids[] = $m->getId();
+                    }
                 }
+            } else {
+                $target_ids = $ids_already_known['object'];
             }
         }
 

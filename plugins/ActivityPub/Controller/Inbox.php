@@ -34,6 +34,7 @@ namespace Plugin\ActivityPub\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use App\Core\Event;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
@@ -164,7 +165,9 @@ class Inbox extends Controller
             $ap_actor->getActorId(),
             Discovery::normalize($actor->getNickname() . '@' . parse_url($ap_actor->getInboxUri(), PHP_URL_HOST)),
         );
+        Event::handle('NewNotification', [$actor, $ap_act->getActivity(), [], "{$actor->getNickname()} mentioned you in a note"]);
         DB::flush();
+
         dd($ap_act, $act = $ap_act->getActivity(), $act->getActor(), $act->getObject());
 
         return new TypeResponse($type, status: 202);

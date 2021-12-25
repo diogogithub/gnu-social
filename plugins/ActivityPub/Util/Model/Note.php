@@ -34,6 +34,7 @@ namespace Plugin\ActivityPub\Util\Model;
 
 use ActivityPhp\Type;
 use ActivityPhp\Type\AbstractObject;
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
@@ -43,6 +44,7 @@ use App\Core\Log;
 use App\Core\Router\Router;
 use App\Entity\Language;
 use App\Entity\Note as GSNote;
+use App\Entity\NoteTag;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\DuplicateFoundException;
@@ -53,6 +55,7 @@ use App\Util\TemporaryFile;
 use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\AttachmentToNote;
 use Component\Conversation\Conversation;
+use Component\Tag\Tag;
 use DateTime;
 use DateTimeInterface;
 use Exception;
@@ -200,8 +203,39 @@ class Note extends Model
         // Assign conversation to this note
         Conversation::assignLocalConversation($obj, $reply_to);
 
-        // Need file and note ids for the next step
-        Event::handle('ProcessNoteContent', [$obj, $obj->getRendered(), $obj->getContentType(), $process_note_content_extra_args = []]);
+        $object_mentions_ids = [];
+        foreach ($type_note->get('tag') as $ap_tag) {
+            switch ($ap_tag->get('type')) {
+                case 'Mention':
+                    try {
+                        $actor = ActivityPub::getActorByUri($ap_tag->get('href'));
+                        if ($actor->getIsLocal()) {
+                            $object_mentions_ids[] = $actor->getId();
+                        }
+                    } catch (Exception $e) {
+                        Log::debug('ActivityPub->Model->Note->fromJson->getActorByUri', [$e]);
+                    }
+                    break;
+                case 'Hashtag':
+                    $match         = ltrim($ap_tag->get('name'), '#');
+                    $tag           = Tag::ensureValid($match);
+                    $canonical_tag = $ap_tag->get('canonical') ?? Tag::canonicalTag($tag, \is_null($lang_id = $obj->getLanguageId()) ? null : Language::getById($lang_id)->getLocale());
+                    DB::persist(NoteTag::create([
+                        'tag'           => $tag,
+                        'canonical'     => $canonical_tag,
+                        'note_id'       => $obj->getId(),
+                        'use_canonical' => $ap_tag->get('canonical') ?? false,
+                    ]));
+                    Cache::pushList("tag-{$canonical_tag}", $obj);
+                    foreach (Tag::cacheKeys($canonical_tag) as $key) {
+                        Cache::delete($key);
+                    }
+                    break;
+            }
+        }
+        $obj->setObjectMentionsIds($object_mentions_ids);
+        // The content would be non-sanitized text/html
+        Event::handle('ProcessNoteContent', [$obj, $obj->getRendered(), $obj->getContentType(), $process_note_content_extra_args = ['TagProcessed' => true]]);
 
         if ($processed_attachments !== []) {
             foreach ($processed_attachments as [$a, $fname]) {
@@ -268,9 +302,10 @@ class Note extends Model
         // Hashtags
         foreach ($object->getTags() as $hashtag) {
             $attr['tag'][] = [
-                'type' => 'Hashtag',
-                'href' => $hashtag->getUrl(type: Router::ABSOLUTE_URL),
-                'name' => "#{$hashtag->getTag()}",
+                'type'      => 'Hashtag',
+                'href'      => $hashtag->getUrl(type: Router::ABSOLUTE_URL),
+                'name'      => "#{$hashtag->getTag()}",
+                'canonical' => $hashtag->getCanonical(),
             ];
         }
 
