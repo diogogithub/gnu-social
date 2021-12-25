@@ -11,7 +11,7 @@
 {% block body %}
     <header class="feed-header">
         {% if page_title is defined %}
-            <h1>{{ page_title | trans }} {{ 'feed' | trans }}</h1>
+            <h1>{{ page_title | trans }}</h1>
         {% endif %}
         <nav class="feed-actions" role=navigation>
             {% for block in handle_event('AddFeedActions', app.request) %}
