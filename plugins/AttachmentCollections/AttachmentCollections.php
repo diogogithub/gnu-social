@@ -23,6 +23,7 @@ declare(strict_types = 1);
  *
  * @package   GNUsocial
  * @category  Plugin
+ *
  * @author    Phablulo <phablulo@gmail.com>
  * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -30,25 +31,25 @@ declare(strict_types = 1);
 
 namespace Plugin\AttachmentCollections;
 
-use App\Core\Form;
-use App\Core\Event;
 use App\Core\DB\DB;
-use App\Util\Common;
-use App\Entity\Feed;
-use App\Util\Nickname;
-use App\Util\Formatting;
-use App\Entity\LocalUser;
-use App\Core\Router\Router;
-use App\Core\Modules\Plugin;
+use App\Core\Event;
+use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
-use Symfony\Component\HttpFoundation\Request;
+use App\Core\Router\Router;
+use App\Entity\Feed;
+use App\Entity\LocalUser;
+use App\Util\Common;
+use App\Util\Formatting;
+use App\Util\Nickname;
 use Plugin\AttachmentCollections\Controller as C;
 use Plugin\AttachmentCollections\Entity\Collection;
 use Plugin\AttachmentCollections\Entity\CollectionEntry;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\Request;
 
 class AttachmentCollections extends Plugin
 {
@@ -56,21 +57,25 @@ class AttachmentCollections extends Plugin
     {
         // View all collections by actor id and nickname
         $r->connect(
-            id: 'collections_view_by_actor_id', uri_path: '/actor/{id<\d+>}/collections',
-            target: [C\Controller::class, 'collectionsViewByActorId']
+            id: 'collections_view_by_actor_id',
+            uri_path: '/actor/{id<\d+>}/collections',
+            target: [C\Controller::class, 'collectionsViewByActorId'],
         );
         $r->connect(
-            id: 'collections_view_by_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/collections',
-            target: [C\Controller::class, 'collectionsByActorNickname']
+            id: 'collections_view_by_nickname',
+            uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/collections',
+            target: [C\Controller::class, 'collectionsByActorNickname'],
         );
         // View notes from a collection by actor id and nickname
         $r->connect(
-            id: 'collection_notes_view_by_actor_id', uri_path: '/actor/{id<\d+>}/collections/{cid<\d+>}',
-            target: [C\Controller::class, 'collectionNotesViewByActorId']
+            id: 'collection_notes_view_by_actor_id',
+            uri_path: '/actor/{id<\d+>}/collections/{cid<\d+>}',
+            target: [C\Controller::class, 'collectionNotesViewByActorId'],
         );
         $r->connect(
-            id: 'collection_notes_view_by_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/collections/{cid<\d+>}',
-            target: [C\Controller::class, 'collectionNotesByNickname']
+            id: 'collection_notes_view_by_nickname',
+            uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/collections/{cid<\d+>}',
+            target: [C\Controller::class, 'collectionNotesByNickname'],
         );
         return Event::next;
     }
@@ -78,9 +83,9 @@ class AttachmentCollections extends Plugin
     {
         DB::persist(Feed::create([
             'actor_id' => $actor_id,
-            'url' => Router::url($route = 'collections_view_by_nickname', ['nickname' => $user->getNickname()]),
-            'route' => $route,
-            'title' => _m('Attachment Collections'),
+            'url'      => Router::url($route = 'collections_view_by_nickname', ['nickname' => $user->getNickname()]),
+            'route'    => $route,
+            'title'    => _m('Attachment Collections'),
             'ordering' => $ordering++,
         ]));
         return Event::next;
@@ -92,18 +97,22 @@ class AttachmentCollections extends Plugin
      */
     public function onAppendRightPanelBlock($vars, Request $request, &$res): bool
     {
-        if ($vars['path'] !== 'attachment_show') return Event::next;
+        if ($vars['path'] !== 'attachment_show') {
+            return Event::next;
+        }
         $user = Common::user();
-        if (\is_null($user)) return Event::next;
+        if (\is_null($user)) {
+            return Event::next;
+        }
 
         $colls = DB::dql(
             'select coll from Plugin\AttachmentCollections\Entity\Collection coll where coll.actor_id = :id',
-            ['id' => $user->getId()]
+            ['id' => $user->getId()],
         );
-        
+
         // add to collection form
         $attachment_id = $vars['vars']['attachment_id'];
-        $choices = [];
+        $choices       = [];
         foreach ($colls as $col) {
             $choices[$col->getName()] = $col->getId();
         }
@@ -112,35 +121,34 @@ class AttachmentCollections extends Plugin
             . 'inner join attachment_collection collection '
                 . 'with collection.id = entry.collection_id '
             . 'where entry.attachment_id = :aid and collection.actor_id = :id',
-            ['aid' => $attachment_id, 'id' => $user->getId()]
+            ['aid' => $attachment_id, 'id' => $user->getId()],
         );
-        $already_selected = \array_map(fn ($x) => $x['collection_id'], $already_selected);
-        $add_form = Form::create([
+        $already_selected = array_map(fn ($x) => $x['collection_id'], $already_selected);
+        $add_form         = Form::create([
             ['collections', ChoiceType::class, [
-                'choices' => $choices,
-                'multiple' => true,
-                'required' => false,
+                'choices'     => $choices,
+                'multiple'    => true,
+                'required'    => false,
                 'choice_attr' => function ($id) use ($already_selected) {
                     if (\in_array($id, $already_selected)) {
                         return ['selected' => 'selected'];
                     }
                     return [];
-                }
+                },
             ]],
             ['add', SubmitType::class, [
                 'label' => _m('Add to collections'),
-                'attr' => [
+                'attr'  => [
                     'title' => _m('Add to collection'),
                 ],
             ]],
         ]);
 
-
         $add_form->handleRequest($request);
         if ($add_form->isSubmitted() && $add_form->isValid()) {
             $collections = $add_form->getData()['collections'];
-            $removed     = \array_filter($already_selected, fn ($x) => !\in_array($x, $collections));
-            $added       = \array_filter($collections, fn ($x) => !\in_array($x, $already_selected));
+            $removed     = array_filter($already_selected, fn ($x) => !\in_array($x, $collections));
+            $added       = array_filter($collections, fn ($x) => !\in_array($x, $already_selected));
             if (\count($removed)) {
                 DB::dql(
                     'delete from Plugin\AttachmentCollections\Entity\CollectionEntry entry '
@@ -150,10 +158,10 @@ class AttachmentCollections extends Plugin
                         // prevent user from deleting something (s)he doesn't own:
                         . 'and collection.actor_id = :id'
                     . ')',
-                    ['aid' => $attachment_id, 'id' => $user->getId(), 'ids' => $removed]
+                    ['aid' => $attachment_id, 'id' => $user->getId(), 'ids' => $removed],
                 );
             }
-            $collection_ids = \array_map(fn ($x) => $x->getId(), $colls);
+            $collection_ids = array_map(fn ($x) => $x->getId(), $colls);
             foreach ($added as $cid) {
                 // prevent user from putting something in a collection (s)he doesn't own:
                 if (\in_array($cid, $collection_ids)) {
@@ -168,16 +176,16 @@ class AttachmentCollections extends Plugin
         // add to new collection form
         $create_form = Form::create([
             ['name', TextType::class, [
-                'label' => _m('Collection name'),
-                'attr' => [
-                    'placeholder' => _m('Name'),
-                    'required' => 'required'
+                'label' => _m('Add to a new collection'),
+                'attr'  => [
+                    'placeholder' => _m('New collection name'),
+                    'required'    => 'required',
                 ],
                 'data' => '',
             ]],
             ['create', SubmitType::class, [
                 'label' => _m('Create a new collection'),
-                'attr' => [
+                'attr'  => [
                     'title' => _m('Create a new collection'),
                 ],
             ]],
@@ -186,7 +194,7 @@ class AttachmentCollections extends Plugin
         if ($create_form->isSubmitted() && $create_form->isValid()) {
             $name = $create_form->getData()['name'];
             $coll = Collection::create([
-                'name' => $name,
+                'name'     => $name,
                 'actor_id' => $user->getId(),
             ]);
             DB::persist($coll);
@@ -198,14 +206,13 @@ class AttachmentCollections extends Plugin
             DB::flush();
         }
 
-
         $res[] = Formatting::twigRenderFile(
             'AttachmentCollections/widget.html.twig',
             [
-                'colls' => $colls,
-                'add_form' => $add_form->createView(),
+                'colls'       => $colls,
+                'add_form'    => $add_form->createView(),
                 'create_form' => $create_form->createView(),
-            ]
+            ],
         );
         return Event::next;
     }

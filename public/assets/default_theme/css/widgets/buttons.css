@@ -109,7 +109,7 @@ textarea {
     padding: 6px 8px !important;
     border-radius: var(--s);
     border: 2px solid var(--border) !important;
-    width: inherit;
+    width: auto;
     max-width: border-box !important;
 }
 button,
