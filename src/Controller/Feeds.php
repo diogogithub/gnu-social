@@ -75,7 +75,7 @@ class Feeds extends FeedController
     {
         Common::ensureLoggedIn();
         $data = Feed::query(
-            query: 'note-from:subscribed',
+            query: 'note-from:subscribed-person,subscribed-group,subscribed-organization,subscribed-business',
             page: $this->int('p'),
             language: Common::actor()?->getTopLanguage()?->getLocale(),
             actor: Common::actor(),

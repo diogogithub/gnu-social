@@ -73,7 +73,8 @@ class Feed extends Component
 
     public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb)
     {
-        $note_qb->leftJoin(Subscription::class, 'subscription', Expr\Join::WITH, 'note.actor_id = subscription.subscribed');
+        $note_qb->leftJoin(Subscription::class, 'subscription', Expr\Join::WITH, 'note.actor_id = subscription.subscribed')
+            ->leftJoin(Actor::class, 'note_actor', Expr\Join::WITH, 'note.actor_id = note_actor.id');
         return Event::next;
     }
 
@@ -106,8 +107,26 @@ class Feed extends Component
                     $note_expr = $eb->eq('note.conversation_id', (int) trim($term[1]));
                     break;
                 case 'note-from':
+                case 'notes-from':
+                    $subscribed_expr = $eb->eq('subscription.subscriber', $actor->getId());
+                    $type_consts     = [];
                     if ($term[1] === 'subscribed') {
-                        $note_expr = $eb->eq('subscription.subscriber', $actor->getId());
+                        $type_consts = null;
+                    }
+                    foreach (explode(',', $term[1]) as $from) {
+                        if (str_starts_with($from, 'subscribed-')) {
+                            [, $type] = explode('-', $from);
+                            if (\in_array($type, ['actor', 'actors'])) {
+                                $type_consts = null;
+                            } else {
+                                $type_consts[] = \constant(Actor::class . '::' . mb_strtoupper($type));
+                            }
+                        }
+                    }
+                    if (\is_null($type_consts)) {
+                        $note_expr = $subscribed_expr;
+                    } elseif (!empty($type_consts)) {
+                        $note_expr = $eb->andX($subscribed_expr, $eb->in('note_actor.type', $type_consts));
                     }
                     break;
                 }
