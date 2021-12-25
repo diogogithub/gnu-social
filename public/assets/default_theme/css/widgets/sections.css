@@ -132,19 +132,19 @@
     margin-bottom: var(--s);
     font-weight: bold;
 }
-div[class^="mb-"] {
-    display: flex;
-    flex-direction: column;
-    flex-basis: border-box;
+.form-row {
     margin-bottom: var(--s);
 }
-div[class^="mb-"]:last-of-type {
-    margin-bottom: unset;
+.form-row-widget {
+    display: block;
+    width: 100%;
 }
-div[class^="mb-"] textarea {
+textarea.form-row-widget {
     height: 7rem;
-    max-height: 100%;
+    resize: vertical;
 }
+.form-row-widget-error,
+.form-error,
 .alert,
 .alert-danger {
     display: inline-block;

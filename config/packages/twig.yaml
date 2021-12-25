@@ -1,2 +1,4 @@
 twig:
-  form_themes: ['tailwind_2_layout.html.twig']
+  form_themes: [
+      '/cards/forms/form_social_layout.html.twig'
+  ]

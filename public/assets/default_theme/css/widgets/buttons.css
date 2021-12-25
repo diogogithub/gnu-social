@@ -112,12 +112,6 @@ textarea {
     width: inherit;
     max-width: border-box !important;
 }
-button:not(:last-child),
-input:not(:last-child),
-select:not(:last-child),
-textarea:not(:last-child) {
-    margin-bottom: var(--s);
-}
 button,
 select,
 textarea {
