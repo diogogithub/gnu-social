@@ -6,7 +6,7 @@ namespace App\Util\Form;
 
 use function App\Core\I18n\_m;
 use App\Entity\Actor;
-use App\Entity\Language;
+use Component\Language\Entity\Language;
 use App\Util\Common;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;

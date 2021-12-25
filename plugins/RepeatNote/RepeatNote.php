@@ -29,7 +29,7 @@ use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Activity;
 use App\Entity\Actor;
-use App\Entity\Language;
+use Component\Language\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;

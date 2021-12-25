@@ -25,11 +25,11 @@ use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
 use App\Entity\Actor;
-use App\Entity\ActorLanguage;
 use App\Entity\Note;
 use App\Util\Formatting;
 use App\Util\Functional as GSF;
 use Component\Language\Controller as C;
+use Component\Language\Entity\ActorLanguage;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
@@ -105,11 +105,11 @@ class Language extends Component
 
     public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
-        $note_qb->leftJoin('App\Entity\Language', 'note_language', Expr\Join::WITH, 'note.language_id = note_language.id')
-            ->leftJoin('App\Entity\ActorLanguage', 'actor_language', Expr\Join::WITH, 'note.actor_id = actor_language.actor_id')
-            ->leftJoin('App\Entity\Language', 'note_actor_language', Expr\Join::WITH, 'note_actor_language.id = actor_language.language_id');
-        $actor_qb->leftJoin('App\Entity\ActorLanguage', 'actor_language', Expr\Join::WITH, 'actor.id = actor_language.actor_id')
-            ->leftJoin('App\Entity\Language', 'language', Expr\Join::WITH, 'actor_language.language_id = language.id');
+        $note_qb->leftJoin('Component\Language\Entity\Language', 'note_language', Expr\Join::WITH, 'note.language_id = note_language.id')
+            ->leftJoin('Component\Language\Entity\ActorLanguage', 'actor_language', Expr\Join::WITH, 'note.actor_id = actor_language.actor_id')
+            ->leftJoin('Component\Language\Entity\Language', 'note_actor_language', Expr\Join::WITH, 'note_actor_language.id = actor_language.language_id');
+        $actor_qb->leftJoin('Component\Language\Entity\ActorLanguage', 'actor_language', Expr\Join::WITH, 'actor.id = actor_language.actor_id')
+            ->leftJoin('Component\Language\Entity\Language', 'language', Expr\Join::WITH, 'actor_language.language_id = language.id');
         return Event::next;
     }
 }

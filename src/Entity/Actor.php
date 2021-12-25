@@ -35,6 +35,8 @@ use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;
 use App\Util\Nickname;
 use Component\Avatar\Avatar;
+use Component\Language\Entity\ActorLanguage;
+use Component\Language\Entity\Language;
 use DateTimeInterface;
 use Functional as F;
 

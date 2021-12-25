@@ -31,7 +31,7 @@ use function App\Core\I18n\_m;
 use App\Entity\Actor;
 use App\Entity\ActorTag;
 use App\Entity\ActorTagBlock;
-use App\Entity\Language;
+use Component\Language\Entity\Language;
 use App\Entity\Note;
 use App\Entity\NoteTag;
 use App\Entity\NoteTagBlock;

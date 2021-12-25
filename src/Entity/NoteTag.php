@@ -50,6 +50,7 @@ class NoteTag extends Entity
     private string $canonical;
     private int $note_id;
     private bool $use_canonical;
+    private int $language_id;
     private DateTimeInterface $created;
 
     public function setTag(string $tag): self
@@ -94,6 +95,17 @@ class NoteTag extends Entity
     public function getUseCanonical(): bool
     {
         return $this->use_canonical;
+    }
+
+    public function setLanguageId(int $language_id): NoteTag
+    {
+        $this->language_id = $language_id;
+        return $this;
+    }
+
+    public function getLanguageId(): int
+    {
+        return $this->language_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -142,6 +154,7 @@ class NoteTag extends Entity
                 'canonical'     => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
                 'note_id'       => ['type' => 'int',      'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to tagged note'],
                 'use_canonical' => ['type' => 'bool',     'not null' => true, 'description' => 'whether the user wanted to use canonical tags in this note. Separate for blocks'],
+                'language_id'   => ['type' => 'int',      'not null' => false, 'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'many to many', 'description' => 'the language this entry refers to'],
                 'created'       => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['tag', 'note_id'],

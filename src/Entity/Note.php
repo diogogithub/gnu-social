@@ -32,6 +32,7 @@ use App\Core\VisibilityScope;
 use App\Util\Formatting;
 use Component\Avatar\Avatar;
 use Component\Conversation\Entity\Conversation;
+use Component\Language\Entity\Language;
 use DateTimeInterface;
 
 /**

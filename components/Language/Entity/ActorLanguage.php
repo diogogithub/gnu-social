@@ -21,11 +21,13 @@ declare(strict_types = 1);
 
 // }}}
 
-namespace App\Entity;
+namespace Component\Language\Entity;
 
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Entity\Actor;
+use App\Entity\LocalUser;
 use App\Util\Common;
 use Functional as F;
 

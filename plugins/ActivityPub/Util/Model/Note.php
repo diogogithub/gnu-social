@@ -39,10 +39,10 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
+use Component\Language\Entity\Language;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
-use App\Entity\Language;
 use App\Entity\Note as GSNote;
 use App\Entity\NoteTag;
 use App\Util\Common;
@@ -225,6 +225,7 @@ class Note extends Model
                         'canonical'     => $canonical_tag,
                         'note_id'       => $obj->getId(),
                         'use_canonical' => $ap_tag->get('canonical') ?? false,
+                        'language_id'   => $lang_id,
                     ]));
                     Cache::pushList("tag-{$canonical_tag}", $obj);
                     foreach (Tag::cacheKeys($canonical_tag) as $key) {

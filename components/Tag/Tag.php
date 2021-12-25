@@ -26,12 +26,12 @@ namespace Component\Tag;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
+use Component\Language\Entity\Language;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\ActorTag;
-use App\Entity\Language;
 use App\Entity\Note;
 use App\Entity\NoteTag;
 use App\Util\Common;
@@ -89,6 +89,7 @@ class Tag extends Component
                 'canonical'     => $canonical_tag,
                 'note_id'       => $note->getId(),
                 'use_canonical' => $extra_args['tag_use_canonical'] ?? false,
+                'language_id'   => $lang_id,
             ]));
             Cache::pushList("tag-{$canonical_tag}", $note);
             foreach (self::cacheKeys($canonical_tag) as $key) {
