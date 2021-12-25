@@ -7,21 +7,27 @@ staged_files="$(git status --porcelain | sed -rn "s/^[^ ][ ] (.*)/\1/p")"
 
 if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_CS_FIX?}") 2>/dev/null); then
     echo "Running php-cs-fixer on edited files"
+    files=""
     for staged in ${staged_files}; do
         # work only with existing files
         if [ -f "${staged}" ] && expr "${staged}" : '^.*\.php$' > /dev/null;  then
             # use php-cs-fixer and get flag of correction
-            if "${root}/bin/php-cs-fixer" -q --config="${root}/.php-cs-fixer.php" fix "${staged}"; then
-                git add "${staged}" # execute git add directly
-            fi
+            files="${staged} ${files}"
         fi
     done
+    if [ -n "${files}" ]; then
+        prev="${PWD}"
+        cd "${root}" && make cs-fixer "${files}" || exit 1
+        cd "${prev}" || exit 1
+    fi
 fi
 
 if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_DOC_CHECK?}") 2>/dev/null); then
     echo "Running php-doc-checker"
-    if echo "${staged_files}" | grep -F ".php"; then
-        "${root}/bin/php-doc-check" src plugins components
+    if echo "${staged_files}" | grep -F ".php" > /dev/null 2>&1; then
+        prev="${PWD}"
+        cd "${root}" && make doc-check < /dev/tty || exit 1
+        cd "${prev}" || exit 1
     fi
 fi
 

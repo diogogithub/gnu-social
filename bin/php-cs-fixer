@@ -1,1 +1,10 @@
-../vendor/bin/php-cs-fixer
+#!/bin/sh
+
+. bin/translate_container_name.sh
+
+if [ "${#}" -eq 1 ]; then
+    docker exec "$(translate_container_name tooling_php_1)" /var/www/social/vendor/bin/php-cs-fixer -q -n --config=".php-cs-fixer.php" fix "${1}"
+else
+    echo running without specific files?
+    docker exec "$(translate_container_name tooling_php_1)" /var/www/social/vendor/bin/php-cs-fixer -n --config=".php-cs-fixer.php" fix
+fi

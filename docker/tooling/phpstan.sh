@@ -2,7 +2,6 @@
 
 cd /var/www/social || exit 1
 
-
 ARGS=$(echo "$*" | sed 's#\(/[^/]\+\)*/phpstan\.neon#phpstan.neon#') # Remove absolute path to config file
 
 rm -rf /var/www/social/var/cache/*

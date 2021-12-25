@@ -1,1 +1,5 @@
-../vendor/bin/php-doc-check
+#!/bin/sh
+
+. bin/translate_container_name.sh
+
+docker exec -it "$(translate_container_name tooling_php_1)" /var/www/social/vendor/bin/php-doc-check src components plugins

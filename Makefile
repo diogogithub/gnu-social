@@ -45,8 +45,11 @@ accessibility: .PHONY
 test: tooling-docker
 	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,'')
 
-doc-check:
-	bin/php-doc-check src components plugins
+cs-fixer: tooling-docker
+	@bin/php-cs-fixer $(call args,'')
+
+doc-check: tooling-docker
+	bin/php-doc-check
 
 phpstan: tooling-docker
 	bin/phpstan
