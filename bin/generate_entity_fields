@@ -47,18 +47,29 @@ foreach ($files as $file) {
     $fields_code  = [];
     $methods_code = [];
     foreach ($fields as $field) {
-        $nullable       = !@$schema['fields'][$field]['not null'] ? '?' : '';
-        $type           = types[$schema['fields'][$field]['type']];
+        $field_schema   = $schema['fields'][$field];
+        $nullable       = ($field_schema['not null'] ?? false) ? '' : '?';
+        $type           = types[$field_schema['type']];
         $type           = $type !== '' ? $nullable . $type : $type;
         $method_name    = str_replace([' ', 'actor'], ['', 'Actor'], ucwords(str_replace('_', ' ', $field)));
-        $default        = $schema['fields'][$field]['default'] ?? null;
-        $length         = $schema['fields'][$field]['length'] ?? null;
-        $field_setter   = \is_int($length) ? "\mb_substr(\${$field}, 0, $length)" : "\${$field}";
+        $length         = $field_schema['length'] ?? null;
 
-        if (isset($default) && $nullable != '?' && $type != '\DateTimeInterface') {
-            if (is_string($default)) {
+        $field_setter = "\${$field}";
+        if (\is_int($length)) {
+            if ($nullable === '?') {
+                $field_setter = "\is_null(\${$field}) ? null : \mb_substr(\${$field}, 0, $length)";
+            } else {
+                $field_setter = "\mb_substr(\${$field}, 0, $length)";
+            }
+        }
+
+        if (($nullable === '?' || \array_key_exists('default', $field_schema)) && $type != '\DateTimeInterface') {
+            $default = $field_schema['default'] ?? null;
+            if (\is_string($default)) {
                 $default = "'{$default}'";
-            } elseif ($type == 'bool') {
+            } elseif (\is_null($default)) {
+                $default = "null";
+            } elseif ($type === 'bool' || $type === '?bool') {
                 $default = $default ? 'true' : 'false';
             }
 
