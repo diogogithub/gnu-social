@@ -180,8 +180,12 @@ embed header {
     box-shadow: var(--shadow);
     width: max-content;
 }
-.note-actions-extra-details[open] > summary + * > li:not(:last-of-type) {
-    margin-bottom: var(--s);
+.note-actions-extra-details[open] > summary + * > li {
+    line-height: 2;
+}
+
+.note-actions-extra-details hr {
+    margin: 8px !important;
 }
 .note-actions-set {
     opacity: 1 !important;

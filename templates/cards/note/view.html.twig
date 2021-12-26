@@ -8,6 +8,10 @@
                             {{ icon('kebab', 'icon icon-note-actions-extra') | raw }} {# button-container #}
                         </summary>
                         <ul>
+                            <li>
+                                <a href="{{ note.getUrl() }}">{{ 'Permalink' | trans }}</a>
+                            </li>
+                            <hr>
                             {% for current_action in get_extra_note_actions(note) %}
                                 <li>
                                     <a class="{{ current_action["classes"] }}"
