@@ -2,7 +2,7 @@
 {% set actor_avatar = actor.getAvatarUrl() %}
 {% set actor_avatar_dimensions = actor.getAvatarDimensions() %}
 {% set actor_tags = actor.getSelfTags() %}
-{% set actor_bio = actor.hasBio() %}
+{% set actor_has_bio = actor.hasBio() %}
 {% set actor_uri = actor.getUri() %}
 
 {% block profile_view %}
@@ -13,8 +13,8 @@
                 <strong class="profile-info-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
 
                 <section class="profile-info-bio">
-                    {% if actor_bio %}
-                        <span>{{ actor_bio }}</span>
+                    {% if actor_has_bio %}
+                        <span>{{ actor.getBio() }}</span>
                     {% else %}
                         <span>{{ '(No bio)' | trans }}</span>
                     {% endif %}
