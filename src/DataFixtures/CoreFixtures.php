@@ -46,7 +46,7 @@ class CoreFixtures extends Fixture
         $manager->persist($n);
         $notes   = [];
         $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'some other content', 'content_type' => 'text/plain', 'is_local' => true]);
-        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'private note', 'scope' => VisibilityScope::SUBSCRIBER, 'content_type' => 'text/plain', 'is_local' => false]);
+        $notes[] = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'private note', 'scope' => VisibilityScope::COLLECTION, 'content_type' => 'text/plain', 'is_local' => false]);
         $notes[] = $group_note = Note::create(['actor_id' => $actors['taken_user']->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP, 'content_type' => 'text/plain', 'is_local' => true]);
         foreach ($notes as $note) {
             $manager->persist($note);

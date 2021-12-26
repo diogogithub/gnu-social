@@ -36,7 +36,6 @@ declare(strict_types = 1);
 namespace App\Controller;
 
 use function App\Core\I18n\_m;
-use App\Core\VisibilityScope;
 use App\Util\Common;
 use Component\Feed\Feed;
 use Component\Feed\Util\FeedController;
@@ -55,9 +54,9 @@ class Feeds extends FeedController
             language: Common::actor()?->getTopLanguage()?->getLocale(),
         );
         return [
-            '_template'     => 'feed/feed.html.twig',
-            'page_title'    => _m(\is_null(Common::user()) ? 'Feed' : 'Planet'),
-            'notes'         => $data['notes'],
+            '_template'  => 'feed/feed.html.twig',
+            'page_title' => _m(\is_null(Common::user()) ? 'Feed' : 'Planet'),
+            'notes'      => $data['notes'],
         ];
     }
 
@@ -74,9 +73,9 @@ class Feeds extends FeedController
             actor: Common::actor(),
         );
         return [
-            '_template'     => 'feed/feed.html.twig',
-            'page_title'    => _m('Home'),
-            'notes'         => $data['notes'],
+            '_template'  => 'feed/feed.html.twig',
+            'page_title' => _m('Home'),
+            'notes'      => $data['notes'],
         ];
     }
 }
