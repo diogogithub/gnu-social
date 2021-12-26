@@ -1,5 +1,7 @@
 #!/bin/sh
 
+ln -sf /usr/local/bin/php /usr/bin/php8
+
 /wait_for_db.sh
 
 echo "Got response from DB"
