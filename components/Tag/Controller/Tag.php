@@ -10,6 +10,7 @@ use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Entity as E;
 use App\Util\Common;
+use App\Util\Exception\BugFoundException;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use App\Util\Formatting;
@@ -110,14 +111,40 @@ class Tag extends Controller
                 $language = $target->getTopLanguage()->getLocale();
                 foreach ($tags as $tag) {
                     $tag = CompTag::ensureValid($tag);
-                    [$at, ] = E\ActorTag::createOrUpdate([
+                    $canon_tag = CompTag::canonicalTag($tag, language: $language);
+                    $use_canon = $data['new-tags-use-canon'];
+
+                    [$actor_tag, $actor_tag_existed] = E\ActorTag::createOrUpdate([
                         'tagger'        => $target->getId(),
                         'tagged'        => $target->getId(),
                         'tag'           => $tag,
-                        'canonical'     => CompTag::canonicalTag($tag, language: $language),
-                        'use_canonical' => $data['new-tags-use-canon'],
+                        'canonical'     => $canon_tag,
+                        'use_canonical' => $use_canon,
                     ]);
-                    DB::persist($at);
+                    DB::persist($actor_tag);
+
+                    $actor_circle = DB::findBy(
+                        'actor_circle',
+                        [
+                            'tagger'        => null,
+                            'tagged'        => $target->getId(),
+                            'in'            => ['tag' => [$tag, $canon_tag]],
+                            'use_canonical' => $use_canon,
+                        ],
+                    );
+                    if (empty($actor_circle)) {
+                        if ($actor_tag_existed) {
+                            throw new BugFoundException('Actor tag existed but generic actor circle did not');
+                        }
+                        DB::persist(E\ActorCircle::create([
+                            'tagger'        => null,
+                            'tagged'        => $target->getId(),
+                            'tag'           => $use_canon ? $canon_tag : $tag,
+                            'use_canonical' => $use_canon,
+                            'private'       => false,
+                            'description'   => null,
+                        ]));
+                    }
                 }
                 DB::flush();
                 Cache::delete(E\Actor::cacheKeys($target->getId(), $target->getId())['tags']);
@@ -129,8 +156,10 @@ class Tag extends Controller
             function ($form, array $form_definition) use ($request, $target, $details_id) {
                 $data = $form->getData();
                 $changed = false;
+                $language = $target->getTopLanguage()->getLocale();
                 foreach (array_chunk($form_definition, 3) as $entry) {
                     $tag = Formatting::removePrefix($entry[0][2]['data'], '#');
+                    $canon_tag = CompTag::canonicalTag($tag, language: $language);
                     $use_canon = $entry[1][2]['attr']['data'];
 
                     /** @var SubmitButton $remove */
@@ -146,13 +175,22 @@ class Tag extends Controller
                                 'use_canonical' => $use_canon,
                             ],
                         );
+                        DB::removeBy(
+                            'actor_circle',
+                            [
+                                'tagger'        => null,
+                                'tagged'        => $target->getId(),
+                                'tag'           => $use_canon ? $canon_tag : $tag,
+                                'use_canonical' => $use_canon,
+                            ],
+                        );
                     }
 
                     /** @var SubmitButton $toggle_canon */
                     $toggle_canon = $form->get($entry[1][0]);
                     if ($toggle_canon->isSubmitted()) {
                         $changed = true;
-                        $at = DB::find(
+                        $actor_tag = DB::find(
                             'actor_tag',
                             [
                                 'tagger'        => $target->getId(),
@@ -161,7 +199,7 @@ class Tag extends Controller
                                 'use_canonical' => $use_canon,
                             ],
                         );
-                        DB::persist($at->setUseCanonical(!$use_canon));
+                        DB::persist($actor_tag->setUseCanonical(!$use_canon));
                     }
                 }
                 if ($changed) {

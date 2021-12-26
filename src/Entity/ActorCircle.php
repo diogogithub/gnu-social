@@ -48,8 +48,10 @@ class ActorCircle extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private int $tagger;
+    private ?int $tagger;
+    private int $tagged;
     private string $tag;
+    private bool $use_canonical;
     private ?string $description;
     private ?bool $private;
     private \DateTimeInterface $created;
@@ -66,15 +68,26 @@ class ActorCircle extends Entity
         return $this->id;
     }
 
-    public function setTagger(int $tagger): self
+    public function setTagger(?int $tagger): self
     {
         $this->tagger = $tagger;
         return $this;
     }
 
-    public function getTagger(): int
+    public function getTagger(): ?int
     {
         return $this->tagger;
+    }
+
+    public function setTagged(int $tagged): self
+    {
+        $this->tagged = $tagged;
+        return $this;
+    }
+
+    public function getTagged(): int
+    {
+        return $this->tagged;
     }
 
     public function setTag(string $tag): self
@@ -86,6 +99,17 @@ class ActorCircle extends Entity
     public function getTag(): string
     {
         return $this->tag;
+    }
+
+    public function setUseCanonical(bool $use_canonical): self
+    {
+        $this->use_canonical = $use_canonical;
+        return $this;
+    }
+
+    public function getUseCanonical(): bool
+    {
+        return $this->use_canonical;
     }
 
     public function setDescription(?string $description): self
@@ -167,15 +191,15 @@ class ActorCircle extends Entity
             'name'        => 'actor_circle',
             'description' => 'a actor can have lists of actors, to separate their feed',
             'fields'      => [
-                'id' => ['type' => 'serial',    'not null' => true, 'description' => 'unique identifier'],
-                // An actor can be tagged by many actors
-                'tagger' => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
-                // Many Actor Circles can reference (and probably will) an Actor Tag
-                'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
-                'description' => ['type' => 'text',      'description' => 'description of the people tag'],
-                'private'     => ['type' => 'bool',      'default' => false, 'description' => 'is this tag private'],
-                'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'            => ['type' => 'serial',    'not null' => true, 'description' => 'unique identifier'], // An actor can be tagged by many actors
+                'tagger'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'description' => 'user making the tag'],
+                'tagged'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'not null' => true, 'description' => 'actor tagged'],
+                'tag'           => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is  // Many Actor Circles can reference (and probably will) an Actor Tag
+                'use_canonical' => ['type' => 'bool',      'not null' => true, 'description' => 'whether the user wanted to block canonical tags'],
+                'description'   => ['type' => 'text',      'description' => 'description of the people tag'],
+                'private'       => ['type' => 'bool',      'default' => false, 'description' => 'is this tag private'],
+                'created'       => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'indexes'     => [
