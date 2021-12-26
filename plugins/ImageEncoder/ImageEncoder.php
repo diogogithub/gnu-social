@@ -185,11 +185,16 @@ class ImageEncoder extends Plugin
             return Event::next;
         }
 
+        if (\is_null($thumbnail = $vars['attachment']->getThumbnail())) {
+            return Event::next;
+        }
+
         $res[] = Formatting::twigRenderFile(
             'imageEncoder/imageEncoderView.html.twig',
             [
                 'attachment' => $vars['attachment'],
                 'note'       => $vars['note'],
+                'thumbnail'  => $thumbnail,
             ],
         );
         return Event::stop;
