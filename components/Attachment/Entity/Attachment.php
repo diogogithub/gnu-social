@@ -59,7 +59,7 @@ class Attachment extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private int $lives;
+    private int $lives = 1;
     private ?string $filehash;
     private ?string $mimetype;
     private ?string $filename;
@@ -375,7 +375,7 @@ class Attachment extends Entity
             'name'   => 'attachment',
             'fields' => [
                 'id'       => ['type' => 'serial',    'not null' => true],
-                'lives'    => ['type' => 'int',       'not null' => true, 'description' => 'RefCount'],
+                'lives'    => ['type' => 'int',       'default' => 1, 'not null' => true, 'description' => 'RefCount, starts with 1'],
                 'filehash' => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
                 'mimetype' => ['type' => 'varchar',   'length' => 255,  'description' => 'resource mime type 127+1+127 as per rfc6838#section-4.2'],
                 'filename' => ['type' => 'varchar',   'length' => 191, 'description' => 'file name of resource when available'],
