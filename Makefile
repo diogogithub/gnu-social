@@ -46,7 +46,7 @@ test: tooling-docker
 	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,'')
 
 cs-fixer: tooling-docker
-	@bin/php-cs-fixer $(call args,'')
+	@bin/php-cs-fixer $${CS_FIXER_FILE}
 
 doc-check: tooling-docker
 	bin/php-doc-check

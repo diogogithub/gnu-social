@@ -6,19 +6,15 @@ root="$(git rev-parse --show-toplevel)"
 staged_files="$(git status --porcelain | sed -rn "s/^[^ ][ ] (.*)/\1/p")"
 
 if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_CS_FIX?}") 2>/dev/null); then
-    files=""
+    echo "Running php-cs-fixer on edited files"
     for staged in ${staged_files}; do
         # work only with existing files
         if [ -f "${staged}" ] && expr "${staged}" : '^.*\.php$' > /dev/null;  then
             # use php-cs-fixer and get flag of correction
-            files="${staged} ${files}"
+            CS_FIXER_FILE="${staged}" make cs-fixer
+            git add "${staged}"
         fi
     done
-    if [ -n "${files}" ]; then
-        echo "Running php-cs-fixer on edited files"
-        make cs-fixer "${files}"
-        git add "${files}"
-    fi
 fi
 
 if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_DOC_CHECK?}") 2>/dev/null); then
