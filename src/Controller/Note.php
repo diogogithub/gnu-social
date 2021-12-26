@@ -26,6 +26,7 @@ namespace App\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
+use App\Util\Common;
 use App\Util\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -40,7 +41,11 @@ class Note extends Controller
         if (empty($note)) {
             throw new ClientException(_m('No such note.'), 404);
         } else {
-            return $handle($note);
+            if ($note->isVisibleTo(Common::actor())) {
+                return $handle($note);
+            } else {
+                throw new ClientException(_m('You don\'t have permissions to view this note.'), 401);
+            }
         }
     }
 
