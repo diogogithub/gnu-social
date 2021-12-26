@@ -72,23 +72,23 @@
 {% endblock profile_security %}
 
 {% block footer %}
-<footer class="footer">
-    <nav>
-        <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>
-            FAQ
-        </a>
-        <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>
-            TOS
-        </a>
-        <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>
-            Privacy
-        </a>
-        <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>
-            Source
-        </a>
-        <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>
-            Version
-        </a>
-    </nav>
-</footer>
+<nav class="footer">
+    <ul>
+        <li>
+            <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+        </li>
+        <li>
+            <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+        </li>
+        <li>
+            <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+        </li>
+        <li>
+            <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+        </li>
+        <li>
+            <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
+        </li>
+    </ul>
+</nav>
 {% endblock footer %}

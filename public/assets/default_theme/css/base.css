@@ -148,6 +148,11 @@ html {
     display: flex;
     justify-content: space-evenly;
 }
+.footer ul {
+    display: inline-flex;
+    width: 100%;
+    justify-content: space-evenly;
+}
 /* < 720p */
 @media only screen and (max-width:1280px) {
     .page-header {
