@@ -34,7 +34,6 @@ use App\Util\Formatting;
 use App\Util\TemporaryFile;
 use Exception;
 use Jcupitt\Vips;
-use Plugin\ImageEncoder\Exception\UnsupportedFileTypeException;
 use SplFileInfo;
 
 /**
@@ -100,8 +99,8 @@ class ImageEncoder extends Plugin
             try {
                 $image = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
             } catch (Vips\Exception $e) {
-                Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e}.");
-                throw new UnsupportedFileTypeException(_m("Unsupported image file with {$mimetype}.", previous: $e));
+                Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e->getMessage()}.", [$e]);
+                return false;
             }
             $width  = $image->width;
             $height = $image->height;
@@ -154,8 +153,8 @@ class ImageEncoder extends Plugin
             try {
                 $image = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
             } catch (Vips\Exception $e) {
-                Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e}.");
-                throw new UnsupportedFileTypeException(_m("Unsupported image file with {$mimetype}.", previous: $e));
+                Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e->getMessage()}.", [$e]);
+                return false;
             }
             $width  = $image->width;
             $height = $image->height;
