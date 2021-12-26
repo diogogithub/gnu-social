@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Component\FreeNetwork\Util\LrddMethod;
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -39,29 +41,27 @@ class LrddMethodHostMeta extends LRDDMethod
     /**
      * For RFC6415 and HTTP URIs, fetch the host-meta file
      * and look for LRDD templates
-     *
-     * @param mixed $uri
      */
     public function discover($uri)
     {
         // This is allowed for RFC6415 but not the 'WebFinger' RFC7033.
         $try_schemes = ['https', 'http'];
 
-        $scheme = mb_strtolower(parse_url($uri, PHP_URL_SCHEME));
+        $scheme = mb_strtolower(parse_url($uri, \PHP_URL_SCHEME));
         switch ($scheme) {
             case 'acct':
                 // We can't use parse_url data for this, since the 'host'
                 // entry is only set if the scheme has '://' after it.
-                $parts = explode('@', parse_url($uri, PHP_URL_PATH), 2);
+                $parts = explode('@', parse_url($uri, \PHP_URL_PATH), 2);
 
-                if (!Discovery::isAcct($uri) || count($parts) != 2) {
+                if (!Discovery::isAcct($uri) || \count($parts) != 2) {
                     throw new Exception('Bad resource URI: ' . $uri);
                 }
                 [, $domain] = $parts;
                 break;
             case 'http':
             case 'https':
-                $domain      = mb_strtolower(parse_url($uri, PHP_URL_HOST));
+                $domain      = mb_strtolower(parse_url($uri, \PHP_URL_HOST));
                 $try_schemes = [$scheme];
                 break;
             default:

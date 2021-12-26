@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Component\FreeNetwork\Util\WebfingerResource;
 
 use App\Core\Event;
@@ -22,7 +24,7 @@ use XML_XRD_Element_Link;
  */
 class WebfingerResourceNote extends WebfingerResource
 {
-    public function __construct(Note $object = null)
+    public function __construct(?Note $object = null)
     {
         // The type argument above verifies that it's our class
         parent::__construct($object);
@@ -30,29 +32,37 @@ class WebfingerResourceNote extends WebfingerResource
 
     /**
      * Update given XRD with self's data
-     *
-     * @param XML_XRD $xrd
      */
     public function updateXRD(XML_XRD $xrd)
     {
         if (Event::handle('StartWebFingerNoticeLinks', [$xrd, $this->object])) {
             if ($this->object->isLocal()) {
-                $xrd->links[] = new XML_XRD_Element_Link('alternate',
-                    common_local_url('ApiStatusesShow',
+                $xrd->links[] = new XML_XRD_Element_Link(
+                    'alternate',
+                    common_local_url(
+                        'ApiStatusesShow',
                         ['id'        => $this->object->id,
-                            'format' => 'atom', ]),
-                    'application/atom+xml');
+                            'format' => 'atom', ],
+                    ),
+                    'application/atom+xml',
+                );
 
-                $xrd->links[] = new XML_XRD_Element_Link('alternate',
-                    common_local_url('ApiStatusesShow',
+                $xrd->links[] = new XML_XRD_Element_Link(
+                    'alternate',
+                    common_local_url(
+                        'ApiStatusesShow',
                         ['id'        => $this->object->id,
-                            'format' => 'json', ]),
-                    'application/json');
+                            'format' => 'json', ],
+                    ),
+                    'application/json',
+                );
             } else {
                 try {
-                    $xrd->links[] = new XML_XRD_Element_Link('alternate',
+                    $xrd->links[] = new XML_XRD_Element_Link(
+                        'alternate',
                         $this->object->getUrl(),
-                        'text/html');
+                        'text/html',
+                    );
                 } catch (InvalidUrlException $e) {
                     // don't do a fallback in webfinger
                 }

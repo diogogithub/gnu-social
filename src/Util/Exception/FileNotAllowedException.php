@@ -21,7 +21,9 @@ declare(strict_types = 1);
 
 namespace App\Util\Exception;
 
-class FileNotAllowedException extends \InvalidArgumentException
+use InvalidArgumentException;
+
+class FileNotAllowedException extends InvalidArgumentException
 {
     public function __construct(string $mimetype)
     {

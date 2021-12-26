@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -40,7 +42,7 @@ class NoteToLink extends Entity
     // @codeCoverageIgnoreStart
     private int $link_id;
     private int $note_id;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setLinkId(int $link_id): self
     {
@@ -93,10 +95,6 @@ class NoteToLink extends Entity
         return parent::create($args, $obj);
     }
 
-    /**
-     * @param int $note_id
-     * @return mixed
-     */
     public static function removeWhereNoteId(int $note_id): mixed
     {
         return DB::dql(
@@ -108,11 +106,6 @@ class NoteToLink extends Entity
         );
     }
 
-    /**
-     * @param int $link_id
-     * @param int $note_id
-     * @return mixed
-     */
     public static function removeWhere(int $link_id, int $note_id): mixed
     {
         return DB::dql(
@@ -125,10 +118,6 @@ class NoteToLink extends Entity
         );
     }
 
-    /**
-     * @param int $link_id
-     * @return mixed
-     */
     public static function removeWhereLinkId(int $link_id): mixed
     {
         return DB::dql(

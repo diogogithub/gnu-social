@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 
@@ -26,6 +26,7 @@ namespace Plugin\Oomox\Controller;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoLoggedInUser;
@@ -41,8 +42,6 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use function App\Core\I18n\_m;
-use function is_null;
 
 /**
  * Oomox controller
@@ -64,67 +63,67 @@ class Oomox
      */
     public function getOomoxForm(?EntityOomox $current_oomox_settings, bool $is_light): FormInterface
     {
-        $theme = $is_light ? 'light' : 'dark';
-        $foreground = 'colour_foreground_' . $theme;
+        $theme           = $is_light ? 'light' : 'dark';
+        $foreground      = 'colour_foreground_' . $theme;
         $background_hard = 'colour_background_hard_' . $theme;
         $background_card = 'colour_background_card_' . $theme;
-        $border = 'colour_border_' . $theme;
-        $accent = 'colour_accent_' . $theme;
-        $reset = 'colour_reset_' . $theme;
-        $save = 'save_oomox_colours_' . $theme;
+        $border          = 'colour_border_' . $theme;
+        $accent          = 'colour_accent_' . $theme;
+        $reset           = 'colour_reset_' . $theme;
+        $save            = 'save_oomox_colours_' . $theme;
 
         if (isset($current_oomox_settings)) {
             if ($is_light) {
-                $current_foreground = $current_oomox_settings->getColourForegroundLight() ?: '#09090d';
+                $current_foreground      = $current_oomox_settings->getColourForegroundLight() ?: '#09090d';
                 $current_background_hard = $current_oomox_settings->getColourBackgroundHardLight() ?: '#ebebeb';
                 $current_background_card = $current_oomox_settings->getColourBackgroundCardLight() ?: '#f0f0f0';
-                $current_border = $current_oomox_settings->getColourBorderLight() ?: '#d5d5d5';
-                $current_accent = $current_oomox_settings->getColourAccentLight() ?: '#a22430';
+                $current_border          = $current_oomox_settings->getColourBorderLight() ?: '#d5d5d5';
+                $current_accent          = $current_oomox_settings->getColourAccentLight() ?: '#a22430';
             } else {
-                $current_foreground = $current_oomox_settings->getColourForegroundDark() ?: '#f0f6f6';
+                $current_foreground      = $current_oomox_settings->getColourForegroundDark() ?: '#f0f6f6';
                 $current_background_hard = $current_oomox_settings->getColourBackgroundHardDark() ?: '#141216';
                 $current_background_card = $current_oomox_settings->getColourBackgroundCardDark() ?: '#131217';
-                $current_border = $current_oomox_settings->getColourBorderDark() ?: '#201f25';
-                $current_accent = $current_oomox_settings->getColourAccentDark() ?: '#5ddbcf';
+                $current_border          = $current_oomox_settings->getColourBorderDark() ?: '#201f25';
+                $current_accent          = $current_oomox_settings->getColourAccentDark() ?: '#5ddbcf';
             }
         } else {
-            $current_foreground = $is_light ? '#09090d' : '#f0f6f6';
+            $current_foreground      = $is_light ? '#09090d' : '#f0f6f6';
             $current_background_hard = $is_light ? '#ebebeb' : '#141216';
             $current_background_card = $is_light ? '#f0f0f0' : '#131217';
-            $current_border = $is_light ? '#d5d5d5' : '#201f25';
-            $current_accent = $is_light ? '#a22430' : '#5ddbcf';
+            $current_border          = $is_light ? '#d5d5d5' : '#201f25';
+            $current_accent          = $is_light ? '#a22430' : '#5ddbcf';
         }
 
         return Form::create([
             [$foreground, ColorType::class, [
                 'html5' => true,
-                'data' => $current_foreground,
+                'data'  => $current_foreground,
                 'label' => _m('Foreground colour'),
-                'help' => _m('Choose the foreground colour'),],
+                'help'  => _m('Choose the foreground colour'), ],
             ],
             [$background_hard, ColorType::class, [
                 'html5' => true,
-                'data' => $current_background_hard,
+                'data'  => $current_background_hard,
                 'label' => _m('Background colour'),
-                'help' => _m('Choose the background colour'),],
+                'help'  => _m('Choose the background colour'), ],
             ],
             [$background_card, ColorType::class, [
                 'html5' => true,
-                'data' => $current_background_card,
+                'data'  => $current_background_card,
                 'label' => _m('Card background colour'),
-                'help' => _m('Choose the card background colour'),],
+                'help'  => _m('Choose the card background colour'), ],
             ],
             [$border, ColorType::class, [
                 'html5' => true,
-                'data' => $current_border,
+                'data'  => $current_border,
                 'label' => _m('Border colour'),
-                'help' => _m('Choose the borders accents'),],
+                'help'  => _m('Choose the borders accents'), ],
             ],
             [$accent, ColorType::class, [
                 'html5' => true,
-                'data' => $current_accent,
+                'data'  => $current_accent,
                 'label' => _m('Accent colour'),
-                'help' => _m('Choose the accent colour'),],
+                'help'  => _m('Choose the accent colour'), ],
             ],
             ['hidden', HiddenType::class, []],
             [$reset, SubmitType::class, ['label' => _m('Reset colours to default')]],
@@ -141,11 +140,11 @@ class Oomox
      */
     public static function oomoxSettingsLight(Request $request): array
     {
-        $user = Common::ensureLoggedIn();
+        $user     = Common::ensureLoggedIn();
         $actor_id = $user->getId();
 
         $current_oomox_settings = PluginOomox::getEntity($user);
-        $form_light = (new self)->getOomoxForm($current_oomox_settings, true);
+        $form_light             = (new self)->getOomoxForm($current_oomox_settings, true);
 
         $form_light->handleRequest($request);
         if ($form_light->isSubmitted() && $form_light->isValid()) {
@@ -156,15 +155,15 @@ class Oomox
                     $current_oomox_settings?->resetTheme(true);
                 }
             } else {
-                $data = $form_light->getData();
+                $data                   = $form_light->getData();
                 $current_oomox_settings = EntityOomox::create(
                     [
-                        'actor_id' => $actor_id,
-                        'colour_foreground_light' => $data['colour_foreground_light'],
+                        'actor_id'                     => $actor_id,
+                        'colour_foreground_light'      => $data['colour_foreground_light'],
                         'colour_background_hard_light' => $data['colour_background_hard_light'],
                         'colour_background_card_light' => $data['colour_background_card_light'],
-                        'colour_border_light' => $data['colour_border_light'],
-                        'colour_accent_light' => $data['colour_accent_light'],
+                        'colour_border_light'          => $data['colour_border_light'],
+                        'colour_accent_light'          => $data['colour_accent_light'],
                     ],
                 );
             }
@@ -187,11 +186,11 @@ class Oomox
      */
     public static function oomoxSettingsDark(Request $request): array
     {
-        $user = Common::ensureLoggedIn();
+        $user     = Common::ensureLoggedIn();
         $actor_id = $user->getId();
 
         $current_oomox_settings = PluginOomox::getEntity($user);
-        $form_dark = (new self)->getOomoxForm($current_oomox_settings, false);
+        $form_dark              = (new self)->getOomoxForm($current_oomox_settings, false);
 
         $form_dark->handleRequest($request);
         if ($form_dark->isSubmitted() && $form_dark->isValid()) {
@@ -200,15 +199,15 @@ class Oomox
             if ($reset_button->isClicked()) {
                 $current_oomox_settings?->resetTheme(false);
             } else {
-                $data = $form_dark->getData();
+                $data                   = $form_dark->getData();
                 $current_oomox_settings = EntityOomox::create(
                     [
-                        'actor_id' => $actor_id,
-                        'colour_foreground_dark' => $data['colour_foreground_dark'],
+                        'actor_id'                    => $actor_id,
+                        'colour_foreground_dark'      => $data['colour_foreground_dark'],
                         'colour_background_hard_dark' => $data['colour_background_hard_dark'],
                         'colour_background_card_dark' => $data['colour_background_card_dark'],
-                        'colour_border_dark' => $data['colour_border_dark'],
-                        'colour_accent_dark' => $data['colour_accent_dark'],
+                        'colour_border_dark'          => $data['colour_border_dark'],
+                        'colour_accent_dark'          => $data['colour_accent_dark'],
                     ],
                 );
             }
@@ -225,18 +224,16 @@ class Oomox
     /**
      * Renders the resulting CSS file from user options, serves that file as a response
      *
-     * @return Response
+     * @throws ClientException
      * @throws NoLoggedInUser
      * @throws ServerException
-     *
-     * @throws ClientException
      */
     public function oomoxCSS(): Response
     {
         $user = Common::ensureLoggedIn();
 
         $oomox_table = PluginOomox::getEntity($user);
-        if (is_null($oomox_table)) {
+        if (\is_null($oomox_table)) {
             throw new ClientException(_m('No custom colours defined', 404));
         }
 

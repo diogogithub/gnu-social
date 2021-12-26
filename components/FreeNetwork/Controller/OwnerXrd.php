@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -30,7 +32,6 @@ use App\Util\Common;
 use Component\FreeNetwork\Util\Discovery;
 use Component\FreeNetwork\Util\XrdController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class OwnerXrd extends XrdController
 {

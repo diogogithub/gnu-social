@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -45,13 +46,13 @@ class TypeResponse extends JsonResponse
     /**
      * Provides a response in application/ld+json for ActivityStreams 2.0 Types
      *
-     * @param string|AbstractObject|null $json
-     * @param int $status The response status code
+     * @param null|AbstractObject|string $json
+     * @param int                        $status The response status code
      */
     public function __construct(string|AbstractObject|null $json = null, int $status = 202)
     {
         parent::__construct(
-            data: is_object($json) ? $json->toJson() : $json,
+            data: \is_object($json) ? $json->toJson() : $json,
             status: $status,
             headers: ['content-type' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'],
             json: true,

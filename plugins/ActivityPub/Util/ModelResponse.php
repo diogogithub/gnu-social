@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -43,8 +44,7 @@ abstract class ModelResponse
      * Provides a response in application/ld+json for ActivityStreams 2.0 Types
      *
      * @param mixed $object (Entity)
-     * @param int $status The response status code
-     * @return TypeResponse
+     * @param int   $status The response status code
      */
     public static function handle(mixed $object, int $status = 200): TypeResponse
     {

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -53,29 +54,27 @@ abstract class Model
     /**
      * Create a Type from an ActivityStreams 2.0 JSON string
      *
-     * @param string|array $data
-     * @return Type\AbstractObject
      * @throws Exception
      */
     public static function jsonToType(string|array $data): Type\AbstractObject
     {
-        if (is_string($data)) {
+        if (\is_string($data)) {
             $attributes = json_decode($data, true);
-            if (json_last_error() !== JSON_ERROR_NONE
-                || !is_array($attributes)
+            if (json_last_error() !== \JSON_ERROR_NONE
+                || !\is_array($attributes)
             ) {
                 throw new Exception(
                     sprintf(
                         "An error occurred during the JSON decoding.\n '%s'",
-                        $data
-                    )
+                        $data,
+                    ),
                 );
             }
         } else {
             $attributes = $data;
         }
 
-        if (!array_key_exists('type', $attributes)) {
+        if (!\array_key_exists('type', $attributes)) {
             throw new InvalidArgumentException('Missing "type" attribute in $data: ' . var_export($data, true));
         }
         unset($data);
@@ -83,13 +82,13 @@ abstract class Model
         try {
             $type = TypeResolver::getClass($attributes['type']);
         } catch (Exception $e) {
-            $message = json_encode($attributes, JSON_PRETTY_PRINT);
+            $message = json_encode($attributes, \JSON_PRETTY_PRINT);
             throw new Exception(
-                $e->getMessage() . "\n$message"
+                $e->getMessage() . "\n{$message}",
             );
         }
 
-        if (is_string($type)) {
+        if (\is_string($type)) {
             $type = new $type();
         }
 
@@ -112,22 +111,17 @@ abstract class Model
 
     /**
      * Create an Entity from an ActivityStreams 2.0 JSON string
-     *
-     * @param string|Type\AbstractObject $json
-     * @param array $options
-     * @return Entity
      */
     abstract public static function fromJson(string|Type\AbstractObject $json, array $options = []): Entity;
 
     /**
      * Get a JSON
      *
-     * @param mixed $object
-     * @param  ?int $options PHP JSON options
-     * @return string
+     * @param ?int $options PHP JSON options
+     *
      * @throws ClientException
      */
-    public static function toJson(mixed $object, int $options = null): string
+    public static function toJson(mixed $object, ?int $options = null): string
     {
         switch ($object::class) {
             case 'App\Entity\Activity':

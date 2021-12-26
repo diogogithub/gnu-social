@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -34,12 +34,12 @@ namespace Plugin\AudioEncoder;
 
 use App\Core\Event;
 use App\Core\GSFile;
+use function App\Core\I18n\_m;
 use App\Core\Modules\Plugin;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use FFMpeg\FFProbe as ffprobe;
 use SplFileInfo;
-use function App\Core\I18n\_m;
 
 class AudioEncoder extends Plugin
 {
@@ -66,7 +66,7 @@ class AudioEncoder extends Plugin
      * Adds duration metadata to audios
      *
      * @param null|string $mimetype in/out
-     * @param null|int $width out audio duration
+     * @param null|int    $width    out audio duration
      *
      * @return bool true if metadata filled
      */
@@ -75,14 +75,14 @@ class AudioEncoder extends Plugin
         // Create FFProbe instance
         // Need to explicitly tell the drivers' location, or it won't find them
         $ffprobe = ffprobe::create([
-            'ffmpeg.binaries' => exec('which ffmpeg'),
+            'ffmpeg.binaries'  => exec('which ffmpeg'),
             'ffprobe.binaries' => exec('which ffprobe'),
         ]);
 
         $metadata = $ffprobe->streams($file->getRealPath()) // extracts streams informations
-        ->audios()                      // filters audios streams
-        ->first();                      // returns the first audio stream
-        $width = (int)ceil((float)$metadata->get('duration'));
+            ->audios()                      // filters audios streams
+            ->first();                      // returns the first audio stream
+        $width = (int) ceil((float) $metadata->get('duration'));
 
         return true;
     }
@@ -100,7 +100,7 @@ class AudioEncoder extends Plugin
             'audioEncoder/audioEncoderView.html.twig',
             [
                 'attachment' => $vars['attachment'],
-                'note' => $vars['note'],
+                'note'       => $vars['note'],
             ],
         );
         return Event::stop;
@@ -112,9 +112,9 @@ class AudioEncoder extends Plugin
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = [
-            'name' => 'AudioEncoder',
-            'version' => self::version(),
-            'author' => 'Diogo Peralta Cordeiro',
+            'name'           => 'AudioEncoder',
+            'version'        => self::version(),
+            'author'         => 'Diogo Peralta Cordeiro',
             'rawdescription' => _m('Use PHP-FFMpeg for some more audio support.'),
         ];
         return Event::next;

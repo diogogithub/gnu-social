@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Component\FreeNetwork\Util;
 
 use App\Core\Controller;

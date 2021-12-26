@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 /**
  * StatusNet - the distributed open-source microblogging tool
  * Copyright (C) 2010, StatusNet, Inc.
@@ -69,7 +71,7 @@ class LinkHeader
         $this->type = null;
 
         // remove uri-reference from header
-        $str = substr($str, strlen($uri_reference[0]));
+        $str = mb_substr($str, \mb_strlen($uri_reference[0]));
 
         // parse link-params
         $params = explode(';', $str);
@@ -78,7 +80,7 @@ class LinkHeader
             if (empty($param)) {
                 continue;
             }
-            list($param_name, $param_value) = explode('=', $param, 2);
+            [$param_name, $param_value] = explode('=', $param, 2);
 
             $param_name  = trim($param_name);
             $param_value = preg_replace('(^"|"$)', '', trim($param_value));
@@ -110,18 +112,18 @@ class LinkHeader
         $headers = $response->getHeader('Link');
         if ($headers) {
             // Can get an array or string, so try to simplify the path
-            if (!is_array($headers)) {
+            if (!\is_array($headers)) {
                 $headers = [$headers];
             }
 
             foreach ($headers as $header) {
                 $lh = new self($header);
 
-                if ((is_null($rel) || $lh->rel == $rel) && (is_null($type) || $lh->type == $type)) {
+                if ((\is_null($rel) || $lh->rel == $rel) && (\is_null($type) || $lh->type == $type)) {
                     return $lh->href;
                 }
             }
         }
-        return null;
+
     }
 }

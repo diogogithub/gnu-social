@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 /**
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +17,11 @@ declare(strict_types=1);
  *
  * @category  Network
  * @package   Nautilus
+ *
  * @author    Aaron Parecki <aaron@parecki.com>
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
- * @link      https://github.com/aaronpk/Nautilus/blob/master/app/ActivityPub/HTTPSignature.php
+ *
+ * @see      https://github.com/aaronpk/Nautilus/blob/master/app/ActivityPub/HTTPSignature.php
  */
 
 namespace Plugin\ActivityPub\Util;
@@ -34,12 +36,14 @@ class HTTPSignature
     /**
      * Sign a message with an Actor
      *
-     * @param Actor $user Actor signing
-     * @param string $url Inbox url
-     * @param string|bool $body Data to sign (optional)
-     * @param array $addlHeaders Additional headers (optional)
-     * @return array Headers to be used in request
+     * @param Actor       $user        Actor signing
+     * @param string      $url         Inbox url
+     * @param bool|string $body        Data to sign (optional)
+     * @param array       $addlHeaders Additional headers (optional)
+     *
      * @throws Exception Attempted to sign something that belongs to an Actor we don't own
+     *
+     * @return array Headers to be used in request
      */
     public static function sign(Actor $user, string $url, string|bool $body = false, array $addlHeaders = []): array
     {
@@ -47,15 +51,15 @@ class HTTPSignature
         if ($body) {
             $digest = self::_digest($body);
         }
-        $headers = self::_headersToSign($url, $digest);
-        $headers = array_merge($headers, $addlHeaders);
-        $stringToSign = self::_headersToSigningString($headers);
-        $signedHeaders = implode(' ', array_map('strtolower', array_keys($headers)));
+        $headers           = self::_headersToSign($url, $digest);
+        $headers           = array_merge($headers, $addlHeaders);
+        $stringToSign      = self::_headersToSigningString($headers);
+        $signedHeaders     = implode(' ', array_map('strtolower', array_keys($headers)));
         $actor_private_key = ActivitypubRsa::getByActor($user)->getPrivateKey();
         // Intentionally unhandled exception, we want this to explode if that happens as it would be a bug
         $key = openssl_pkey_get_private($actor_private_key);
-        openssl_sign($stringToSign, $signature, $key, OPENSSL_ALGO_SHA256);
-        $signature = base64_encode($signature);
+        openssl_sign($stringToSign, $signature, $key, \OPENSSL_ALGO_SHA256);
+        $signature       = base64_encode($signature);
         $signatureHeader = 'keyId="' . $user->getUri() . '#public-key' . '",headers="' . $signedHeaders . '",algorithm="rsa-sha256",signature="' . $signature . '"';
         unset($headers['(request-target)']);
         $headers['Signature'] = $signatureHeader;
@@ -65,20 +69,16 @@ class HTTPSignature
 
     /**
      * @param array|string $body array or json string $body
-     * @return string
      */
     private static function _digest(array|string $body): string
     {
-        if (is_array($body)) {
+        if (\is_array($body)) {
             $body = json_encode($body);
         }
         return base64_encode(hash('sha256', $body, true));
     }
 
     /**
-     * @param string $url
-     * @param string|bool $digest
-     * @return array
      * @throws Exception
      */
     protected static function _headersToSign(string $url, string|bool $digest = false): array
@@ -86,12 +86,12 @@ class HTTPSignature
         $date = new DateTime('UTC');
 
         $headers = [
-            '(request-target)' => 'post ' . parse_url($url, PHP_URL_PATH),
-            'Date' => $date->format('D, d M Y H:i:s \G\M\T'),
-            'Host' => parse_url($url, PHP_URL_HOST),
-            'Accept' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams", application/activity+json, application/json',
-            'User-Agent' => 'GNU social ActivityPub Plugin - ' . GNUSOCIAL_ENGINE_URL,
-            'Content-Type' => 'application/activity+json'
+            '(request-target)' => 'post ' . parse_url($url, \PHP_URL_PATH),
+            'Date'             => $date->format('D, d M Y H:i:s \G\M\T'),
+            'Host'             => parse_url($url, \PHP_URL_HOST),
+            'Accept'           => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams", application/activity+json, application/json',
+            'User-Agent'       => 'GNU social ActivityPub Plugin - ' . GNUSOCIAL_ENGINE_URL,
+            'Content-Type'     => 'application/activity+json',
         ];
 
         if ($digest) {
@@ -101,24 +101,14 @@ class HTTPSignature
         return $headers;
     }
 
-    /**
-     * @param array $headers
-     * @return string
-     */
     private static function _headersToSigningString(array $headers): string
     {
-        return implode("\n", array_map(function ($k, $v) {
-            return strtolower($k) . ': ' . $v;
-        }, array_keys($headers), $headers));
+        return implode("\n", array_map(fn ($k, $v) => mb_strtolower($k) . ': ' . $v, array_keys($headers), $headers));
     }
 
-    /**
-     * @param string $signature
-     * @return array
-     */
     public static function parseSignatureHeader(string $signature): array
     {
-        $parts = explode(',', $signature);
+        $parts         = explode(',', $signature);
         $signatureData = [];
 
         foreach ($parts as $part) {
@@ -129,51 +119,43 @@ class HTTPSignature
 
         if (!isset($signatureData['keyId'])) {
             return [
-                'error' => 'No keyId was found in the signature header. Found: ' . implode(', ', array_keys($signatureData))
+                'error' => 'No keyId was found in the signature header. Found: ' . implode(', ', array_keys($signatureData)),
             ];
         }
 
-        if (!filter_var($signatureData['keyId'], FILTER_VALIDATE_URL)) {
+        if (!filter_var($signatureData['keyId'], \FILTER_VALIDATE_URL)) {
             return [
-                'error' => 'keyId is not a URL: ' . $signatureData['keyId']
+                'error' => 'keyId is not a URL: ' . $signatureData['keyId'],
             ];
         }
 
         if (!isset($signatureData['headers']) || !isset($signatureData['signature'])) {
             return [
-                'error' => 'Signature is missing headers or signature parts'
+                'error' => 'Signature is missing headers or signature parts',
             ];
         }
 
         return $signatureData;
     }
 
-    /**
-     * @param string $publicKey
-     * @param array $signatureData
-     * @param array $inputHeaders
-     * @param string $path
-     * @param string $body
-     * @return array
-     */
     public static function verify(string $publicKey, array $signatureData, array $inputHeaders, string $path, string $body): array
     {
         // We need this because the used Request headers fields specified by Signature are in lower case.
-        $headersContent = array_change_key_case($inputHeaders, CASE_LOWER);
-        $digest = 'SHA-256=' . base64_encode(hash('sha256', $body, true));
-        $headersToSign = [];
+        $headersContent = array_change_key_case($inputHeaders, \CASE_LOWER);
+        $digest         = 'SHA-256=' . base64_encode(hash('sha256', $body, true));
+        $headersToSign  = [];
         foreach (explode(' ', $signatureData['headers']) as $h) {
             if ($h == '(request-target)') {
                 $headersToSign[$h] = 'post ' . $path;
             } elseif ($h == 'digest') {
                 $headersToSign[$h] = $digest;
-            } elseif (array_key_exists($h, $headersContent)) {
+            } elseif (\array_key_exists($h, $headersContent)) {
                 $headersToSign[$h] = $headersContent[$h];
             }
         }
         $signingString = self::_headersToSigningString($headersToSign);
 
-        $verified = openssl_verify($signingString, base64_decode($signatureData['signature']), $publicKey, OPENSSL_ALGO_SHA256);
+        $verified = openssl_verify($signingString, base64_decode($signatureData['signature']), $publicKey, \OPENSSL_ALGO_SHA256);
 
         return [$verified, $signingString];
     }

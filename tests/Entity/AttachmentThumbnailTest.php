@@ -23,9 +23,9 @@ namespace App\Tests\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use Component\Attachment\Entity\AttachmentThumbnail;
 use App\Util\Exception\NotStoredLocallyException;
 use App\Util\GNUsocialTestCase;
+use Component\Attachment\Entity\AttachmentThumbnail;
 use Functional as F;
 use Jchook\AssertThrows\AssertThrows;
 use SplFileInfo;

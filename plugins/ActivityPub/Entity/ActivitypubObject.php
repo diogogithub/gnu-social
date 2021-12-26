@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -117,16 +118,16 @@ class ActivitypubObject extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name' => 'activitypub_object',
+            'name'   => 'activitypub_object',
             'fields' => [
-                'object_uri' => ['type' => 'text', 'not null' => true, 'description' => 'Object\'s URI'],
+                'object_uri'  => ['type' => 'text', 'not null' => true, 'description' => 'Object\'s URI'],
                 'object_type' => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'the name of the table this object refers to'],
-                'object_id' => ['type' => 'int', 'not null' => true, 'description' => 'id in the referenced table'],
-                'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'object_id'   => ['type' => 'int', 'not null' => true, 'description' => 'id in the referenced table'],
+                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['object_uri'],
-            'indexes' => [
+            'indexes'     => [
                 'activity_object_uri_idx' => ['object_uri'],
             ],
         ];

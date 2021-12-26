@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -35,15 +36,13 @@ use App\Core\HTTPClient;
 use App\Core\Log;
 use App\Util\Exception\NoSuchActorException;
 use Exception;
+use const JSON_UNESCAPED_SLASHES;
 use Plugin\ActivityPub\ActivityPub;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use function in_array;
-use function is_null;
-use const JSON_UNESCAPED_SLASHES;
 
 /**
  * ActivityPub's own Explorer
@@ -60,10 +59,8 @@ class Explorer
     /**
      * Shortcut function to get a single profile from its URL.
      *
-     * @param string $url
      * @param bool $grab_online whether to try online grabbing, defaults to true
      *
-     * @return ActivitypubActor
      * @throws ClientExceptionInterface
      * @throws NoSuchActorException
      * @throws RedirectionExceptionInterface
@@ -86,8 +83,8 @@ class Explorer
      * This function cleans the $this->discovered_actor_profiles array
      * so that there is no erroneous data
      *
-     * @param string $url User's url
-     * @param bool $grab_online whether to try online grabbing, defaults to true
+     * @param string $url         User's url
+     * @param bool   $grab_online whether to try online grabbing, defaults to true
      *
      * @throws ClientExceptionInterface
      * @throws NoSuchActorException
@@ -99,7 +96,7 @@ class Explorer
      */
     public function lookup(string $url, bool $grab_online = true)
     {
-        if (in_array($url, ActivityPub::PUBLIC_TO)) {
+        if (\in_array($url, ActivityPub::PUBLIC_TO)) {
             return [];
         }
 
@@ -114,8 +111,8 @@ class Explorer
      * This is a recursive function that will accumulate the results on
      * $discovered_actor_profiles array
      *
-     * @param string $url User's url
-     * @param bool $grab_online whether to try online grabbing, defaults to true
+     * @param string $url         User's url
+     * @param bool   $grab_online whether to try online grabbing, defaults to true
      *
      * @throws ClientExceptionInterface
      * @throws NoSuchActorException
@@ -187,13 +184,13 @@ class Explorer
     {
         Log::debug('ActivityPub Explorer: Trying to grab a remote actor for ' . $url);
         $response = HTTPClient::get($url, ['headers' => ACTIVITYPUB::HTTP_CLIENT_HEADERS]);
-        $res = json_decode($response->getContent(), true);
+        $res      = json_decode($response->getContent(), true);
         if ($response->getStatusCode() == 410) { // If it was deleted
             return true; // Nothing to add.
         } elseif (!HTTPClient::statusCodeIsOkay($response)) { // If it is unavailable
             return false; // Try to add at another time.
         }
-        if (is_null($res)) {
+        if (\is_null($res)) {
             Log::debug('ActivityPub Explorer: Invalid response returned from given Actor URL: ' . $res);
             return true; // Nothing to add.
         }
@@ -210,7 +207,7 @@ class Explorer
                 Log::debug(
                     'ActivityPub Explorer: Invalid potential remote actor while grabbing remotely: ' . $url
                     . '. He returned the following: ' . json_encode($res, JSON_UNESCAPED_SLASHES)
-                    . ' and the following exception: ' . $e->getMessage()
+                    . ' and the following exception: ' . $e->getMessage(),
                 );
                 return false;
             }
@@ -229,14 +226,12 @@ class Explorer
     public static function get_aprofile_by_url(string $v): ActivitypubActor|bool
     {
         $aprofile = ActivitypubActor::getByPK(['uri' => $v]);
-        return is_null($aprofile) ? false : ActivitypubActor::getByPK(['uri' => $v]);
+        return \is_null($aprofile) ? false : ActivitypubActor::getByPK(['uri' => $v]);
     }
 
     /**
      * Allows the Explorer to transverse a collection of persons.
      *
-     * @param string $url
-     * @return bool
      * @throws ClientExceptionInterface
      * @throws NoSuchActorException
      * @throws RedirectionExceptionInterface
@@ -246,7 +241,7 @@ class Explorer
     private function travel_collection(string $url): bool
     {
         $response = HTTPClient::get($url, ['headers' => ACTIVITYPUB::HTTP_CLIENT_HEADERS]);
-        $res = json_decode($response->getContent(), true);
+        $res      = json_decode($response->getContent(), true);
 
         if (!isset($res['orderedItems'])) {
             return false;
@@ -258,7 +253,7 @@ class Explorer
             }
         }
         // Go through entire collection
-        if (!is_null($res['next'])) {
+        if (!\is_null($res['next'])) {
             $this->travel_collection($res['next']);
         }
 
@@ -272,12 +267,12 @@ class Explorer
      * @param string $url User's url
      *
      * @throws ClientExceptionInterface
+     * @throws Exception
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @throws Exception
      *
-     * @return string|null If it is able to fetch, false if it's gone
+     * @return null|string If it is able to fetch, false if it's gone
      *                     // Exceptions when network issues or unsupported Activity format
      */
     public static function get_remote_user_activity(string $url): string|null

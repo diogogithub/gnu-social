@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Component\FreeNetwork\Util;
 
 use App\Core\Entity;
@@ -40,8 +42,6 @@ abstract class WebfingerResource
 
     /**
      * List of alternative IDs of a certain Actor
-     *
-     * @return array
      */
     public function getAliases(): array
     {
@@ -53,7 +53,7 @@ abstract class WebfingerResource
         // you've run HTTPS all the time!
         if (Common::config('fix', 'legacy_http')) {
             foreach ($aliases as $alias => $id) {
-                if (!strtolower(parse_url($alias, PHP_URL_SCHEME)) === 'https') {
+                if (!mb_strtolower(parse_url($alias, \PHP_URL_SCHEME)) === 'https') {
                     continue;
                 }
                 $aliases[preg_replace('/^https:/i', 'http:', $alias, 1)] = $id;

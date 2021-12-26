@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -60,29 +61,25 @@ use Plugin\ActivityPub\Util\Model;
  */
 class Actor extends Model
 {
-
     /**
      * Create an Entity from an ActivityStreams 2.0 JSON string
      * This will persist a new GSActor, ActivityPubRSA, and ActivityPubActor
      *
-     * @param string|AbstractObject $json
-     * @param array $options
-     * @return ActivitypubActor
      * @throws Exception
      */
     public static function fromJson(string|AbstractObject $json, array $options = []): ActivitypubActor
     {
-        $person = is_string($json) ? self::jsonToType($json) : $json;
+        $person = \is_string($json) ? self::jsonToType($json) : $json;
 
         // Actor
         $actor_map = [
             'nickname' => $person->get('preferredUsername'),
             'fullname' => !empty($person->get('name')) ? $person->get('name') : null,
-            'created' => new DateTime($person->get('published') ?? 'now'),
-            'bio' => $person->get('summary'),
+            'created'  => new DateTime($person->get('published') ?? 'now'),
+            'bio'      => $person->get('summary'),
             'is_local' => false,
-            'type' => GSActor::PERSON,
-            'roles' => UserRoles::USER,
+            'type'     => GSActor::PERSON,
+            'roles'    => UserRoles::USER,
             'modified' => new DateTime(),
         ];
 
@@ -99,11 +96,11 @@ class Actor extends Model
 
         // ActivityPub Actor
         $ap_actor = ActivitypubActor::create([
-            'inbox_uri' => $person->get('inbox'),
+            'inbox_uri'        => $person->get('inbox'),
             'inbox_shared_uri' => ($person->has('endpoints') && isset($person->get('endpoints')['sharedInbox'])) ? $person->get('endpoints')['sharedInbox'] : null,
-            'uri' => $person->get('id'),
-            'actor_id' => $actor->getId(),
-            'url' => $person->get('url') ?? null,
+            'uri'              => $person->get('id'),
+            'actor_id'         => $actor->getId(),
+            'url'              => $person->get('url') ?? null,
         ], $options['objects']['ActivitypubActor'] ?? null);
 
         if (!isset($options['objects']['ActivitypubActor'])) {
@@ -112,7 +109,7 @@ class Actor extends Model
 
         // Public Key
         $apRSA = ActivitypubRsa::create([
-            'actor_id' => $actor->getID(),
+            'actor_id'   => $actor->getID(),
             'public_key' => ($person->has('publicKey') && isset($person->get('publicKey')['publicKeyPem'])) ? $person->get('publicKey')['publicKeyPem'] : null,
         ], $options['objects']['ActivitypubRsa'] ?? null);
 
@@ -125,8 +122,8 @@ class Actor extends Model
             try {
                 // Retrieve media
                 $get_response = HTTPClient::get($person->get('icon')->get('url'));
-                $media = $get_response->getContent();
-                $mimetype = $get_response->getHeaders()['content-type'][0] ?? null;
+                $media        = $get_response->getContent();
+                $mimetype     = $get_response->getHeaders()['content-type'][0] ?? null;
                 unset($get_response);
 
                 // Only handle if it is an image
@@ -168,9 +165,8 @@ class Actor extends Model
     /**
      * Get a JSON
      *
-     * @param mixed $object
-     * @param int|null $options PHP JSON options
-     * @return string
+     * @param null|int $options PHP JSON options
+     *
      * @throws ServerException
      */
     public static function toJson(mixed $object, ?int $options = null): string
@@ -178,41 +174,41 @@ class Actor extends Model
         if ($object::class !== 'App\Entity\Actor') {
             throw new InvalidArgumentException('First argument type is Actor');
         }
-        $rsa = ActivitypubRsa::getByActor($object);
+        $rsa        = ActivitypubRsa::getByActor($object);
         $public_key = $rsa->getPublicKey();
-        $uri = null;
-        $attr = [
-            '@context' => 'https://www.w3.org/ns/activitystreams',
-            'type' => 'Person',
-            'id' => $object->getUri(Router::ABSOLUTE_URL),
-            'inbox' => Router::url('activitypub_actor_inbox', ['gsactor_id' => $object->getId()], Router::ABSOLUTE_URL),
-            'outbox' => Router::url('activitypub_actor_outbox', ['gsactor_id' => $object->getId()], Router::ABSOLUTE_URL),
+        $uri        = null;
+        $attr       = [
+            '@context'  => 'https://www.w3.org/ns/activitystreams',
+            'type'      => 'Person',
+            'id'        => $object->getUri(Router::ABSOLUTE_URL),
+            'inbox'     => Router::url('activitypub_actor_inbox', ['gsactor_id' => $object->getId()], Router::ABSOLUTE_URL),
+            'outbox'    => Router::url('activitypub_actor_outbox', ['gsactor_id' => $object->getId()], Router::ABSOLUTE_URL),
             'following' => Router::url('actor_subscriptions_id', ['id' => $object->getId()], Router::ABSOLUTE_URL),
             'followers' => Router::url('actor_subscribers_id', ['id' => $object->getId()], Router::ABSOLUTE_URL),
-            'liked' => Router::url('favourites_view_by_actor_id', ['id' => $object->getId()], Router::ABSOLUTE_URL),
+            'liked'     => Router::url('favourites_view_by_actor_id', ['id' => $object->getId()], Router::ABSOLUTE_URL),
             //'streams' =>
             'preferredUsername' => $object->getNickname(),
-            'publicKey' => [
-                'id' => $uri . "#public-key",
-                'owner' => $uri,
-                'publicKeyPem' => $public_key
+            'publicKey'         => [
+                'id'           => $uri . '#public-key',
+                'owner'        => $uri,
+                'publicKeyPem' => $public_key,
             ],
-            'name' => $object->getFullname(),
-            'location' => $object->getLocation(),
+            'name'      => $object->getFullname(),
+            'location'  => $object->getLocation(),
             'published' => $object->getCreated()->format(DateTimeInterface::RFC3339),
-            'summary' => $object->getBio(),
+            'summary'   => $object->getBio(),
             //'tag' => $object->getSelfTags(),
             'updated' => $object->getModified()->format(DateTimeInterface::RFC3339),
-            'url' => $object->getUrl(Router::ABSOLUTE_URL),
+            'url'     => $object->getUrl(Router::ABSOLUTE_URL),
         ];
 
         // Avatar
         try {
-            $avatar = Avatar::getAvatar($object->getId());
+            $avatar       = Avatar::getAvatar($object->getId());
             $attr['icon'] = $attr['image'] = [
-                'type' => 'Image',
+                'type'      => 'Image',
                 'mediaType' => $avatar->getAttachment()->getMimetype(),
-                'url' => $avatar->getUrl(type: Router::ABSOLUTE_URL),
+                'url'       => $avatar->getUrl(type: Router::ABSOLUTE_URL),
             ];
         } catch (Exception) {
             // No icon for this actor

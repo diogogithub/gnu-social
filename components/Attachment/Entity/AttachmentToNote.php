@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -19,7 +21,6 @@
 
 namespace Component\Attachment\Entity;
 
-use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
@@ -45,7 +46,7 @@ class AttachmentToNote extends Entity
     private int $attachment_id;
     private int $note_id;
     private ?string $title;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
     {
@@ -94,11 +95,6 @@ class AttachmentToNote extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    /**
-     * @param int $note_id
-     * @param int $attachment_id
-     * @return mixed
-     */
     public static function removeWhere(int $note_id, int $attachment_id): mixed
     {
         return DB::dql(
@@ -111,10 +107,6 @@ class AttachmentToNote extends Entity
         );
     }
 
-    /**
-     * @param int $note_id
-     * @return mixed
-     */
     public static function removeWhereNoteId(int $note_id): mixed
     {
         return DB::dql(
@@ -126,10 +118,6 @@ class AttachmentToNote extends Entity
         );
     }
 
-    /**
-     * @param int $attachment_id
-     * @return mixed
-     */
     public static function removeWhereAttachmentId(int $attachment_id): mixed
     {
         return DB::dql(

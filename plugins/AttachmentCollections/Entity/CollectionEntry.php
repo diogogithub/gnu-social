@@ -1,7 +1,11 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Plugin\AttachmentCollections\Entity;
 
 use App\Core\Entity;
+
 class CollectionEntry extends Entity
 {
     // These tags are meant to be literally included and will be populated with the appropriate fields, setters and getters by `bin/generate_entity_fields`
@@ -44,10 +48,8 @@ class CollectionEntry extends Entity
         return $this->collection_id;
     }
 
-
     // @codeCoverageIgnoreEnd
     // }}} Autocode
-
 
     public static function schemaDef()
     {
@@ -62,4 +64,3 @@ class CollectionEntry extends Entity
         ];
     }
 }
-

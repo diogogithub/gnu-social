@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -26,10 +28,10 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
 use App\Core\GSFile;
-use App\Entity\Note;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
+use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\DuplicateFoundException;
@@ -77,17 +79,11 @@ class Attachment extends Entity
         return $this->id;
     }
 
-    /**
-     * @return int
-     */
     public function getLives(): int
     {
         return $this->lives;
     }
 
-    /**
-     * @param int $lives
-     */
     public function setLives(int $lives): void
     {
         $this->lives = $lives;
@@ -176,39 +172,31 @@ class Attachment extends Entity
     public function getMimetypeMajor(): ?string
     {
         $mime = $this->getMimetype();
-        return is_null($mime) ? $mime : GSFile::mimetypeMajor($mime);
+        return \is_null($mime) ? $mime : GSFile::mimetypeMajor($mime);
     }
 
     public function getMimetypeMinor(): ?string
     {
         $mime = $this->getMimetype();
-        return is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
+        return \is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
     }
 
-    /**
-     * @return int
-     */
     public function livesIncrementAndGet(): int
     {
         ++$this->lives;
         return $this->lives;
     }
 
-    /**
-     * @return int
-     */
     public function livesDecrementAndGet(): int
     {
         --$this->lives;
         return $this->lives;
     }
 
-    const FILEHASH_ALGO = 'sha256';
+    public const FILEHASH_ALGO = 'sha256';
 
     /**
      * Delete a file if safe, removes dependencies, cleanups and flushes
-     *
-     * @return bool
      */
     public function kill(): bool
     {
@@ -223,7 +211,7 @@ class Attachment extends Entity
      */
     public function deleteStorage(): bool
     {
-        if (!is_null($filepath = $this->getPath())) {
+        if (!\is_null($filepath = $this->getPath())) {
             if (file_exists($filepath)) {
                 if (@unlink($filepath) === false) {
                     // @codeCoverageIgnoreStart
@@ -248,6 +236,7 @@ class Attachment extends Entity
 
     /**
      * Attachment delete always removes dependencies, cleanups and flushes
+     *
      * @see kill() It's more likely that you want to use that rather than call delete directly
      */
     protected function delete(): bool
@@ -261,7 +250,7 @@ class Attachment extends Entity
 
         // Collect files starting with the one associated with this attachment
         $files = [];
-        if (!is_null($filepath = $this->getPath())) {
+        if (!\is_null($filepath = $this->getPath())) {
             $files[] = $filepath;
         }
 
@@ -306,25 +295,21 @@ class Attachment extends Entity
     /**
      * TODO: Maybe this isn't the best way of handling titles
      *
-     * @param null|Note $note
-     *
      * @throws DuplicateFoundException
      * @throws NotFoundException
      * @throws ServerException
-     *
-     * @return string
      */
     public function getBestTitle(?Note $note = null): string
     {
         // If we have a note, then the best title is the title itself
-        if (!is_null(($note))) {
+        if (!\is_null(($note))) {
             $title = Cache::get('attachment-title-' . $this->getId() . '-' . $note->getId(), function () use ($note) {
                 try {
                     $attachment_to_note = DB::findOneBy('attachment_to_note', [
                         'attachment_id' => $this->getId(),
                         'note_id'       => $note->getId(),
                     ]);
-                    if (!is_null($attachment_to_note->getTitle())) {
+                    if (!\is_null($attachment_to_note->getTitle())) {
                         return $attachment_to_note->getTitle();
                     }
                 } catch (NotFoundException) {
@@ -332,14 +317,14 @@ class Attachment extends Entity
                     Event::handle('AttachmentGetBestTitle', [$this, $note, &$title]);
                     return $title;
                 }
-                return null;
+
             });
             if ($title != null) {
                 return $title;
             }
         }
         // Else
-        if (!is_null($filename = $this->getFilename())) {
+        if (!\is_null($filename = $this->getFilename())) {
             // A filename would do just as well
             return $filename;
         } else {
@@ -359,7 +344,7 @@ class Attachment extends Entity
     public function getPath()
     {
         $filename = $this->getFilename();
-        return is_null($filename) ? null : Common::config('attachments', 'dir') . DIRECTORY_SEPARATOR . $filename;
+        return \is_null($filename) ? null : Common::config('attachments', 'dir') . \DIRECTORY_SEPARATOR . $filename;
     }
 
     public function getUrl(int $type = Router::ABSOLUTE_URL): string
@@ -368,9 +353,6 @@ class Attachment extends Entity
     }
 
     /**
-     * @param null|string $size
-     * @param bool        $crop
-     *
      * @throws ClientException
      * @throws NotFoundException
      * @throws ServerException

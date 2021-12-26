@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Component\FreeNetwork\Util\LrddMethod;
 
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -38,10 +40,7 @@ class LrddMethodLinkHtml extends LRDDMethod
      * For HTTP IDs, fetch the URL and look for <link> elements
      * in the HTML response.
      *
-     * @param mixed $uri
-     *
      * @todo fail out of WebFinger URIs faster
-     *
      */
     public function discover($uri)
     {
@@ -65,7 +64,7 @@ class LrddMethodLinkHtml extends LRDDMethod
 
         preg_match('/<head(\s[^>]*)?>(.*?)<\/head>/is', $html, $head_matches);
 
-        if (count($head_matches) != 3) {
+        if (\count($head_matches) != 3) {
             return [];
         }
         [, , $head_html] = $head_matches;
@@ -78,23 +77,23 @@ class LrddMethodLinkHtml extends LRDDMethod
             $link_type = null;
 
             preg_match('/\srel=(("|\')([^\\2]*?)\\2|[^"\'\s]+)/i', $link_html, $rel_matches);
-            if (count($rel_matches) > 3) {
+            if (\count($rel_matches) > 3) {
                 $link_rel = $rel_matches[3];
-            } elseif (count($rel_matches) > 1) {
+            } elseif (\count($rel_matches) > 1) {
                 $link_rel = $rel_matches[1];
             }
 
             preg_match('/\shref=(("|\')([^\\2]*?)\\2|[^"\'\s]+)/i', $link_html, $href_matches);
-            if (count($href_matches) > 3) {
+            if (\count($href_matches) > 3) {
                 $link_uri = $href_matches[3];
-            } elseif (count($href_matches) > 1) {
+            } elseif (\count($href_matches) > 1) {
                 $link_uri = $href_matches[1];
             }
 
             preg_match('/\stype=(("|\')([^\\2]*?)\\2|[^"\'\s]+)/i', $link_html, $type_matches);
-            if (count($type_matches) > 3) {
+            if (\count($type_matches) > 3) {
                 $link_type = $type_matches[3];
-            } elseif (count($type_matches) > 1) {
+            } elseif (\count($type_matches) > 1) {
                 $link_type = $type_matches[1];
             }
 

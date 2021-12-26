@@ -32,17 +32,11 @@ declare(strict_types = 1);
 
 namespace Component\FreeNetwork\Entity;
 
-use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
-use function App\Core\I18n\_m;
-use App\Core\Log;
 use App\Entity\Actor;
 use Component\FreeNetwork\Util\Discovery;
 use DateTimeInterface;
-use Exception;
-use Plugin\ActivityPub\Util\DiscoveryHints;
-use Plugin\ActivityPub\Util\Explorer;
 
 /**
  * Table Definition for free_network_actor_protocol
@@ -119,9 +113,9 @@ class FreeNetworkActorProtocol extends Entity
 
     public static function protocolSucceeded(string $protocol, int|Actor $actor_id, string $addr): void
     {
-        $actor_id = is_int($actor_id) ? $actor_id : $actor_id->getId();
+        $actor_id            = \is_int($actor_id) ? $actor_id : $actor_id->getId();
         $attributed_protocol = self::getByPK(['actor_id' => $actor_id]);
-        if (is_null($attributed_protocol)) {
+        if (\is_null($attributed_protocol)) {
             $attributed_protocol = self::create([
                 'actor_id' => $actor_id,
                 'protocol' => $protocol,
@@ -130,14 +124,14 @@ class FreeNetworkActorProtocol extends Entity
         } else {
             $attributed_protocol->setProtocol($protocol);
         }
-        DB::wrapInTransaction(fn() => DB::persist($attributed_protocol));
+        DB::wrapInTransaction(fn () => DB::persist($attributed_protocol));
     }
 
     public static function canIActor(string $protocol, int|Actor $actor_id): bool
     {
-        $actor_id = is_int($actor_id) ? $actor_id : $actor_id->getId();
+        $actor_id            = \is_int($actor_id) ? $actor_id : $actor_id->getId();
         $attributed_protocol = self::getByPK(['actor_id' => $actor_id])?->getProtocol();
-        if (is_null($attributed_protocol)) {
+        if (\is_null($attributed_protocol)) {
             // If it is not attributed, you can go ahead.
             return true;
         } else {
@@ -149,9 +143,9 @@ class FreeNetworkActorProtocol extends Entity
     public static function canIAddr(string $protocol, string $target): bool
     {
         // Normalize $addr, i.e. add 'acct:' if missing
-        $addr = Discovery::normalize($target);
+        $addr                = Discovery::normalize($target);
         $attributed_protocol = self::getByPK(['addr' => $addr])?->getProtocol();
-        if (is_null($attributed_protocol)) {
+        if (\is_null($attributed_protocol)) {
             // If it is not attributed, you can go ahead.
             return true;
         } else {
@@ -167,7 +161,7 @@ class FreeNetworkActorProtocol extends Entity
             'fields' => [
                 'actor_id' => ['type' => 'int', 'not null' => true],
                 'protocol' => ['type' => 'varchar',  'length' => 32, 'description' => 'the protocol plugin that should handle federation of this actor'],
-                'addr' => ['type' => 'text',  'not null' => true, 'description' => 'webfinger acct'],
+                'addr'     => ['type' => 'text',  'not null' => true, 'description' => 'webfinger acct'],
                 'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

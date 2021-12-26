@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 /*
  * StatusNet - the distributed open-source microblogging tool
  * Copyright (C) 2010, StatusNet, Inc.
@@ -69,7 +71,7 @@ class Webfinger extends XrdController
         $this->xrd->subject = $this->resource;
 
         foreach ($this->target->getAliases() as $alias) {
-            if ($alias != $this->xrd->subject && !in_array($alias, $this->xrd->aliases)) {
+            if ($alias != $this->xrd->subject && !\in_array($alias, $this->xrd->aliases)) {
                 $this->xrd->aliases[] = $alias;
             }
         }

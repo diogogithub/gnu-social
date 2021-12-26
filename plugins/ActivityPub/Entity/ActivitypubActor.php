@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -33,6 +34,7 @@ namespace Plugin\ActivityPub\Entity;
 
 use App\Core\Cache;
 use App\Core\Entity;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Entity\Actor;
 use Component\FreeNetwork\Util\Discovery;
@@ -41,9 +43,6 @@ use Exception;
 use Plugin\ActivityPub\Util\DiscoveryHints;
 use Plugin\ActivityPub\Util\Explorer;
 use XML_XRD;
-use function App\Core\I18n\_m;
-use function array_key_exists;
-use function is_null;
 
 /**
  * Table Definition for activitypub_actor
@@ -158,10 +157,10 @@ class ActivitypubActor extends Entity
         $addr = Discovery::normalize($addr);
 
         // Try the cache
-        $uri = Cache::get(sprintf('ActivitypubActor-webfinger-%s', urlencode($addr)), fn() => false);
+        $uri = Cache::get(sprintf('ActivitypubActor-webfinger-%s', urlencode($addr)), fn () => false);
 
         if ($uri !== false) {
-            if (is_null($uri)) {
+            if (\is_null($uri)) {
                 // TRANS: Exception.
                 throw new Exception(_m('Not a valid WebFinger address (via cache).'));
             }
@@ -197,7 +196,7 @@ class ActivitypubActor extends Entity
             DiscoveryHints::fromXRD($xrd),
         );
 
-        if (array_key_exists('activitypub', $hints)) {
+        if (\array_key_exists('activitypub', $hints)) {
             $uri = $hints['activitypub'];
             try {
                 LOG::info("Discovery on acct:{$addr} with URI:{$uri}");
@@ -240,9 +239,7 @@ class ActivitypubActor extends Entity
 
     /**
      * @param ActivitypubActor $ap_actor
-     * @param Actor $actor
-     * @param ActivitypubRsa $activitypub_rsa
-     * @param string $res
+     *
      * @throws Exception
      */
     public static function update_profile(self &$ap_actor, Actor &$actor, ActivitypubRsa &$activitypub_rsa, string $res): void
@@ -253,17 +250,17 @@ class ActivitypubActor extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name' => 'activitypub_actor',
+            'name'   => 'activitypub_actor',
             'fields' => [
-                'uri' => ['type' => 'text', 'not null' => true],
-                'actor_id' => ['type' => 'int', 'not null' => true],
-                'inbox_uri' => ['type' => 'text', 'not null' => true],
+                'uri'              => ['type' => 'text', 'not null' => true],
+                'actor_id'         => ['type' => 'int', 'not null' => true],
+                'inbox_uri'        => ['type' => 'text', 'not null' => true],
                 'inbox_shared_uri' => ['type' => 'text'],
-                'url' => ['type' => 'text'],
-                'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'url'              => ['type' => 'text'],
+                'created'          => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['actor_id'],
+            'primary key'  => ['actor_id'],
             'foreign keys' => [
                 'activitypub_actor_actor_id_fkey' => ['actor', ['actor_id' => 'id']],
             ],

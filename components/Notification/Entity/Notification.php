@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -46,8 +48,8 @@ class Notification extends Entity
     private int $activity_id;
     private int $target_id;
     private ?string $reason;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setActivityId(int $activity_id): self
     {
@@ -107,9 +109,6 @@ class Notification extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    /**
-     * @return Actor
-     */
     public function getTarget(): Actor
     {
         return Actor::getById($this->getTargetId());
@@ -122,18 +121,14 @@ class Notification extends Entity
      */
     public static function getNotificationTargetIdsByActivity(int|Activity $activity_id): array
     {
-        $notifications = DB::findBy('notification', ['activity_id' => is_int($activity_id) ? $activity_id : $activity_id->getId()]);
-        $targets = [];
+        $notifications = DB::findBy('notification', ['activity_id' => \is_int($activity_id) ? $activity_id : $activity_id->getId()]);
+        $targets       = [];
         foreach ($notifications as $notification) {
             $targets[] = $notification->getTargetId();
         }
         return $targets;
     }
 
-    /**
-     * @param int|Activity $activity_id
-     * @return array
-     */
     public function getNotificationTargetsByActivity(int|Activity $activity_id): array
     {
         return DB::findBy('actor', ['id' => $this->getNotificationTargetIdsByActivity($activity_id)]);
@@ -154,7 +149,7 @@ class Notification extends Entity
             'primary key' => ['activity_id', 'target_id'],
             'indexes'     => [
                 'attention_activity_id_idx' => ['activity_id'],
-                'attention_target_id_idx'    => ['target_id'],
+                'attention_target_id_idx'   => ['target_id'],
             ],
         ];
     }

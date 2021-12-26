@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 /**
  * @author   James Walker <james@status.net>
  * @author   Craig Andrews <candrews@integralblue.com>
@@ -8,13 +10,9 @@
 
 namespace Component\FreeNetwork\Controller;
 
-use App\Core\Controller;
 use App\Core\Event;
 use Component\FreeNetwork\Util\Discovery;
 use Component\FreeNetwork\Util\XrdController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use XML_XRD;
 
 class HostMeta extends XrdController
 {

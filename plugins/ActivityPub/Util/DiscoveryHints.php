@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -51,7 +52,6 @@ use XML_XRD;
 /**
  * DiscoveryHints implementation for GNU social
  *
- *
  * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -59,9 +59,6 @@ class DiscoveryHints
 {
     /**
      * Search the WebFinger XRD after an ActivityPub URI
-     *
-     * @param XML_XRD $xrd
-     * @return array
      */
     public static function fromXRD(XML_XRD $xrd): array
     {

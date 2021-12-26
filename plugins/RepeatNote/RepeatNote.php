@@ -29,13 +29,13 @@ use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Activity;
 use App\Entity\Actor;
-use Component\Language\Entity\Language;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
+use Component\Language\Entity\Language;
 use Component\Posting\Posting;
 use DateTime;
 use Plugin\RepeatNote\Entity\NoteRepeat;
@@ -53,11 +53,11 @@ class RepeatNote extends NoteHandlerPlugin
 
         if (!\is_null($repeat_entity)) {
             return DB::findBy('activity', [
-                    'actor_id' => $actor_id,
-                    'verb' => 'repeat',
-                    'object_type' => 'note',
-                    'object_id' => $note->getId()
-                ], order_by: ['created' => 'DESC'])[0];
+                'actor_id'    => $actor_id,
+                'verb'        => 'repeat',
+                'object_type' => 'note',
+                'object_id'   => $note->getId(),
+            ], order_by: ['created' => 'DESC'])[0];
         }
 
         // Create a new note with the same content as the original

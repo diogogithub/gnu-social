@@ -1,7 +1,11 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Plugin\AttachmentCollections\Entity;
 
 use App\Core\Entity;
+
 class Collection extends Entity
 {
     // These tags are meant to be literally included and will be populated with the appropriate fields, setters and getters by `bin/generate_entity_fields`
@@ -44,10 +48,8 @@ class Collection extends Entity
         return $this->actor_id;
     }
 
-
     // @codeCoverageIgnoreEnd
     // }}} Autocode
-
 
     public static function schemaDef()
     {
@@ -55,11 +57,10 @@ class Collection extends Entity
             'name'   => 'attachment_collection',
             'fields' => [
                 'id'       => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'name'     => ['type' => 'varchar', 'length'  => 255, 'description' => 'collection\'s name'],
+                'name'     => ['type' => 'varchar', 'length' => 255, 'description' => 'collection\'s name'],
                 'actor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to many', 'not null' => true, 'description' => 'foreign key to actor table'],
             ],
-            'primary key'  => ['id'],
+            'primary key' => ['id'],
         ];
     }
 }
-

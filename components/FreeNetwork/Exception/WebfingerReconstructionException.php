@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 /**
  * StatusNet, the distributed open-source microblogging tool
  *
@@ -50,7 +52,7 @@ use Throwable;
  */
 class WebfingerReconstructionException extends ServerException
 {
-    public function __construct(string $message = '', int $code = 500, Throwable $previous = null)
+    public function __construct(string $message = '', int $code = 500, ?Throwable $previous = null)
     {
         // We could log an entry here with the search parameters
         parent::__construct(_m('WebFinger URI generation failed.'));

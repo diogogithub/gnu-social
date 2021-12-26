@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -63,29 +64,26 @@ class Activity extends Model
      * Create an Entity from an ActivityStreams 2.0 JSON string
      * This will persist new GSActivities, GSObjects, and APActivity
      *
-     * @param string|AbstractObject $json
-     * @param array $options
-     * @return ActivitypubActivity
-     * @throws NoSuchActorException
      * @throws ClientExceptionInterface
+     * @throws NoSuchActorException
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
     public static function fromJson(string|AbstractObject $json, array $options = []): ActivitypubActivity
     {
-        $type_activity = is_string($json) ? self::jsonToType($json) : $json;
+        $type_activity = \is_string($json) ? self::jsonToType($json) : $json;
 
         // Ditch known activities
         $ap_act = ActivitypubActivity::getByPK(['activity_uri' => $type_activity->get('id')]);
-        if (!is_null($ap_act)) {
+        if (!\is_null($ap_act)) {
             return $ap_act;
         }
 
         // Find Actor and Object
-        $actor = ActivityPub::getActorByUri($type_activity->get('actor'));
+        $actor       = ActivityPub::getActorByUri($type_activity->get('actor'));
         $type_object = $type_activity->get('object');
-        if (is_string($type_object)) { // Retrieve it
+        if (\is_string($type_object)) { // Retrieve it
             $type_object = ActivityPub::getObjectByUri($type_object, try_online: true);
         } else { // Encapsulated, if we have it locally, prefer it
             $type_object = ActivityPub::getObjectByUri($type_object->get('id'), try_online: false) ?? $type_object;
@@ -118,20 +116,20 @@ class Activity extends Model
             }
             // Store Activity
             $act = GSActivity::create([
-                'actor_id' => $actor->getId(),
-                'verb' => 'create',
+                'actor_id'    => $actor->getId(),
+                'verb'        => 'create',
                 'object_type' => 'note',
-                'object_id' => $note->getId(),
-                'created' => new DateTime($type_activity->get('published') ?? 'now'),
-                'source' => 'ActivityPub',
+                'object_id'   => $note->getId(),
+                'created'     => new DateTime($type_activity->get('published') ?? 'now'),
+                'source'      => 'ActivityPub',
             ]);
             DB::persist($act);
             // Store ActivityPub Activity
             $ap_act = ActivitypubActivity::create([
-                'activity_id' => $act->getId(),
+                'activity_id'  => $act->getId(),
                 'activity_uri' => $type_activity->get('id'),
-                'created' => new DateTime($type_activity->get('published') ?? 'now'),
-                'modified' => new DateTime(),
+                'created'      => new DateTime($type_activity->get('published') ?? 'now'),
+                'modified'     => new DateTime(),
             ]);
             DB::persist($ap_act);
         }
@@ -141,9 +139,6 @@ class Activity extends Model
     /**
      * Get a JSON
      *
-     * @param mixed $object
-     * @param int|null $options
-     * @return string
      * @throws ClientException
      */
     public static function toJson(mixed $object, ?int $options = null): string
@@ -151,24 +146,24 @@ class Activity extends Model
         if ($object::class !== 'App\Entity\Activity') {
             throw new InvalidArgumentException('First argument type is Activity');
         }
-        
-		$gs_verb_to_activity_stream_two_verb = null;
-		if (Event::handle('GSVerbToActivityStreamsTwoActivityType', [($verb = $object->getVerb()), &$gs_verb_to_activity_stream_two_verb]) === Event::next) {
-			$gs_verb_to_activity_stream_two_verb = match ($verb) {
-				'create' => 'Create',
-				'undo' => 'Undo',
-				default => throw new ClientException('Invalid verb'),
-			};
-		}
+
+        $gs_verb_to_activity_stream_two_verb = null;
+        if (Event::handle('GSVerbToActivityStreamsTwoActivityType', [($verb = $object->getVerb()), &$gs_verb_to_activity_stream_two_verb]) === Event::next) {
+            $gs_verb_to_activity_stream_two_verb = match ($verb) {
+                'create' => 'Create',
+                'undo'   => 'Undo',
+                default  => throw new ClientException('Invalid verb'),
+            };
+        }
 
         $attr = [
-            'type' => $gs_verb_to_activity_stream_two_verb,
-            '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id' => Router::url('activity_view', ['id' => $object->getId()], Router::ABSOLUTE_URL),
+            'type'      => $gs_verb_to_activity_stream_two_verb,
+            '@context'  => 'https://www.w3.org/ns/activitystreams',
+            'id'        => Router::url('activity_view', ['id' => $object->getId()], Router::ABSOLUTE_URL),
             'published' => $object->getCreated()->format(DateTimeInterface::RFC3339),
-            'actor' => $object->getActor()->getUri(Router::ABSOLUTE_URL),
-            'to' => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
-            'cc' => ['https://www.w3.org/ns/activitystreams#Public'],
+            'actor'     => $object->getActor()->getUri(Router::ABSOLUTE_URL),
+            'to'        => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
+            'cc'        => ['https://www.w3.org/ns/activitystreams#Public'],
         ];
         $attr['object'] = ($attr['type'] === 'Create') ? self::jsonToType(Model::toJson($object->getObject())) : ActivityPub::getUriByObject($object->getObject());
 

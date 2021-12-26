@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types = 1);
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -36,19 +38,17 @@ class LrddMethodWebfinger extends LRDDMethod
     /**
      * Simply returns the WebFinger URL over HTTPS at the uri's domain:
      * https://{domain}/.well-known/webfinger?resource={uri}
-     *
-     * @param mixed $uri
      */
     public function discover($uri)
     {
-        $parts = explode('@', parse_url($uri, PHP_URL_PATH), 2);
+        $parts = explode('@', parse_url($uri, \PHP_URL_PATH), 2);
 
-        if (!Discovery::isAcct($uri) || count($parts) != 2) {
+        if (!Discovery::isAcct($uri) || \count($parts) != 2) {
             throw new Exception('Bad resource URI: ' . $uri);
         }
         [, $domain] = $parts;
-        if (!filter_var($domain, FILTER_VALIDATE_IP)
-            && !filter_var(gethostbyname($domain), FILTER_VALIDATE_IP)) {
+        if (!filter_var($domain, \FILTER_VALIDATE_IP)
+            && !filter_var(gethostbyname($domain), \FILTER_VALIDATE_IP)) {
             throw new Exception('Bad resource host.');
         }
 
@@ -56,7 +56,7 @@ class LrddMethodWebfinger extends LRDDMethod
             Discovery::LRDD_REL,
             'https://' . $domain . '/.well-known/webfinger?resource={uri}',
             Discovery::JRD_MIMETYPE,
-            true // isTemplate
+            true, // isTemplate
         );
 
         return [$link];

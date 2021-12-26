@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Component\FreeNetwork\Util\WebfingerResource;
 
 use App\Core\Event;
@@ -24,9 +26,9 @@ use XML_XRD_Element_Link;
  */
 class WebfingerResourceActor extends WebFingerResource
 {
-    const PROFILEPAGE = 'http://webfinger.net/rel/profile-page';
+    public const PROFILEPAGE = 'http://webfinger.net/rel/profile-page';
 
-    public function __construct(Actor $object = null)
+    public function __construct(?Actor $object = null)
     {
         // The type argument above verifies that it's our class
         parent::__construct($object);
@@ -49,8 +51,9 @@ class WebfingerResourceActor extends WebFingerResource
     /**
      * Reconstruct WebFinger acct: from object
      *
-     * @return array|false|mixed|string|string[]|null
      * @throws WebfingerReconstructionException
+     *
+     * @return null|array|false|mixed|string|string[]
      */
     public function reconstructAcct()
     {
@@ -58,7 +61,7 @@ class WebfingerResourceActor extends WebFingerResource
 
         if (Event::handle('StartWebFingerReconstruction', [$this->object, &$acct])) {
             // TODO: getUri may not always give us the correct host on remote users?
-            $host = parse_url($this->object->getUri(Router::ABSOLUTE_URL), PHP_URL_HOST);
+            $host = parse_url($this->object->getUri(Router::ABSOLUTE_URL), \PHP_URL_HOST);
             if (empty($this->object->getNickname()) || empty($host)) {
                 throw new WebFingerReconstructionException(print_r($this->object, true));
             }
@@ -75,8 +78,11 @@ class WebfingerResourceActor extends WebFingerResource
         if (Event::handle('StartWebFingerProfileLinks', [$xrd, $this->object])) {
 
             // Profile page, can give more metadata from Link header or HTML parsing
-            $xrd->links[] = new XML_XRD_Element_Link(self::PROFILEPAGE,
-                $this->object->getUrl(Router::ABSOLUTE_URL), 'text/html');
+            $xrd->links[] = new XML_XRD_Element_Link(
+                self::PROFILEPAGE,
+                $this->object->getUrl(Router::ABSOLUTE_URL),
+                'text/html',
+            );
 
 //            // XFN
 //            $xrd->links[] = new XML_XRD_Element_Link('http://gmpg.org/xfn/11',

@@ -55,7 +55,8 @@ class ImageEncoder extends Plugin
         return '3.0.0';
     }
 
-    public static function shouldHandle (string $mimetype): bool {
+    public static function shouldHandle(string $mimetype): bool
+    {
         return GSFile::mimetypeMajor($mimetype) === 'image';
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -48,8 +50,8 @@ class UserNotificationPrefs extends Entity
     private bool $dm                     = true;
     private bool $post_on_status_change  = false;
     private ?bool $enable_posting;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {

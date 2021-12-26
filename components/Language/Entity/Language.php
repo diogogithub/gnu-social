@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 
@@ -26,13 +26,12 @@ namespace Component\Language\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use function App\Core\I18n\_m;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
 use DateTimeInterface;
 use Functional as F;
-use function App\Core\I18n\_m;
-use function is_null;
 
 /**
  * Entity for languages
@@ -115,8 +114,8 @@ class Language extends Entity
     {
         return Cache::getHashMapKey(
             map_key: 'languages-id',
-            key: (string)$id,
-            calculate_map: fn() => F\reindex(DB::dql('select l from language l'), fn(self $l) => (string)$l->getId()),
+            key: (string) $id,
+            calculate_map: fn () => F\reindex(DB::dql('select l from language l'), fn (self $l) => (string) $l->getId()),
         );
     }
 
@@ -125,7 +124,7 @@ class Language extends Entity
         return Cache::getHashMapKey(
             'languages',
             $locale,
-            calculate_map: fn() => F\reindex(DB::dql('select l from language l'), fn(self $l) => $l->getLocale()),
+            calculate_map: fn () => F\reindex(DB::dql('select l from language l'), fn (self $l) => $l->getLocale()),
         );
     }
 
@@ -138,10 +137,10 @@ class Language extends Entity
     {
         $langs = Cache::getHashMap(
             'languages',
-            fn() => F\reindex(DB::dql('select l from language l'), fn(self $l) => $l->getLocale()),
+            fn () => F\reindex(DB::dql('select l from language l'), fn (self $l) => $l->getLocale()),
         );
 
-        return array_merge(...F\map(array_values($langs), fn($l) => $l->toChoiceFormat()));
+        return array_merge(...F\map(array_values($langs), fn ($l) => $l->toChoiceFormat()));
     }
 
     public function toChoiceFormat(): array
@@ -156,18 +155,18 @@ class Language extends Entity
     public static function getSortedLanguageChoices(?Actor $actor, ?Actor $context_actor, ?bool $use_short_display): array
     {
         $language_choices = self::getLanguageChoices();
-        if (is_null($actor)) {
+        if (\is_null($actor)) {
             return [$language_choices, []];
         }
         $preferred_language_choices = $actor->getPreferredLanguageChoices($context_actor);
         ksort($language_choices);
         if ($use_short_display ?? Common::config('posting', 'use_short_language_display')) {
-            $key = array_key_first($preferred_language_choices);
+            $key      = array_key_first($preferred_language_choices);
             $language = $preferred_language_choices[$key];
             unset($preferred_language_choices[$key], $language_choices[$key]);
-            $short_display = $language->getShortDisplay();
+            $short_display                              = $language->getShortDisplay();
             $preferred_language_choices[$short_display] = ($locale = $language->getLocale());
-            $language_choices[$short_display] = $locale;
+            $language_choices[$short_display]           = $locale;
         }
         return [$language_choices, $preferred_language_choices];
     }
@@ -175,14 +174,14 @@ class Language extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name' => 'language',
+            'name'        => 'language',
             'description' => 'all known languages',
-            'fields' => [
-                'id' => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'locale' => ['type' => 'varchar', 'length' => 64, 'description' => 'The locale identifier for the language of a note. 2-leter-iso-language-code_4-leter-script-code_2-leter-iso-country-code, but kept longer in case we get a different format'],
-                'long_display' => ['type' => 'varchar', 'length' => 64, 'description' => 'The long display string for the language, in english (translated later)'],
+            'fields'      => [
+                'id'            => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
+                'locale'        => ['type' => 'varchar', 'length' => 64, 'description' => 'The locale identifier for the language of a note. 2-leter-iso-language-code_4-leter-script-code_2-leter-iso-country-code, but kept longer in case we get a different format'],
+                'long_display'  => ['type' => 'varchar', 'length' => 64, 'description' => 'The long display string for the language, in english (translated later)'],
                 'short_display' => ['type' => 'varchar', 'length' => 12, 'description' => 'The short display string for the language (used for the first option)'],
-                'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'created'       => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['id'],
             'unique keys' => [

@@ -23,16 +23,16 @@ declare(strict_types = 1);
 
 namespace Plugin\AttachmentCollections\Controller;
 
-use App\Core\Form;
 use App\Core\DB\DB;
-use App\Util\Common;
-use App\Core\Router\Router;
+use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Core\Router\Router;
+use App\Util\Common;
 use Component\Feed\Util\FeedController;
-use Symfony\Component\HttpFoundation\Request;
 use Plugin\AttachmentCollections\Entity\Collection;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\Request;
 
 class Controller extends FeedController
 {
@@ -47,16 +47,18 @@ class Controller extends FeedController
     }
     /**
      * Generate Collections page
+     *
      * @param int     $id       actor id
      * @param ?string $nickname actor nickname
-     * @return array            twig template options
+     *
+     * @return array twig template options
      */
     public function collectionsView(Request $request, int $id, ?string $nickname): array
     {
         $collections = DB::dql(
             'select collection from Plugin\AttachmentCollections\Entity\Collection collection '
             . 'where collection.actor_id = :id',
-            ['id' => $id]
+            ['id' => $id],
         );
         // create collection form
         $create = null;
@@ -64,9 +66,9 @@ class Controller extends FeedController
             $create = Form::create([
                 ['name', TextType::class, [
                     'label' => _m('Create collection'),
-                    'attr' => [
+                    'attr'  => [
                         'placeholder' => _m('Name'),
-                        'required' => 'required'
+                        'required'    => 'required',
                     ],
                     'data' => '',
                 ]],
@@ -80,7 +82,7 @@ class Controller extends FeedController
             $create->handleRequest($request);
             if ($create->isSubmitted() && $create->isValid()) {
                 DB::persist(Collection::create([
-                    'name' => $create->getData()['name'],
+                    'name'     => $create->getData()['name'],
                     'actor_id' => $id,
                 ]));
                 DB::flush();
@@ -94,15 +96,14 @@ class Controller extends FeedController
         // Instead, I'm using an anonymous class to encapsulate
         // the functions and passing how the class to the template.
         // It's suggested at https://stackoverflow.com/a/50364502.
-        $fn = new class ($id, $nickname, $request)
-        {
+        $fn = new class($id, $nickname, $request) {
             private $id;
             private $nick;
             private $request;
             public function __construct($id, $nickname, $request)
             {
-                $this->id = $id;
-                $this->nick = $nickname;
+                $this->id      = $id;
+                $this->nick    = $nickname;
                 $this->request = $request;
             }
             // there's already a injected function called path,
@@ -114,12 +115,12 @@ class Controller extends FeedController
                 if (\is_null($this->nick)) {
                     return Router::url(
                         'collection_notes_view_by_actor_id',
-                        ['id' => $this->id, 'cid' => $cid]
+                        ['id' => $this->id, 'cid' => $cid],
                     );
                 }
                 return Router::url(
                     'collection_notes_view_by_nickname',
-                    ['nickname' => $this->nick, 'cid' => $cid]
+                    ['nickname' => $this->nick, 'cid' => $cid],
                 );
             }
             // There are many collections in this page and we need two
@@ -133,11 +134,11 @@ class Controller extends FeedController
                     ['name', TextType::class, [
                         'attr' => [
                             'placeholder' => 'New name',
-                            'required' => 'required'
+                            'required'    => 'required',
                         ],
                         'data' => '',
                     ]],
-                    ['update_'.$collection->getId(), SubmitType::class, [
+                    ['update_' . $collection->getId(), SubmitType::class, [
                         'label' => _m('Save'),
                         'attr'  => [
                             'title' => _m('Save'),
@@ -156,7 +157,7 @@ class Controller extends FeedController
             public function rmForm($collection)
             {
                 $rm = Form::create([
-                    ['remove_'.$collection->getId(), SubmitType::class, [
+                    ['remove_' . $collection->getId(), SubmitType::class, [
                         'label' => _m('Delete collection'),
                         'attr'  => [
                             'title' => _m('Delete collection'),
@@ -190,12 +191,12 @@ class Controller extends FeedController
     public function collectionNotesByActorId(Request $request, int $id, int $cid): array
     {
         $collection = DB::findOneBy('attachment_collection', ['id' => $cid]);
-        $attchs = DB::dql(
+        $attchs     = DB::dql(
             'select attch from attachment_album_entry entry '
             . 'left join Component\Attachment\Entity\Attachment attch '
                 . 'with entry.attachment_id = attch.id '
             . 'where entry.collection_id = :cid',
-            ['cid' => $cid]
+            ['cid' => $cid],
         );
         return [
             '_template'   => 'AttachmentCollections/collection.html.twig',

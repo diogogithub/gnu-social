@@ -31,7 +31,7 @@ class TreeNotes extends Plugin
      */
     public function onFormatNoteList(array $notes_in, ?array &$notes_out)
     {
-        $roots     = array_filter($notes_in, static fn (Note $note) => is_null($note->getReplyTo()));
+        $roots     = array_filter($notes_in, static fn (Note $note) => \is_null($note->getReplyTo()));
         $notes_out = $this->build_tree($roots, $notes_in);
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -39,7 +41,7 @@ class AttachmentToLink extends Entity
     // @codeCoverageIgnoreStart
     private int $attachment_id;
     private int $link_id;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
     {
@@ -77,10 +79,6 @@ class AttachmentToLink extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    /**
-     * @param int $attachment_id
-     * @return mixed
-     */
     public static function removeWhereAttachmentId(int $attachment_id): mixed
     {
         return DB::dql(
@@ -92,11 +90,6 @@ class AttachmentToLink extends Entity
         );
     }
 
-    /**
-     * @param int $link_id
-     * @param int $attachment_id
-     * @return mixed
-     */
     public static function removeWhere(int $link_id, int $attachment_id): mixed
     {
         return DB::dql(
@@ -109,10 +102,6 @@ class AttachmentToLink extends Entity
         );
     }
 
-    /**
-     * @param int $link_id
-     * @return mixed
-     */
     public static function removeWhereLinkId(int $link_id): mixed
     {
         return DB::dql(

@@ -39,11 +39,10 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
-use App\Core\VisibilityScope;
-use Component\Language\Entity\Language;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Router\Router;
+use App\Core\VisibilityScope;
 use App\Entity\Note as GSNote;
 use App\Entity\NoteTag;
 use App\Util\Common;
@@ -56,11 +55,13 @@ use App\Util\TemporaryFile;
 use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\AttachmentToNote;
 use Component\Conversation\Conversation;
+use Component\Language\Entity\Language;
 use Component\Tag\Tag;
 use DateTime;
 use DateTimeInterface;
 use Exception;
 use InvalidArgumentException;
+use const PHP_URL_HOST;
 use Plugin\ActivityPub\ActivityPub;
 use Plugin\ActivityPub\Entity\ActivitypubObject;
 use Plugin\ActivityPub\Util\Model;
@@ -68,10 +69,6 @@ use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use function array_key_exists;
-use function is_null;
-use function is_string;
-use const PHP_URL_HOST;
 
 /**
  * This class handles translation between JSON and GSNotes
@@ -98,7 +95,7 @@ class Note extends Model
     {
         $handleInReplyTo = function (AbstractObject|string $type_note): ?int {
             try {
-                $parent_note = is_null($type_note->get('inReplyTo')) ? null : ActivityPub::getObjectByUri($type_note->get('inReplyTo'), try_online: true);
+                $parent_note = \is_null($type_note->get('inReplyTo')) ? null : ActivityPub::getObjectByUri($type_note->get('inReplyTo'), try_online: true);
                 if ($parent_note instanceof GSNote) {
                     return $parent_note->getId();
                 } elseif ($parent_note instanceof Type\AbstractObject && $parent_note->get('type') === 'Note') {
@@ -116,13 +113,13 @@ class Note extends Model
         };
 
         $source    = $options['source'] ?? 'ActivityPub';
-        $type_note = is_string($json) ? self::jsonToType($json) : $json;
+        $type_note = \is_string($json) ? self::jsonToType($json) : $json;
         $actor     = null;
         $actor_id  = null;
         if ($json instanceof AbstractObject
-            && array_key_exists('test_authority', $options)
+            && \array_key_exists('test_authority', $options)
             && $options['test_authority']
-            && array_key_exists('actor_uri', $options)
+            && \array_key_exists('actor_uri', $options)
         ) {
             $actor_uri = $options['actor_uri'];
             if ($actor_uri !== $type_note->get('attributedTo')) {
@@ -135,7 +132,7 @@ class Note extends Model
             }
         }
 
-        if (is_null($actor_id)) {
+        if (\is_null($actor_id)) {
             $actor    = ActivityPub::getActorByUri($type_note->get('attributedTo'));
             $actor_id = $actor->getId();
         }
@@ -164,14 +161,14 @@ class Note extends Model
             ]);
         }
 
-        if (!is_null($map['language_id'])) {
+        if (!\is_null($map['language_id'])) {
             $map['language_id'] = Language::getByLocale($map['language_id'])->getId();
         } else {
             $map['language_id'] = null;
         }
 
         // Scope
-        if (in_array('https://www.w3.org/ns/activitystreams#Public', $type_note->get('to'))) {
+        if (\in_array('https://www.w3.org/ns/activitystreams#Public', $type_note->get('to'))) {
             // Public: Visible for all, shown in public feeds
             $map['scope'] = VisibilityScope::PUBLIC;
         } elseif (\in_array('https://www.w3.org/ns/activitystreams#Public', $type_note->get('cc'))) {
@@ -258,7 +255,7 @@ class Note extends Model
                 case 'Hashtag':
                     $match         = ltrim($ap_tag->get('name'), '#');
                     $tag           = Tag::ensureValid($match);
-                    $canonical_tag = $ap_tag->get('canonical') ?? Tag::canonicalTag($tag, is_null($lang_id = $obj->getLanguageId()) ? null : Language::getById($lang_id)->getLocale());
+                    $canonical_tag = $ap_tag->get('canonical') ?? Tag::canonicalTag($tag, \is_null($lang_id = $obj->getLanguageId()) ? null : Language::getById($lang_id)->getLocale());
                     DB::persist(NoteTag::create([
                         'tag'           => $tag,
                         'canonical'     => $canonical_tag,
@@ -323,7 +320,7 @@ class Note extends Model
             'content'        => $object->getRendered(),
             'attachment'     => [],
             'tag'            => [],
-            'inReplyTo'      => is_null($object->getReplyTo()) ? null : ActivityPub::getUriByObject(GSNote::getById($object->getReplyTo())),
+            'inReplyTo'      => \is_null($object->getReplyTo()) ? null : ActivityPub::getUriByObject(GSNote::getById($object->getReplyTo())),
             'inConversation' => $object->getConversationUri(),
             'directMessage'  => $object->getScope() === VisibilityScope::MESSAGE,
         ];

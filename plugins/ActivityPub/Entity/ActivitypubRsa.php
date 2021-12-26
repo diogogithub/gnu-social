@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -24,6 +24,7 @@ declare(strict_types=1);
  *
  * @package   GNUsocial
  * @category  ActivityPub
+ *
  * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2018-2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -119,15 +120,15 @@ class ActivitypubRsa extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name' => 'activitypub_rsa',
+            'name'   => 'activitypub_rsa',
             'fields' => [
-                'actor_id' => ['type' => 'int', 'not null' => true],
+                'actor_id'    => ['type' => 'int', 'not null' => true],
                 'private_key' => ['type' => 'text'],
-                'public_key' => ['type' => 'text', 'not null' => true],
-                'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'public_key'  => ['type' => 'text', 'not null' => true],
+                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['actor_id'],
+            'primary key'  => ['actor_id'],
             'foreign keys' => [
                 'activitypub_rsa_actor_id_fkey' => ['actor', ['actor_id' => 'id']],
             ],
@@ -137,27 +138,28 @@ class ActivitypubRsa extends Entity
     /**
      * Guarantees RSA keys for a given actor.
      *
-     * @param Actor $gsactor
      * @param bool $fetch =true Should attempt to fetch keys from a remote profile?
-     * @return ActivitypubRsa The keys (private key is null for remote actors)
+     *
      * @throws ServerException It should never occur, but if so, we break everything!
+     *
+     * @return ActivitypubRsa The keys (private key is null for remote actors)
      */
     public static function getByActor(Actor $gsactor, bool $fetch = true): self
     {
         $apRSA = self::getByPK(['actor_id' => ($actor_id = $gsactor->getId())]);
-        if (is_null($apRSA)) {
+        if (\is_null($apRSA)) {
             // Nonexistent key pair for this profile
             if ($gsactor->getIsLocal()) {
                 self::generateKeys($private_key, $public_key);
                 $apRSA = self::create([
-                    'actor_id' => $actor_id,
+                    'actor_id'    => $actor_id,
                     'private_key' => $private_key,
-                    'public_key' => $public_key,
+                    'public_key'  => $public_key,
                 ]);
-                DB::wrapInTransaction(fn() => DB::persist($apRSA));
+                DB::wrapInTransaction(fn () => DB::persist($apRSA));
             } else {
                 // ASSERT: This should never happen, but try to recover!
-                Log::error("Activitypub_rsa: An impossible thing has happened... Please let the devs know.");
+                Log::error('Activitypub_rsa: An impossible thing has happened... Please let the devs know.');
                 if ($fetch) {
                     //$res = Activitypub_explorer::get_remote_user_activity($profile->getUri());
                     //Activitypub_rsa::update_public_key($profile, $res['publicKey']['publicKeyPem']);
@@ -173,16 +175,17 @@ class ActivitypubRsa extends Entity
     /**
      * Generates a pair of RSA keys.
      *
-     * @param string|null $private_key out
-     * @param string|null $public_key out
+     * @param null|string $private_key out
+     * @param null|string $public_key  out
+     *
      * @author PHP Manual Contributed Notes <dirt@awoms.com>
      */
     private static function generateKeys(?string &$private_key, ?string &$public_key): void
     {
         $config = [
-            'digest_alg' => 'sha512',
+            'digest_alg'       => 'sha512',
             'private_key_bits' => 2048,
-            'private_key_type' => OPENSSL_KEYTYPE_RSA,
+            'private_key_type' => \OPENSSL_KEYTYPE_RSA,
         ];
 
         // Create the private and public key
@@ -192,8 +195,8 @@ class ActivitypubRsa extends Entity
         openssl_pkey_export($res, $private_key);
 
         // Extract the public key from $res to $pubKey
-        $pubKey = openssl_pkey_get_details($res);
-        $public_key = $pubKey["key"];
+        $pubKey     = openssl_pkey_get_details($res);
+        $public_key = $pubKey['key'];
         unset($pubKey);
     }
 }
