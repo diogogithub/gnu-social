@@ -220,6 +220,7 @@ html {
     */
     .page-header {
         width: 66vw;
+        align-self: center;
     }
     .header-panel {
         width: 11vw;
