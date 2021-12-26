@@ -30,12 +30,14 @@ use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\Router;
 use App\Entity\Actor;
+use App\Entity\ActorCircle;
 use App\Entity\ActorTag;
 use App\Entity\Note;
 use App\Entity\NoteTag;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Formatting;
+use App\Util\Functional as GSF;
 use App\Util\HTML;
 use Component\Language\Entity\Language;
 use Component\Tag\Controller as C;
@@ -163,26 +165,42 @@ class Tag extends Component
      */
     public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr)
     {
-        $search_term       = str_contains($term, ':#') ? explode(':', $term)[1] : $term;
-        $canon_search_term = self::canonicalTag($search_term, $language);
-        $temp_note_expr    = $eb->eq('note_tag.canonical', $canon_search_term);
-        $temp_actor_expr   = $eb->eq('actor_tag.canonical', $canon_search_term);
-        if (Formatting::startsWith($term, ['note:', 'tag:', 'people:'])) {
-            $note_expr = $temp_note_expr;
-        } elseif (Formatting::startsWith($term, ['people:', 'actor:'])) {
-            $actor_expr = $temp_actor_expr;
-        } elseif (str_contains($term, '#')) {
-            $note_expr  = $temp_note_expr;
-            $actor_expr = $temp_actor_expr;
-            return Event::next;
+        [$search_type, $search_term] = explode(':', $term);
+        if (str_starts_with($search_term, '#')) {
+            $search_term       = self::ensureValid($search_term);
+            $canon_search_term = self::canonicalTag($search_term, $language);
+            $temp_note_expr    = $eb->eq('note_tag.canonical', $canon_search_term);
+            $temp_actor_expr   = $eb->eq('actor_tag.canonical', $canon_search_term);
+            if (Formatting::startsWith($term, ['note:', 'tag:', 'people:'])) {
+                $note_expr = $temp_note_expr;
+            } elseif (Formatting::startsWith($term, ['people:', 'actor:'])) {
+                $actor_expr = $temp_actor_expr;
+            } elseif (Formatting::startsWith($term, GSF::cartesianProduct('-', ['people', 'actor'], ['circle:', 'list:']))) {
+                $null_tagger_expr = $eb->isNull('actor_circle.tagger');
+                $tagger_expr      = \is_null($actor_expr) ? $null_tagger_expr : $eb->orX($null_tagger_expr, $eb->eq('actor_circle.tagger', $actor->getId()));
+                $tags             = array_unique([$search_term, $canon_search_term]);
+                $tag_expr         = \count($tags) === 1 ? $eb->eq('actor_circle.tag', $tags[0]) : $eb->in('actor_circle.tag', $tags);
+                $search_expr      = $eb->andX(
+                    $tagger_expr,
+                    $tag_expr,
+                );
+                $note_expr  = $search_expr;
+                $actor_expr = $search_expr;
+            } else {
+                $note_expr  = $temp_note_expr;
+                $actor_expr = $temp_actor_expr;
+                return Event::next;
+            }
         }
         return Event::stop;
     }
 
     public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
-        $note_qb->leftJoin(NoteTag::class, 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
-        $actor_qb->leftJoin(ActorTag::class, 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id');
+        $note_qb->leftJoin(NoteTag::class, 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id')
+            ->leftJoin(ActorCircle::class, 'actor_circle', Expr\Join::WITH, 'note_actor.id = actor_circle.tagged');
+        $actor_qb->leftJoin(ActorTag::class, 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id')
+            ->leftJoin(ActorCircle::class, 'actor_circle', Expr\Join::WITH, 'actor.id = actor_circle.tagged');
         return Event::next;
     }
 
