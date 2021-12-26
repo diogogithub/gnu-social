@@ -172,8 +172,10 @@ class Activity extends Model
         ];
         $attr['object'] = ($attr['type'] === 'Create') ? self::jsonToType(Model::toJson($object->getObject())) : ActivityPub::getUriByObject($object->getObject());
 
-        $attr['to'] = array_unique(array_merge($attr['to'], $attr['object']->get('to')));
-        $attr['cc'] = array_unique(array_merge($attr['cc'], $attr['object']->get('cc')));
+        if (!is_string($attr['object'])) {
+            $attr['to'] = array_unique(array_merge($attr['to'], $attr['object']->get('to')));
+            $attr['cc'] = array_unique(array_merge($attr['cc'], $attr['object']->get('cc')));
+        }
 
         $type = self::jsonToType($attr);
         Event::handle('ActivityPubAddActivityStreamsTwoData', [$type->get('type'), &$type]);

@@ -39,6 +39,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
+use App\Core\VisibilityScope;
 use Component\Language\Entity\Language;
 use function App\Core\I18n\_m;
 use App\Core\Log;
@@ -67,6 +68,10 @@ use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use function array_key_exists;
+use function is_null;
+use function is_string;
+use const PHP_URL_HOST;
 
 /**
  * This class handles translation between JSON and GSNotes
@@ -93,8 +98,8 @@ class Note extends Model
     {
         $handleInReplyTo = function (AbstractObject|string $type_note): ?int {
             try {
-                $parent_note = \is_null($type_note->get('inReplyTo')) ? null : ActivityPub::getObjectByUri($type_note->get('inReplyTo'), try_online: true);
-                if ($parent_note instanceof \App\Entity\Note) {
+                $parent_note = is_null($type_note->get('inReplyTo')) ? null : ActivityPub::getObjectByUri($type_note->get('inReplyTo'), try_online: true);
+                if ($parent_note instanceof GSNote) {
                     return $parent_note->getId();
                 } elseif ($parent_note instanceof Type\AbstractObject && $parent_note->get('type') === 'Note') {
                     return self::fromJson($parent_note)->getId();
@@ -111,13 +116,13 @@ class Note extends Model
         };
 
         $source    = $options['source'] ?? 'ActivityPub';
-        $type_note = \is_string($json) ? self::jsonToType($json) : $json;
+        $type_note = is_string($json) ? self::jsonToType($json) : $json;
         $actor     = null;
         $actor_id  = null;
         if ($json instanceof AbstractObject
-            && \array_key_exists('test_authority', $options)
+            && array_key_exists('test_authority', $options)
             && $options['test_authority']
-            && \array_key_exists('actor_uri', $options)
+            && array_key_exists('actor_uri', $options)
         ) {
             $actor_uri = $options['actor_uri'];
             if ($actor_uri !== $type_note->get('attributedTo')) {
@@ -130,7 +135,7 @@ class Note extends Model
             }
         }
 
-        if (\is_null($actor_id)) {
+        if (is_null($actor_id)) {
             $actor    = ActivityPub::getActorByUri($type_note->get('attributedTo'));
             $actor_id = $actor->getId();
         }
@@ -159,14 +164,49 @@ class Note extends Model
             ]);
         }
 
-        $obj = new GSNote();
-
-        if (!\is_null($map['language_id'])) {
+        if (!is_null($map['language_id'])) {
             $map['language_id'] = Language::getByLocale($map['language_id'])->getId();
         } else {
             $map['language_id'] = null;
         }
 
+        // Scope
+        if (in_array('https://www.w3.org/ns/activitystreams#Public', $type_note->get('to'))) {
+            // Public: Visible for all, shown in public feeds
+            $map['scope'] = VisibilityScope::PUBLIC;
+        } elseif (\in_array('https://www.w3.org/ns/activitystreams#Public', $type_note->get('cc'))) {
+            // Unlisted: Visible for all but not shown in public feeds
+            // It isn't the note that dictates what feed is shown in but the feed, it only dictates who can access it.
+            $map['scope'] = VisibilityScope::PUBLIC;
+        } else {
+            // Either Followers-only or Direct
+            if ($type_note->get('directMessage') ?? false // Is DM explicitly?
+            || (empty($type_note->get('cc')))) { // Only has TO targets
+                $map['scope'] = VisibilityScope::MESSAGE;
+            } else { // Then is collection
+                $map['scope'] = VisibilityScope::COLLECTION;
+            }
+        }
+
+        $object_mentions_ids = [];
+        foreach ([$type_note->get('to'), $type_note->get('cc')] as $target) {
+            foreach ($target as $to) {
+                if ($to === 'https://www.w3.org/ns/activitystreams#Public') {
+                    continue;
+                }
+                try {
+                    $actor = ActivityPub::getActorByUri($to);
+                    if ($actor->getIsLocal()) {
+                        $object_mentions_ids[] = $actor->getId();
+                    }
+                    // TODO: If group, set note's scope as Group
+                } catch (Exception $e) {
+                    Log::debug('ActivityPub->Model->Note->fromJson->getActorByUri', [$e]);
+                }
+            }
+        }
+
+        $obj = new GSNote();
         foreach ($map as $prop => $val) {
             $set = Formatting::snakeCaseToCamelCase("set_{$prop}");
             $obj->{$set}($val);
@@ -203,7 +243,6 @@ class Note extends Model
         // Assign conversation to this note
         Conversation::assignLocalConversation($obj, $reply_to);
 
-        $object_mentions_ids = [];
         foreach ($type_note->get('tag') as $ap_tag) {
             switch ($ap_tag->get('type')) {
                 case 'Mention':
@@ -219,7 +258,7 @@ class Note extends Model
                 case 'Hashtag':
                     $match         = ltrim($ap_tag->get('name'), '#');
                     $tag           = Tag::ensureValid($match);
-                    $canonical_tag = $ap_tag->get('canonical') ?? Tag::canonicalTag($tag, \is_null($lang_id = $obj->getLanguageId()) ? null : Language::getById($lang_id)->getLocale());
+                    $canonical_tag = $ap_tag->get('canonical') ?? Tag::canonicalTag($tag, is_null($lang_id = $obj->getLanguageId()) ? null : Language::getById($lang_id)->getLocale());
                     DB::persist(NoteTag::create([
                         'tag'           => $tag,
                         'canonical'     => $canonical_tag,
@@ -234,7 +273,7 @@ class Note extends Model
                     break;
             }
         }
-        $obj->setObjectMentionsIds($object_mentions_ids);
+        $obj->setObjectMentionsIds(array_unique($object_mentions_ids));
         // The content would be non-sanitized text/html
         Event::handle('ProcessNoteContent', [$obj, $obj->getRendered(), $obj->getContentType(), $process_note_content_extra_args = ['TagProcessed' => true]]);
 
@@ -281,23 +320,48 @@ class Note extends Model
             'id'             => $object->getUrl(),
             'published'      => $object->getCreated()->format(DateTimeInterface::RFC3339),
             'attributedTo'   => $object->getActor()->getUri(Router::ABSOLUTE_URL),
-            'to'             => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
-            'cc'             => ['https://www.w3.org/ns/activitystreams#Public'],
             'content'        => $object->getRendered(),
             'attachment'     => [],
             'tag'            => [],
+            'inReplyTo'      => $object->getReplyTo() === null ? null : ActivityPub::getUriByObject(GSNote::getById($object->getReplyTo())),
             'inConversation' => $object->getConversationUri(),
-            'directMessage'  => false, // TODO: implement proper scope address
+            'directMessage'  => $object->getScope() === VisibilityScope::MESSAGE,
         ];
+
+        // Target scope
+        switch ($object->getScope()) {
+            case VisibilityScope::PUBLIC:
+                $attr['to'] = ['https://www.w3.org/ns/activitystreams#Public'];
+                $attr['cc'] = [Router::url('actor_subscribers_id', ['id' => $object->getActor()->getId()], Router::ABSOLUTE_URL)];
+            break;
+            case VisibilityScope::LOCAL:
+                throw new ClientException('This note was not federated.', 403);
+            case VisibilityScope::ADDRESSEE:
+            case VisibilityScope::MESSAGE:
+                $attr['to'] = []; // Will be filled later
+                $attr['cc'] = [];
+                break;
+            case VisibilityScope::GROUP: // Will have the group in the To
+            case VisibilityScope::COLLECTION:
+                // Since we don't support sending unlisted/followers-only
+                // notices, arriving here means we're instead answering to that type
+                // of posts. In this situation, it's safer to always send answers of type unlisted.
+                $attr['to'] = [];
+                $attr['cc'] = ['https://www.w3.org/ns/activitystreams#Public'];
+                break;
+            default:
+                Log::error('ActivityPub->Note->toJson: Found an unknown visibility scope.');
+                throw new ServerException('Found an unknown visibility scope which cannot federate.');
+        }
 
         // Mentions
         foreach ($object->getNotificationTargets() as $mention) {
             $attr['tag'][] = [
                 'type' => 'Mention',
                 'href' => ($href = $mention->getUri()),
-                'name' => '@' . $mention->getNickname() . '@' . parse_url($href, \PHP_URL_HOST),
+                'name' => '@' . $mention->getNickname() . '@' . parse_url($href, PHP_URL_HOST),
             ];
-            $attr['cc'][] = $href;
+            $attr['to'][] = $href;
         }
 
         // Hashtags
