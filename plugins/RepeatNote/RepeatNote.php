@@ -60,6 +60,10 @@ class RepeatNote extends NoteHandlerPlugin
             ], order_by: ['created' => 'DESC'])[0];
         }
 
+        // If it's a repeat, the reply_to should be to the original, conversation ought to be the same
+        $og_id                  = $note->getId();
+        $extra_args['reply_to'] = $og_id;
+
         // Create a new note with the same content as the original
         $repeat = Posting::storeLocalNote(
             actor: Actor::getById($actor_id),
@@ -67,11 +71,11 @@ class RepeatNote extends NoteHandlerPlugin
             content_type: $note->getContentType(),
             language: \is_null($lang_id = $note->getLanguageId()) ? null : Language::getById($lang_id)->getLocale(),
             processed_attachments: $note->getAttachmentsWithTitle(),
+            process_note_content_extra_args: $extra_args,
         );
 
         // Find the id of the note we just created
         $repeat_id = $repeat?->getId();
-        $og_id     = $note->getId();
 
         // Add it to note_repeat table
         if (!\is_null($repeat_id)) {
@@ -182,7 +186,7 @@ class RepeatNote extends NoteHandlerPlugin
         }
 
         // Generating URL for repeat action route
-        $args              = ['id' => $is_repeat === 0 ? $note->getId() : $note_repeat[0]->getRepeatOf()];
+        $args              = ['note_id' => $is_repeat === 0 ? $note->getId() : $note_repeat[0]->getRepeatOf()];
         $type              = Router::ABSOLUTE_PATH;
         $repeat_action_url = $is_repeat
             ? Router::url('repeat_remove', $args, $type)
@@ -199,7 +203,7 @@ class RepeatNote extends NoteHandlerPlugin
             'url'     => $repeat_action_url,
             'title'   => $is_repeat ? 'Remove this repeat' : 'Repeat this note!',
             'classes' => "button-container repeat-button-container {$extra_classes}",
-            'id'      => 'repeat-button-container-' . $note->getId(),
+            'note_id' => 'repeat-button-container-' . $note->getId(),
         ];
 
         $actions[] = $repeat_action;
@@ -265,8 +269,8 @@ class RepeatNote extends NoteHandlerPlugin
     public function onAddRoute(RouteLoader $r): bool
     {
         // Add/remove note to/from repeats
-        $r->connect(id: 'repeat_add', uri_path: '/object/note/{id<\d+>}/repeat', target: [Controller\Repeat::class, 'repeatAddNote']);
-        $r->connect(id: 'repeat_remove', uri_path: '/object/note/{id<\d+>}/unrepeat', target: [Controller\Repeat::class, 'repeatRemoveNote']);
+        $r->connect(id: 'repeat_add', uri_path: '/object/note/{note_id<\d+>}/repeat', target: [Controller\Repeat::class, 'repeatAddNote']);
+        $r->connect(id: 'repeat_remove', uri_path: '/object/note/{note_id<\d+>}/unrepeat', target: [Controller\Repeat::class, 'repeatRemoveNote']);
 
         return Event::next;
     }

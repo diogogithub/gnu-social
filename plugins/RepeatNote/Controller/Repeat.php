@@ -50,12 +50,12 @@ class Repeat extends Controller
      * @throws RedirectException
      * @throws ServerException
      */
-    public function repeatAddNote(Request $request, int $id): bool|array
+    public function repeatAddNote(Request $request, int $note_id): bool|array
     {
         $user = Common::ensureLoggedIn();
 
         $actor_id = $user->getId();
-        $note     = Note::getByPK(['id' => $id]);
+        $note     = Note::getByPK(['id' => $note_id]);
 
         $form_add_to_repeat = Form::create([
             ['add_repeat', SubmitType::class,
@@ -103,7 +103,7 @@ class Repeat extends Controller
      * @throws RedirectException
      * @throws ServerException
      */
-    public function repeatRemoveNote(Request $request, int $id): array
+    public function repeatRemoveNote(Request $request, int $note_id): array
     {
         $user = Common::ensureLoggedIn();
 
@@ -122,7 +122,7 @@ class Repeat extends Controller
 
         $form_remove_repeat->handleRequest($request);
         if ($form_remove_repeat->isSubmitted()) {
-            if (!\is_null(\Plugin\RepeatNote\RepeatNote::unrepeatNote(note_id: $id, actor_id: $actor_id))) {
+            if (!\is_null(\Plugin\RepeatNote\RepeatNote::unrepeatNote(note_id: $note_id, actor_id: $actor_id))) {
                 DB::flush();
             } else {
                 throw new ClientException(_m('Note wasn\'t repeated!'));
@@ -146,7 +146,7 @@ class Repeat extends Controller
 
         return [
             '_template'     => 'repeat/remove_from_repeats.html.twig',
-            'note'          => Note::getById($id),
+            'note'          => Note::getById($note_id),
             'remove_repeat' => $form_remove_repeat->createView(),
         ];
     }
