@@ -90,6 +90,24 @@ class NoteRepeat extends Entity
         );
     }
 
+    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null): array
+    {
+        if (!\array_key_exists('object', $ids_already_known)) {
+            $target_ids = Note::getById($this->getNoteId())->getNotificationTargetIds();
+        } else {
+            $target_ids = $ids_already_known['object'];
+        }
+
+        // Additional actors that should know about this
+        if (\array_key_exists('additional', $ids_already_known)) {
+            array_push($target_ids, ...$ids_already_known['additional']);
+        } else {
+            return $target_ids;
+        }
+
+        return array_unique($target_ids);
+    }
+
     public static function schemaDef(): array
     {
         return [
