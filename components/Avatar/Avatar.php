@@ -119,7 +119,7 @@ class Avatar extends Component
             $attachment = self::getAvatar($actor_id)->getAttachment();
             return ['width' => (int) $attachment->getWidth(), 'height' => (int) $attachment->getHeight()];
         } catch (NoAvatarException) {
-            return ['width' => Common::config('thumbnail', 'small'), 'height' => Common::config('thumbnail', 'small')];
+            return ['width' => (int) (Common::config('thumbnail', 'small')), 'height' => (int) (Common::config('thumbnail', 'small'))];
         }
     }
 
