@@ -60,7 +60,7 @@ class UserUrlShortenerPrefs extends Entity
 
     public function setUrlShorteningService(?string $url_shortening_service): self
     {
-        $this->url_shortening_service = $url_shortening_service;
+        $this->url_shortening_service = \mb_substr($url_shortening_service, 0, 50);
         return $this;
     }
 
@@ -91,24 +91,24 @@ class UserUrlShortenerPrefs extends Entity
         return $this->max_notice_length;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

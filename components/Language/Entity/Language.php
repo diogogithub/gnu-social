@@ -48,9 +48,9 @@ class Language extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private string $locale;
-    private string $long_display;
-    private string $short_display;
+    private ?string $locale;
+    private ?string $long_display;
+    private ?string $short_display;
     private DateTimeInterface $created;
 
     public function setId(int $id): self
@@ -64,35 +64,35 @@ class Language extends Entity
         return $this->id;
     }
 
-    public function setLocale(string $locale): self
+    public function setLocale(?string $locale): self
     {
-        $this->locale = $locale;
+        $this->locale = mb_substr($locale, 0, 64);
         return $this;
     }
 
-    public function getLocale(): string
+    public function getLocale(): ?string
     {
         return $this->locale;
     }
 
-    public function setLongDisplay(string $long_display): self
+    public function setLongDisplay(?string $long_display): self
     {
-        $this->long_display = $long_display;
+        $this->long_display = mb_substr($long_display, 0, 64);
         return $this;
     }
 
-    public function getLongDisplay(): string
+    public function getLongDisplay(): ?string
     {
         return $this->long_display;
     }
 
-    public function setShortDisplay(string $short_display): self
+    public function setShortDisplay(?string $short_display): self
     {
-        $this->short_display = $short_display;
+        $this->short_display = mb_substr($short_display, 0, 12);
         return $this;
     }
 
-    public function getShortDisplay(): string
+    public function getShortDisplay(): ?string
     {
         return $this->short_display;
     }
@@ -107,6 +107,7 @@ class Language extends Entity
     {
         return $this->created;
     }
+
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 

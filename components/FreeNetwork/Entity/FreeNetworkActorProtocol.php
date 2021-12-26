@@ -47,17 +47,12 @@ use DateTimeInterface;
 class FreeNetworkActorProtocol extends Entity
 {
     // {{{ Autocode
-    // @codeCoverageIgnoreStart;
+    // @codeCoverageIgnoreStart
     private int $actor_id;
     private ?string $protocol;
-    private ?string $addr;
+    private string $addr;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
-
-    public function getActorId(): int
-    {
-        return $this->actor_id;
-    }
 
     public function setActorId(int $actor_id): self
     {
@@ -65,9 +60,14 @@ class FreeNetworkActorProtocol extends Entity
         return $this;
     }
 
+    public function getActorId(): int
+    {
+        return $this->actor_id;
+    }
+
     public function setProtocol(?string $protocol): self
     {
-        $this->protocol = $protocol;
+        $this->protocol = mb_substr($protocol, 0, 32);
         return $this;
     }
 
@@ -87,14 +87,20 @@ class FreeNetworkActorProtocol extends Entity
         return $this->addr;
     }
 
+    public function setCreated(DateTimeInterface $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setModified(DateTimeInterface $modified): self
     {
-        $this->created = $created;
+        $this->modified = $modified;
         return $this;
     }
 
@@ -103,11 +109,6 @@ class FreeNetworkActorProtocol extends Entity
         return $this->modified;
     }
 
-    public function setModified(DateTimeInterface $modified): self
-    {
-        $this->modified = $modified;
-        return $this;
-    }
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 

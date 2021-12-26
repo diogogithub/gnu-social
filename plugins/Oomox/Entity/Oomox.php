@@ -197,6 +197,9 @@ class Oomox extends Entity
         return $this->modified;
     }
 
+    // @codeCoverageIgnoreEnd
+    // }}} Autocode
+
     public function resetTheme(bool $is_light)
     {
         if ($is_light) {
@@ -214,8 +217,6 @@ class Oomox extends Entity
         }
     }
 
-    // @codeCoverageIgnoreEnd
-    // }}} Autocode
     public static function schemaDef(): array
     {
         return [

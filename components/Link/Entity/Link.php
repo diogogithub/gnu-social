@@ -65,20 +65,20 @@ class Link extends Entity
         return $this->id;
     }
 
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
     public function setUrl(?string $url): self
     {
         $this->url = $url;
         return $this;
     }
 
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
     public function setUrlHash(?string $url_hash): self
     {
-        $this->url_hash = $url_hash;
+        $this->url_hash = mb_substr($url_hash, 0, 64);
         return $this;
     }
 
@@ -89,25 +89,13 @@ class Link extends Entity
 
     public function setMimetype(?string $mimetype): self
     {
-        $this->mimetype = $mimetype;
+        $this->mimetype = mb_substr($mimetype, 0, 50);
         return $this;
     }
 
     public function getMimetype(): ?string
     {
         return $this->mimetype;
-    }
-
-    public function getMimetypeMajor(): ?string
-    {
-        $mime = $this->getMimetype();
-        return \is_null($mime) ? $mime : GSFile::mimetypeMajor($mime);
-    }
-
-    public function getMimetypeMinor(): ?string
-    {
-        $mime = $this->getMimetype();
-        return \is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -170,6 +158,18 @@ class Link extends Entity
         } else {
             throw new InvalidArgumentException();
         }
+    }
+
+    public function getMimetypeMajor(): ?string
+    {
+        $mime = $this->getMimetype();
+        return \is_null($mime) ? $mime : GSFile::mimetypeMajor($mime);
+    }
+
+    public function getMimetypeMinor(): ?string
+    {
+        $mime = $this->getMimetype();
+        return \is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
     }
 
     public static function schemaDef(): array

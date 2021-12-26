@@ -60,7 +60,7 @@ class ForeignService
 
     public function setName(string $name): self
     {
-        $this->name = $name;
+        $this->name = mb_substr($name, 0, 32);
         return $this;
     }
 
@@ -71,7 +71,7 @@ class ForeignService
 
     public function setDescription(?string $description): self
     {
-        $this->description = $description;
+        $this->description = mb_substr($description, 0, 191);
         return $this;
     }
 

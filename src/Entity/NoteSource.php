@@ -47,7 +47,7 @@ class NoteSource extends Entity
 
     public function setCode(string $code): self
     {
-        $this->code = $code;
+        $this->code = \mb_substr($code, 0, 32);
         return $this;
     }
 
@@ -58,7 +58,7 @@ class NoteSource extends Entity
 
     public function setName(string $name): self
     {
-        $this->name = $name;
+        $this->name = \mb_substr($name, 0, 191);
         return $this;
     }
 
@@ -69,7 +69,7 @@ class NoteSource extends Entity
 
     public function setUrl(string $url): self
     {
-        $this->url = $url;
+        $this->url = \mb_substr($url, 0, 191);
         return $this;
     }
 
@@ -78,13 +78,13 @@ class NoteSource extends Entity
         return $this->url;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

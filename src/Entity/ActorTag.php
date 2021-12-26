@@ -56,7 +56,7 @@ class ActorTag extends Entity
     private string $tag;
     private string $canonical;
     private bool $use_canonical;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setTagger(int $tagger): self
     {
@@ -82,7 +82,7 @@ class ActorTag extends Entity
 
     public function setTag(string $tag): self
     {
-        $this->tag = $tag;
+        $this->tag = \mb_substr($tag, 0, 64);
         return $this;
     }
 
@@ -93,7 +93,7 @@ class ActorTag extends Entity
 
     public function setCanonical(string $canonical): self
     {
-        $this->canonical = $canonical;
+        $this->canonical = \mb_substr($canonical, 0, 64);
         return $this;
     }
 
@@ -113,13 +113,13 @@ class ActorTag extends Entity
         return $this->use_canonical;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

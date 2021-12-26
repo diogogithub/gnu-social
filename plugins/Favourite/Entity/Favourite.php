@@ -23,7 +23,6 @@ namespace Plugin\Favourite\Entity;
 
 use App\Core\Entity;
 use App\Entity\Note;
-use App\Util\Formatting;
 use DateTimeInterface;
 
 class Favourite extends Entity

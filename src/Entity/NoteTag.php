@@ -50,12 +50,12 @@ class NoteTag extends Entity
     private string $canonical;
     private int $note_id;
     private bool $use_canonical;
-    private int $language_id;
-    private DateTimeInterface $created;
+    private ?int $language_id;
+    private \DateTimeInterface $created;
 
     public function setTag(string $tag): self
     {
-        $this->tag = $tag;
+        $this->tag = \mb_substr($tag, 0, 64);
         return $this;
     }
 
@@ -66,7 +66,7 @@ class NoteTag extends Entity
 
     public function setCanonical(string $canonical): self
     {
-        $this->canonical = $canonical;
+        $this->canonical = \mb_substr($canonical, 0, 64);
         return $this;
     }
 
@@ -97,24 +97,24 @@ class NoteTag extends Entity
         return $this->use_canonical;
     }
 
-    public function setLanguageId(int $language_id): NoteTag
+    public function setLanguageId(?int $language_id): self
     {
         $this->language_id = $language_id;
         return $this;
     }
 
-    public function getLanguageId(): int
+    public function getLanguageId(): ?int
     {
         return $this->language_id;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }

@@ -71,8 +71,8 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
     private ?bool $auto_subscribe_back;
     private ?int $subscription_policy;
     private ?bool $is_stream_private;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -87,7 +87,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setNickname(string $nickname): self
     {
-        $this->nickname = $nickname;
+        $this->nickname = \mb_substr($nickname, 0, 64);
         return $this;
     }
 
@@ -98,7 +98,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setPassword(?string $password): self
     {
-        $this->password = $password;
+        $this->password = \mb_substr($password, 0, 191);
         return $this;
     }
 
@@ -109,7 +109,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setOutgoingEmail(?string $outgoing_email): self
     {
-        $this->outgoing_email = $outgoing_email;
+        $this->outgoing_email = \mb_substr($outgoing_email, 0, 191);
         return $this;
     }
 
@@ -120,7 +120,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setIncomingEmail(?string $incoming_email): self
     {
-        $this->incoming_email = $incoming_email;
+        $this->incoming_email = \mb_substr($incoming_email, 0, 191);
         return $this;
     }
 
@@ -142,7 +142,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setTimezone(?string $timezone): self
     {
-        $this->timezone = $timezone;
+        $this->timezone = \mb_substr($timezone, 0, 50);
         return $this;
     }
 
@@ -175,7 +175,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setSmsEmail(?string $sms_email): self
     {
-        $this->sms_email = $sms_email;
+        $this->sms_email = \mb_substr($sms_email, 0, 191);
         return $this;
     }
 
@@ -217,24 +217,24 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
         return $this->is_stream_private;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

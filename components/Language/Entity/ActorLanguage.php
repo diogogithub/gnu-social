@@ -71,16 +71,17 @@ class ActorLanguage extends Entity
         return $this->language_id;
     }
 
-    public function getOrdering(): int
-    {
-        return $this->ordering;
-    }
-
     public function setOrdering(int $ordering): self
     {
         $this->ordering = $ordering;
         return $this;
     }
+
+    public function getOrdering(): int
+    {
+        return $this->ordering;
+    }
+
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 

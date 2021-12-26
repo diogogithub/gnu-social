@@ -51,7 +51,7 @@ class ConfirmAddress extends Entity
 
     public function setCode(string $code): self
     {
-        $this->code = $code;
+        $this->code = \mb_substr($code, 0, 32);
         return $this;
     }
 
@@ -73,7 +73,7 @@ class ConfirmAddress extends Entity
 
     public function setAddress(string $address): self
     {
-        $this->address = $address;
+        $this->address = \mb_substr($address, 0, 191);
         return $this;
     }
 
@@ -84,7 +84,7 @@ class ConfirmAddress extends Entity
 
     public function setAddressExtra(?string $address_extra): self
     {
-        $this->address_extra = $address_extra;
+        $this->address_extra = \mb_substr($address_extra, 0, 191);
         return $this;
     }
 
@@ -95,7 +95,7 @@ class ConfirmAddress extends Entity
 
     public function setAddressType(string $address_type): self
     {
-        $this->address_type = $address_type;
+        $this->address_type = \mb_substr($address_type, 0, 8);
         return $this;
     }
 
@@ -104,35 +104,35 @@ class ConfirmAddress extends Entity
         return $this->address_type;
     }
 
-    public function setClaimed(?DateTimeInterface $claimed): self
+    public function setClaimed(?\DateTimeInterface $claimed): self
     {
         $this->claimed = $claimed;
         return $this;
     }
 
-    public function getClaimed(): ?DateTimeInterface
+    public function getClaimed(): ?\DateTimeInterface
     {
         return $this->claimed;
     }
 
-    public function setSent(DateTimeInterface $sent): self
+    public function setSent(\DateTimeInterface $sent): self
     {
         $this->sent = $sent;
         return $this;
     }
 
-    public function getSent(): DateTimeInterface
+    public function getSent(): \DateTimeInterface
     {
         return $this->sent;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

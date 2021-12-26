@@ -59,7 +59,7 @@ class SmsCarrier extends Entity
 
     public function setName(?string $name): self
     {
-        $this->name = $name;
+        $this->name = \mb_substr($name, 0, 64);
         return $this;
     }
 
@@ -70,7 +70,7 @@ class SmsCarrier extends Entity
 
     public function setEmailPattern(string $email_pattern): self
     {
-        $this->email_pattern = $email_pattern;
+        $this->email_pattern = \mb_substr($email_pattern, 0, 191);
         return $this;
     }
 
@@ -79,24 +79,24 @@ class SmsCarrier extends Entity
         return $this->email_pattern;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

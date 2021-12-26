@@ -60,19 +60,19 @@ class Actor extends Entity
     // @codeCoverageIgnoreStart
     private int $id;
     private string $nickname;
-    private ?string $fullname = null;
-    private int $roles        = 4;
+    private ?string $fullname;
+    private int $roles;
     private int $type;
-    private ?string $homepage = null;
-    private ?string $bio      = null;
-    private ?string $location = null;
+    private ?string $homepage;
+    private ?string $bio;
+    private ?string $location;
     private ?float $lat;
     private ?float $lon;
     private ?int $location_id;
     private ?int $location_service;
     private bool $is_local;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -87,7 +87,7 @@ class Actor extends Entity
 
     public function setNickname(string $nickname): self
     {
-        $this->nickname = $nickname;
+        $this->nickname = \mb_substr($nickname, 0, 64);
         return $this;
     }
 
@@ -104,9 +104,6 @@ class Actor extends Entity
 
     public function getFullname(): ?string
     {
-        if (\is_null($this->fullname)) {
-            return null;
-        }
         return $this->fullname;
     }
 
@@ -220,24 +217,24 @@ class Actor extends Entity
         return $this->is_local;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

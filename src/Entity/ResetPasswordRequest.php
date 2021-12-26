@@ -16,8 +16,8 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
     private int $user_id;
     private ?string $selector;
     private ?string $token;
-    private DateTimeInterface $expires;
-    private DateTimeInterface $created;
+    private \DateTimeInterface $expires;
+    private \DateTimeInterface $created;
 
     public function setId(int $id): self
     {
@@ -43,7 +43,7 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
 
     public function setSelector(?string $selector): self
     {
-        $this->selector = $selector;
+        $this->selector = \mb_substr($selector, 0, 20);
         return $this;
     }
 
@@ -54,7 +54,7 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
 
     public function setToken(?string $token): self
     {
-        $this->token = $token;
+        $this->token = \mb_substr($token, 0, 100);
         return $this;
     }
 
@@ -63,24 +63,24 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
         return $this->token;
     }
 
-    public function setExpires(DateTimeInterface $expires): self
+    public function setExpires(\DateTimeInterface $expires): self
     {
         $this->expires = $expires;
         return $this;
     }
 
-    public function getExpires(): DateTimeInterface
+    public function getExpires(): \DateTimeInterface
     {
         return $this->expires;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }

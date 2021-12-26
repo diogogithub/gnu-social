@@ -66,12 +66,11 @@ class AttachmentThumbnail extends Entity
         'medium' => self::SIZE_MEDIUM,
         'big'    => self::SIZE_BIG,
     ];
-
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
     private ?string $mimetype;
-    private int $size = self::SIZE_SMALL;
+    private int $size = 0;
     private string $filename;
     private int $width;
     private int $height;
@@ -90,7 +89,7 @@ class AttachmentThumbnail extends Entity
 
     public function setMimetype(?string $mimetype): self
     {
-        $this->mimetype = $mimetype;
+        $this->mimetype = mb_substr($mimetype, 0, 129);
         return $this;
     }
 
@@ -99,26 +98,48 @@ class AttachmentThumbnail extends Entity
         return $this->mimetype;
     }
 
-    public function getSize(): int
-    {
-        return $this->size;
-    }
-
     public function setSize(int $size): self
     {
         $this->size = $size;
         return $this;
     }
 
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
     public function setFilename(string $filename): self
     {
-        $this->filename = $filename;
+        $this->filename = mb_substr($filename, 0, 191);
         return $this;
     }
 
     public function getFilename(): string
     {
         return $this->filename;
+    }
+
+    public function setWidth(int $width): self
+    {
+        $this->width = $width;
+        return $this;
+    }
+
+    public function getWidth(): int
+    {
+        return $this->width;
+    }
+
+    public function setHeight(int $height): self
+    {
+        $this->height = $height;
+        return $this;
+    }
+
+    public function getHeight(): int
+    {
+        return $this->height;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -130,28 +151,6 @@ class AttachmentThumbnail extends Entity
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
-    }
-
-    public function getWidth(): int
-    {
-        return $this->width;
-    }
-
-    public function setWidth(int $width): self
-    {
-        $this->width = $width;
-        return $this;
-    }
-
-    public function getHeight(): int
-    {
-        return $this->height;
-    }
-
-    public function setHeight(int $height): self
-    {
-        $this->height = $height;
-        return $this;
     }
 
     // @codeCoverageIgnoreEnd

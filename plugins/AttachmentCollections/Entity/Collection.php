@@ -28,7 +28,7 @@ class Collection extends Entity
 
     public function setName(?string $name): self
     {
-        $this->name = $name;
+        $this->name = mb_substr($name, 0, 255);
         return $this;
     }
 

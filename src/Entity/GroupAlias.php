@@ -46,7 +46,7 @@ class GroupAlias extends Entity
 
     public function setAlias(string $alias): self
     {
-        $this->alias = $alias;
+        $this->alias = \mb_substr($alias, 0, 64);
         return $this;
     }
 
@@ -66,13 +66,13 @@ class GroupAlias extends Entity
         return $this->group_id;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

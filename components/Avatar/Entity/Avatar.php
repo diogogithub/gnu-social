@@ -77,14 +77,15 @@ class Avatar extends Entity
         return $this->attachment_id;
     }
 
+    public function setTitle(?string $title): self
+    {
+        $this->title = mb_substr($title, 0, 191);
+        return $this;
+    }
+
     public function getTitle(): ?string
     {
         return $this->title;
-    }
-
-    public function setTitle(?string $title): void
-    {
-        $this->title = $title;
     }
 
     public function setCreated(DateTimeInterface $created): self

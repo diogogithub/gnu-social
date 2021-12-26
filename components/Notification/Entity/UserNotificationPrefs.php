@@ -66,7 +66,7 @@ class UserNotificationPrefs extends Entity
 
     public function setTransport(string $transport): self
     {
-        $this->transport = $transport;
+        $this->transport = mb_substr($transport, 0, 191);
         return $this;
     }
 

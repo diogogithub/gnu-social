@@ -39,20 +39,9 @@ class AttachmentToLink extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $attachment_id;
     private int $link_id;
+    private int $attachment_id;
     private DateTimeInterface $modified;
-
-    public function setAttachmentId(int $attachment_id): self
-    {
-        $this->attachment_id = $attachment_id;
-        return $this;
-    }
-
-    public function getAttachmentId(): int
-    {
-        return $this->attachment_id;
-    }
 
     public function setLinkId(int $link_id): self
     {
@@ -63,6 +52,17 @@ class AttachmentToLink extends Entity
     public function getLinkId(): int
     {
         return $this->link_id;
+    }
+
+    public function setAttachmentId(int $attachment_id): self
+    {
+        $this->attachment_id = $attachment_id;
+        return $this;
+    }
+
+    public function getAttachmentId(): int
+    {
+        return $this->attachment_id;
     }
 
     public function setModified(DateTimeInterface $modified): self

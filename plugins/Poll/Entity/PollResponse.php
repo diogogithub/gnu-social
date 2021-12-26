@@ -62,7 +62,7 @@ class PollResponse extends Entity
 
     public function setUri(?string $uri): self
     {
-        $this->uri = $uri;
+        $this->uri = mb_substr($uri, 0, 191);
         return $this;
     }
 
@@ -143,7 +143,7 @@ class PollResponse extends Entity
                 'id' => ['type' => 'serial', 'not null' => true],
                 //'uri' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'UUID to the response notice'),
                 'uri'       => ['type' => 'varchar', 'length' => 191, 'description' => 'UUID to the response notice'],
-                'poll_id'   => ['type' => 'int', 'length' => 36, 'not null' => true, 'description' => 'UUID of poll being responded to'],
+                'poll_id'   => ['type' => 'int', 'not null' => true, 'description' => 'UUID of poll being responded to'],
                 'actor_id'  => ['type' => 'int'],
                 'selection' => ['type' => 'int'],
                 'created'   => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],

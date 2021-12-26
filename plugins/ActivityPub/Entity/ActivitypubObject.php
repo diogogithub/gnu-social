@@ -47,15 +47,10 @@ class ActivitypubObject extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private string $object_uri;
-    private int $object_id;
     private string $object_type;
+    private int $object_id;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
-
-    public function getObjectUri(): string
-    {
-        return $this->object_uri;
-    }
 
     public function setObjectUri(string $object_uri): self
     {
@@ -63,14 +58,14 @@ class ActivitypubObject extends Entity
         return $this;
     }
 
-    public function getObjectId(): int
+    public function getObjectUri(): string
     {
-        return $this->object_id;
+        return $this->object_uri;
     }
 
-    public function setObjectId(int $object_id): self
+    public function setObjectType(string $object_type): self
     {
-        $this->object_id = $object_id;
+        $this->object_type = mb_substr($object_type, 0, 32);
         return $this;
     }
 
@@ -79,10 +74,15 @@ class ActivitypubObject extends Entity
         return $this->object_type;
     }
 
-    public function setObjectType(string $object_type): self
+    public function setObjectId(int $object_id): self
     {
-        $this->object_type = $object_type;
+        $this->object_id = $object_id;
         return $this;
+    }
+
+    public function getObjectId(): int
+    {
+        return $this->object_id;
     }
 
     public function setCreated(DateTimeInterface $created): self

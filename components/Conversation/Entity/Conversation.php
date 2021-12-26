@@ -46,7 +46,6 @@ class Conversation extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private string $uri;
     private int $initial_note_id;
 
     public function setId(int $id): self

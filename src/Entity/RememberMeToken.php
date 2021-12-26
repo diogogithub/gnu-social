@@ -46,7 +46,7 @@ class RememberMeToken extends Entity
 
     public function setSeries(string $series): self
     {
-        $this->series = $series;
+        $this->series = \mb_substr($series, 0, 88);
         return $this;
     }
 
@@ -57,7 +57,7 @@ class RememberMeToken extends Entity
 
     public function setValue(string $value): self
     {
-        $this->value = $value;
+        $this->value = \mb_substr($value, 0, 88);
         return $this;
     }
 
@@ -66,20 +66,20 @@ class RememberMeToken extends Entity
         return $this->value;
     }
 
-    public function setLastused(DateTimeInterface $lastused): self
+    public function setLastused(\DateTimeInterface $lastused): self
     {
         $this->lastused = $lastused;
         return $this;
     }
 
-    public function getLastused(): DateTimeInterface
+    public function getLastused(): \DateTimeInterface
     {
         return $this->lastused;
     }
 
     public function setClass(string $class): self
     {
-        $this->class = $class;
+        $this->class = \mb_substr($class, 0, 100);
         return $this;
     }
 
@@ -90,7 +90,7 @@ class RememberMeToken extends Entity
 
     public function setUsername(string $username): self
     {
-        $this->username = $username;
+        $this->username = \mb_substr($username, 0, 64);
         return $this;
     }
 

@@ -51,7 +51,7 @@ class Language extends Component
         }
         $notes = F\select(
             $notes,
-            fn (Note $n) => is_null($n->getLanguageId()) || \in_array($n->getLanguageId(), ActorLanguage::getActorRelatedLanguagesIds($actor)),
+            fn (Note $n) => \is_null($n->getLanguageId()) || \in_array($n->getLanguageId(), ActorLanguage::getActorRelatedLanguagesIds($actor)),
         );
 
         return Event::next;

@@ -50,15 +50,10 @@ class ActivitypubRsa extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private ?string $private_key = null;
+    private ?string $private_key;
     private string $public_key;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
-
-    public function getActorId(): int
-    {
-        return $this->actor_id;
-    }
 
     public function setActorId(int $actor_id): self
     {
@@ -66,20 +61,20 @@ class ActivitypubRsa extends Entity
         return $this;
     }
 
-    public function getPrivateKey(): string
+    public function getActorId(): int
     {
-        return $this->private_key;
+        return $this->actor_id;
     }
 
-    public function setPrivateKey(string $private_key): self
+    public function setPrivateKey(?string $private_key): self
     {
         $this->private_key = $private_key;
         return $this;
     }
 
-    public function getPublicKey(): string
+    public function getPrivateKey(): ?string
     {
-        return $this->public_key;
+        return $this->private_key;
     }
 
     public function setPublicKey(string $public_key): self
@@ -88,9 +83,9 @@ class ActivitypubRsa extends Entity
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getPublicKey(): string
     {
-        return $this->created;
+        return $this->public_key;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -99,9 +94,9 @@ class ActivitypubRsa extends Entity
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
-        return $this->modified;
+        return $this->created;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -109,6 +104,12 @@ class ActivitypubRsa extends Entity
         $this->modified = $modified;
         return $this;
     }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 

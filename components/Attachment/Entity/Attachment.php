@@ -59,7 +59,7 @@ class Attachment extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private int $lives = 1;
+    private int $lives;
     private ?string $filehash;
     private ?string $mimetype;
     private ?string $filename;
@@ -79,19 +79,20 @@ class Attachment extends Entity
         return $this->id;
     }
 
+    public function setLives(int $lives): self
+    {
+        $this->lives = $lives;
+        return $this;
+    }
+
     public function getLives(): int
     {
         return $this->lives;
     }
 
-    public function setLives(int $lives): void
-    {
-        $this->lives = $lives;
-    }
-
     public function setFilehash(?string $filehash): self
     {
-        $this->filehash = $filehash;
+        $this->filehash = mb_substr($filehash, 0, 64);
         return $this;
     }
 
@@ -102,7 +103,7 @@ class Attachment extends Entity
 
     public function setMimetype(?string $mimetype): self
     {
-        $this->mimetype = $mimetype;
+        $this->mimetype = mb_substr($mimetype, 0, 255);
         return $this;
     }
 
@@ -113,7 +114,7 @@ class Attachment extends Entity
 
     public function setFilename(?string $filename): self
     {
-        $this->filename = $filename;
+        $this->filename = mb_substr($filename, 0, 191);
         return $this;
     }
 
@@ -317,7 +318,6 @@ class Attachment extends Entity
                     Event::handle('AttachmentGetBestTitle', [$this, $note, &$title]);
                     return $title;
                 }
-
             });
             if ($title != null) {
                 return $title;

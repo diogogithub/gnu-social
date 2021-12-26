@@ -52,10 +52,10 @@ class AttachmentEmbed extends Entity
     // @codeCoverageIgnoreStart
     private int $link_id;
     private int $attachment_id;
-    private ?string $title;
-    private ?string $description;
     private ?string $provider_name;
     private ?string $provider_url;
+    private ?string $title;
+    private ?string $description;
     private ?string $author_name;
     private ?string $author_url;
     private ?string $thumbnail_url;
@@ -72,14 +72,15 @@ class AttachmentEmbed extends Entity
         return $this->link_id;
     }
 
+    public function setAttachmentId(int $attachment_id): self
+    {
+        $this->attachment_id = $attachment_id;
+        return $this;
+    }
+
     public function getAttachmentId(): int
     {
         return $this->attachment_id;
-    }
-
-    public function setAttachmentId(int $attachment_id): void
-    {
-        $this->attachment_id = $attachment_id;
     }
 
     public function setProviderName(?string $provider_name): self
@@ -104,17 +105,6 @@ class AttachmentEmbed extends Entity
         return $this->provider_url;
     }
 
-    public function setDescription(?string $description): self
-    {
-        $this->description = $description;
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
     public function setTitle(?string $title): self
     {
         $this->title = $title;
@@ -124,6 +114,17 @@ class AttachmentEmbed extends Entity
     public function getTitle(): ?string
     {
         return $this->title;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
     }
 
     public function setAuthorName(?string $author_name): self

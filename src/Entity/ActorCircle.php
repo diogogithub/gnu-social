@@ -52,8 +52,8 @@ class ActorCircle extends Entity
     private string $tag;
     private ?string $description;
     private ?bool $private;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -79,7 +79,7 @@ class ActorCircle extends Entity
 
     public function setTag(string $tag): self
     {
-        $this->tag = $tag;
+        $this->tag = \mb_substr($tag, 0, 64);
         return $this;
     }
 
@@ -110,24 +110,24 @@ class ActorCircle extends Entity
         return $this->private;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

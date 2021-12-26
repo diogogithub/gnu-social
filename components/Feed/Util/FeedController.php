@@ -38,7 +38,6 @@ use App\Core\Log;
 use App\Core\VisibilityScope;
 use App\Entity\Actor;
 use App\Util\Common;
-use function array_key_exists;
 
 abstract class FeedController extends Controller
 {
@@ -51,7 +50,7 @@ abstract class FeedController extends Controller
     {
         $actor = Common::actor();
 
-        if (array_key_exists('notes', $result)) {
+        if (\array_key_exists('notes', $result)) {
             $notes = $result['notes'];
             self::enforceScope($notes, $actor);
             Event::handle('FilterNoteList', [$actor, &$notes, $result['request']]);
@@ -64,20 +63,20 @@ abstract class FeedController extends Controller
     private static function enforceScope(array &$notes, ?Actor $actor): void
     {
         $filtered_notes = [];
-        foreach($notes as $note) {
-            switch($note->getScope()) {
+        foreach ($notes as $note) {
+            switch ($note->getScope()) {
                 case VisibilityScope::LOCAL: // The controller handles it if private
                 case VisibilityScope::PUBLIC:
                     $filtered_notes[] = $note;
                     break;
                 case VisibilityScope::ADDRESSEE:
                     // If the actor is logged in and
-                    if (!is_null($actor) &&
-                        (
+                    if (!\is_null($actor)
+                        && (
                             // Is either the author Or
-                            $note->getActorId() == $actor->getId() ||
+                            $note->getActorId() == $actor->getId()
                             // one of the targets
-                            in_array($actor->getId(), $note->getNotificationTargetIds())
+                            || \in_array($actor->getId(), $note->getNotificationTargetIds())
                         )) {
                         $filtered_notes[] = $note;
                     }
@@ -85,7 +84,7 @@ abstract class FeedController extends Controller
                 case VisibilityScope::GROUP:
                     // Only for the group to see
                     break;
-                case VisibilityScope::COLLECTION: // no break
+                case VisibilityScope::COLLECTION:
                 case VisibilityScope::MESSAGE:
                     // Only for the collection to see (they will only find it in their notifications)
                     break;

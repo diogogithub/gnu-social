@@ -76,6 +76,7 @@ class NoteToLink extends Entity
     {
         return $this->modified;
     }
+
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 

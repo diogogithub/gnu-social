@@ -45,8 +45,8 @@ class ActorCircleSubscription extends Entity
     // @codeCoverageIgnoreStart
     private int $actor_id;
     private int $circle_id;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setActorId(int $actor_id): self
     {
@@ -59,35 +59,35 @@ class ActorCircleSubscription extends Entity
         return $this->actor_id;
     }
 
-    public function setCircleid(int $circle_id): self
+    public function setCircleId(int $circle_id): self
     {
         $this->circle_id = $circle_id;
         return $this;
     }
 
-    public function getCircleid(): int
+    public function getCircleId(): int
     {
         return $this->circle_id;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

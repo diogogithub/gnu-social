@@ -72,7 +72,7 @@ class ForeignUser
 
     public function setUri(string $uri): self
     {
-        $this->uri = $uri;
+        $this->uri = mb_substr($uri, 0, 191);
         return $this;
     }
 
@@ -83,7 +83,7 @@ class ForeignUser
 
     public function setNickname(?string $nickname): self
     {
-        $this->nickname = $nickname;
+        $this->nickname = mb_substr($nickname, 0, 191);
         return $this;
     }
 

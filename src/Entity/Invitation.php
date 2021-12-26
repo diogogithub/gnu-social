@@ -49,7 +49,7 @@ class Invitation extends Entity
 
     public function setCode(string $code): self
     {
-        $this->code = $code;
+        $this->code = \mb_substr($code, 0, 32);
         return $this;
     }
 
@@ -71,7 +71,7 @@ class Invitation extends Entity
 
     public function setAddress(string $address): self
     {
-        $this->address = $address;
+        $this->address = \mb_substr($address, 0, 191);
         return $this;
     }
 
@@ -82,7 +82,7 @@ class Invitation extends Entity
 
     public function setAddressType(string $address_type): self
     {
-        $this->address_type = $address_type;
+        $this->address_type = \mb_substr($address_type, 0, 8);
         return $this;
     }
 
@@ -102,13 +102,13 @@ class Invitation extends Entity
         return $this->registered_user_id;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }

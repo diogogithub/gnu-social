@@ -63,15 +63,15 @@ class ActivitypubActivity extends Entity
         return $this->activity_id;
     }
 
-    public function getActivityUri(): string
-    {
-        return $this->activity_uri;
-    }
-
     public function setActivityUri(string $activity_uri): self
     {
         $this->activity_uri = $activity_uri;
         return $this;
+    }
+
+    public function getActivityUri(): string
+    {
+        return $this->activity_uri;
     }
 
     public function setCreated(DateTimeInterface $created): self

@@ -88,7 +88,7 @@ class ForeignLink
 
     public function setCredentials(?string $credentials): self
     {
-        $this->credentials = $credentials;
+        $this->credentials = mb_substr($credentials, 0, 191);
         return $this;
     }
 

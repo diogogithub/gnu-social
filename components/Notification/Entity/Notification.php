@@ -75,7 +75,7 @@ class Notification extends Entity
 
     public function setReason(?string $reason): self
     {
-        $this->reason = $reason;
+        $this->reason = mb_substr($reason, 0, 191);
         return $this;
     }
 

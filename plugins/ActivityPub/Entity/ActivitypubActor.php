@@ -57,15 +57,10 @@ class ActivitypubActor extends Entity
     private string $uri;
     private int $actor_id;
     private string $inbox_uri;
-    private ?string $inbox_shared_uri = null;
-    private string $url;
+    private ?string $inbox_shared_uri;
+    private ?string $url;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
-
-    public function getUri(): string
-    {
-        return $this->uri;
-    }
 
     public function setUri(string $uri): self
     {
@@ -73,20 +68,9 @@ class ActivitypubActor extends Entity
         return $this;
     }
 
-    public function getUrl(): string
+    public function getUri(): string
     {
-        return $this->url;
-    }
-
-    public function setUrl(string $url): self
-    {
-        $this->url = $url;
-        return $this;
-    }
-
-    public function getActorId(): int
-    {
-        return $this->actor_id;
+        return $this->uri;
     }
 
     public function setActorId(int $actor_id): self
@@ -95,9 +79,9 @@ class ActivitypubActor extends Entity
         return $this;
     }
 
-    public function getInboxUri(): string
+    public function getActorId(): int
     {
-        return $this->inbox_uri;
+        return $this->actor_id;
     }
 
     public function setInboxUri(string $inbox_uri): self
@@ -106,20 +90,31 @@ class ActivitypubActor extends Entity
         return $this;
     }
 
-    public function getInboxSharedUri(): ?string
+    public function getInboxUri(): string
     {
-        return $this->inbox_shared_uri;
+        return $this->inbox_uri;
     }
 
-    public function setInboxSharedUri(?string $inbox_shared_uri = null): self
+    public function setInboxSharedUri(?string $inbox_shared_uri): self
     {
         $this->inbox_shared_uri = $inbox_shared_uri;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getInboxSharedUri(): ?string
     {
-        return $this->created;
+        return $this->inbox_shared_uri;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -128,9 +123,9 @@ class ActivitypubActor extends Entity
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
-        return $this->modified;
+        return $this->created;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -138,6 +133,12 @@ class ActivitypubActor extends Entity
         $this->modified = $modified;
         return $this;
     }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 

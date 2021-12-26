@@ -41,8 +41,8 @@ class ProfileColor extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private ?string $color;
     private ?string $background;
+    private ?string $color;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -57,18 +57,7 @@ class ProfileColor extends Entity
         return $this->actor_id;
     }
 
-    public function setColor(string $color): self
-    {
-        $this->color = $color;
-        return $this;
-    }
-
-    public function getColor(): ?string
-    {
-        return $this->color;
-    }
-
-    public function setBackground(string $background): self
+    public function setBackground(?string $background): self
     {
         $this->background = $background;
         return $this;
@@ -77,6 +66,17 @@ class ProfileColor extends Entity
     public function getBackground(): ?string
     {
         return $this->background;
+    }
+
+    public function setColor(?string $color): self
+    {
+        $this->color = $color;
+        return $this;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->color;
     }
 
     public function setCreated(DateTimeInterface $created): self
