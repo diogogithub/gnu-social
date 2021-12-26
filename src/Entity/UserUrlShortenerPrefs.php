@@ -41,7 +41,7 @@ class UserUrlShortenerPrefs extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $user_id;
-    private ?string $url_shortening_service;
+    private ?string $url_shortening_service = 'internal';
     private int $max_url_length;
     private int $max_notice_length;
     private \DateTimeInterface $created;
@@ -60,7 +60,7 @@ class UserUrlShortenerPrefs extends Entity
 
     public function setUrlShorteningService(?string $url_shortening_service): self
     {
-        $this->url_shortening_service = \mb_substr($url_shortening_service, 0, 50);
+        $this->url_shortening_service = \is_null($url_shortening_service) ? null : \mb_substr($url_shortening_service, 0, 50);
         return $this;
     }
 

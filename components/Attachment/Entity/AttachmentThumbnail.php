@@ -69,8 +69,8 @@ class AttachmentThumbnail extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
-    private ?string $mimetype;
-    private int $size = 0;
+    private ?string $mimetype = null;
+    private int $size         = 0;
     private string $filename;
     private int $width;
     private int $height;
@@ -89,7 +89,7 @@ class AttachmentThumbnail extends Entity
 
     public function setMimetype(?string $mimetype): self
     {
-        $this->mimetype = mb_substr($mimetype, 0, 129);
+        $this->mimetype = \is_null($mimetype) ? null : mb_substr($mimetype, 0, 129);
         return $this;
     }
 

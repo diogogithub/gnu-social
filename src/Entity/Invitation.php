@@ -44,7 +44,7 @@ class Invitation extends Entity
     private int $user_id;
     private string $address;
     private string $address_type;
-    private ?int $registered_user_id;
+    private ?int $registered_user_id = null;
     private \DateTimeInterface $created;
 
     public function setCode(string $code): self

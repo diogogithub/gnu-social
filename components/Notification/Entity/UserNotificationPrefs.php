@@ -40,7 +40,7 @@ class UserNotificationPrefs extends Entity
     // @codeCoverageIgnoreStart
     private int $user_id;
     private string $transport;
-    private ?int $target_actor_id;
+    private ?int $target_actor_id        = null;
     private bool $activity_by_subscribed = true;
     private bool $mention                = true;
     private bool $reply                  = true;
@@ -49,7 +49,7 @@ class UserNotificationPrefs extends Entity
     private bool $nudge                  = false;
     private bool $dm                     = true;
     private bool $post_on_status_change  = false;
-    private ?bool $enable_posting;
+    private ?bool $enable_posting        = true;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 

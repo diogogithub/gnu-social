@@ -59,13 +59,13 @@ class Attachment extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private int $lives = 1;
-    private ?string $filehash;
-    private ?string $mimetype;
-    private ?string $filename;
-    private ?int $size;
-    private ?int $width;
-    private ?int $height;
+    private int $lives        = 1;
+    private ?string $filehash = null;
+    private ?string $mimetype = null;
+    private ?string $filename = null;
+    private ?int $size        = null;
+    private ?int $width       = null;
+    private ?int $height      = null;
     private DateTimeInterface $modified;
 
     public function setId(int $id): self
@@ -92,7 +92,7 @@ class Attachment extends Entity
 
     public function setFilehash(?string $filehash): self
     {
-        $this->filehash = mb_substr($filehash, 0, 64);
+        $this->filehash = \is_null($filehash) ? null : mb_substr($filehash, 0, 64);
         return $this;
     }
 
@@ -103,7 +103,7 @@ class Attachment extends Entity
 
     public function setMimetype(?string $mimetype): self
     {
-        $this->mimetype = mb_substr($mimetype, 0, 255);
+        $this->mimetype = \is_null($mimetype) ? null : mb_substr($mimetype, 0, 255);
         return $this;
     }
 
@@ -114,7 +114,7 @@ class Attachment extends Entity
 
     public function setFilename(?string $filename): self
     {
-        $this->filename = mb_substr($filename, 0, 191);
+        $this->filename = \is_null($filename) ? null : mb_substr($filename, 0, 191);
         return $this;
     }
 

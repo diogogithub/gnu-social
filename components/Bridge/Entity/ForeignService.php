@@ -43,7 +43,7 @@ class ForeignService
     // @codeCoverageIgnoreStart
     private int $id;
     private string $name;
-    private ?string $description;
+    private ?string $description = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -71,7 +71,7 @@ class ForeignService
 
     public function setDescription(?string $description): self
     {
-        $this->description = mb_substr($description, 0, 191);
+        $this->description = \is_null($description) ? null : mb_substr($description, 0, 191);
         return $this;
     }
 

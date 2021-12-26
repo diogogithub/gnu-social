@@ -49,7 +49,7 @@ class Activity extends Entity
     private string $verb;
     private string $object_type;
     private int $object_id;
-    private ?string $source;
+    private ?string $source = null;
     private \DateTimeInterface $created;
 
     public function setId(int $id): self
@@ -109,7 +109,7 @@ class Activity extends Entity
 
     public function setSource(?string $source): self
     {
-        $this->source = \mb_substr($source, 0, 32);
+        $this->source = \is_null($source) ? null : \mb_substr($source, 0, 32);
         return $this;
     }
 

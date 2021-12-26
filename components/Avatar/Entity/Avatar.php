@@ -51,7 +51,7 @@ class Avatar extends Entity
     // @codeCoverageIgnoreStart
     private int $actor_id;
     private int $attachment_id;
-    private ?string $title;
+    private ?string $title = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -79,7 +79,7 @@ class Avatar extends Entity
 
     public function setTitle(?string $title): self
     {
-        $this->title = mb_substr($title, 0, 191);
+        $this->title = \is_null($title) ? null : mb_substr($title, 0, 191);
         return $this;
     }
 

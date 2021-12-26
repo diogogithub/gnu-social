@@ -44,8 +44,8 @@ class GroupMember extends Entity
     // @codeCoverageIgnoreStart
     private int $group_id;
     private int $actor_id;
-    private ?bool $is_admin;
-    private ?string $uri;
+    private ?bool $is_admin = false;
+    private ?string $uri = null;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -84,7 +84,7 @@ class GroupMember extends Entity
 
     public function setUri(?string $uri): self
     {
-        $this->uri = \mb_substr($uri, 0, 191);
+        $this->uri = \is_null($uri) ? null : \mb_substr($uri, 0, 191);
         return $this;
     }
 

@@ -60,17 +60,17 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
     // @codeCoverageIgnoreStart
     private int $id;
     private string $nickname;
-    private ?string $password;
-    private ?string $outgoing_email;
-    private ?string $incoming_email;
-    private ?bool $is_email_verified;
-    private ?string $timezone;
-    private ?PhoneNumber $phone_number;
-    private ?int $sms_carrier;
-    private ?string $sms_email;
-    private ?bool $auto_subscribe_back;
-    private ?int $subscription_policy;
-    private ?bool $is_stream_private;
+    private ?string $password = null;
+    private ?string $outgoing_email = null;
+    private ?string $incoming_email = null;
+    private ?bool $is_email_verified = false;
+    private ?string $timezone = null;
+    private ?PhoneNumber $phone_number = null;
+    private ?int $sms_carrier = null;
+    private ?string $sms_email = null;
+    private ?bool $auto_subscribe_back = false;
+    private ?int $subscription_policy = 0;
+    private ?bool $is_stream_private = false;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -98,7 +98,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setPassword(?string $password): self
     {
-        $this->password = \mb_substr($password, 0, 191);
+        $this->password = \is_null($password) ? null : \mb_substr($password, 0, 191);
         return $this;
     }
 
@@ -109,7 +109,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setOutgoingEmail(?string $outgoing_email): self
     {
-        $this->outgoing_email = \mb_substr($outgoing_email, 0, 191);
+        $this->outgoing_email = \is_null($outgoing_email) ? null : \mb_substr($outgoing_email, 0, 191);
         return $this;
     }
 
@@ -120,7 +120,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setIncomingEmail(?string $incoming_email): self
     {
-        $this->incoming_email = \mb_substr($incoming_email, 0, 191);
+        $this->incoming_email = \is_null($incoming_email) ? null : \mb_substr($incoming_email, 0, 191);
         return $this;
     }
 
@@ -142,7 +142,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setTimezone(?string $timezone): self
     {
-        $this->timezone = \mb_substr($timezone, 0, 50);
+        $this->timezone = \is_null($timezone) ? null : \mb_substr($timezone, 0, 50);
         return $this;
     }
 
@@ -175,7 +175,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
 
     public function setSmsEmail(?string $sms_email): self
     {
-        $this->sms_email = \mb_substr($sms_email, 0, 191);
+        $this->sms_email = \is_null($sms_email) ? null : \mb_substr($sms_email, 0, 191);
         return $this;
     }
 

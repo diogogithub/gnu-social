@@ -47,7 +47,7 @@ class Notification extends Entity
     // @codeCoverageIgnoreStart
     private int $activity_id;
     private int $target_id;
-    private ?string $reason;
+    private ?string $reason = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -75,7 +75,7 @@ class Notification extends Entity
 
     public function setReason(?string $reason): self
     {
-        $this->reason = mb_substr($reason, 0, 191);
+        $this->reason = \is_null($reason) ? null : mb_substr($reason, 0, 191);
         return $this;
     }
 

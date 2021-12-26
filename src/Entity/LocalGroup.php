@@ -43,7 +43,7 @@ class LocalGroup extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $group_id;
-    private ?string $nickname;
+    private ?string $nickname = null;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -60,7 +60,7 @@ class LocalGroup extends Entity
 
     public function setNickname(?string $nickname): self
     {
-        $this->nickname = \mb_substr($nickname, 0, 64);
+        $this->nickname = \is_null($nickname) ? null : \mb_substr($nickname, 0, 64);
         return $this;
     }
 

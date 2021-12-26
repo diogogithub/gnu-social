@@ -50,7 +50,7 @@ class ActivitypubRsa extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private ?string $private_key;
+    private ?string $private_key = null;
     private string $public_key;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;

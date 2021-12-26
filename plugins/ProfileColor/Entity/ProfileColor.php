@@ -41,8 +41,8 @@ class ProfileColor extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private ?string $background;
-    private ?string $color;
+    private ?string $background = null;
+    private ?string $color      = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 

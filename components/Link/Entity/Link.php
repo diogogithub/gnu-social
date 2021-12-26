@@ -49,9 +49,9 @@ class Link extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private ?string $url;
-    private ?string $url_hash;
-    private ?string $mimetype;
+    private ?string $url      = null;
+    private ?string $url_hash = null;
+    private ?string $mimetype = null;
     private DateTimeInterface $modified;
 
     public function setId(int $id): self
@@ -78,7 +78,7 @@ class Link extends Entity
 
     public function setUrlHash(?string $url_hash): self
     {
-        $this->url_hash = mb_substr($url_hash, 0, 64);
+        $this->url_hash = \is_null($url_hash) ? null : mb_substr($url_hash, 0, 64);
         return $this;
     }
 
@@ -89,7 +89,7 @@ class Link extends Entity
 
     public function setMimetype(?string $mimetype): self
     {
-        $this->mimetype = mb_substr($mimetype, 0, 50);
+        $this->mimetype = \is_null($mimetype) ? null : mb_substr($mimetype, 0, 50);
         return $this;
     }
 

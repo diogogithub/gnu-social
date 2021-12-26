@@ -42,11 +42,11 @@ class Poll extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private ?string $uri;
-    private ?int $actor_id;
+    private ?string $uri   = null;
+    private ?int $actor_id = null;
     private int $note_id;
-    private ?string $question;
-    private ?string $options;
+    private ?string $question = null;
+    private ?string $options  = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -63,7 +63,7 @@ class Poll extends Entity
 
     public function setUri(?string $uri): self
     {
-        $this->uri = mb_substr($uri, 0, 191);
+        $this->uri = \is_null($uri) ? null : mb_substr($uri, 0, 191);
         return $this;
     }
 

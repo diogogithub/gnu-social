@@ -44,12 +44,12 @@ class ForeignLink
     private int $user_id;
     private int $foreign_id;
     private int $service;
-    private ?string $credentials;
-    private int $noticesync  = 1;
-    private int $friendsync  = 2;
-    private int $profilesync = 1;
-    private ?DateTimeInterface $last_noticesync;
-    private ?DateTimeInterface $last_friendsync;
+    private ?string $credentials                = null;
+    private int $noticesync                     = 1;
+    private int $friendsync                     = 2;
+    private int $profilesync                    = 1;
+    private ?DateTimeInterface $last_noticesync = null;
+    private ?DateTimeInterface $last_friendsync = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -88,7 +88,7 @@ class ForeignLink
 
     public function setCredentials(?string $credentials): self
     {
-        $this->credentials = mb_substr($credentials, 0, 191);
+        $this->credentials = \is_null($credentials) ? null : mb_substr($credentials, 0, 191);
         return $this;
     }
 

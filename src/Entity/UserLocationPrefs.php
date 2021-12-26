@@ -39,7 +39,7 @@ class UserLocationPrefs extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $user_id;
-    private ?bool $share_location;
+    private ?bool $share_location = true;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 

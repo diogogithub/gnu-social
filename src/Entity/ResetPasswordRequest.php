@@ -14,8 +14,8 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
     // @codeCoverageIgnoreStart
     private int $id;
     private int $user_id;
-    private ?string $selector;
-    private ?string $token;
+    private ?string $selector = null;
+    private ?string $token = null;
     private \DateTimeInterface $expires;
     private \DateTimeInterface $created;
 
@@ -43,7 +43,7 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
 
     public function setSelector(?string $selector): self
     {
-        $this->selector = \mb_substr($selector, 0, 20);
+        $this->selector = \is_null($selector) ? null : \mb_substr($selector, 0, 20);
         return $this;
     }
 
@@ -54,7 +54,7 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
 
     public function setToken(?string $token): self
     {
-        $this->token = \mb_substr($token, 0, 100);
+        $this->token = \is_null($token) ? null : \mb_substr($token, 0, 100);
         return $this;
     }
 

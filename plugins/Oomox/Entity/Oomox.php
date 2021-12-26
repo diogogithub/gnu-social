@@ -41,16 +41,16 @@ class Oomox extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private ?string $colour_foreground_light;
-    private ?string $colour_background_hard_light;
-    private ?string $colour_background_card_light;
-    private ?string $colour_border_light;
-    private ?string $colour_accent_light;
-    private ?string $colour_foreground_dark;
-    private ?string $colour_background_hard_dark;
-    private ?string $colour_background_card_dark;
-    private ?string $colour_border_dark;
-    private ?string $colour_accent_dark;
+    private ?string $colour_foreground_light      = null;
+    private ?string $colour_background_hard_light = null;
+    private ?string $colour_background_card_light = null;
+    private ?string $colour_border_light          = null;
+    private ?string $colour_accent_light          = null;
+    private ?string $colour_foreground_dark       = null;
+    private ?string $colour_background_hard_dark  = null;
+    private ?string $colour_background_card_dark  = null;
+    private ?string $colour_border_dark           = null;
+    private ?string $colour_accent_dark           = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 

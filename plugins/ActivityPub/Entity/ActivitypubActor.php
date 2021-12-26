@@ -57,8 +57,8 @@ class ActivitypubActor extends Entity
     private string $uri;
     private int $actor_id;
     private string $inbox_uri;
-    private ?string $inbox_shared_uri;
-    private ?string $url;
+    private ?string $inbox_shared_uri = null;
+    private ?string $url              = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 

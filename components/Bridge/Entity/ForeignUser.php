@@ -44,7 +44,7 @@ class ForeignUser
     private int $id;
     private int $service;
     private string $uri;
-    private ?string $nickname;
+    private ?string $nickname = null;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -83,7 +83,7 @@ class ForeignUser
 
     public function setNickname(?string $nickname): self
     {
-        $this->nickname = mb_substr($nickname, 0, 191);
+        $this->nickname = \is_null($nickname) ? null : mb_substr($nickname, 0, 191);
         return $this;
     }
 

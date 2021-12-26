@@ -48,12 +48,12 @@ class ActorCircle extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private ?int $tagger;
+    private ?int $tagger = null;
     private int $tagged;
     private string $tag;
     private bool $use_canonical;
-    private ?string $description;
-    private ?bool $private;
+    private ?string $description = null;
+    private ?bool $private = false;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 

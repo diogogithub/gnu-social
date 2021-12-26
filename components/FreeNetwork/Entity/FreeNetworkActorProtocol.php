@@ -49,7 +49,7 @@ class FreeNetworkActorProtocol extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $actor_id;
-    private ?string $protocol;
+    private ?string $protocol = null;
     private string $addr;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
@@ -67,7 +67,7 @@ class FreeNetworkActorProtocol extends Entity
 
     public function setProtocol(?string $protocol): self
     {
-        $this->protocol = mb_substr($protocol, 0, 32);
+        $this->protocol = \is_null($protocol) ? null : mb_substr($protocol, 0, 32);
         return $this;
     }
 

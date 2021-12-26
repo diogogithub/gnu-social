@@ -41,11 +41,11 @@ class ConfirmAddress extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private string $code;
-    private ?int $user_id;
+    private ?int $user_id = 0;
     private string $address;
-    private ?string $address_extra;
+    private ?string $address_extra = null;
     private string $address_type;
-    private ?\DateTimeInterface $claimed;
+    private ?\DateTimeInterface $claimed = null;
     private \DateTimeInterface $sent;
     private \DateTimeInterface $modified;
 
@@ -84,7 +84,7 @@ class ConfirmAddress extends Entity
 
     public function setAddressExtra(?string $address_extra): self
     {
-        $this->address_extra = \mb_substr($address_extra, 0, 191);
+        $this->address_extra = \is_null($address_extra) ? null : \mb_substr($address_extra, 0, 191);
         return $this;
     }
 

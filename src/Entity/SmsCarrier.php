@@ -41,7 +41,7 @@ class SmsCarrier extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private ?string $name;
+    private ?string $name = null;
     private string $email_pattern;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
@@ -59,7 +59,7 @@ class SmsCarrier extends Entity
 
     public function setName(?string $name): self
     {
-        $this->name = \mb_substr($name, 0, 64);
+        $this->name = \is_null($name) ? null : \mb_substr($name, 0, 64);
         return $this;
     }
 

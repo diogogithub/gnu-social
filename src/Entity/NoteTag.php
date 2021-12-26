@@ -50,7 +50,7 @@ class NoteTag extends Entity
     private string $canonical;
     private int $note_id;
     private bool $use_canonical;
-    private ?int $language_id;
+    private ?int $language_id = null;
     private \DateTimeInterface $created;
 
     public function setTag(string $tag): self

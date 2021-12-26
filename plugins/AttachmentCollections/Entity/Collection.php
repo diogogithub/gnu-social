@@ -12,7 +12,7 @@ class Collection extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private ?string $name;
+    private ?string $name = null;
     private int $actor_id;
 
     public function setId(int $id): self
@@ -28,7 +28,7 @@ class Collection extends Entity
 
     public function setName(?string $name): self
     {
-        $this->name = mb_substr($name, 0, 255);
+        $this->name = \is_null($name) ? null : mb_substr($name, 0, 255);
         return $this;
     }
 

@@ -52,13 +52,13 @@ class AttachmentEmbed extends Entity
     // @codeCoverageIgnoreStart
     private int $link_id;
     private int $attachment_id;
-    private ?string $provider_name;
-    private ?string $provider_url;
-    private ?string $title;
-    private ?string $description;
-    private ?string $author_name;
-    private ?string $author_url;
-    private ?string $thumbnail_url;
+    private ?string $provider_name = null;
+    private ?string $provider_url  = null;
+    private ?string $title         = null;
+    private ?string $description   = null;
+    private ?string $author_name   = null;
+    private ?string $author_url    = null;
+    private ?string $thumbnail_url = null;
     private DateTimeInterface $modified;
 
     public function setLinkId(int $link_id): self

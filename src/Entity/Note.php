@@ -52,16 +52,16 @@ class Note extends Entity
     // @codeCoverageIgnoreStart
     private int $id;
     private int $actor_id;
-    private ?string $content;
+    private ?string $content = null;
     private string $content_type = 'text/plain';
-    private ?string $rendered;
+    private ?string $rendered = null;
     private int $conversation_id;
     private ?int $reply_to = null;
     private bool $is_local;
-    private ?string $source;
-    private int $scope = 1; //VisibilityScope::EVERYWHERE->value;
-    private ?string $url;
-    private ?int $language_id;
+    private ?string $source = null;
+    private int $scope = 1;  //VisibilityScope::EVERYWHERE->value;
+    private ?string $url = null;
+    private ?int $language_id = null;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -155,7 +155,7 @@ class Note extends Entity
 
     public function setSource(?string $source): self
     {
-        $this->source = \mb_substr($source, 0, 32);
+        $this->source = \is_null($source) ? null : \mb_substr($source, 0, 32);
         return $this;
     }
 

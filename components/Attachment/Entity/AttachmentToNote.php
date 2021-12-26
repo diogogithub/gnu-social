@@ -45,7 +45,7 @@ class AttachmentToNote extends Entity
     // @codeCoverageIgnoreStart
     private int $attachment_id;
     private int $note_id;
-    private ?string $title;
+    private ?string $title = null;
     private DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
