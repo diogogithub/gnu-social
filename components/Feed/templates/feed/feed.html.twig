@@ -13,7 +13,7 @@
         {% if page_title is defined %}
             <h1>{{ page_title | trans }}</h1>
         {% endif %}
-        <nav class="feed-actions" role=navigation>
+        <nav class="feed-actions">
             {% for block in handle_event('AddFeedActions', app.request) %}
                 {{ block | raw }}
             {% endfor %}
