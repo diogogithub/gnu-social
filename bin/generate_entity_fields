@@ -27,6 +27,7 @@ $files = array_merge(glob(ROOT . '/src/Entity/*.php'),
                                  glob(ROOT . '/plugins/*/Entity/*.php')));
 
 $classes = [];
+$nullable_no_defaults_warning = [];
 
 foreach ($files as $file) {
 
@@ -64,6 +65,9 @@ foreach ($files as $file) {
         }
 
         if (($nullable === '?' || \array_key_exists('default', $field_schema)) && $type != '\DateTimeInterface') {
+            if (!\array_key_exists('default', $field_schema)) {
+                $nullable_no_defaults_warning[] = "{$class}::{$field}";
+            }
             $default = $field_schema['default'] ?? null;
             if (\is_string($default)) {
                 $default = "'{$default}'";
@@ -106,4 +110,11 @@ foreach ($files as $file) {
     $in_file  = file_get_contents($file);
     $out_file = preg_replace("%\\s*{$begin}.*{$end}%smu", $code, $in_file);
     file_put_contents($file, $out_file);
+}
+
+if (!empty($nullable_no_defaults_warning)) {
+    echo "Warning: The following don't have a default value, but we're assigning it `null`. Doctrine might not like this, so update it\n";
+    foreach ($nullable_no_defaults_warning as $n) {
+        echo "    {$n}\n";
+    }
 }
