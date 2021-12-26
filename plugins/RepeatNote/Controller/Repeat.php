@@ -81,7 +81,7 @@ class Repeat extends Controller
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
                 } else {
                     // TODO anchor on element id
-                    throw new RedirectException($from);
+                    throw new RedirectException(url: $from);
                 }
             } else {
                 // If we don't have a URL to return to, go to the instance root
@@ -136,7 +136,7 @@ class Repeat extends Controller
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
                 } else {
                     // TODO anchor on element id
-                    throw new RedirectException($from);
+                    throw new RedirectException(url: $from);
                 }
             } else {
                 // If we don't have a URL to return to, go to the instance root
