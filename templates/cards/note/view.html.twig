@@ -91,7 +91,7 @@
 
 {% block note_sidebar %}
     <aside class="note-sidebar">
-        {% set actor_avatar_dimensions = note.getActor().getAvatarDimensions() %}
+        {% set actor_avatar_dimensions = actor.getAvatarDimensions() %}
         <img class="u-logo avatar" src="{{ note.getActorAvatarUrl() }}" alt="{{ nickname }}'s avatar" width="{{actor_avatar_dimensions['width']}}" height="{{actor_avatar_dimensions['height']}}">
     </aside>
 {% endblock note_sidebar %}
@@ -111,9 +111,9 @@
 {% endblock note_info %}
 
 {% macro macro_note(note, replies) %}
-    {% set nickname = note.getActorNickname() %}
-    {% set fullname = note.getActorFullname() %}
     {% set actor = note.getActor() %}
+    {% set nickname = actor.getNickname() %}
+    {% set fullname = actor.getFullname() %}
     {% set actor_url = actor.getUrl() %}
     {% set note_language = note.getNoteLanguageShortDisplay() %}
 
@@ -144,9 +144,10 @@
 {% endmacro macro_note %}
 
 {% macro macro_note_minimal(note) %}
-    {% set nickname = note.getActorNickname() %}
-    {% set fullname = note.getActorFullname() %}
-    {% set actor_url = note.getActor().getUrl() %}
+    {% set actor = note.getActor() %}
+    {% set nickname = actor.getNickname() %}
+    {% set fullname = actor.getFullname() %}
+    {% set actor_url = actor.getUrl() %}
 
     <article class="h-entry hentry note">
         {{ block('note_sidebar') }}
