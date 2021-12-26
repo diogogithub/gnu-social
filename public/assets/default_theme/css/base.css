@@ -61,14 +61,13 @@ html {
 }
 .page-header {
     z-index: 1;
-    font-family: 'Poppins',sans-serif;
-    height: var(--xxl);
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     position: fixed;
     top: 0;
-    align-self: center;
-    align-items: center;
+    align-items: baseline;
+    font-family: 'Poppins',sans-serif;
+    height: var(--xxl);
     padding: var(--s);
     background: var(--gradient) !important;
     box-shadow: var(--shadow);
@@ -149,6 +148,7 @@ html {
     display: flex;
     justify-content: space-evenly;
 }
+/* < 720p */
 @media only screen and (max-width:1280px) {
     .page-header {
         width: 100%;

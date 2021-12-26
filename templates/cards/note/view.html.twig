@@ -1,6 +1,6 @@
 {% block note_actions %}
     {% if app.user or note_actions_hide is defined %}
-        <div class="note-actions">
+        <div class="note-actions note-info-end">
             <ul>
                 <li class="note-actions-extra">
                     <details class="note-actions-extra-details">
@@ -31,7 +31,7 @@
 {% block note_replies %}
     {% if replies is defined and replies is not empty %}
         <div class="u-in-reply-to replies" tabindex="0" title="{{ 'Begin replies to ' | trans }}{{ nickname }}{{ '\'s note!' | trans }}">
-            <strong>{{ 'Replies to ' | trans }}{{ nickname }}</strong>
+            <strong><small>{{ 'Replies to ' | trans }}{{ nickname }}</small></strong>
             {% for conversation in replies %}
                 {{ _self.macro_note(conversation['note'], conversation['replies']) }}
                 <hr tabindex="0" title="{{ 'End of reply' | trans }}">
@@ -79,9 +79,10 @@
             {{ nickname }}
         {% endif %}
     </header>
-    <a href="{{ actor_url }}" class="note-author-url u-url">
-        <em class="note-author-nickname">{{ nickname }}</em>
-    </a>
+
+    <small class="note-author-nickname">
+        <a href="{{ actor_url }}" class="note-author-url u-url">{{ nickname }}</a>
+    </small>
 {% endblock note_author %}
 
 {% block note_sidebar %}
@@ -92,10 +93,13 @@
 
 {% block note_info %}
     <div class="note-info">
-        {{ block('note_author') }}
-        <em>
-            <a href="{{ note.getConversationUrl() }}" class="note-url">{{ 'in conversation' | trans }}</a> <a href="{{ note.getUrl() }}" class="note-url">{{ note.getModified() | ago }}</a>
-        </em>
+        <div class="note-info-start">
+            {{ block('note_author') }}
+            <small class="note-conversation-info">
+                <a href="{{ note.getConversationUrl() }}" class="note-conversation-url">{{ 'in conversation' | trans }}</a>
+                <a href="{{ note.getUrl() }}" class="note-url">{{ note.getModified() | ago }}</a>
+            </small>
+        </div>
 
         {{ block('note_actions') }}
     </div>
