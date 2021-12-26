@@ -66,7 +66,7 @@ abstract class FeedController extends Controller
         foreach ($notes as $note) {
             switch ($note->getScope()) {
                 case VisibilityScope::LOCAL: // The controller handles it if private
-                case VisibilityScope::PUBLIC:
+                case VisibilityScope::EVERYWHERE:
                     $filtered_notes[] = $note;
                     break;
                 case VisibilityScope::ADDRESSEE:

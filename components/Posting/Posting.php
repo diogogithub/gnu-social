@@ -102,9 +102,9 @@ class Posting extends Component
 
         // TODO: if in group page, add GROUP visibility to the choices.
         $form_params[] = ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [
-            _m('Public')    => VisibilityScope::PUBLIC,
-            _m('Local')     => VisibilityScope::LOCAL,
-            _m('Addressee') => VisibilityScope::ADDRESSEE,
+            _m('Public')    => VisibilityScope::EVERYWHERE->value,
+            _m('Local')     => VisibilityScope::LOCAL->value,
+            _m('Addressee') => VisibilityScope::ADDRESSEE->value,
         ]]];
         $form_params[] = ['content', TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]];
         $form_params[] = ['attachments', FileType::class, ['label' => _m('Attachments:'), 'multiple' => true, 'required' => false, 'invalid_message' => _m('Attachment not valid.')]];
@@ -135,7 +135,7 @@ class Posting extends Component
                         throw new ClientException(_m('You must enter content or provide at least one attachment to post a note.'));
                     }
 
-                    if (!VisibilityScope::isValue($data['visibility'])) {
+                    if (\is_null(VisibilityScope::tryFrom($data['visibility']))) {
                         throw new ClientException(_m('You have selected an impossible visibility.'));
                     }
 
@@ -148,7 +148,7 @@ class Posting extends Component
                         content: $data['content'],
                         content_type: $content_type,
                         language: $data['language'],
-                        scope: $data['visibility'],
+                        scope: VisibilityScope::from($data['visibility']),
                         target: $data['in'] ?? null,
                         attachments: $data['attachments'],
                         process_note_content_extra_args: $extra_args,
@@ -185,13 +185,13 @@ class Posting extends Component
         ?string $content,
         string $content_type,
         ?string $language = null,
-        ?int $scope = null,
+        ?VisibilityScope $scope = null,
         ?string $target = null,
         array $attachments = [],
         array $processed_attachments = [],
         array $process_note_content_extra_args = [],
     ): Note {
-        $scope ??= VisibilityScope::PUBLIC; // TODO: If site is private, default to LOCAL
+        $scope ??= VisibilityScope::EVERYWHERE; // TODO: If site is private, default to LOCAL
         $rendered = null;
         $mentions = [];
         if (!empty($content)) {

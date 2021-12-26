@@ -21,14 +21,12 @@ declare(strict_types = 1);
 
 namespace App\Core;
 
-use App\Util\Bitmap;
-
-class VisibilityScope extends Bitmap
+enum VisibilityScope: int // having an int is just convenient
 {
-    public const PUBLIC     = 1;  // Can be shown everywhere (default)
-    public const LOCAL      = 2;  // Non-public and non-federated (default in private sites)
-    public const ADDRESSEE  = 4;  // Only if the actor is the author or one of the targets
-    public const GROUP      = 8;  // Only in the Group feed
-    public const COLLECTION = 16; // Only for the collection to see (same as addressee but not available in feeds, notifications only)
-    public const MESSAGE    = 32; // Direct Message (same as Collection, but also with dedicated plugin)
+    case EVERYWHERE = 1;  // Can be shown everywhere (default)
+    case LOCAL      = 2;  // Non-public and non-federated (default in private sites)
+    case ADDRESSEE  = 4;  // Only if the actor is the author or one of the targets
+    case GROUP      = 8;  // Only in the Group feed
+    case COLLECTION = 16; // Only for the collection to see (same as addressee but not available in feeds, notifications only)
+    case MESSAGE    = 32; // Direct Message (same as Collection, but also with dedicated plugin)
 }

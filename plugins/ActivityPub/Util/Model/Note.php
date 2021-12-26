@@ -170,11 +170,11 @@ class Note extends Model
         // Scope
         if (\in_array('https://www.w3.org/ns/activitystreams#Public', $type_note->get('to'))) {
             // Public: Visible for all, shown in public feeds
-            $map['scope'] = VisibilityScope::PUBLIC;
+            $map['scope'] = VisibilityScope::EVERYWHERE;
         } elseif (\in_array('https://www.w3.org/ns/activitystreams#Public', $type_note->get('cc'))) {
             // Unlisted: Visible for all but not shown in public feeds
             // It isn't the note that dictates what feed is shown in but the feed, it only dictates who can access it.
-            $map['scope'] = VisibilityScope::PUBLIC;
+            $map['scope'] = VisibilityScope::EVERYWHERE;
         } else {
             // Either Followers-only or Direct
             if ($type_note->get('directMessage') ?? false // Is DM explicitly?
@@ -327,7 +327,7 @@ class Note extends Model
 
         // Target scope
         switch ($object->getScope()) {
-            case VisibilityScope::PUBLIC:
+            case VisibilityScope::EVERYWHERE:
                 $attr['to'] = ['https://www.w3.org/ns/activitystreams#Public'];
                 $attr['cc'] = [Router::url('actor_subscribers_id', ['id' => $object->getActor()->getId()], Router::ABSOLUTE_URL)];
             break;
