@@ -344,7 +344,7 @@ class Note extends Entity
      */
     public function getReplyToNote(): ?self
     {
-        return self::getByPK($this->getReplyTo());
+        return is_null($this->getReplyTo()) ? null : self::getById($this->getReplyTo());
     }
 
     /**
@@ -387,7 +387,7 @@ class Note extends Entity
         $this->object_mentions_ids = $mentions;
         return $this;
     }
-    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null): array
+    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
         $target_ids = $this->object_mentions_ids ?? [];
         if ($target_ids === []) {
@@ -403,8 +403,16 @@ class Note extends Entity
             }
         }
 
+        if (!\array_key_exists('object-related', $ids_already_known)) {
+            if (!is_null($parent = $this->getReplyToNote())) {
+                array_push($target_ids, ...$parent->getNotificationTargetIds());
+            }
+        } else {
+            array_push($target_ids, ...$ids_already_known['object-related']);
+        }
+
         // Additional actors that should know about this
-        if (\array_key_exists('additional', $ids_already_known)) {
+        if ($include_additional && \array_key_exists('additional', $ids_already_known)) {
             array_push($target_ids, ...$ids_already_known['additional']);
         }
 
@@ -414,9 +422,9 @@ class Note extends Entity
     /**
      * @return array of Actors
      */
-    public function getNotificationTargets(array $ids_already_known = [], ?int $sender_id = null): array
+    public function getNotificationTargets(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
-        if (\array_key_exists('additional', $ids_already_known)) {
+        if ($include_additional && \array_key_exists('additional', $ids_already_known)) {
             $target_ids = $this->getNotificationTargetIds($ids_already_known, $sender_id);
             return $target_ids === [] ? [] : DB::findBy('actor', ['id' => $target_ids]);
         }
@@ -431,6 +439,14 @@ class Note extends Entity
             }
         } else {
             $mentioned = $ids_already_known['object'] === [] ? [] : DB::findBy('actor', ['id' => $ids_already_known['object']]);
+        }
+
+        if (!\array_key_exists('object-related', $ids_already_known)) {
+            if (!is_null($parent = $this->getReplyToNote())) {
+                array_push($mentioned, ...$parent->getNotificationTargets());
+            }
+        } else {
+            array_push($mentioned, ...$ids_already_known['object-related']);
         }
 
         return $mentioned;

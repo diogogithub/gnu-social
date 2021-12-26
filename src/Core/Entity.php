@@ -148,7 +148,7 @@ abstract class Entity
      *
      * @return array of ids of Actors
      */
-    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null): array
+    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
         // Additional actors that should know about this
         if (array_key_exists('additional', $ids_already_known)) {
@@ -162,9 +162,9 @@ abstract class Entity
      *
      * @return array of Actors
      */
-    public function getNotificationTargets(array $ids_already_known = [], ?int $sender_id = null): array
+    public function getNotificationTargets(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
-        $target_ids = $this->getNotificationTargetIds($ids_already_known, $sender_id);
+        $target_ids = $this->getNotificationTargetIds($ids_already_known, $sender_id, $include_additional);
         return $target_ids === [] ? [] : DB::findBy('actor', ['id' => $target_ids]);
     }
 }

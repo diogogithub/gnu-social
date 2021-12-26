@@ -153,7 +153,7 @@ class Activity extends Entity
      *
      * @return array of ids of Actors
      */
-    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null): array
+    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
         $target_ids = [];
 
@@ -172,13 +172,24 @@ class Activity extends Entity
         }
 
         // Object's targets
+        $object_included_already = false;
         if (\array_key_exists('object', $ids_already_known)) {
             array_push($target_ids, ...$ids_already_known['object']);
         } else {
             if (!\is_null($author = $this->getObject()?->getActorId()) && $author !== $sender_id) {
                 $target_ids[] = $this->getObject()->getActorId();
             }
-            array_push($target_ids, ...$this->getObject()->getNotificationTargetIds($ids_already_known));
+            array_push($target_ids, ...$this->getObject()->getNotificationTargetIds($ids_already_known, include_additional: false));
+            $object_included_already = true;
+        }
+
+        // Object's related targets
+        if (\array_key_exists('object-related', $ids_already_known)) {
+            array_push($target_ids, ...$ids_already_known['object-related']);
+        } else {
+            if (!$object_included_already) {
+                array_push($target_ids, ...$this->getObject()->getNotificationTargetIds($ids_already_known, include_additional: false));
+            }
         }
 
         // Additional actors that should know about this

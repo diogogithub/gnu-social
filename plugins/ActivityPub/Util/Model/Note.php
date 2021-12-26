@@ -323,7 +323,7 @@ class Note extends Model
             'content'        => $object->getRendered(),
             'attachment'     => [],
             'tag'            => [],
-            'inReplyTo'      => $object->getReplyTo() === null ? null : ActivityPub::getUriByObject(GSNote::getById($object->getReplyTo())),
+            'inReplyTo'      => is_null($object->getReplyTo()) ? null : ActivityPub::getUriByObject(GSNote::getById($object->getReplyTo())),
             'inConversation' => $object->getConversationUri(),
             'directMessage'  => $object->getScope() === VisibilityScope::MESSAGE,
         ];

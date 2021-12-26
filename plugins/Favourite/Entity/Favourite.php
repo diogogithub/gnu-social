@@ -82,7 +82,7 @@ class Favourite extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null): array
+    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
         if (!\array_key_exists('object', $ids_already_known)) {
             $target_ids = Note::getById($this->getNoteId())->getNotificationTargetIds();
@@ -91,7 +91,7 @@ class Favourite extends Entity
         }
 
         // Additional actors that should know about this
-        if (\array_key_exists('additional', $ids_already_known)) {
+        if ($include_additional && \array_key_exists('additional', $ids_already_known)) {
             array_push($target_ids, ...$ids_already_known['additional']);
         } else {
             return $target_ids;
