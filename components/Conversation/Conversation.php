@@ -72,7 +72,6 @@ class Conversation extends Component
         }
 
         DB::merge($current_note);
-        DB::flush();
     }
 
     /**
