@@ -238,6 +238,6 @@ class Oomox
         }
 
         $content = Formatting::twigRenderFile('/oomox/root_override.css.twig', ['oomox' => $oomox_table]);
-        return new Response($content, status: 200, headers: ['content-type' => 'text/css']);
+        return new Response($content, status: 200, headers: ['content-type' => 'text/css', 'rel' => 'stylesheet']);
     }
 }
