@@ -25,12 +25,10 @@ use App\Util\Bitmap;
 
 class VisibilityScope extends Bitmap
 {
-    public const PUBLIC    = 1;
-    public const SITE      = 2;
-    public const ADDRESSEE = 4;
-    public const GROUP     = 8;
-    public const SUBSCRIBER  = 16;
-    public const MESSAGE   = 32;
-
-    public static int $instance_scope = self::PUBLIC | self::SITE;
+    public const PUBLIC     = 1;  // Can be shown everywhere (default)
+    public const LOCAL      = 2;  // Non-public and non-federated (default in private sites)
+    public const ADDRESSEE  = 4;  // Only if the actor is the author or one of the targets
+    public const GROUP      = 8;  // Only in the Group feed
+    public const COLLECTION = 16; // Only for the collection to see (same as addressee but not available in feeds, notifications only)
+    public const MESSAGE    = 32; // Direct Message (same as Collection, but also with dedicated plugin)
 }

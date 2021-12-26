@@ -34,25 +34,66 @@ namespace Component\Feed\Util;
 
 use App\Core\Controller;
 use App\Core\Event;
+use App\Core\Log;
+use App\Core\VisibilityScope;
+use App\Entity\Actor;
 use App\Util\Common;
+use function array_key_exists;
 
 abstract class FeedController extends Controller
 {
     /**
-     * Post process the result of a feed controller, to remove any
+     * Post-processing of the result of a feed controller, to remove any
      * notes or actors the user specified, as well as format the raw
      * list of notes into a usable format
      */
-    public static function post_process(array $result): array
+    public static function postProcess(array $result): array
     {
         $actor = Common::actor();
 
-        if (\array_key_exists('notes', $result)) {
+        if (array_key_exists('notes', $result)) {
             $notes = $result['notes'];
+            self::enforceScope($notes, $actor);
             Event::handle('FilterNoteList', [$actor, &$notes, $result['request']]);
             Event::handle('FormatNoteList', [$notes, &$result['notes']]);
         }
 
         return $result;
+    }
+
+    private static function enforceScope(array &$notes, ?Actor $actor): void
+    {
+        $filtered_notes = [];
+        foreach($notes as $note) {
+            switch($note->getScope()) {
+                case VisibilityScope::LOCAL: // The controller handles it if private
+                case VisibilityScope::PUBLIC:
+                    $filtered_notes[] = $note;
+                    break;
+                case VisibilityScope::ADDRESSEE:
+                    // If the actor is logged in and
+                    if (!is_null($actor) &&
+                        (
+                            // Is either the author Or
+                            $note->getActorId() == $actor->getId() ||
+                            // one of the targets
+                            in_array($actor->getId(), $note->getNotificationTargetIds())
+                        )) {
+                        $filtered_notes[] = $note;
+                    }
+                    break;
+                case VisibilityScope::GROUP:
+                    // Only for the group to see
+                    break;
+                case VisibilityScope::COLLECTION: // no break
+                case VisibilityScope::MESSAGE:
+                    // Only for the collection to see (they will only find it in their notifications)
+                    break;
+                default:
+                    Log::warning("Unknown scope found: {$note->getScope()}.");
+            }
+        }
+        // Replace notes with filtered ones I/O
+        $notes = $filtered_notes;
     }
 }

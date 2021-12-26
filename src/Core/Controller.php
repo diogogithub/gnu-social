@@ -138,7 +138,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
 
         // XXX: Could we do this differently?
         if (is_subclass_of($controller, FeedController::class)) {
-            $this->vars = FeedController::post_process($this->vars);
+            $this->vars = FeedController::postProcess($this->vars);
         }
 
         // Respond in the most preferred acceptable content type

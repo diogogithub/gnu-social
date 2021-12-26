@@ -44,12 +44,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Feeds extends FeedController
 {
-    // Can't have constants inside herestring
-    private $public_scope     = VisibilityScope::PUBLIC;
-    private $instance_scope   = VisibilityScope::PUBLIC | VisibilityScope::SITE;
-    private $message_scope    = VisibilityScope::MESSAGE;
-    private $subscriber_scope = VisibilityScope::PUBLIC | VisibilityScope::SUBSCRIBER;
-
     /**
      * The Planet feed represents every local post. Which is what this instance has to share with the universe.
      */
@@ -63,7 +57,6 @@ class Feeds extends FeedController
         return [
             '_template'     => 'feed/feed.html.twig',
             'page_title'    => _m(\is_null(Common::user()) ? 'Feed' : 'Planet'),
-            'should_format' => true,
             'notes'         => $data['notes'],
         ];
     }
@@ -83,7 +76,6 @@ class Feeds extends FeedController
         return [
             '_template'     => 'feed/feed.html.twig',
             'page_title'    => _m('Home'),
-            'should_format' => true,
             'notes'         => $data['notes'],
         ];
     }

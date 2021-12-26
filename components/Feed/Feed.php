@@ -67,7 +67,7 @@ class Feed extends Component
         }
         $actors = $actor_qb->getQuery()->execute();
 
-        // TODO: Enforce scoping on the notes before returning
+        // N.B.: Scope is only enforced at FeedController level
         return ['notes' => $notes ?? null, 'actors' => $actors ?? null];
     }
 

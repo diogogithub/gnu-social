@@ -28,6 +28,8 @@ use App\Core\Entity;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\GSFile;
+use App\Core\VisibilityScope;
+use App\Util\Exception\BugFoundException;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\Router;
@@ -56,6 +58,8 @@ use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\Length;
+use function count;
+use function is_null;
 
 class Posting extends Component
 {
@@ -69,7 +73,7 @@ class Posting extends Component
      */
     public function onAppendRightPostingBlock(Request $request, array &$res): bool
     {
-        if (\is_null($user = Common::user())) {
+        if (is_null($user = Common::user())) {
             return Event::next;
         }
 
@@ -99,12 +103,17 @@ class Posting extends Component
             $form_params[] = ['in', ChoiceType::class, ['label' => _m('In:'), 'multiple' => false, 'expanded' => false, 'choices' => $in_targets]];
         }
 
-        $form_params[] = ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]];
+        // TODO: if in group page, add GROUP visibility to the choices.
+        $form_params[] = ['visibility', ChoiceType::class, ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [
+            _m('Public') => VisibilityScope::PUBLIC,
+            _m('Local') => VisibilityScope::LOCAL,
+            _m('Addressee') => VisibilityScope::ADDRESSEE
+        ]]];
         $form_params[] = ['content', TextareaType::class, ['label' => _m('Content:'), 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)], 'constraints' => [new Length(['max' => Common::config('site', 'text_limit')])]]];
         $form_params[] = ['attachments', FileType::class, ['label' => _m('Attachments:'), 'multiple' => true, 'required' => false, 'invalid_message' => _m('Attachment not valid.')]];
         $form_params[] = FormFields::language($actor, $context_actor, label: _m('Note language'), help: _m('The selected language will be federated and added as a lang attribute, preferred language can be set up in settings'));
 
-        if (\count($available_content_types) > 1) {
+        if (count($available_content_types) > 1) {
             $form_params[] = ['content_type', ChoiceType::class,
                 [
                     'label'   => _m('Text format:'), 'multiple' => false, 'expanded' => false,
@@ -126,7 +135,11 @@ class Posting extends Component
                     $data = $form->getData();
                     if (empty($data['content']) && empty($data['attachments'])) {
                         // TODO Display error: At least one of `content` and `attachments` must be provided
-                        throw new ClientException(_m('You must enter content or provide at least one attachment to post a note'));
+                        throw new ClientException(_m('You must enter content or provide at least one attachment to post a note.'));
+                    }
+
+                    if (!VisibilityScope::isValue($data['visibility'])) {
+                        throw new ClientException(_m('You have selected an impossible visibility.'));
                     }
 
                     $content_type = $data['content_type'] ?? $available_content_types[array_key_first($available_content_types)];
@@ -134,12 +147,13 @@ class Posting extends Component
                     Event::handle('AddExtraArgsToNoteContent', [$request, $actor, $data, &$extra_args, $form_params, $form]);
 
                     self::storeLocalNote(
-                        $user->getActor(),
-                        $data['content'],
-                        $content_type,
-                        $data['language'],
-                        $data['attachments'],
+                        actor: $user->getActor(),
+                        content: $data['content'],
+                        content_type: $content_type,
+                        language: $data['language'],
+                        scope: $data['visibility'],
                         target: $data['in'] ?? null,
+                        attachments: $data['attachments'],
                         process_note_content_extra_args: $extra_args,
                     );
 
@@ -160,26 +174,34 @@ class Posting extends Component
      * $actor_id, possibly as a reply to note $reply_to and with flag
      * $is_local. Sanitizes $content and $attachments
      *
-     * @param array $attachments                     Array of UploadedFile to be stored as GSFiles associated to this note
-     * @param array $processed_attachments           Array of [Attachment, Attachment's name] to be associated to this $actor and Note
+     * @param Actor $actor
+     * @param string|null $content
+     * @param string $content_type
+     * @param string|null $language
+     * @param int|null $scope
+     * @param string|null $target
+     * @param array $attachments Array of UploadedFile to be stored as GSFiles associated to this note
+     * @param array $processed_attachments Array of [Attachment, Attachment's name] to be associated to this $actor and Note
      * @param array $process_note_content_extra_args Extra arguments for the event ProcessNoteContent
      *
+     * @return Note
      * @throws ClientException
      * @throws DuplicateFoundException
      * @throws ServerException
-     *
-     * @return Entity|mixed
+     * @throws BugFoundException
      */
     public static function storeLocalNote(
-        Actor $actor,
+        Actor   $actor,
         ?string $content,
-        string $content_type,
+        string  $content_type,
         ?string $language = null,
-        array $attachments = [],
-        array $processed_attachments = [],
+        ?int    $scope = null,
         ?string $target = null,
-        array $process_note_content_extra_args = [],
-    ) {
+        array   $attachments = [],
+        array   $processed_attachments = [],
+        array   $process_note_content_extra_args = [],
+    ): Note {
+        $scope ??= VisibilityScope::PUBLIC; // TODO: If site is private, default to LOCAL
         $rendered = null;
         $mentions = [];
         if (!empty($content)) {
@@ -191,8 +213,9 @@ class Posting extends Component
             'content'      => $content,
             'content_type' => $content_type,
             'rendered'     => $rendered,
-            'language_id'  => !\is_null($language) ? Language::getByLocale($language)->getId() : null,
+            'language_id'  => !is_null($language) ? Language::getByLocale($language)->getId() : null,
             'is_local'     => true,
+            'scope'   => $scope,
         ]);
 
         /** @var UploadedFile[] $attachments */
@@ -238,7 +261,7 @@ class Posting extends Component
         ]);
         DB::persist($activity);
 
-        if (!\is_null($target)) {
+        if (!is_null($target)) {
             switch ($target[0]) {
             case '!':
                 $mentions[] = [
@@ -254,7 +277,7 @@ class Posting extends Component
 
         $mentioned = [];
         foreach (F\unique(F\flat_map($mentions, fn (array $m) => $m['mentioned'] ?? []), fn (Actor $a) => $a->getId()) as $m) {
-            if (!\is_null($m)) {
+            if (!is_null($m)) {
                 $mentioned[] = $m->getId();
 
                 if ($m->isGroup()) {
