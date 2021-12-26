@@ -51,14 +51,14 @@ use Functional as F;
  * @mixin EntityManager
  * @template T
  *
- * @method static T find(string $class, array<string, mixed> $values)                                                                                                                                                                                                                                        // Finds an Entity by its identifier.
- * @method static T getReference(string $class, array<string, mixed> $values) // Special cases: It's like find but does not load the object if it has not been loaded yet, it only returns a proxy to the object. (https://www.doctrine-project.org/projects/doctrine-orm/en/2.10/reference/unitofwork.html)
- * @method static void remove(object $entity)                                                                                                                                                                                                                                                                // Removes an entity instance.
- * @method static T merge(object $entity)                                                                                                                                                                                                                                                                    // Merges the state of a detached entity into the persistence context
- * @method static void persist(object $entity)                                                                                                                                                                                                                                                               // Tells the EntityManager to make an instance managed and persistent.
- * @method static bool contains(object $entity)                                                                                                                                                                                                                                                              // Determines whether an entity instance is managed in this EntityManager.
- * @method static void flush()                                                                                                                                                                                                                                                                               // Flushes the in-memory state of persisted objects to the database.
- * @method mixed  wrapInTransaction(callable $func)                                                                                                                                                                                                                                                          // Executes a function in a transaction. Warning: suppresses exceptions
+ * @method static ?T find(string $class, array<string, mixed> $values)                                                                                                                                                                                                                                        // Finds an Entity by its identifier.
+ * @method static ?T getReference(string $class, array<string, mixed> $values) // Special cases: It's like find but does not load the object if it has not been loaded yet, it only returns a proxy to the object. (https://www.doctrine-project.org/projects/doctrine-orm/en/2.10/reference/unitofwork.html)
+ * @method static void remove(object $entity)                                                                                                                                                                                                                                                                 // Removes an entity instance.
+ * @method static T merge(object $entity)                                                                                                                                                                                                                                                                     // Merges the state of a detached entity into the persistence context
+ * @method static void persist(object $entity)                                                                                                                                                                                                                                                                // Tells the EntityManager to make an instance managed and persistent.
+ * @method static bool contains(object $entity)                                                                                                                                                                                                                                                               // Determines whether an entity instance is managed in this EntityManager.
+ * @method static void flush()                                                                                                                                                                                                                                                                                // Flushes the in-memory state of persisted objects to the database.
+ * @method mixed  wrapInTransaction(callable $func)                                                                                                                                                                                                                                                           // Executes a function in a transaction. Warning: suppresses exceptions
  */
 class DB
 {
@@ -206,8 +206,6 @@ class DB
                 $expr   = self::buildExpression($eb, $exp);
                 if (\is_array($expr)) {
                     $expressions[] = $eb->{$method}(...$expr);
-                } else {
-                    $expressions[] = $eb->{$method}($expr);
                 }
             } elseif ($op == 'is_null') {
                 $expressions[] = $eb->isNull($exp);

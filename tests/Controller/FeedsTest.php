@@ -26,7 +26,6 @@ namespace App\Tests\Controller;
 use App\Controller\Feeds;
 use App\Core\DB\DB;
 use App\Core\Security;
-use App\Core\VisibilityScope;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -86,7 +85,7 @@ class FeedsTest extends GNUsocialTestCase
         $notes = Common::flattenNoteArray($result['notes']);
         foreach ($notes as $n) {
             static::assertTrue(\get_class($n) == Note::class);
-            $vis = VisibilityScope::create($n->getScope());
+            $vis = $n->getScope();
             static::assertTrue($visibility($vis));
         }
     }

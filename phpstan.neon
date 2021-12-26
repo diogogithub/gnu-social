@@ -1,5 +1,5 @@
 parameters:
-    level: 3
+    level: 4
     bootstrapFiles:
         - config/bootstrap.php
     paths:
@@ -9,6 +9,7 @@ parameters:
         - plugins
     excludePaths:
         - plugins/ActivityPub
+        - plugins/Poll
         - components/FreeNetwork
     earlyTerminatingMethodCalls:
         App\Core\Log:
@@ -18,6 +19,11 @@ parameters:
             message: '/Access to an undefined property App\\Util\\Bitmap::\$\w+/'
             paths:
                 - *
+
+        -
+            message: '/^Property App\\PHPStan\\ClassFromTableNameDynamicStaticMethodReturnTypeExtension::\$provider is never read, only written\./'
+            path: src/PHPStan/ClassFromTableNameDynamicStaticMethodReturnTypeExtension.php
+
         # -
         #     message: '/has no return typehint specified/'
         #     paths:

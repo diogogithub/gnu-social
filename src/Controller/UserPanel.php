@@ -224,7 +224,7 @@ class UserPanel extends Controller
         unset($form_defs['placeholder']);
 
         $tabbed_forms = [];
-        foreach ($form_defs as $transport_name => $f) {
+        foreach ($form_defs as $transport_name => $f) { // @phpstan-ignore-line
             unset($f['save']);
             $form                                   = Form::create($f);
             $tabbed_forms[$transport_name]['title'] = $transport_name;

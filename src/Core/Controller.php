@@ -35,6 +35,7 @@ namespace App\Core;
 
 use function App\Core\I18n\_m;
 use App\Util\Common;
+use App\Util\Exception\BugFoundException;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
@@ -54,11 +55,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * @method int    int(string $param)
- * @method bool   bool(string $param)
- * @method string string(string $param)
- * @method string params(string $param)
- * @method mixed  handle(Request $request, mixed ...$extra)
+ * @method ?int    int(string $param)
+ * @method ?bool   bool(string $param)
+ * @method ?string string(string $param)
+ * @method ?string params(string $param)
+ * @method mixed   handle(Request $request, mixed ...$extra)
  */
 abstract class Controller extends AbstractController implements EventSubscriberInterface
 {
@@ -176,11 +177,9 @@ abstract class Controller extends AbstractController implements EventSubscriberI
             }
         } else {
             if (\is_null($potential_response)) {
-                // TODO BugFoundException
-                Log::critical($m = "ControllerResponseInFormat for route '{$route}' returned Event::stop but didn't provide a response");
-                throw new ServerException(_m($m, ['route' => $route]));
+                throw new BugFoundException("ControllerResponseInFormat for route '{$route}' returned Event::stop but didn't provide a response");
             }
-            $event->setResponse($potential_response);
+            $event->setResponse($potential_response); // @phpstan-ignore-line
         }
 
         Event::handle('CleanupModule');

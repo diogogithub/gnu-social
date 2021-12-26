@@ -61,7 +61,7 @@ class Oomox
      *
      * @throws ServerException
      */
-    public function getOomoxForm(?EntityOomox $current_oomox_settings, bool $is_light): FormInterface
+    public static function getOomoxForm(?EntityOomox $current_oomox_settings, bool $is_light): FormInterface
     {
         $theme           = $is_light ? 'light' : 'dark';
         $foreground      = 'colour_foreground_' . $theme;
@@ -144,15 +144,15 @@ class Oomox
         $actor_id = $user->getId();
 
         $current_oomox_settings = PluginOomox::getEntity($user);
-        $form_light             = (new self)->getOomoxForm($current_oomox_settings, true);
+        $form_light             = self::getOomoxForm($current_oomox_settings, true);
 
         $form_light->handleRequest($request);
         if ($form_light->isSubmitted() && $form_light->isValid()) {
             /** @var SubmitButton $reset_button */
             $reset_button = $form_light->get('colour_reset_light');
             if ($reset_button->isClicked()) {
-                if (isset($current_oomox_settings)) {
-                    $current_oomox_settings?->resetTheme(true);
+                if (!\is_null($current_oomox_settings)) {
+                    $current_oomox_settings->resetTheme(true);
                 }
             } else {
                 $data                   = $form_light->getData();
@@ -190,7 +190,7 @@ class Oomox
         $actor_id = $user->getId();
 
         $current_oomox_settings = PluginOomox::getEntity($user);
-        $form_dark              = (new self)->getOomoxForm($current_oomox_settings, false);
+        $form_dark              = self::getOomoxForm($current_oomox_settings, false);
 
         $form_dark->handleRequest($request);
         if ($form_dark->isSubmitted() && $form_dark->isValid()) {

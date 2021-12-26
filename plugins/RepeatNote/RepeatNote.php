@@ -74,17 +74,11 @@ class RepeatNote extends NoteHandlerPlugin
             process_note_content_extra_args: $extra_args,
         );
 
-        // Find the id of the note we just created
-        $repeat_id = $repeat?->getId();
-
-        // Add it to note_repeat table
-        if (!\is_null($repeat_id)) {
-            DB::persist(NoteRepeat::create([
-                'note_id'   => $repeat_id,
-                'actor_id'  => $actor_id,
-                'repeat_of' => $og_id,
-            ]));
-        }
+        DB::persist(NoteRepeat::create([
+            'note_id'   => $repeat->getId(),
+            'actor_id'  => $actor_id,
+            'repeat_of' => $og_id,
+        ]));
 
         // Log an activity
         $repeat_activity = Activity::create([

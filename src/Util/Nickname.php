@@ -161,7 +161,6 @@ class Nickname
                     // @codeCoverageIgnoreStart
                 case self::CHECK_LOCAL_GROUP:
                     throw new NotImplementedException();
-                    break;
                 default:
                     throw new InvalidArgumentException();
                     // @codeCoverageIgnoreEnd

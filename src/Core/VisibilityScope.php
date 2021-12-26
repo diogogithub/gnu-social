@@ -29,4 +29,4 @@ enum VisibilityScope: int // having an int is just convenient
     case GROUP      = 8;  // Only in the Group feed
     case COLLECTION = 16; // Only for the collection to see (same as addressee but not available in feeds, notifications only)
     case MESSAGE    = 32; // Direct Message (same as Collection, but also with dedicated plugin)
-}
+};

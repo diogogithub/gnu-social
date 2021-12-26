@@ -179,6 +179,9 @@ abstract class Cache
         }
     }
 
+    /**
+     * @param callable(mixed, bool &$save): mixed $calculate
+     */
     public static function get(string $key, callable $calculate, string $pool = 'default', float $beta = 1.0)
     {
         if (isset(self::$redis[$pool])) {

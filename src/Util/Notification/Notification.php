@@ -45,18 +45,20 @@ class Notification
     public const DM                   = 7;
 
     /**
-     * One of the above constants
+     * @param int   $type  One of the above constants
+     * @param Actor $actor Who caused this notification
      */
-    private int $type;
-
-    /**
-     * Who caused this notification
-     */
-    private Actor $actor;
-
-    public function __construct(int $type, Actor $actor)
+    public function __construct(private int $type, private Actor $actor)
     {
-        $this->type  = $type;
-        $this->actor = $actor;
+    }
+
+    public function getType(): int
+    {
+        return $this->type;
+    }
+
+    public function getActor(): Actor
+    {
+        return $this->actor;
     }
 }

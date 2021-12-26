@@ -116,6 +116,7 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
                 }
             }
 
+            // @phpstan-ignore-next-line
             if (false && $opts['foreign key'] ?? false) {
                 // @codeCoverageIgnoreStart
                 // TODO: Get foreign keys working

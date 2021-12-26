@@ -11,13 +11,13 @@ use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\DynamicStaticMethodReturnTypeExtension;
+use PHPStan\Type\NullType;
+use PHPStan\Type\UnionType;
 
 class ClassFromTableNameDynamicStaticMethodReturnTypeExtension implements DynamicStaticMethodReturnTypeExtension
 {
-    private ?GNUsocialProvider $provider = null;
-    public function __construct(GNUsocialProvider $provider)
+    public function __construct(private ?GNUsocialProvider $provider = null)
     {
-        $this->provider = $provider;
     }
 
     public function getClass(): string
@@ -43,7 +43,10 @@ class ClassFromTableNameDynamicStaticMethodReturnTypeExtension implements Dynami
     ): \PHPStan\Type\Type {
         if (isset($_ENV['PHPSTAN_BOOT_KERNEL']) && \count($staticCall->args) >= 1 && ($arg = $staticCall->args[0]->value) instanceof String_) {
             // If called with the first argument as a string, it's a table name
-            return $scope->resolveTypeByName(new Name(DB::filterTableName($staticCall->name->toString(), [$arg->value])));
+            return new UnionType([
+                $scope->resolveTypeByName(new Name(DB::filterTableName($staticCall->name->toString(), [$arg->value]))),
+                new NullType(),
+            ]);
         } else {
             // Let PHPStan handle it normally
             return \PHPStan\Reflection\ParametersAcceptorSelector::selectFromArgs($scope, $staticCall->args, $methodReflection->getVariants())->getReturnType();

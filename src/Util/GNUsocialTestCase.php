@@ -69,4 +69,9 @@ class GNUsocialTestCase extends WebTestCase
         );
         self::$social = new GNUsocial(...$services);
     }
+
+    protected function getGNUsocial(): GNUsocial
+    {
+        return self::$social;
+    }
 }

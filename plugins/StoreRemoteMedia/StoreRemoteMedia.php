@@ -109,7 +109,6 @@ class StoreRemoteMedia extends Plugin
         }
 
         // Have we handled it already?
-        /** @var AttachmentToLink */
         $attachment_to_link = DB::find(
             'attachment_to_link',
             ['link_id' => $link->getId()],

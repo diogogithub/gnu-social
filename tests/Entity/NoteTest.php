@@ -52,7 +52,7 @@ class NoteTest extends GNUsocialTestCase
         $actor2 = DB::findOneBy('actor', ['nickname' => 'taken_group']);
         $actor3 = DB::findOneBy('actor', ['nickname' => 'some_user']);
 
-        $note_visible_to_1 = DB::findBy('note', ['actor_id' => $actor1->getId(), 'content' => 'private note', 'scope' => VisibilityScope::COLLECTION], limit: 1)[0];
+        $note_visible_to_1 = DB::findBy('note', ['actor_id' => $actor1->getId(), 'content' => 'private note', 'scope' => VisibilityScope::COLLECTION->value], limit: 1)[0];
         static::assertTrue($note_visible_to_1->isVisibleTo($actor1));
         static::assertFalse($note_visible_to_1->isVisibleTo($actor2));
         static::assertFalse($note_visible_to_1->isVisibleTo($actor3));
@@ -62,7 +62,7 @@ class NoteTest extends GNUsocialTestCase
         static::assertTrue($note_public->isVisibleTo($actor2));
         static::assertTrue($note_public->isVisibleTo($actor3));
 
-        $group_note = DB::findBy('note', ['actor_id' => $actor1->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP], limit: 1)[0];
+        $group_note = DB::findBy('note', ['actor_id' => $actor1->getId(), 'content' => 'group note', 'scope' => VisibilityScope::GROUP->value], limit: 1)[0];
         static::assertTrue($group_note->isVisibleTo($actor3));
         static::assertFalse($group_note->isVisibleTo($actor2));
         static::assertFalse($group_note->isVisibleTo($actor1));

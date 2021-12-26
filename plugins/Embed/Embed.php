@@ -285,7 +285,7 @@ class Embed extends Plugin
         $root_url                  = "{$root_url['scheme']}://{$root_url['host']}";
         $metadata['author_url']    = $info->authorUrl ? (string) $info->authorUrl : $root_url;
         $metadata['provider_name'] = $info->providerName;
-        $metadata['provider_url']  = (string) $info->providerUrl ?? $metadata['author_name'];
+        $metadata['provider_url']  = (string) ($info->providerUrl ?? $metadata['author_name']);
 
         if (!\is_null($info->image)) {
             $thumbnail_url = (string) $info->image;

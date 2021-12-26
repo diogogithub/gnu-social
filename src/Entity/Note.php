@@ -394,7 +394,7 @@ class Note extends Entity
                 // Only for the collection to see
                 return !\is_null($actor) && in_array($actor->getId(), $this->getNotificationTargetIds());
             default:
-                Log::error("Unknown scope found: {$this->getScope()}.");
+                Log::error("Unknown scope found: {$this->getScope()->value}.");
         }
         return false;
     }
