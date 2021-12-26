@@ -113,11 +113,11 @@ abstract class Parser
 
         $note_criteria  = null;
         $actor_criteria = null;
-        if (!empty($note_parts)) {
+        if (!empty($note_parts)) { // @phpstan-ignore-line
             self::connectParts($note_parts, $note_criteria_arr, $last_op, $eb, force: true);
             $note_criteria = new Criteria($eb->orX(...$note_criteria_arr));
         }
-        if (!empty($actor_parts)) {
+        if (!empty($actor_parts)) { // @phpstan-ignore-line
             self::connectParts($actor_parts, $actor_criteria_arr, $last_op, $eb, force: true);
             $actor_criteria = new Criteria($eb->orX(...$actor_criteria_arr));
         }

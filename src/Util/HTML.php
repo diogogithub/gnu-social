@@ -81,13 +81,13 @@ abstract class HTML
      */
     private static function attr(array $attrs, array $options = []): string
     {
-        return ' ' . implode(' ', F\map($attrs, [self::class, '_process_attribute']));
+        return ' ' . implode(' ', F\map($attrs, fn ($attr, $key) => self::process_attribute($attr, $key, $options)));
     }
 
     /**
      * Convert an attr ($key), $val pair to an HTML attribute, but validate to exclude some vectors of injection
      */
-    public static function _process_attribute(string $val, string $key): string
+    private static function process_attribute(string $val, string $key, array $options): string
     {
         if (\in_array($key, array_merge($options['forbidden_attributes'] ?? [], self::FORBIDDEN_ATTRIBUTES))
             || str_starts_with($val, 'javascript:')) {

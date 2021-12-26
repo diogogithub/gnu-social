@@ -46,40 +46,42 @@ class Favourite extends NoteHandlerPlugin
     {
         $opts                  = ['note_id' => $note_id, 'actor_id' => $actor_id];
         $note_already_favoured = DB::find('favourite', $opts);
+        $activity              = null;
         if (\is_null($note_already_favoured)) {
             DB::persist(FavouriteEntity::create($opts));
-            $act = Activity::create([
+            $activity = Activity::create([
                 'actor_id'    => $actor_id,
                 'verb'        => 'favourite',
                 'object_type' => 'note',
                 'object_id'   => $note_id,
                 'source'      => $source,
             ]);
-            DB::persist($act);
+            DB::persist($activity);
 
-            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $act, [], "{$actor->getNickname()} favoured note {$note_id}"]);
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [], "{$actor->getNickname()} favoured note {$note_id}"]);
         }
-        return $act ?? null;
+        return $activity;
     }
 
     public static function unfavourNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
         $note_already_favoured = DB::find('favourite', ['note_id' => $note_id, 'actor_id' => $actor_id]);
+        $activity              = null;
         if (!\is_null($note_already_favoured)) {
             DB::remove($note_already_favoured);
             $favourite_activity = DB::findBy('activity', ['verb' => 'favourite', 'object_type' => 'note', 'object_id' => $note_id], order_by: ['created' => 'DESC'])[0];
-            $act                = Activity::create([
+            $activity           = Activity::create([
                 'actor_id'    => $actor_id,
                 'verb'        => 'undo', // 'undo_favourite',
                 'object_type' => 'activity', // 'note',
                 'object_id'   => $favourite_activity->getId(), // $note_id,
                 'source'      => $source,
             ]);
-            DB::persist($act);
+            DB::persist($activity);
 
-            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $act, [], "{$actor->getNickname()} unfavoured note {$note_id}"]);
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [], "{$actor->getNickname()} unfavoured note {$note_id}"]);
         }
-        return $act ?? null;
+        return $activity;
     }
 
     /**
@@ -204,15 +206,16 @@ class Favourite extends NoteHandlerPlugin
             }
         }
 
+        $activity = null;
         if ($type_activity->get('type') === 'Like') {
-            $act = self::favourNote($note_id, $actor->getId(), source: 'ActivityPub');
+            $activity = self::favourNote($note_id, $actor->getId(), source: 'ActivityPub');
         } else {
-            $act = self::unfavourNote($note_id, $actor->getId(), source: 'ActivityPub');
+            $activity = self::unfavourNote($note_id, $actor->getId(), source: 'ActivityPub');
         }
-        if (!\is_null($act)) {
+        if (!\is_null($activity)) {
             // Store ActivityPub Activity
             $ap_act = \Plugin\ActivityPub\Entity\ActivitypubActivity::create([
-                'activity_id'  => $act->getId(),
+                'activity_id'  => $activity->getId(),
                 'activity_uri' => $type_activity->get('id'),
                 'created'      => new DateTime($type_activity->get('published') ?? 'now'),
                 'modified'     => new DateTime(),

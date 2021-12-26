@@ -96,7 +96,7 @@ class Posting extends Component
         Event::handle('PostingGetContextActor', [$request, $actor, &$context_actor]);
 
         $form_params = [];
-        if (!empty($in_targets)) {
+        if (!empty($in_targets)) { // @phpstan-ignore-line
             $form_params[] = ['in', ChoiceType::class, ['label' => _m('In:'), 'multiple' => false, 'expanded' => false, 'choices' => $in_targets]];
         }
 
