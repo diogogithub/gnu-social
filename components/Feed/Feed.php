@@ -51,8 +51,8 @@ class Feed extends Component
         }
         $note_qb  = DB::createQueryBuilder();
         $actor_qb = DB::createQueryBuilder();
-        $note_qb->select('note')->from('App\Entity\Note', 'note')->orderBy('note.created', 'DESC')->orderBy('note.id', 'DESC');
-        $actor_qb->select('actor')->from('App\Entity\Actor', 'actor')->orderBy('actor.created', 'DESC')->orderBy('actor.id', 'DESC');
+        $note_qb->select('note')->from('App\Entity\Note', 'note')->orderBy('note.created', 'DESC')->addOrderBy('note.id', 'DESC');
+        $actor_qb->select('actor')->from('App\Entity\Actor', 'actor')->orderBy('actor.created', 'DESC')->addOrderBy('actor.id', 'DESC');
         Event::handle('SearchQueryAddJoins', [&$note_qb, &$actor_qb, $note_criteria, $actor_criteria]);
 
         $notes  = [];
