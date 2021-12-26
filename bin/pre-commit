@@ -2,11 +2,10 @@
 
 root="$(git rev-parse --show-toplevel)"
 
-# get the list of changed files
+# get the list of changed files that didn't get only partially added
 staged_files="$(git status --porcelain | sed -rn "s/^[^ ][ ] (.*)/\1/p")"
 
 if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_CS_FIX?}") 2>/dev/null); then
-    echo "Running php-cs-fixer on edited files"
     files=""
     for staged in ${staged_files}; do
         # work only with existing files
@@ -16,18 +15,16 @@ if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_CS_FIX?}") 2>/dev/null); 
         fi
     done
     if [ -n "${files}" ]; then
-        prev="${PWD}"
-        cd "${root}" && make cs-fixer "${files}" || exit 1
-        cd "${prev}" || exit 1
+        echo "Running php-cs-fixer on edited files"
+        make cs-fixer "${files}"
+        git add "${files}"
     fi
 fi
 
 if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_DOC_CHECK?}") 2>/dev/null); then
-    echo "Running php-doc-checker"
     if echo "${staged_files}" | grep -F ".php" > /dev/null 2>&1; then
-        prev="${PWD}"
-        cd "${root}" && make doc-check < /dev/tty || exit 1
-        cd "${prev}" || exit 1
+        echo "Running php-doc-checker"
+        make doc-check < /dev/tty
     fi
 fi
 
