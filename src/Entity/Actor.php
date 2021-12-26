@@ -60,16 +60,16 @@ class Actor extends Entity
     // @codeCoverageIgnoreStart
     private int $id;
     private string $nickname;
-    private ?string $fullname;
+    private ?string $fullname = null;
     private int $roles;
     private int $type;
-    private ?string $homepage;
-    private ?string $bio;
-    private ?string $location;
-    private ?float $lat;
-    private ?float $lon;
-    private ?int $location_id;
-    private ?int $location_service;
+    private ?string $homepage = null;
+    private ?string $bio = null;
+    private ?string $location = null;
+    private ?float $lat = null;
+    private ?float $lon = null;
+    private ?int $location_id = null;
+    private ?int $location_service = null;
     private bool $is_local;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
@@ -596,16 +596,16 @@ class Actor extends Entity
             'fields'      => [
                 'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
-                'fullname'         => ['type' => 'text', 'description' => 'display name'],
+                'fullname'         => ['type' => 'text', 'description' => 'display name', 'default' => null],
                 'roles'            => ['type' => 'int', 'not null' => true, 'description' => 'Bitmap of permissions this actor has'],
                 'type'             => ['type' => 'int', 'not null' => true, 'description' => 'The type of actor (person, group, bot, etc)'],
-                'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
-                'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
-                'location'         => ['type' => 'text', 'description' => 'physical location'],
-                'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
-                'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
-                'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
-                'location_service' => ['type' => 'int', 'description' => 'service used to obtain location id'],
+                'homepage'         => ['type' => 'text', 'description' => 'identifying URL', 'default' => null],
+                'bio'              => ['type' => 'text', 'description' => 'descriptive biography', 'default' => null],
+                'location'         => ['type' => 'text', 'description' => 'physical location', 'default' => null],
+                'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude', 'default' => null],
+                'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude', 'default' => null],
+                'location_id'      => ['type' => 'int', 'description' => 'location id if possible', 'default' => null],
+                'location_service' => ['type' => 'int', 'description' => 'service used to obtain location id', 'default' => null],
                 'is_local'         => ['type' => 'bool', 'not null' => true, 'description' => 'Does this actor have a LocalUser associated'],
                 'created'          => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
