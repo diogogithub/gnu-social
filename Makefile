@@ -60,7 +60,10 @@ stop-tooling: .PHONY
 remove-var:
 	rm -rf var/*
 
+remove-file:
+	rm -rf file/*
+
 flush-redis-cache:
 	docker exec -it $(call translate-container-name,$(strip $(DIR))_redis_1) sh -c 'redis-cli flushall'
 
-force-nuke-everything: remove-var flush-redis-cache database-force-nuke
+force-nuke-everything: down up flush-redis-cache database-force-nuke remove-var remove-file
