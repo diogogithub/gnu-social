@@ -136,7 +136,7 @@ parameters:
 
     plugin_embed:
       max_px: 64000
-      smart_crop: false
+      max_file_size: 4000000
 
     theme:
       server:

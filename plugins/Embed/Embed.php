@@ -97,19 +97,11 @@ class Embed extends Plugin
     public ?int $max_size;
     public ?bool $smart_crop;
 
-    private function getStoreImage(): bool
-    {
-        return $this->store_image;
-    }
+    // TODO: storeThumbs setting
 
-    private function getMaxSize(): int
+    private function getMaxFileSize(): int
     {
-        return $this->max_size ?? Common::config('attachments', 'file_quota');
-    }
-
-    private function getSmartCrop(): bool
-    {
-        return $this->smart_crop ?? Common::config('thumbnail', 'smart_crop');
+        return min(Common::config('plugin_embed', 'max_file_size'), Common::config('attachments', 'file_quota'));
     }
 
     /**
@@ -209,7 +201,7 @@ class Embed extends Plugin
                 $attachment->livesIncrementAndGet();
                 return Event::next;
             } catch (DuplicateFoundException|NotFoundException $e) {
-                Log::error($e);
+                Log::error($e->getMessage(), context: [$e]);
             }
         }
 
@@ -356,10 +348,9 @@ class Embed extends Plugin
         try {
             $headers = $head->getHeaders();
         } catch (ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
-            Log::debug('Embed->downloadThumbnail@HTTPHead->getHeaders: ' . $e->getMessage());
+            Log::debug('Embed->downloadThumbnail@HTTPHead->getHeaders: ' . $e->getMessage(), [$e]);
             return null;
         }
-        $headers = array_change_key_case($headers, \CASE_LOWER);
         if (empty($headers['content-type']) || GSFile::mimetypeMajor($headers['content-type'][0]) !== 'image') {
             Log::debug("URL ({$url}) doesn't point to an image (content-type: " . (!empty($headers['content-type'][0]) ? $headers['content-type'][0] : 'not available') . ') in Embed->downloadThumbnail.');
             return null;
@@ -367,9 +358,9 @@ class Embed extends Plugin
 
         // Does it respect the file quota?
         $file_size = $headers['content-length'][0] ?? null;
-        $max_size  = Common::config('attachments', 'file_quota');
+        $max_size  = $this->getMaxFileSize();
         if (\is_null($file_size) || $file_size > $max_size) {
-            Log::debug("Went to download remote thumbnail of size {$file_size} but the upload limit is {$max_size} so we aborted in Embed->downloadThumbnail.");
+            Log::debug("Went to download remote thumbnail of size {$file_size} but the plugin's filesize limit is {$max_size} so we aborted in Embed->downloadThumbnail.");
             return false;
         }
 

@@ -37,6 +37,10 @@ use Component\Attachment\Entity\AttachmentThumbnail;
 use Component\Attachment\Entity\AttachmentToLink;
 use Component\Attachment\Entity\AttachmentToNote;
 use Component\Link\Entity\Link;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * The StoreRemoteMedia plugin downloads remotely attached files to local server.
@@ -76,19 +80,9 @@ class StoreRemoteMedia extends Plugin
         return Common::config('plugin_store_remote_media', 'store_original');
     }
 
-    private function getThumbnailWidth(): int
-    {
-        return Common::config('thumbnail', 'width');
-    }
-
-    private function getThumbnailHeight(): int
-    {
-        return Common::config('thumbnail', 'height');
-    }
-
     private function getMaxFileSize(): int
     {
-        return Common::config('plugin_store_remote_media', 'max_file_size');
+        return min(Common::config('plugin_store_remote_media', 'max_file_size'), Common::config('attachments', 'file_quota'));
     }
 
     private function getSmartCrop(): bool
@@ -132,11 +126,30 @@ class StoreRemoteMedia extends Plugin
             DB::flush();
             return Event::stop;
         } else {
+            // Validate if the URL really does point to a remote image
+            $head = HTTPClient::head($link->getUrl());
+            try {
+                $headers = $head->getHeaders();
+            } catch (ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
+                Log::debug('StoreRemoteMedia->onNewLinkFromNote@HTTPHead->getHeaders: ' . $e->getMessage(), [$e]);
+                return Event::next;
+            }
+
+            // Does it respect the file quota?
+            $file_size = $headers['content-length'][0] ?? null;
+            $max_size  = $this->getMaxFileSize();
+            if (\is_null($file_size) || $file_size > $max_size) {
+                Log::debug("Went to download remote media of size {$file_size} but the plugin's filesize limit is {$max_size} so we aborted in StoreRemoteMedia->onNewLinkFromNote.");
+                return Event::next;
+            }
+
             // Retrieve media
             $get_response = HTTPClient::get($link->getUrl());
             $media        = $get_response->getContent();
             $mimetype     = $get_response->getHeaders()['content-type'][0] ?? null;
             unset($get_response);
+
+            // TODO: Add functionality to specify allowed content types to retrieve here
 
             // Ensure we still want to handle it
             if ($mimetype != $link->getMimetype()) {
