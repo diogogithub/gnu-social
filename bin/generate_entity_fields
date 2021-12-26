@@ -1,4 +1,4 @@
-#!/usr/local/bin/php
+#!/usr/bin/env php
 <?php
 
 use Symfony\Component\Yaml\Yaml;
@@ -51,7 +51,9 @@ foreach ($files as $file) {
         $type           = types[$schema['fields'][$field]['type']];
         $type           = $type !== '' ? $nullable . $type : $type;
         $method_name    = str_replace([' ', 'actor'], ['', 'Actor'], ucwords(str_replace('_', ' ', $field)));
-        $default        = @$schema['fields'][$field]['default'];
+        $default        = $schema['fields'][$field]['default'] ?? null;
+        $length         = $schema['fields'][$field]['length'] ?? null;
+        $field_setter   = \is_int($length) ? "\mb_substr(\${$field}, 0, $length)" : "\${$field}";
 
         if (isset($default) && $nullable != '?' && $type != '\DateTimeInterface') {
             if (is_string($default)) {
@@ -66,13 +68,13 @@ foreach ($files as $file) {
         }
 
         $methods_code[] = "    public function set{$method_name}({$type} \${$field}): self" .
-                        "\n    {\n        \$this->{$field} = \${$field};\n        return \$this;\n    }" . "\n\n" .
+                        "\n    {\n        \$this->{$field} = {$field_setter};\n        return \$this;\n    }" . "\n\n" .
                         "    public function get{$method_name}()" . ($type !== '' ? ": {$type}" : '') .
                         "\n    {\n        return \$this->{$field};\n    }" . "\n";
     }
 
     $fields_code  = implode("\n", $fields_code);
-    $methods_code = implode("\n", $methods_code) . "\n";
+    $methods_code = implode("\n", $methods_code);
 
     $begin = '// {{{ Autocode';
     $end   = '// }}} Autocode';
@@ -91,7 +93,6 @@ foreach ($files as $file) {
     }
 
     $in_file  = file_get_contents($file);
-    $out_file = preg_replace("/\\s*{$begin}[^\\/]*{$end}/m", $code, $in_file);
-
+    $out_file = preg_replace("%\\s*{$begin}.*{$end}%smu", $code, $in_file);
     file_put_contents($file, $out_file);
 }
