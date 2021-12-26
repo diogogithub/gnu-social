@@ -116,9 +116,8 @@ class Avatar extends Component
     public static function getDimensions(int $actor_id, string $size = 'medium')
     {
         try {
-            $avatar = self::getAvatar($actor_id);
-            $a      = $size === 'full' ? $avatar->getAttachment() : $avatar->getAttachmentThumbnail($size);
-            return ['width' => $a->getWidth(), 'height' => $a->getHeight()];
+            $attachment = self::getAvatar($actor_id)->getAttachment();
+            return ['width' => (int) $attachment->getWidth(), 'height' => (int) $attachment->getHeight()];
         } catch (NoAvatarException) {
             return ['width' => Common::config('thumbnail', 'small'), 'height' => Common::config('thumbnail', 'small')];
         }
