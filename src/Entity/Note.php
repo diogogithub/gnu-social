@@ -27,6 +27,7 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
+use App\Core\Log;
 use App\Core\Router\Router;
 use App\Core\VisibilityScope;
 use App\Util\Formatting;
@@ -358,24 +359,44 @@ class Note extends Entity
     /**
      * Whether this note is visible to the given actor
      */
-    public function isVisibleTo(null|Actor|LocalUser $a): bool
+    public function isVisibleTo(null|Actor|LocalUser $actor): bool
     {
-        // TODO cache this
-        $scope = VisibilityScope::create($this->scope);
-        return $scope->public
-            || (!\is_null($a) && (
-                ($scope->subscriber && 0 != DB::count('subscription', ['subscriber' => $a->getId(), 'subscribed' => $this->actor_id]))
-                    || ($scope->addressee && 0 != DB::count('notification', ['activity_id' => $this->id, 'actor_id' => $a->getId()]))
-                    || ($scope->group && [] != DB::dql(
-                        <<<'EOF'
+        // TODO: cache this
+        switch ($this->getScope()) {
+            case VisibilityScope::LOCAL: // The controller handles it if private
+            case VisibilityScope::EVERYWHERE:
+                return true;
+            case VisibilityScope::ADDRESSEE:
+                // If the actor is logged in and
+                if (!\is_null($actor)
+                    && (
+                        // Is either the author Or
+                        $this->getActorId() == $actor->getId()
+                        // one of the targets
+                        || \in_array($actor->getId(), $this->getNotificationTargetIds())
+                    )) {
+                    return true;
+                }
+                return false;
+            case VisibilityScope::GROUP:
+                // Only for the group to see
+                return DB::dql(
+                    <<<'EOF'
                             select m from group_member m
                             join group_inbox i with m.group_id = i.group_id
                             join note n with i.activity_id = n.id
                             where n.id = :note_id and m.actor_id = :actor_id
                             EOF,
-                        ['note_id' => $this->id, 'actor_id' => $a->getId()],
-                    ))
-            ));
+                    ['note_id' => $this->id, 'actor_id' => $actor->getId()],
+                ) !== [];
+            case VisibilityScope::COLLECTION:
+            case VisibilityScope::MESSAGE:
+                // Only for the collection to see
+                return in_array($actor->getId(), $this->getNotificationTargetIds());
+            default:
+                Log::error("Unknown scope found: {$this->getScope()}.");
+        }
+        return false;
     }
 
     /**

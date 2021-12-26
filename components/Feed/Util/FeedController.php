@@ -34,10 +34,10 @@ namespace Component\Feed\Util;
 
 use App\Core\Controller;
 use App\Core\Event;
-use App\Core\Log;
-use App\Core\VisibilityScope;
 use App\Entity\Actor;
+use App\Entity\Note;
 use App\Util\Common;
+use Functional as F;
 
 abstract class FeedController extends Controller
 {
@@ -62,37 +62,6 @@ abstract class FeedController extends Controller
 
     private static function enforceScope(array &$notes, ?Actor $actor): void
     {
-        $filtered_notes = [];
-        foreach ($notes as $note) {
-            switch ($note->getScope()) {
-                case VisibilityScope::LOCAL: // The controller handles it if private
-                case VisibilityScope::EVERYWHERE:
-                    $filtered_notes[] = $note;
-                    break;
-                case VisibilityScope::ADDRESSEE:
-                    // If the actor is logged in and
-                    if (!\is_null($actor)
-                        && (
-                            // Is either the author Or
-                            $note->getActorId() == $actor->getId()
-                            // one of the targets
-                            || \in_array($actor->getId(), $note->getNotificationTargetIds())
-                        )) {
-                        $filtered_notes[] = $note;
-                    }
-                    break;
-                case VisibilityScope::GROUP:
-                    // Only for the group to see
-                    break;
-                case VisibilityScope::COLLECTION:
-                case VisibilityScope::MESSAGE:
-                    // Only for the collection to see (they will only find it in their notifications)
-                    break;
-                default:
-                    Log::warning("Unknown scope found: {$note->getScope()}.");
-            }
-        }
-        // Replace notes with filtered ones I/O
-        $notes = $filtered_notes;
+        $notes = F\select($notes, fn (Note $n) => $n->isVisibleTo($actor));
     }
 }
