@@ -91,7 +91,8 @@
 
 {% block note_sidebar %}
     <aside class="note-sidebar">
-        <img class="u-logo avatar" src="{{ note.getActorAvatarUrl() }}" alt="{{ nickname }}'s avatar" width="32px" height="32px">
+        {% set actor_avatar_dimensions = actor.getAvatarDimensions() %}
+        <img class="u-logo avatar" src="{{ note.getActorAvatarUrl() }}" alt="{{ nickname }}'s avatar" width="{{actor_avatar_dimensions['width']}}" height="{{actor_avatar_dimensions['height']}}">
     </aside>
 {% endblock note_sidebar %}
 
