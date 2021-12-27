@@ -3,15 +3,18 @@
 {% block title %}Groups{% endblock %}
 
 {% block body %}
-    <div class="feed">
-        <div class="groups">
-            {% if groups is defined and groups is not empty %}
-                {% for group in groups %}
-                    {% include 'directory/group.html.twig' with {'group': group, 'have_user': have_user} only %}
-                {% endfor %}
-            {% else %}
-                <h1>{% trans %}No groups here.{% endtrans %}</h1>
-            {% endif %}
-        </div>
+<section class="section-widget section-padding">
+    <h2 class="section-title">{{ "Groups" | trans }}</h2>
+
+    <div class="section-padding">
+        {% if groups is defined and groups is not empty %}
+            {% for actor in groups %}
+                {% block profile_view %}{% include 'cards/profile/view.html.twig' %}{% endblock profile_view %}
+                <hr>
+            {% endfor %}
+        {% else %}
+            <h1>{% trans %}No groups here.{% endtrans %}</h1>
+        {% endif %}
     </div>
+</section>
 {% endblock body %}

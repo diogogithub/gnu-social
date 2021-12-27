@@ -35,8 +35,8 @@ class Directory extends Plugin
      */
     public function onAddRoute(RouteLoader $r)
     {
-        $r->connect('directory_actors', '/actors', [Controller\Directory::class, 'actors']);
-        $r->connect('directory_groups', '/groups', [Controller\Directory::class, 'groups']);
+        $r->connect('directory_actors', '/directory/actors', [Controller\Directory::class, 'actors']);
+        $r->connect('directory_groups', '/directory/groups', [Controller\Directory::class, 'groups']);
 
         return Event::next;
     }

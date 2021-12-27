@@ -24,6 +24,7 @@ declare(strict_types = 1);
 namespace Plugin\Directory\Controller;
 
 use App\Core\DB\DB;
+use App\Entity\Actor;
 use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -38,7 +39,7 @@ class Directory extends FeedController
     {
         return [
             '_template' => 'directory/actors.html.twig',
-            'actors'    => DB::dql('select a from actor a order by a.nickname ASC'),
+            'actors'    => DB::findBy(Actor::class, ['type' => Actor::PERSON], order_by: ['created' => 'DESC', 'nickname' => 'ASC']),
         ];
     }
 
@@ -51,7 +52,7 @@ class Directory extends FeedController
     {
         return [
             '_template' => 'directory/groups.html.twig',
-            'groups'    => DB::dql('select g from group g order by g.nickname ASC'),
+            'groups'    => DB::findBy(Actor::class, ['type' => Actor::GROUP], order_by: ['created' => 'DESC', 'nickname' => 'ASC']),
         ];
     }
 }
