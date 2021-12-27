@@ -288,12 +288,12 @@ class Actor extends Entity
         }
     }
 
-    public function getAvatarUrl(string $size = 'full')
+    public function getAvatarUrl(string $size = 'medium')
     {
         return Avatar::getUrl($this->getId(), $size);
     }
 
-    public function getAvatarDimensions(string $size = 'full')
+    public function getAvatarDimensions(string $size = 'medium')
     {
         return Avatar::getDimensions($this->getId(), $size);
     }

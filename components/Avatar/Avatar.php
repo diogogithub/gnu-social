@@ -29,6 +29,8 @@ use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Util\Common;
+use Component\Attachment\Entity\Attachment;
+use Component\Attachment\Entity\AttachmentThumbnail;
 use Component\Avatar\Controller as C;
 use Component\Avatar\Exception\NoAvatarException;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,8 +43,8 @@ class Avatar extends Component
 
     public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect('avatar_actor', '/actor/{actor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar_view']);
-        $r->connect('avatar_default', '/avatar/default/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'default_avatar_view']);
+        $r->connect('avatar_actor', '/actor/{actor_id<\d+>}/avatar/{size<full|big|medium|small>?medium}', [Controller\Avatar::class, 'avatar_view']);
+        $r->connect('avatar_default', '/avatar/default/{size<full|big|medium|small>?medium}', [Controller\Avatar::class, 'default_avatar_view']);
         $r->connect('avatar_settings', '/settings/avatar', [Controller\Avatar::class, 'settings_avatar']);
         return Event::next;
     }
@@ -102,7 +104,7 @@ class Avatar extends Component
     /**
      * Get the cached avatar associated with the given Actor id, or the current user if not given
      */
-    public static function getUrl(int $actor_id, string $size = 'full', int $type = Router::ABSOLUTE_PATH): string
+    public static function getUrl(int $actor_id, string $size = 'medium', int $type = Router::ABSOLUTE_PATH): string
     {
         try {
             return self::getAvatar($actor_id)->getUrl($size, $type);
@@ -111,11 +113,12 @@ class Avatar extends Component
         }
     }
 
-    public static function getDimensions(int $actor_id, string $size = 'full')
+    public static function getDimensions(int $actor_id, string $size = 'medium')
     {
         try {
-            $attachment = self::getAvatar($actor_id)->getAttachment();
-            return ['width' => $attachment->getWidth(), 'height' => $attachment->getHeight()];
+            $avatar = self::getAvatar($actor_id);
+            $a      = $size === 'full' ? $avatar->getAttachment() : $avatar->getAttachmentThumbnail($size);
+            return ['width' => $a->getWidth(), 'height' => $a->getHeight()];
         } catch (NoAvatarException) {
             return ['width' => Common::config('thumbnail', 'small'), 'height' => Common::config('thumbnail', 'small')];
         }
@@ -127,7 +130,7 @@ class Avatar extends Component
      * Returns the avatar file's hash, mimetype, title and path.
      * Ensures exactly one cached value exists
      */
-    public static function getAvatarFileInfo(int $actor_id, string $size = 'full'): array
+    public static function getAvatarFileInfo(int $actor_id, string $size = 'medium'): array
     {
         $res = Cache::get(
             "avatar-file-info-{$actor_id}-{$size}",
@@ -151,8 +154,12 @@ class Avatar extends Component
                 'title'    => 'default_avatar.svg',
             ];
         } else {
-            $res             = $res[0]; // A user must always only have one avatar.
-            $res['filepath'] = DB::findOneBy('attachment', ['id' => $res['id']])->getPath();
+            $res = $res[0]; // A user must always only have one avatar.
+            if ($size === 'full') {
+                $res['filepath'] = Attachment::getByPK(['id' => $res['id']])->getPath();
+            } else {
+                $res['filepath'] = AttachmentThumbnail::getOrCreate(Attachment::getByPK(['id' => $res['id']]), $size)->getPath();
+            }
             return $res;
         }
     }

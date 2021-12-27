@@ -252,7 +252,7 @@ class Note extends Entity
         return Actor::getFullnameById($this->actor_id);
     }
 
-    public function getActorAvatarUrl(string $size = 'full'): string
+    public function getActorAvatarUrl(string $size = 'medium'): string
     {
         return Avatar::getUrl($this->getActorId(), $size);
     }

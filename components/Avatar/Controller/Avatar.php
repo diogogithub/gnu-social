@@ -57,13 +57,8 @@ class Avatar extends Controller
      */
     public function avatar_view(Request $request, int $actor_id, string $size): Response
     {
-        switch ($size) {
-            case 'full':
-                $res = \Component\Avatar\Avatar::getAvatarFileInfo($actor_id);
-                return M::sendFile($res['filepath'], $res['mimetype'], $res['title']);
-            default:
-                throw new Exception('Not implemented');
-        }
+        $res = \Component\Avatar\Avatar::getAvatarFileInfo($actor_id, $size);
+        return M::sendFile($res['filepath'], $res['mimetype'], $res['title']);
     }
 
     /**

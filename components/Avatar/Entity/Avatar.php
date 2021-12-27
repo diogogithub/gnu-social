@@ -29,6 +29,7 @@ use App\Core\Entity;
 use App\Core\Router\Router;
 use App\Util\Common;
 use Component\Attachment\Entity\Attachment;
+use Component\Attachment\Entity\AttachmentThumbnail;
 use DateTimeInterface;
 
 /**
@@ -115,7 +116,7 @@ class Avatar extends Entity
 
     private ?Attachment $attachment = null;
 
-    public function getUrl(string $size = 'full', int $type = Router::ABSOLUTE_PATH): string
+    public function getUrl(string $size = 'medium', int $type = Router::ABSOLUTE_PATH): string
     {
         $actor_id = $this->getActorId();
         return Cache::get("avatar-url-{$actor_id}-{$size}-{$type}", fn () => Router::url('avatar_actor', ['actor_id' => $actor_id, 'size' => $size], $type));
@@ -123,8 +124,13 @@ class Avatar extends Entity
 
     public function getAttachment(): Attachment
     {
-        $this->attachment ??= DB::findOneBy('attachment', ['id' => $this->attachment_id]);
+        $this->attachment ??= DB::findOneBy('attachment', ['id' => $this->getAttachmentId()]);
         return $this->attachment;
+    }
+
+    public function getAttachmentThumbnail(string $size): ?AttachmentThumbnail
+    {
+        return AttachmentThumbnail::getOrCreate($this->getAttachment(), $size);
     }
 
     public static function getFilePathStatic(string $filename): string
