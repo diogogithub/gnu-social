@@ -33,7 +33,7 @@
 .profile-info-nickname {
     word-break: break-all;
 }
-.profile-avatar {
+.avatar {
     max-width: 4rem;
     max-height: 4rem;
     min-width: var(--xxl);

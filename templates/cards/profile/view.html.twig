@@ -12,7 +12,7 @@
     <section id='profile-{{ actor.id }}' class='profile' title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
         <a href="{{ actor_uri }}">
             <div class="profile-info">
-                <img src="{{ actor_avatar }}" class="profile-avatar" alt="{% trans %} %actor_nickname%'s avatar. {% endtrans %}" width="{{actor_avatar_dimensions['width']}}" height="{{actor_avatar_dimensions['height']}}">
+                <img src="{{ actor_avatar }}" class="avatar" alt="{% trans %} %actor_nickname%'s avatar. {% endtrans %}" width="{{actor_avatar_dimensions['width']}}" height="{{actor_avatar_dimensions['height']}}">
                 <strong class="profile-info-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
             </div>
         </a>
