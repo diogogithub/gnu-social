@@ -34,6 +34,7 @@ declare(strict_types = 1);
 
 namespace App\Core\DB;
 
+use App\Core\Entity;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
 use Closure;
@@ -49,7 +50,7 @@ use Functional as F;
 
 /**
  * @mixin EntityManager
- * @template T
+ * @template T of Entity
  *
  * @method static ?T find(string $class, array<string, mixed> $values)                                                                                                                                                                                                                                        // Finds an Entity by its identifier.
  * @method static ?T getReference(string $class, array<string, mixed> $values) // Special cases: It's like find but does not load the object if it has not been loaded yet, it only returns a proxy to the object. (https://www.doctrine-project.org/projects/doctrine-orm/en/2.10/reference/unitofwork.html)
@@ -248,12 +249,17 @@ class DB
     /**
      * Return the first element of the result of @see self::findBy
      */
-    public static function findOneBy(string $table, array $criteria, ?array $order_by = null, ?int $offset = null)
+    public static function findOneBy(string $table, array $criteria, ?array $order_by = null, ?int $offset = null, bool $return_null = false)
     {
         $res = self::findBy($table, $criteria, $order_by, 2, $offset); // Use limit 2 to check for consistency
         switch (\count($res)) {
         case 0:
-            throw new NotFoundException("No value in table {$table} matches the requested criteria");
+            if ($return_null) {
+                return null;
+            } else {
+                throw new NotFoundException("No value in table {$table} matches the requested criteria");
+            }
+            // no break
         case 1:
             return $res[0];
         default:
