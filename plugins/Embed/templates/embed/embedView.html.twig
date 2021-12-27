@@ -7,12 +7,13 @@
 
     {% if attributes['has_attachment'] != false %}
         {% set thumbnail_parameters = {
-            'id': embed.getAttachmentId(),
+            'note_id': note.getId(),
+            'attachment_id': embed.getAttachmentId(),
             'size': 'medium'
         } %}
         <img alt="{{embed.getTitle() | escape}}" class="{{attributes['class']}}"
              width="{{attributes['width']}}" height="{{attributes['height']}}"
-             src="{{ path('attachment_thumbnail', thumbnail_parameters) }}" />
+             src="{{ path('note_attachment_thumbnail', thumbnail_parameters) }}" />
     {% endif %}
 
     <div class="p-summary">

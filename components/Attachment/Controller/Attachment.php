@@ -28,8 +28,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use function App\Core\I18n\_m;
-use App\Core\Log;
-use App\Core\Router\Router;
+use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchFileException;
@@ -46,22 +45,23 @@ class Attachment extends Controller
     /**
      * Generic function that handles getting a representation for an attachment
      */
-    private function attachment(int $id, callable $handle)
+    private function attachment(int $attachment_id, Note|int $note, callable $handle)
     {
-        if ($id <= 0) { // This should never happen coming from the router, but let's bail if it does
-            // @codeCoverageIgnoreStart
-            Log::critical("Attachment controller called with {$id}, which should not be possible");
-            throw new ClientException(_m('No such attachment.'), 404);
-        // @codeCoverageIgnoreEnd
-        } else {
-            $res = null;
-            if (Event::handle('AttachmentFileInfo', [$id, &$res]) != Event::stop) {
-                // If no one else claims this attachment, use the default representation
-                try {
-                    $res = GSFile::getAttachmentFileInfo($id);
-                } catch (NoSuchFileException $e) {
-                    // Continue below
-                }
+        $attachment = DB::findOneBy('attachment', ['id' => $attachment_id]);
+        $note       = \is_int($note) ? Note::getById($note) : $note;
+
+        // Before anything, ensure proper scope
+        if (!$note->isVisibleTo(Common::actor())) {
+            throw new ClientException(_m('You don\'t have permissions to view this attachment.'), 401);
+        }
+
+        $res = null;
+        if (Event::handle('AttachmentFileInfo', [$attachment, $note, &$res]) !== Event::stop) {
+            // If no one else claims this attachment, use the default representation
+            try {
+                $res = GSFile::getAttachmentFileInfo($attachment_id);
+            } catch (NoSuchFileException $e) {
+                // Continue below
             }
         }
 
@@ -73,6 +73,9 @@ class Attachment extends Controller
                 throw new ServerException('This attachment is not stored locally.');
             // @codeCoverageIgnoreEnd
             } else {
+                $res['attachment'] = $attachment;
+                $res['note']       = $note;
+                $res['title']      = $attachment->getBestTitle($note);
                 return $handle($res);
             }
         }
@@ -81,16 +84,17 @@ class Attachment extends Controller
     /**
      * The page where the attachment and it's info is shown
      */
-    public function attachment_show(Request $request, int $id)
+    public function attachmentShowWithNote(Request $request, int $note_id, int $attachment_id)
     {
         try {
-            $attachment = DB::findOneBy('attachment', ['id' => $id]);
-            return $this->attachment($id, function ($res) use ($id, $attachment) {
+            return $this->attachment($attachment_id, $note_id, function ($res) use ($note_id, $attachment_id) {
                 return [
                     '_template'        => '/cards/attachments/show.html.twig',
-                    'download'         => Router::url('attachment_download', ['id' => $id]),
-                    'attachment'       => $attachment,
-                    'right_panel_vars' => ['attachment_id' => $id],
+                    'download'         => $res['attachment']->getDownloadUrl(note: $note_id),
+                    'title'            => $res['title'],
+                    'attachment'       => $res['attachment'],
+                    'note'             => $res['note'],
+                    'right_panel_vars' => ['attachment_id' => $attachment_id],
                 ];
             });
         } catch (NotFoundException) {
@@ -101,27 +105,29 @@ class Attachment extends Controller
     /**
      * Display the attachment inline
      */
-    public function attachment_view(Request $request, int $id)
+    public function attachmentViewWithNote(Request $request, int $note_id, int $attachment_id)
     {
         return $this->attachment(
-            $id,
+            $attachment_id,
+            $note_id,
             fn (array $res) => GSFile::sendFile(
                 $res['filepath'],
                 $res['mimetype'],
-                GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'],
+                GSFile::ensureFilenameWithProperExtension($res['title'], $res['mimetype']) ?? $res['filename'],
                 HeaderUtils::DISPOSITION_INLINE,
             ),
         );
     }
 
-    public function attachment_download(Request $request, int $id)
+    public function attachmentDownloadWithNote(Request $request, int $note_id, int $attachment_id)
     {
         return $this->attachment(
-            $id,
+            $attachment_id,
+            $note_id,
             fn (array $res) => GSFile::sendFile(
                 $res['filepath'],
                 $res['mimetype'],
-                GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'],
+                GSFile::ensureFilenameWithProperExtension($res['title'], $res['mimetype']) ?? $res['filename'],
                 HeaderUtils::DISPOSITION_ATTACHMENT,
             ),
         );
@@ -130,16 +136,21 @@ class Attachment extends Controller
     /**
      * Controller to produce a thumbnail for a given attachment id
      *
-     * @param int $id Attachment ID
+     * @param int $attachment_id Attachment ID
      *
      * @throws \App\Util\Exception\DuplicateFoundException
      * @throws ClientException
      * @throws NotFoundException
      * @throws ServerException
      */
-    public function attachment_thumbnail(Request $request, int $id, string $size = 'small'): Response
+    public function attachmentThumbnailWithNote(Request $request, int $note_id, int $attachment_id, string $size = 'small'): Response
     {
-        $attachment = DB::findOneBy('attachment', ['id' => $id]);
+        // Before anything, ensure proper scope
+        if (!Note::getById($note_id)->isVisibleTo(Common::actor())) {
+            throw new ClientException(_m('You don\'t have permissions to view this thumbnail.'), 401);
+        }
+
+        $attachment = DB::findOneBy('attachment', ['id' => $attachment_id]);
 
         $crop = Common::config('thumbnail', 'smart_crop');
 

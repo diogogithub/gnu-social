@@ -167,7 +167,7 @@ class Embed extends Plugin
 
         $res[] = Formatting::twigRenderFile(
             'embed/embedView.html.twig',
-            ['embed' => $embed, 'attributes' => $attributes, 'link' => $link],
+            ['embed' => $embed, 'attributes' => $attributes, 'link' => $link, 'note' => $vars['note']],
         );
 
         return Event::stop;

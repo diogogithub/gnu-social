@@ -7,15 +7,18 @@
                 {% else %}
                     class="u-audio"
                 {% endif %}
-                src="{{ attachment.getUrl() }}" controls
+                src="{{ attachment.getUrl(note) }}" controls
                 {% if attachment.getWidth() is not null %}
-                    poster="{{ attachment.getThumbnailUrl('medium')}}"
+                    poster="{{ attachment.getThumbnailUrl(note, 'medium')}}"
                 {% endif %}
             >
             </video>
             <figcaption>
-                    <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
-            </figcaption>
+                {% if attachment.getFilename() is not null %}
+                    <a href="{{ attachment.getShowUrl(note) }}">{{ title }}</a>
+                {% else %}
+                    {{ title }}
+                {% endif %}            </figcaption>
         </figure>
     </div>
 {% else %}

@@ -33,7 +33,7 @@ class AttachmentShowRelated extends Plugin
 {
     public function onAppendRightPanelBlock($vars, $request, &$res): bool
     {
-        if ($vars['path'] === 'attachment_show') {
+        if ($vars['path'] === 'note_attachment_show') {
             $related_notes = DB::dql('select n from attachment_to_note an '
         . 'join note n with n.id = an.note_id '
         . 'where an.attachment_id = :attachment_id', ['attachment_id' => $vars['vars']['attachment_id']], );

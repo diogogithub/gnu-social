@@ -4,7 +4,7 @@
     <div class="page">
         <section class="section-widget section-padding">
 
-            {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': null} only %}
+            {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': note, 'title': title} only %}
 
             <a class="section-widget-button-like" href="{{ download }}"> {{ 'Download link' | trans }}</a>
         </section>

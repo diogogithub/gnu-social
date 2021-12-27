@@ -380,7 +380,7 @@ class Note extends Entity
                 return false;
             case VisibilityScope::GROUP:
                 // Only for the group to see
-                return DB::dql(
+                return !\is_null($actor) && DB::dql(
                     <<<'EOF'
                             select m from group_member m
                             join group_inbox i with m.group_id = i.group_id
@@ -392,7 +392,7 @@ class Note extends Entity
             case VisibilityScope::COLLECTION:
             case VisibilityScope::MESSAGE:
                 // Only for the collection to see
-                return in_array($actor->getId(), $this->getNotificationTargetIds());
+                return !\is_null($actor) && in_array($actor->getId(), $this->getNotificationTargetIds());
             default:
                 Log::error("Unknown scope found: {$this->getScope()}.");
         }

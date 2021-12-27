@@ -376,7 +376,7 @@ class Note extends Model
             $attr['attachment'][] = [
                 'type'      => 'Document',
                 'mediaType' => $attachment->getMimetype(),
-                'url'       => $attachment->getUrl(Router::ABSOLUTE_URL),
+                'url'       => $attachment->getUrl(note: $object, type: Router::ABSOLUTE_URL),
                 'name'      => AttachmentToNote::getByPK(['attachment_id' => $attachment->getId(), 'note_id' => $object->getId()])->getTitle(),
                 'width'     => $attachment->getWidth(),
                 'height'    => $attachment->getHeight(),

@@ -347,9 +347,19 @@ class Attachment extends Entity
         return \is_null($filename) ? null : Common::config('attachments', 'dir') . \DIRECTORY_SEPARATOR . $filename;
     }
 
-    public function getUrl(int $type = Router::ABSOLUTE_URL): string
+    public function getUrl(Note|int $note, int $type = Router::ABSOLUTE_URL): string
     {
-        return Router::url(id: 'attachment_view', args: ['id' => $this->getId()], type: $type);
+        return Router::url(id: 'note_attachment_view', args: ['note_id' => \is_int($note) ? $note : $note->getId(), 'attachment_id' => $this->getId()], type: $type);
+    }
+
+    public function getShowUrl(Note|int $note, int $type = Router::ABSOLUTE_URL): string
+    {
+        return Router::url(id: 'note_attachment_show', args: ['note_id' => \is_int($note) ? $note : $note->getId(), 'attachment_id' => $this->getId()], type: $type);
+    }
+
+    public function getDownloadUrl(Note|int $note, int $type = Router::ABSOLUTE_URL): string
+    {
+        return Router::url(id: 'note_attachment_download', args: ['note_id' => \is_int($note) ? $note : $note->getId(), 'attachment_id' => $this->getId()], type: $type);
     }
 
     /**
@@ -364,9 +374,9 @@ class Attachment extends Entity
         return AttachmentThumbnail::getOrCreate(attachment: $this, size: $size, crop: $crop);
     }
 
-    public function getThumbnailUrl(?string $size = null)
+    public function getThumbnailUrl(Note|int $note, ?string $size = null)
     {
-        return Router::url('attachment_thumbnail', ['id' => $this->getId(), 'size' => $size ?? Common::config('thumbnail', 'default_size')]);
+        return Router::url('note_attachment_thumbnail', ['note_id' => \is_int($note) ? $note : $note->getId(), 'attachment_id' => $this->getId(), 'size' => $size ?? Common::config('thumbnail', 'default_size')]);
     }
 
     public static function schemaDef(): array

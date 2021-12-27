@@ -1,13 +1,13 @@
 {% if attachment.getFilename() is not null %}
 <div>
   <figure>
-    <audio class="u-audio" src="{{ attachment.getUrl() }}" controls>
+    <audio class="u-audio" src="{{ attachment.getUrl(note) }}" controls>
     </audio>
     <figcaption>
       {% if attachment.getFilename() is not null %}
-        <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
+        <a href="{{ attachment.getShowUrl(note) }}">{{ title }}</a>
       {% else %}
-        {{ attachment.getBestTitle(note) }}
+        {{ title }}
       {% endif %}
     </figcaption>
   </figure>

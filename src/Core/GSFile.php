@@ -292,7 +292,7 @@ class GSFile
      * @param null|string $ext      Extension we believe to be best
      * @param bool        $force    Should we force the extension we believe to be best? Defaults to false
      *
-     * @return null|string the most appropriate filename or null if we deem it imposible
+     * @return null|string the most appropriate filename or null if we deem it impossible
      */
     public static function ensureFilenameWithProperExtension(string $title, string $mimetype, ?string $ext = null, bool $force = false): string|null
     {

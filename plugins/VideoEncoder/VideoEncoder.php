@@ -150,6 +150,7 @@ class VideoEncoder extends Plugin
             [
                 'attachment' => $vars['attachment'],
                 'note'       => $vars['note'],
+                'title'      => $vars['title'],
             ],
         );
         return Event::stop;
