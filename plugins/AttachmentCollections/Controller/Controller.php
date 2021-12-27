@@ -24,6 +24,7 @@ declare(strict_types = 1);
 namespace Plugin\AttachmentCollections\Controller;
 
 use App\Core\DB\DB;
+use App\Core\Exception\RedirectException;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Router\Router;
@@ -86,6 +87,7 @@ class Controller extends FeedController
                     'actor_id' => $id,
                 ]));
                 DB::flush();
+                throw new RedirectException();
             }
         }
 
@@ -150,6 +152,7 @@ class Controller extends FeedController
                     $collection->setName($edit->getData()['name']);
                     DB::persist($collection);
                     DB::flush();
+                    throw new RedirectException();
                 }
                 return $edit->createView();
             }
@@ -169,6 +172,7 @@ class Controller extends FeedController
                 if ($rm->isSubmitted()) {
                     DB::remove($collection);
                     DB::flush();
+                    throw new RedirectException();
                 }
                 return $rm->createView();
             }

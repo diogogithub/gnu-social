@@ -33,6 +33,7 @@ namespace Plugin\AttachmentCollections;
 
 use App\Core\DB\DB;
 use App\Core\Event;
+use App\Core\Exception\RedirectException;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Plugin;
@@ -172,6 +173,7 @@ class AttachmentCollections extends Plugin
                 }
             }
             DB::flush();
+            throw new RedirectException();
         }
         // add to new collection form
         $create_form = Form::create([
@@ -204,6 +206,7 @@ class AttachmentCollections extends Plugin
                 'collection_id' => $coll->getId(),
             ]));
             DB::flush();
+            throw new RedirectException();
         }
 
         $res[] = Formatting::twigRenderFile(
