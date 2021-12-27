@@ -21,6 +21,7 @@ namespace App\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;
+use Component\Group\Entity\LocalGroup;
 
 /**
  * Entity for subscription
@@ -91,6 +92,13 @@ class Subscription extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public static function cacheKeys(LocalUser|LocalGroup|Actor $subject, LocalUser|LocalGroup|Actor $target): array
+    {
+        return [
+            'subscribed' => "subscription-{$subject->getId()}-{$target->getId()}",
+        ];
+    }
 
     public static function schemaDef(): array
     {
