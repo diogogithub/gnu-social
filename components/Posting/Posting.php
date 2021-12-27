@@ -267,7 +267,7 @@ class Posting extends Component
         }
 
         $mentioned = [];
-        foreach (F\unique(F\flat_map($mentions, fn (array $m) => $m['mentioned'] ?? []), fn (Actor $a) => $a->getId()) as $m) {
+        foreach (F\unique(F\flat_map($mentions, fn (array $m) => $m['mentioned'] ?? []), fn (Actor|null $a) => $a?->getId()) as $m) {
             if (!\is_null($m)) {
                 $mentioned[] = $m->getId();
 
