@@ -33,7 +33,7 @@ namespace Plugin\AttachmentCollections;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Exception\RedirectException;
+use App\Util\Exception\RedirectException;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Plugin;

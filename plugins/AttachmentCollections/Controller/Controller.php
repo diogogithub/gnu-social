@@ -24,7 +24,7 @@ declare(strict_types = 1);
 namespace Plugin\AttachmentCollections\Controller;
 
 use App\Core\DB\DB;
-use App\Core\Exception\RedirectException;
+use App\Util\Exception\RedirectException;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Router\Router;
