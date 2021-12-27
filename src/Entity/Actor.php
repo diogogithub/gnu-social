@@ -475,21 +475,6 @@ class Actor extends Entity
         return $url;
     }
 
-    public static function getPlaceholderUri(string $nickname, int $type = self::PERSON, int $uri_type = Router::ABSOLUTE_URL): string
-    {
-        switch ($type) {
-        case self::PERSON:
-        case self::ORGANIZATION:
-        case self::BUSINESS:
-        case self::BOT:
-            return Router::url('actor_view_nickname', ['nickname' => $nickname], $uri_type);
-        case self::GROUP:
-            return Router::url('group_actor_view_nickname', ['nickname' => $nickname], $uri_type);
-        default:
-            throw new BugFoundException('Actor type added but `Actor::getPlaceholderUri` was not updated');
-        }
-    }
-
     public function getAliases(): array
     {
         return array_keys($this->getAliasesWithIDs());

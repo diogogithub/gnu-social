@@ -211,14 +211,14 @@ abstract class Formatting
         $matches = [];
         if (preg_match('/^ *\[?([^,]+(, ?[^,]+)*)\]? *$/', $input, $matches)) {
             switch ($split_type) {
-            case self::SPLIT_BY_BOTH:
-                $arr = preg_split($split_type, $matches[1], 0, \PREG_SPLIT_NO_EMPTY);
-                break;
-            case self::SPLIT_BY_COMMA:
-                $arr = preg_split('/, ?/', $matches[1]);
-                break;
-            default:
-                $arr = explode($split_type[0], $matches[1]);
+                case self::SPLIT_BY_BOTH:
+                    $arr = preg_split($split_type, $matches[1], 0, \PREG_SPLIT_NO_EMPTY);
+                    break;
+                case self::SPLIT_BY_COMMA:
+                    $arr = preg_split('/, ?/', $matches[1]);
+                    break;
+                default:
+                    $arr = explode($split_type[0], $matches[1]);
             }
             $output = str_replace([' \'', '\'', ' "', '"'], '', $arr);
             $output = F\map($output, F\ary('trim', 1));
@@ -234,7 +234,7 @@ abstract class Formatting
     {
         $text = self::quoteAndRemoveControlCodes($text);
 
-        // Split \n\n into paragraphs, process each paragrah and merge
+        // Split \n\n into paragraphs, process each paragraph and merge
         return implode("\n", F\map(explode("\n\n", $text), function (string $paragraph) use ($language) {
             $paragraph = nl2br($paragraph, use_xhtml: false);
             Event::handle('RenderPlainTextNoteContent', [&$paragraph, $language]);
@@ -268,13 +268,13 @@ abstract class Formatting
             return mb_substr($str, 0, $length);
         }
         $str = transliterator_transliterate('Any-Latin;'          // any charset to latin compatible
-                                            . 'NFD;'                        // decompose
-                                            . '[:Nonspacing Mark:] Remove;' // remove nonspacing marks (accents etc.)
-                                            . 'NFC;'                        // composite again
-                                            . '[:Punctuation:] Remove;'     // remove punctuation (.,¿? etc.)
-                                            . 'Lower();'                    // turn into lowercase
-                                            . 'Latin-ASCII;',               // get ASCII equivalents (ð to d for example)
-                                            $str, );
+            . 'NFD;'                        // decompose
+            . '[:Nonspacing Mark:] Remove;' // remove nonspacing marks (accents etc.)
+            . 'NFC;'                        // composite again
+            . '[:Punctuation:] Remove;'     // remove punctuation (.,¿? etc.)
+            . 'Lower();'                    // turn into lowercase
+            . 'Latin-ASCII;',               // get ASCII equivalents (ð to d for example)
+            $str, );
         return mb_substr(preg_replace('/[^\pL\pN]/u', '', $str), 0, $length);
     }
 
@@ -294,11 +294,12 @@ abstract class Formatting
         // XXX: We remove <span> because when content is in html the tag comes as #<span>hashtag</span>
         $text = str_replace('<span>', '', $text);
         if (Event::handle('StartFindMentions', [$actor, $text, &$mentions])) {
-            $matches = self::findMentionsRaw($text, '@');
 
-            foreach ($matches as $match) {
+            // Person mentions
+            $person_matches = self::findMentionsRaw($text, '@');
+            foreach ($person_matches as $match) {
                 try {
-                    $nickname = Nickname::normalize($match[0], check_already_used: false);
+                    $nickname = Nickname::normalize($match[0], check_already_used: false, check_is_allowed: false);
                 } catch (NicknameException) {
                     // Bogus match? Drop it.
                     continue;
@@ -354,20 +355,34 @@ abstract class Formatting
             //         'url'                  => $url, ];
             // }
 
+            // Group mentions
             $group_matches = self::findMentionsRaw($text, '!');
-            foreach ($group_matches as $group_match) {
-                $nickname = Nickname::normalize($group_match[0], check_already_used: false, check_is_allowed: false);
-                $group    = LocalGroup::getActorByNickname($nickname);
+            foreach ($group_matches as $match) {
+                try {
+                    $nickname = Nickname::normalize($match[0], check_already_used: false, check_is_allowed: false);
+                } catch (NicknameException) {
+                    // Bogus match? Drop it.
+                    continue;
+                }
 
-                $mentions[] = [
-                    'mentioned' => [$group],
-                    'type'      => 'group',
-                    'text'      => $group_match[0],
-                    'position'  => $group_match[1],
-                    'length'    => mb_strlen($group_match[0]),
-                    'url'       => !\is_null($group) ? $group->getUri() : Actor::getPlaceholderUri($nickname, Actor::GROUP),
-                    'title'     => $group?->getFullname() ?? $group?->getNickname(),
-                ];
+                $mentioned = LocalGroup::getActorByNickname($nickname);
+
+                if ($mentioned instanceof Actor) {
+                    $url = $mentioned->getUri();    // prefer the URI as URL, if it is one.
+                    if (!Common::isValidHttpUrl($url)) {
+                        $url = $mentioned->getUrl();
+                    }
+
+                    $mentions[] = [
+                        'mentioned' => [$mentioned],
+                        'type'      => 'group',
+                        'text'      => $match[0],
+                        'position'  => $match[1],
+                        'length'    => mb_strlen($match[0]),
+                        'title'     => $mentioned?->getFullname() ?? $mentioned?->getNickname(),
+                        'url'       => $url,
+                    ];
+                }
             }
 
             Event::handle('EndFindMentions', [$actor, $text, &$mentions]);
