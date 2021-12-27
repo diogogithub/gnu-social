@@ -98,7 +98,7 @@ class AttachmentCollections extends Plugin
      */
     public function onAppendRightPanelBlock($vars, Request $request, &$res): bool
     {
-        if ($vars['path'] !== 'attachment_show') {
+        if ($vars['path'] !== 'note_attachment_show') {
             return Event::next;
         }
         $user = Common::user();
