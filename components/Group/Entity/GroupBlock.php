@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -17,13 +19,13 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Group\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Group's inbox
+ * Entity for Group Block
  *
  * @category  DB
  * @package   GNUsocial
@@ -36,13 +38,14 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class GroupInbox extends Entity
+class GroupBlock extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $group_id;
-    private int $activity_id;
-    private \DateTimeInterface $created;
+    private int $blocked_actor;
+    private int $blocker_user;
+    private DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {
@@ -55,26 +58,37 @@ class GroupInbox extends Entity
         return $this->group_id;
     }
 
-    public function setActivityId(int $activity_id): self
+    public function setBlockedActor(int $blocked_actor): self
     {
-        $this->activity_id = $activity_id;
+        $this->blocked_actor = $blocked_actor;
         return $this;
     }
 
-    public function getActivityId(): int
+    public function getBlockedActor(): int
     {
-        return $this->activity_id;
+        return $this->blocked_actor;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setBlockerUser(int $blocker_user): self
     {
-        $this->created = $created;
+        $this->blocker_user = $blocker_user;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getBlockerUser(): int
     {
-        return $this->created;
+        return $this->blocker_user;
+    }
+
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
     }
 
     // @codeCoverageIgnoreEnd
@@ -83,19 +97,14 @@ class GroupInbox extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'group_inbox',
-            'description' => 'Many-many table listing activities posted to a given group, or which groups a given activity was posted to',
-            'fields'      => [
-                'group_id'    => ['type' => 'int',      'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'one to one', 'name' => 'group_inbox_group_id_fkey', 'not null' => true, 'description' => 'group receiving the activity'],
-                'activity_id' => ['type' => 'int',      'foreign key' => true, 'target' => 'Activity.id', 'multiplicity' => 'many to one', 'name' => 'group_inbox_activity_id_fkey', 'not null' => true, 'description' => 'activity received'],
-                'created'     => ['type' => 'datetime', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+            'name'   => 'group_block',
+            'fields' => [
+                'group_id'      => ['type' => 'int', 'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'group actor is blocked from'],
+                'blocked_actor' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'actor that is blocked'],
+                'blocker_user'  => ['type' => 'int', 'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'user making the block'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['group_id', 'activity_id'],
-            'indexes'     => [
-                'group_inbox_activity_id_idx'                  => ['activity_id'],
-                'group_inbox_group_id_created_activity_id_idx' => ['group_id', 'created', 'activity_id'],
-                'group_inbox_created_idx'                      => ['created'],
-            ],
+            'primary key' => ['group_id', 'blocked_actor'],
         ];
     }
 }

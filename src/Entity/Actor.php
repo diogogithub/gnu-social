@@ -274,20 +274,6 @@ class Actor extends Entity
         }
     }
 
-    /**
-     * @return ?self
-     */
-    public static function getByNickname(string $nickname, int $type = self::PERSON): ?self
-    {
-        try {
-            return DB::findOneBy(self::class, ['nickname' => $nickname, 'type' => $type]);
-        } catch (NotFoundException) {
-            return null;
-        } catch (DuplicateFoundException $e) {
-            throw new BugFoundException("Multiple actors with the same nickname '{$nickname}' found", previous: $e);
-        }
-    }
-
     public function getAvatarUrl(string $size = 'medium')
     {
         return Avatar::getUrl($this->getId(), $size);
@@ -560,7 +546,6 @@ class Actor extends Entity
                     }
                 },
             );
-            break;
         default:
             return false;
         }

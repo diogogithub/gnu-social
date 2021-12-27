@@ -29,6 +29,7 @@ use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
+use App\Core\UserRoles;
 use App\Entity\Actor;
 use App\Entity as E;
 use App\Util\Common;
@@ -36,6 +37,8 @@ use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use App\Util\Form\ActorForms;
 use App\Util\Nickname;
+use Component\Group\Entity\GroupMember;
+use Component\Group\Entity\LocalGroup;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -58,7 +61,7 @@ class Group extends ActorController
     public function groupViewNickname(Request $request, string $nickname)
     {
         Nickname::validate($nickname, which: Nickname::CHECK_LOCAL_GROUP); // throws
-        $group = Actor::getByNickname($nickname, type: Actor::GROUP);
+        $group = LocalGroup::getActorByNickname($nickname);
         if (\is_null($group)) {
             $actor = Common::actor();
             if (!\is_null($actor)) {
@@ -75,21 +78,21 @@ class Group extends ActorController
                         ),
                     );
 
-                    $group = Actor::create([
+                    DB::persist($group = Actor::create([
                         'nickname' => $nickname,
                         'type'     => Actor::GROUP,
                         'is_local' => true,
-                    ]);
-                    DB::persist($group);
+                        'roles'    => UserRoles::BOT,
+                    ]));
+                    DB::persist(LocalGroup::create([
+                        'group_id' => $group->getId(),
+                        'nickname' => $nickname,
+                    ]));
                     DB::persist(E\Subscription::create([
                         'subscriber' => $group->getId(),
                         'subscribed' => $group->getId(),
                     ]));
-                    DB::persist(E\Subscription::create([
-                        'subscriber' => $actor->getId(),
-                        'subscribed' => $group->getId(),
-                    ]));
-                    DB::persist(E\GroupMember::create([
+                    DB::persist(GroupMember::create([
                         'group_id' => $group->getId(),
                         'actor_id' => $actor->getId(),
                         'is_admin' => true,
@@ -97,7 +100,7 @@ class Group extends ActorController
                     DB::flush();
                     Cache::delete(Actor::cacheKeys($actor->getId())['subscriber']);
                     Cache::delete(Actor::cacheKeys($actor->getId())['subscribed']);
-                    throw new RedirectException;
+                    throw new RedirectException();
                 }
 
                 return [
@@ -114,6 +117,7 @@ class Group extends ActorController
                     join activity a with n.id = a.object_id
                     join group_inbox gi with a.id = gi.activity_id
                 where a.object_type = 'note' and gi.group_id = :group_id
+                order by a.created desc, a.id desc
                 EOF,
             ['group_id' => $group->getId()],
         ) : [];
@@ -128,7 +132,7 @@ class Group extends ActorController
 
     public function groupSettings(Request $request, string $nickname)
     {
-        $group = Actor::getByNickname($nickname, type: Actor::GROUP);
+        $group = LocalGroup::getActorByNickname($nickname);
         $actor = Common::actor();
         if (!\is_null($group) && $actor->canAdmin($group)) {
             return [

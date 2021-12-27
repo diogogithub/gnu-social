@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/soci
 //
@@ -17,11 +19,12 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Group\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
 
+use App\Entity\Actor;
 use DateTimeInterface;
 
 /**
@@ -44,8 +47,8 @@ class LocalGroup extends Entity
     // @codeCoverageIgnoreStart
     private int $group_id;
     private ?string $nickname = null;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {
@@ -60,7 +63,7 @@ class LocalGroup extends Entity
 
     public function setNickname(?string $nickname): self
     {
-        $this->nickname = \is_null($nickname) ? null : \mb_substr($nickname, 0, 64);
+        $this->nickname = \is_null($nickname) ? null : mb_substr($nickname, 0, 64);
         return $this;
     }
 
@@ -69,24 +72,24 @@ class LocalGroup extends Entity
         return $this->nickname;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
@@ -97,6 +100,18 @@ class LocalGroup extends Entity
     public function getActor()
     {
         return DB::find('actor', ['id' => $this->group_id]);
+    }
+
+    public static function getByNickname(string $nickname): ?self
+    {
+        $res = DB::findBy(self::class, ['nickname' => $nickname]);
+        return $res === [] ? null : $res[0];
+    }
+
+    public static function getActorByNickname(string $nickname): ?Actor
+    {
+        $res = DB::findBy(Actor::class, ['nickname' => $nickname, 'type' => Actor::GROUP]);
+        return $res === [] ? null : $res[0];
     }
 
     public static function schemaDef(): array

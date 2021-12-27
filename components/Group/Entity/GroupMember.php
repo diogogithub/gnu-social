@@ -19,7 +19,7 @@ declare(strict_types = 1);
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Group\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;
@@ -45,9 +45,9 @@ class GroupMember extends Entity
     private int $group_id;
     private int $actor_id;
     private ?bool $is_admin = false;
-    private ?string $uri = null;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private ?string $uri    = null;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {
@@ -84,7 +84,7 @@ class GroupMember extends Entity
 
     public function setUri(?string $uri): self
     {
-        $this->uri = \is_null($uri) ? null : \mb_substr($uri, 0, 191);
+        $this->uri = \is_null($uri) ? null : mb_substr($uri, 0, 191);
         return $this;
     }
 
@@ -93,24 +93,24 @@ class GroupMember extends Entity
         return $this->uri;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -17,7 +19,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Group\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;
@@ -42,11 +44,11 @@ class GroupAlias extends Entity
     // @codeCoverageIgnoreStart
     private string $alias;
     private int $group_id;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setAlias(string $alias): self
     {
-        $this->alias = \mb_substr($alias, 0, 64);
+        $this->alias = mb_substr($alias, 0, 64);
         return $this;
     }
 
@@ -66,13 +68,13 @@ class GroupAlias extends Entity
         return $this->group_id;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }

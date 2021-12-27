@@ -34,7 +34,6 @@ use App\Core\Security;
 use App\Core\VisibilityScope;
 use App\Entity\Activity;
 use App\Entity\Actor;
-use App\Entity\GroupInbox;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\BugFoundException;
@@ -47,6 +46,8 @@ use App\Util\Formatting;
 use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\AttachmentToNote;
 use Component\Conversation\Conversation;
+use Component\Group\Entity\GroupInbox;
+use Component\Group\Entity\LocalGroup;
 use Component\Language\Entity\Language;
 use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -255,13 +256,13 @@ class Posting extends Component
             switch ($target[0]) {
             case '!':
                 $mentions[] = [
-                    'mentioned' => [Actor::getByNickname(mb_substr($target, 1), type: Actor::GROUP)],
+                    'mentioned' => [LocalGroup::getActorByNickname(mb_substr($target, 1))],
                     'type'      => 'group',
                     'text'      => mb_substr($target, 1),
                 ];
                 break;
             default:
-                throw new ClientException(_m('Unkown target type give in \'in\' field: ' . $target));
+                throw new ClientException(_m('Unknown target type give in \'In\' field: ' . $target));
             }
         }
 

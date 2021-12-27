@@ -31,6 +31,7 @@ use App\Util\Common;
 use App\Util\HTML;
 use App\Util\Nickname;
 use Component\Group\Controller as C;
+use Component\Group\Entity\LocalGroup;
 use Component\Tag\Controller\Tag as TagController;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -62,7 +63,7 @@ class Group extends Component
     {
         if ($section === 'profile' && $request->get('_route') === 'group_settings') {
             $nickname = $request->get('nickname');
-            $group    = Actor::getByNickname($nickname, type: Actor::GROUP);
+            $group    = LocalGroup::getActorByNickname($nickname);
             $tabs[]   = [
                 'title'      => 'Self tags',
                 'desc'       => 'Add or remove tags on this group',
@@ -82,7 +83,7 @@ class Group extends Component
             if (!\is_null($id = $request->get('id'))) {
                 return Actor::getById((int) $id);
             } elseif (!\is_null($nickname = $request->get('nickname'))) {
-                return Actor::getByNickname($nickname, type: Actor::GROUP);
+                return LocalGroup::getActorByNickname($nickname);
             }
         }
         return null;

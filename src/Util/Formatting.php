@@ -38,6 +38,7 @@ use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\ServerException;
+use Component\Group\Entity\LocalGroup;
 use Exception;
 use Functional as F;
 use InvalidArgumentException;
@@ -356,7 +357,7 @@ abstract class Formatting
             $group_matches = self::findMentionsRaw($text, '!');
             foreach ($group_matches as $group_match) {
                 $nickname = Nickname::normalize($group_match[0], check_already_used: false, check_is_allowed: false);
-                $group    = Actor::getByNickname($nickname, Actor::GROUP);
+                $group    = LocalGroup::getActorByNickname($nickname, Actor::GROUP);
 
                 $mentions[] = [
                     'mentioned' => [$group],
