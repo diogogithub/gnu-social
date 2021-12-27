@@ -4,19 +4,25 @@
             <h2>{% trans %}Add to collection{% endtrans %}</h2>
             {{ icon('arrow-down', 'icon icon-details-open') | raw }}
         </summary>
-        <fieldset class="section-form">
-            {{ form(add_form) }}
-        </fieldset>
+        {% if has_collections %}
+            <fieldset class="section-form">
+                {{ form(add_form) }}
+            </fieldset>
 
-        <details class="section-widget-subtitle-details section-padding" title="Expand if you want to access more options.">
-            <summary class="section-subtitle-summary">
-                <strong>{% trans %}Other options{% endtrans %}</strong>
-                {{ icon('arrow-down', 'icon icon-details-close') | raw }}
-            </summary>
+            <details class="section-widget-subtitle-details section-padding" title="Expand if you want to access more options.">
+                <summary class="section-subtitle-summary">
+                    <strong>{% trans %}Other options{% endtrans %}</strong>
+                    {{ icon('arrow-down', 'icon icon-details-close') | raw }}
+                </summary>
+                <fieldset class="section-form">
+                    {{ form(create_form) }}
+                </fieldset>
+            </details>
+        {% else %}
             <fieldset class="section-form">
                 {{ form(create_form) }}
             </fieldset>
-        </details>
+        {% endif %}
     </details>
 </section>
 

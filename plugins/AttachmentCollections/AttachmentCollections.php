@@ -212,9 +212,9 @@ class AttachmentCollections extends Plugin
         $res[] = Formatting::twigRenderFile(
             'AttachmentCollections/widget.html.twig',
             [
-                'colls'       => $colls,
-                'add_form'    => $add_form->createView(),
-                'create_form' => $create_form->createView(),
+                'has_collections' => $colls,
+                'add_form'        => $add_form->createView(),
+                'create_form'     => $create_form->createView(),
             ],
         );
         return Event::next;
