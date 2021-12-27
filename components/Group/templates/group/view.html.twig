@@ -10,6 +10,9 @@
 {% endblock stylesheets %}
 
 {% block body %}
+    {% if subscribe_form is defined and subscribe_form is not null %}
+        {{ form(subscribe_form) }}
+    {% endif %}
 
     {% if actor is defined and actor is not null %}
         {% block profile_view %}

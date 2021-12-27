@@ -30,7 +30,6 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\UserRoles;
-use App\Entity\Actor;
 use App\Entity as E;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -61,16 +60,18 @@ class Group extends ActorController
     public function groupViewNickname(Request $request, string $nickname)
     {
         Nickname::validate($nickname, which: Nickname::CHECK_LOCAL_GROUP); // throws
-        $group = LocalGroup::getActorByNickname($nickname);
+        $group          = LocalGroup::getActorByNickname($nickname);
+        $actor          = Common::actor();
+        $subscribe_form = null;
+
         if (\is_null($group)) {
-            $actor = Common::actor();
             if (!\is_null($actor)) {
-                $form = Form::create([
+                $create_form = Form::create([
                     ['create', SubmitType::class, ['label' => _m('Create this group')]],
                 ]);
 
-                $form->handleRequest($request);
-                if ($form->isSubmitted() && $form->isValid()) {
+                $create_form->handleRequest($request);
+                if ($create_form->isSubmitted() && $create_form->isValid()) {
                     Log::info(
                         _m(
                             'Actor id:{actor_id} nick:{actor_nick} created the group {nickname}',
@@ -78,9 +79,9 @@ class Group extends ActorController
                         ),
                     );
 
-                    DB::persist($group = Actor::create([
+                    DB::persist($group = E\Actor::create([
                         'nickname' => $nickname,
-                        'type'     => Actor::GROUP,
+                        'type'     => E\Actor::GROUP,
                         'is_local' => true,
                         'roles'    => UserRoles::BOT,
                     ]));
@@ -98,16 +99,39 @@ class Group extends ActorController
                         'is_admin' => true,
                     ]));
                     DB::flush();
-                    Cache::delete(Actor::cacheKeys($actor->getId())['subscriber']);
-                    Cache::delete(Actor::cacheKeys($actor->getId())['subscribed']);
+                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscriber']);
+                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribed']);
                     throw new RedirectException();
                 }
 
                 return [
                     '_template'   => 'group/view.html.twig',
                     'nickname'    => $nickname,
-                    'create_form' => $form->createView(),
+                    'create_form' => $create_form->createView(),
                 ];
+            }
+        } else {
+            if (!\is_null($actor)
+                && \is_null(Cache::get(
+                    E\Subscription::cacheKeys($actor, $group)['subscribed'],
+                    fn () => DB::findOneBy('subscription', [
+                        'subscriber' => $actor->getId(),
+                        'subscribed' => $group->getId(),
+                    ], return_null: true),
+                ))
+            ) {
+                $subscribe_form = Form::create([['subscribe', SubmitType::class, ['label' => _m('Subscribe to this group')]]]);
+                $subscribe_form->handleRequest($request);
+                if ($subscribe_form->isSubmitted() && $subscribe_form->isValid()) {
+                    DB::persist(E\Subscription::create([
+                        'subscriber' => $actor->getId(),
+                        'subscribed' => $group->getId(),
+                    ]));
+                    DB::flush();
+                    Cache::delete(E\Actor::cacheKeys($group->getId())['subscriber']);
+                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribed']);
+                    Cache::delete(E\Subscription::cacheKeys($actor, $group)['subscribed']);
+                }
             }
         }
 
@@ -123,10 +147,11 @@ class Group extends ActorController
         ) : [];
 
         return [
-            '_template' => 'group/view.html.twig',
-            'actor'     => $group,
-            'nickname'  => $group?->getNickname() ?? $nickname,
-            'notes'     => $notes,
+            '_template'      => 'group/view.html.twig',
+            'actor'          => $group,
+            'nickname'       => $group?->getNickname() ?? $nickname,
+            'notes'          => $notes,
+            'subscribe_form' => $subscribe_form?->createView(),
         ];
     }
 
