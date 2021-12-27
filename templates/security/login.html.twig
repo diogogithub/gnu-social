@@ -17,38 +17,28 @@
                     <label class="alert alert-danger">
                         {{ error.getMessage() }}
                     </label>
-
-                    {#<ul>
-                        {% for flashError in app.flashes('verify_email_error') %}
-                            <li class="alert alert-danger">{{ error.messageKey | trans(error.messageData, 'security') }}</li>
-                        {% endfor %}
-                    </ul>#}
-
                 {% endif %}
 
                 {% if app.user %}
-
-                    <h1 class="mb-3">
+                    <h2>
                         {{ "You are logged in as" | trans }} {{ app.user.username }}.
                         <button class="btn btn-lg btn-primary">
                             <a href="{{ path('app_logout') }}">{{ "Logout" | trans }}</a>
                         </button>
-                    </h1>
-
+                    </h2>
                 {% else %}
-
-                    <div class="mb-3">
+                    <div class="form-row">
                         <label class="section-form-label" for="inputNicknameOrEmail">{{ "Nickname or Email" | trans }}</label>
                         <input type="text" value="{{ last_login_id }}" name="_username" id="inputNicknameOrEmail" class="form-control" required autofocus>
                         <p class="help-text">{{ "Your nickname or email address." | trans }}</p>
                     </div>
-                    <div class="mb-3">
+                    <div class="form-row">
                         <label class="section-form-label" for="inputPassword">{{ "Password" | trans }}</label>
                         <input type="password" name="_password" id="inputPassword" class="form-control" required>
                         <p class="help-text">{{ "Your account's password." | trans }}</p>
                     </div>
 
-                    <span class="checkbox mb-3">
+                    <span class="form-row-checkbox">
                         <label for="inputRememberMe">{{ "Remember me" | trans }}</label>
                         <input type="checkbox" name="_remember_me" id="inputRememberMe">
                     </span>
