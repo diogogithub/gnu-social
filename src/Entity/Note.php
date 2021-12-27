@@ -426,6 +426,7 @@ class Note extends Entity
 
         if (!\array_key_exists('object-related', $ids_already_known)) {
             if (!is_null($parent = $this->getReplyToNote())) {
+                $target_ids[] = $parent->getActorId();
                 array_push($target_ids, ...$parent->getNotificationTargetIds());
             }
         } else {
@@ -464,6 +465,7 @@ class Note extends Entity
 
         if (!\array_key_exists('object-related', $ids_already_known)) {
             if (!is_null($parent = $this->getReplyToNote())) {
+                $mentioned[] = $parent->getActor();
                 array_push($mentioned, ...$parent->getNotificationTargets());
             }
         } else {
