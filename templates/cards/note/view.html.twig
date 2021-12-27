@@ -76,6 +76,7 @@
 
 {% block note_author %}
     {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
+    <a href="{{ actor_url }}">
     <header class="note-author-fullname" tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}" >
         {% if fullname is not null %}
             {{ fullname }}
@@ -83,9 +84,10 @@
             {{ nickname }}
         {% endif %}
     </header>
+    </a>
 
     <small class="note-author-nickname">
-        <a href="{{ actor_url }}" class="note-author-url u-url">{{ nickname }}</a>
+        <a href="{{ actor_uri }}" class="note-author-url u-url">{{ mention }}</a>
     </small>
 {% endblock note_author %}
 
@@ -114,7 +116,9 @@
     {% set actor = note.getActor() %}
     {% set nickname = actor.getNickname() %}
     {% set fullname = actor.getFullname() %}
+    {% set actor_uri = actor.getUri() %}
     {% set actor_url = actor.getUrl() %}
+    {% set mention = mention(actor) %}
     {% set note_language = note.getNoteLanguageShortDisplay() %}
 
     <article class="h-entry hentry note" lang={{ note.getLanguageLocale() }}>
@@ -147,7 +151,9 @@
     {% set actor = note.getActor() %}
     {% set nickname = actor.getNickname() %}
     {% set fullname = actor.getFullname() %}
+    {% set actor_uri = actor.getUri() %}
     {% set actor_url = actor.getUrl() %}
+    {% set mention = mention(actor) %}
 
     <article class="h-entry hentry note">
         {{ block('note_sidebar') }}

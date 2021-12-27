@@ -139,9 +139,6 @@ embed header {
     float: left;
     margin-left: 4px;
 }
-.note-author-url::before {
-    content: '@';
-}
 .note-author-fullname {
     font-weight: bold;
 }

@@ -500,6 +500,11 @@ class FreeNetwork extends Component
         return false;
     }
 
+    public static function mentionToName(string $nickname, string $uri): string
+    {
+        return '@' . $nickname . '@' . parse_url($uri, \PHP_URL_HOST);
+    }
+
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = [

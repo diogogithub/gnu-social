@@ -55,13 +55,13 @@ use App\Util\TemporaryFile;
 use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\AttachmentToNote;
 use Component\Conversation\Conversation;
+use Component\FreeNetwork\FreeNetwork;
 use Component\Language\Entity\Language;
 use Component\Tag\Tag;
 use DateTime;
 use DateTimeInterface;
 use Exception;
 use InvalidArgumentException;
-use const PHP_URL_HOST;
 use Plugin\ActivityPub\ActivityPub;
 use Plugin\ActivityPub\Entity\ActivitypubObject;
 use Plugin\ActivityPub\Util\Model;
@@ -356,7 +356,7 @@ class Note extends Model
             $attr['tag'][] = [
                 'type' => 'Mention',
                 'href' => ($href = $mention->getUri()),
-                'name' => '@' . $mention->getNickname() . '@' . parse_url($href, PHP_URL_HOST),
+                'name' => FreeNetwork::mentionToName($mention->getNickname(), $href),
             ];
             $attr['to'][] = $href;
         }

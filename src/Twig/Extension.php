@@ -62,20 +62,21 @@ class Extension extends AbstractExtension
         return [
             /** Twig function to output the 'active' class if the current route matches the given route */
             new TwigFunction('active', [Runtime::class, 'isCurrentRouteActive']),
-            new TwigFunction('is_route', [Runtime::class, 'isCurrentRoute']),
-            new TwigFunction('get_note_actions', [Runtime::class, 'getNoteActions']),
-            new TwigFunction('get_extra_note_actions', [Runtime::class, 'getExtraNoteActions']),
-            new TwigFunction('show_stylesheets', [Runtime::class, 'getShowStylesheets']),
-            new TwigFunction('handle_event', [Runtime::class, 'handleEvent']),
             new TwigFunction('config', [Runtime::class, 'getConfig']),
+            new TwigFunction('dd', 'dd'),
+            new TwigFunction('die', 'die'),
+            new TwigFunction('get_extra_note_actions', [Runtime::class, 'getExtraNoteActions']),
+            new TwigFunction('get_feeds', [Runtime::class, 'getFeeds']),
+            new TwigFunction('get_note_actions', [Runtime::class, 'getNoteActions']),
+            new TwigFunction('handle_event', [Runtime::class, 'handleEvent']),
+            new TwigFunction('handle_override_stylesheet', [Runtime::class, 'handleOverrideStylesheet']),
+            new TwigFunction('handle_override_template_import', [Runtime::class, 'handleOverrideTemplateImport']),
             new TwigFunction('icon', [Runtime::class, 'embedSvgIcon'], ['needs_environment' => true]),
             new TwigFunction('is_firefox', [Runtime::class, 'isFirefox']),
-            new TwigFunction('handle_override_template_import', [Runtime::class, 'handleOverrideTemplateImport']),
-            new TwigFunction('handle_override_stylesheet', [Runtime::class, 'handleOverrideStylesheet']),
+            new TwigFunction('is_route', [Runtime::class, 'isCurrentRoute']),
+            new TwigFunction('mention', [Runtime::class, 'mention']),
             new TwigFunction('open_details', [Runtime::class, 'openDetails']),
-            new TwigFunction('get_feeds', [Runtime::class, 'getFeeds']),
-            new TwigFunction('die', 'die'),
-            new TwigFunction('dd', 'dd'),
+            new TwigFunction('show_stylesheets', [Runtime::class, 'getShowStylesheets']),
         ];
     }
 }

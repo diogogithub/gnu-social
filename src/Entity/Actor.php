@@ -465,26 +465,26 @@ class Actor extends Entity
      */
     public function getUrl(int $type = Router::ABSOLUTE_URL): string
     {
-        $url = null;
-        if (Event::handle('StartGetActorUrl', [$this, $type, &$url]) === Event::next) {
-            if ($this->getIsLocal()) {
+        if ($this->getIsLocal()) {
+            $url = null;
+            if (Event::handle('StartGetActorUrl', [$this, $type, &$url]) === Event::next) {
                 switch ($this->type) {
-                case self::PERSON:
-                case self::ORGANIZATION:
-                case self::BUSINESS:
-                case self::BOT:
-                    $url = Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
-                    break;
-                case self::GROUP:
-                    $url = Router::url('group_actor_view_nickname', ['nickname' => $this->getNickname()], $type);
-                    break;
-                default:
-                    throw new BugFoundException('Actor type added but `Actor::getUrl` was not updated');
+                    case self::PERSON:
+                    case self::ORGANIZATION:
+                    case self::BUSINESS:
+                    case self::BOT:
+                        $url = Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+                        break;
+                    case self::GROUP:
+                        $url = Router::url('group_actor_view_nickname', ['nickname' => $this->getNickname()], $type);
+                        break;
+                    default:
+                        throw new BugFoundException('Actor type added but `Actor::getUrl` was not updated');
                 }
-            } else {
-                return $this->getUri($type);
+                Event::handle('EndGetActorUrl', [$this, $type, &$url]);
             }
-            Event::handle('EndGetActorUrl', [$this, $type, &$url]);
+        } else {
+            return Router::url('actor_view_id', ['id' => $this->getId()], $type);
         }
         return $url;
     }

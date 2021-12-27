@@ -33,11 +33,13 @@ declare(strict_types = 1);
 namespace App\Twig;
 
 use App\Core\Event;
+use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Formatting;
+use Component\FreeNetwork\FreeNetwork;
 use Functional as F;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -160,6 +162,15 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
     public function getFeeds(Actor $actor): array
     {
         return Feed::getFeeds($actor);
+    }
+
+    public function mention(Actor $actor): string
+    {
+        if ($actor->getIsLocal()) {
+            return "@{$actor->getNickname()}";
+        } else {
+            return FreeNetwork::mentionToName($actor->getNickname(), $actor->getUri(type: Router::ABSOLUTE_URL));
+        }
     }
 
     // ----------------------------------------------------------
