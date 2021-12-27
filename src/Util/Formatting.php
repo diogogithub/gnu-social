@@ -357,7 +357,7 @@ abstract class Formatting
             $group_matches = self::findMentionsRaw($text, '!');
             foreach ($group_matches as $group_match) {
                 $nickname = Nickname::normalize($group_match[0], check_already_used: false, check_is_allowed: false);
-                $group    = LocalGroup::getActorByNickname($nickname, Actor::GROUP);
+                $group    = LocalGroup::getActorByNickname($nickname);
 
                 $mentions[] = [
                     'mentioned' => [$group],
