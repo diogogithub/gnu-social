@@ -92,6 +92,12 @@
 .attachment-collections-list .attachment-collection-item details {
     margin-top: 12px;
 }
+.attachment-collections-list .attachment-collection-item svg {
+    fill: var(--foreground);
+}
+.attachment-collections-list .attachment-collection-item svg:hover {
+    fill: var(--accent);
+}
 .attachment-collections-list .attachment-collection-item details label {
     display: none;
 }
