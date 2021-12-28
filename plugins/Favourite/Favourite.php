@@ -58,7 +58,7 @@ class Favourite extends NoteHandlerPlugin
             ]);
             DB::persist($activity);
 
-            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [], "{$actor->getNickname()} favoured note {$note_id}"]);
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [], _m('{nickname} favoured note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
         }
         return $activity;
     }
@@ -79,7 +79,7 @@ class Favourite extends NoteHandlerPlugin
             ]);
             DB::persist($activity);
 
-            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [], "{$actor->getNickname()} unfavoured note {$note_id}"]);
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [],  _m('{nickname} unfavoured note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
         }
         return $activity;
     }

@@ -281,7 +281,7 @@ class Posting extends Component
         }
 
         DB::flush();
-        Event::handle('NewNotification', [$actor, $activity, ['object' => $mentioned], "{$actor->getNickname()} created note {$note->getUrl()}"]);
+        Event::handle('NewNotification', [$actor, $activity, ['object' => $mentioned],  _m('{nickname} created a note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
 
         return $note;
     }

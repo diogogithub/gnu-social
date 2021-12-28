@@ -60,7 +60,7 @@ class DeleteNote extends NoteHandlerPlugin
         $activity = $note->delete(actor: $actor, source: 'web');
 
         // Undertaker successful
-        Event::handle('NewNotification', [$actor, $activity, [], "{$actor->getNickname()} deleted note {$activity->getObjectId()}"]);
+        Event::handle('NewNotification', [$actor, $activity, [], _m('{nickname} deleted note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
         return $activity;
     }
 

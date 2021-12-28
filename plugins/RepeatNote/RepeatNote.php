@@ -85,7 +85,7 @@ class RepeatNote extends NoteHandlerPlugin
         ]);
         DB::persist($repeat_activity);
 
-        Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $repeat_activity, [], "{$actor->getNickname()} repeated note {$note->getUrl()}"]);
+        Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $repeat_activity, [],  _m('{nickname} repeated note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $repeat_activity->getObjectId()])]);
 
         return $repeat_activity;
     }
@@ -119,7 +119,7 @@ class RepeatNote extends NoteHandlerPlugin
             ]);
             DB::persist($undo_repeat_activity);
 
-            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $undo_repeat_activity, [], "{$actor->getNickname()} unrepeated note {$note_id}"]);
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $undo_repeat_activity, [],  _m('{nickname} unrepeated note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $note_id])]);
 
             return $undo_repeat_activity;
         } else {
