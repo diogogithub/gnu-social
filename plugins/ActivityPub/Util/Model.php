@@ -124,9 +124,9 @@ abstract class Model
     public static function toJson(mixed $object, ?int $options = null): string
     {
         switch ($object::class) {
-            case 'App\Entity\Activity':
+            case \App\Entity\Activity::class:
                 return Activity::toJson($object, $options);
-            case 'App\Entity\Note':
+            case \App\Entity\Note::class:
                 return Note::toJson($object, $options);
             default:
                 $type = self::jsonToType($object);

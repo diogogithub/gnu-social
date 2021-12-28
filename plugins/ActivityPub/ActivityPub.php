@@ -268,13 +268,13 @@ class ActivityPub extends Plugin
                     }
                 }
             } catch (Exception $e) {
-                Log::error('ActivityPub @ freeNetworkDistribute: ' . $e->getMessage());
+                Log::error('ActivityPub @ freeNetworkDistribute: ' . $e->getMessage(), [$e]);
                 //$to_failed[$inbox] = $activity;
             }
         }
 
         if (!empty($errors)) {
-            Log::error(sizeof($errors) . ' instance/s failed to handle the delete_profile activity!');
+            Log::error(sizeof($errors) . ' instance/s failed to handle our activity!');
             return false;
         }
 

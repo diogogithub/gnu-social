@@ -40,6 +40,7 @@ use App\Core\Router\Router;
 use App\Entity\Activity as GSActivity;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchActorException;
+use App\Util\Exception\NotFoundException;
 use DateTime;
 use DateTimeInterface;
 use Exception;
@@ -165,11 +166,24 @@ class Activity extends Model
             'to'        => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
             'cc'        => ['https://www.w3.org/ns/activitystreams#Public'],
         ];
-        $attr['object'] = ($attr['type'] === 'Create') ? self::jsonToType(Model::toJson($object->getObject())) : ActivityPub::getUriByObject($object->getObject());
+        try {
+            $object         = $object->getObject(); // Throws NotFoundException
+            $attr['object'] = ($attr['type'] === 'Create') ? self::jsonToType(Model::toJson($object)) : ActivityPub::getUriByObject($object);
+        } catch (NotFoundException) {
+            // It seems this object was deleted, refer to it as a Tombstone
+            $uri = match ($object->getObjectType()) {
+                'note'  => Router::url('note_view', ['id' => $object->getObjectId()], type: Router::ABSOLUTE_URL),
+                'actor' => Router::url('actor_view_id', ['id' => $object->getObjectId()], type: Router::ABSOLUTE_URL),
+                default => throw new \App\Util\Exception\NotImplementedException(),
+            };
+            $attr['object'] = Type::create('Tombstone', [
+                'id' => $uri,
+            ]);
+        }
 
         if (!\is_string($attr['object'])) {
-            $attr['to'] = array_unique(array_merge($attr['to'], $attr['object']->get('to')));
-            $attr['cc'] = array_unique(array_merge($attr['cc'], $attr['object']->get('cc')));
+            $attr['to'] = array_unique(array_merge($attr['to'], $attr['object']->get('to') ?? []));
+            $attr['cc'] = array_unique(array_merge($attr['cc'], $attr['object']->get('cc') ?? []));
         }
 
         $type = self::jsonToType($attr);
