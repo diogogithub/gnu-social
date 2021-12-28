@@ -171,7 +171,7 @@ class Actor extends Model
      */
     public static function toJson(mixed $object, ?int $options = null): string
     {
-        if ($object::class !== 'App\Entity\Actor') {
+        if ($object::class !== GSActor::class) {
             throw new InvalidArgumentException('First argument type is Actor');
         }
         $rsa        = ActivitypubRsa::getByActor($object);

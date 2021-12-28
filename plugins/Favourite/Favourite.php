@@ -206,7 +206,6 @@ class Favourite extends NoteHandlerPlugin
             }
         }
 
-        $activity = null;
         if ($type_activity->get('type') === 'Like') {
             $activity = self::favourNote($note_id, $actor->getId(), source: 'ActivityPub');
         } else {

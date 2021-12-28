@@ -307,7 +307,7 @@ class Note extends Model
      */
     public static function toJson(mixed $object, ?int $options = null): string
     {
-        if ($object::class !== 'App\Entity\Note') {
+        if ($object::class !== GSNote::class) {
             throw new InvalidArgumentException('First argument type is Note');
         }
 

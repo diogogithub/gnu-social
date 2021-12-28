@@ -44,7 +44,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RepeatNote extends NoteHandlerPlugin
 {
-    public static function repeatNote(Note $note, int $actor_id, string $source = 'web'): Activity
+    public static function repeatNote(Note $note, int $actor_id, string $source = 'web'): ?Activity
     {
         $repeat_entity = DB::findBy('note_repeat', [
             'actor_id' => $actor_id,
@@ -52,12 +52,7 @@ class RepeatNote extends NoteHandlerPlugin
         ])[0] ?? null;
 
         if (!\is_null($repeat_entity)) {
-            return DB::findBy('activity', [
-                'actor_id'    => $actor_id,
-                'verb'        => 'repeat',
-                'object_type' => 'note',
-                'object_id'   => $note->getId(),
-            ], order_by: ['created' => 'DESC'])[0];
+            return null;
         }
 
         // If it's a repeat, the reply_to should be to the original, conversation ought to be the same
@@ -109,7 +104,7 @@ class RepeatNote extends NoteHandlerPlugin
             ])[0] ?? null;
 
             // Remove the clone note
-            DB::findBy('note', ['id' => $already_repeated->getNoteId()])[0]->delete();
+            DB::findBy(Note::class, ['id' => $already_repeated->getNoteId()])[0]->delete();
 
             // Remove from the note_repeat table
             DB::remove(DB::findBy('note_repeat', ['note_id' => $already_repeated->getNoteId()])[0]);
@@ -311,18 +306,20 @@ class RepeatNote extends NoteHandlerPlugin
         }
 
         if ($type_activity->get('type') === 'Announce') {
-            $act = self::repeatNote($note ?? Note::getById($note_id), $actor->getId(), source: 'ActivityPub');
+            $activity = self::repeatNote($note ?? Note::getById($note_id), $actor->getId(), source: 'ActivityPub');
         } else {
-            $act = self::unrepeatNote($note_id, $actor->getId(), source: 'ActivityPub');
+            $activity = self::unrepeatNote($note_id, $actor->getId(), source: 'ActivityPub');
         }
-        // Store ActivityPub Activity
-        $ap_act = \Plugin\ActivityPub\Entity\ActivitypubActivity::create([
-            'activity_id'  => $act->getId(),
-            'activity_uri' => $type_activity->get('id'),
-            'created'      => new DateTime($type_activity->get('published') ?? 'now'),
-            'modified'     => new DateTime(),
-        ]);
-        DB::persist($ap_act);
+        if (!\is_null($activity)) {
+            // Store ActivityPub Activity
+            $ap_act = \Plugin\ActivityPub\Entity\ActivitypubActivity::create([
+                'activity_id'  => $activity->getId(),
+                'activity_uri' => $type_activity->get('id'),
+                'created'      => new DateTime($type_activity->get('published') ?? 'now'),
+                'modified'     => new DateTime(),
+            ]);
+            DB::persist($ap_act);
+        }
         return Event::stop;
     }
 

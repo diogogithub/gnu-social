@@ -143,7 +143,7 @@ class Activity extends Model
      */
     public static function toJson(mixed $object, ?int $options = null): string
     {
-        if ($object::class !== 'App\Entity\Activity') {
+        if ($object::class !== GSActivity::class) {
             throw new InvalidArgumentException('First argument type is Activity');
         }
 

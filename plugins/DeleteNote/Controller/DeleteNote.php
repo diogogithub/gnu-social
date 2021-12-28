@@ -71,7 +71,7 @@ class DeleteNote extends Controller
 
         $form_delete->handleRequest($request);
         if ($form_delete->isSubmitted()) {
-            if (!\is_null(\Plugin\DeleteNote\DeleteNote::deleteNote(note_id: $note_id, actor_id: $user->getId()))) {
+            if (!\is_null(\Plugin\DeleteNote\DeleteNote::deleteNote(note: $note_id, actor: $user->getId()))) {
                 DB::flush();
             } else {
                 throw new ClientException(_m('Note already deleted!'));
