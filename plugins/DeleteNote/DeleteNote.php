@@ -30,6 +30,7 @@ use App\Core\Router\Router;
 use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\Note;
+use App\Util\Common;
 use App\Util\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -48,9 +49,8 @@ class DeleteNote extends NoteHandlerPlugin
 {
     private static function undertaker(Actor $actor, Note $note): Activity
     {
-        // Only let the original actor delete it
-        // TODO: Let actors of appropriate role do this as well
-        if ($note->getActor()->getId() !== $actor->getId()) {
+        // Check permissions
+        if (!$actor->canAdmin($note->getActor())) {
             throw new ClientException(_m('You don\'t have permissions to delete this note.'), 401);
         }
 
@@ -82,8 +82,13 @@ class DeleteNote extends NoteHandlerPlugin
 
     public function onAddExtraNoteActions(Request $request, Note $note, array &$actions)
     {
+        if (\is_null($actor = Common::actor())) {
+            return Event::next;
+        }
         // Only add action if note wasn't already deleted!
-        if (\is_null(DB::findOneBy(Activity::class, ['verb' => 'delete', 'object_type' => 'note', 'object_id' => $note->getId()], return_null: true))) {
+        if (\is_null(DB::findOneBy(Activity::class, ['verb' => 'delete', 'object_type' => 'note', 'object_id' => $note->getId()], return_null: true))
+        // And has permissions
+        && $actor->canAdmin($note->getActor())) {
             $delete_action_url = Router::url('delete_note_action', ['note_id' => $note->getId()]);
             $query_string      = $request->getQueryString();
             $delete_action_url .= '?from=' . mb_substr($query_string, 2);
