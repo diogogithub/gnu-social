@@ -26,6 +26,7 @@ namespace Component\Link;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Component;
+use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\HTML;
@@ -260,9 +261,9 @@ class Link extends Component
         return HTML::html(['a' => ['attrs' => $attrs, $url]], options: ['indent' => false]);
     }
 
-    public function onNoteDeleteRelated(Note &$note): bool
+    public function onNoteDeleteRelated(Note &$note, Actor $actor): bool
     {
-        NoteToLink::removeWhereNoteId($note->getId());
+        DB::wrapInTransaction(fn () => NoteToLink::removeWhereNoteId($note->getId()));
         return Event::next;
     }
 }
