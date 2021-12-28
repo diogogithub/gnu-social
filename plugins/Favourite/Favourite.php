@@ -167,8 +167,18 @@ class Favourite extends NoteHandlerPlugin
         return Event::next;
     }
 
-    // ActivityPub
+    // ActivityPub handling and processing for Favourites is below
 
+    /**
+     * ActivityPub Inbox handler for Like and Undo Like activities
+     *
+     * @param Actor                                               $actor         Actor who authored the activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_activity Activity Streams 2.0 Activity
+     * @param mixed                                               $type_object   Activity's Object
+     * @param null|\Plugin\ActivityPub\Entity\ActivitypubActivity $ap_act        Resulting ActivitypubActivity
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
     private function activitypub_handler(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
     {
         if (!\in_array($type_activity->get('type'), ['Like', 'Undo'])) {
@@ -224,16 +234,44 @@ class Favourite extends NoteHandlerPlugin
         return Event::stop;
     }
 
+    /**
+     * Convert an Activity Streams 2.0 Like or Undo Like into the appropriate Favourite and Undo Favourite entities
+     *
+     * @param Actor                                               $actor         Actor who authored the activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_activity Activity Streams 2.0 Activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_object   Activity Streams 2.0 Object
+     * @param null|\Plugin\ActivityPub\Entity\ActivitypubActivity $ap_act        Resulting ActivitypubActivity
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
     public function onNewActivityPubActivity(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, \ActivityPhp\Type\AbstractObject $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
     {
         return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
     }
 
+    /**
+     * Convert an Activity Streams 2.0 formatted activity with a known object into Entities
+     *
+     * @param Actor                                               $actor         Actor who authored the activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_activity Activity Streams 2.0 Activity
+     * @param mixed                                               $type_object   Object
+     * @param null|\Plugin\ActivityPub\Entity\ActivitypubActivity $ap_act        Resulting ActivitypubActivity
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
     public function onNewActivityPubActivityWithObject(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
     {
         return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
     }
 
+    /**
+     * Translate GNU social internal verb 'favourite' to Activity Streams 2.0 'Like'
+     *
+     * @param string      $verb                                GNU social's internal verb
+     * @param null|string $gs_verb_to_activity_stream_two_verb Resulting Activity Streams 2.0 verb
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
     public function onGSVerbToActivityStreamsTwoActivityType(string $verb, ?string &$gs_verb_to_activity_stream_two_verb): bool
     {
         if ($verb === 'favourite') {

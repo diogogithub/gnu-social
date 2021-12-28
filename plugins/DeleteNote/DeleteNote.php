@@ -178,11 +178,19 @@ class DeleteNote extends NoteHandlerPlugin
         return Event::next;
     }
 
-    /*
-     * ActivityPub handling and processing for DeleteNote start
-     */
+    // ActivityPub handling and processing for Delete note is below
 
-    private function activitypub_handler(Actor $actor, AbstractObject $type_activity, mixed $type_object, ?ActivitypubActivity &$ap_act): bool
+    /**
+     * ActivityPub Inbox handler for Delete activities
+     *
+     * @param Actor                                               $actor         Actor who authored the activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_activity Activity Streams 2.0 Activity
+     * @param mixed                                               $type_object   Activity's Object
+     * @param null|\Plugin\ActivityPub\Entity\ActivitypubActivity $ap_act        Resulting ActivitypubActivity
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
+    private function activitypub_handler(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
     {
         if ($type_activity->get('type') !== 'Delete'
             || !($type_object instanceof Note)) {
@@ -190,29 +198,57 @@ class DeleteNote extends NoteHandlerPlugin
         }
 
         $activity = self::deleteNote($type_object, $actor, source: 'ActivityPub');
-        if (!is_null($activity)) {
+        if (!\is_null($activity)) {
             // Store ActivityPub Activity
-            $ap_act = ActivitypubActivity::create([
-                'activity_id' => $activity->getId(),
+            $ap_act = \Plugin\ActivityPub\Entity\ActivitypubActivity::create([
+                'activity_id'  => $activity->getId(),
                 'activity_uri' => $type_activity->get('id'),
-                'created' => new DateTime($type_activity->get('published') ?? 'now'),
-                'modified' => new DateTime(),
+                'created'      => new DateTime($type_activity->get('published') ?? 'now'),
+                'modified'     => new DateTime(),
             ]);
             DB::persist($ap_act);
         }
         return Event::stop;
     }
 
-    public function onNewActivityPubActivity(Actor $actor, AbstractObject $type_activity, AbstractObject $type_object, ?ActivitypubActivity &$ap_act): bool
+    /**
+     * Convert an Activity Streams 2.0 Delete into the appropriate Delete entities
+     *
+     * @param Actor                                               $actor         Actor who authored the activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_activity Activity Streams 2.0 Activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_object   Activity Streams 2.0 Object
+     * @param null|\Plugin\ActivityPub\Entity\ActivitypubActivity $ap_act        Resulting ActivitypubActivity
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
+    public function onNewActivityPubActivity(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, \ActivityPhp\Type\AbstractObject $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
     {
         return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
     }
 
-    public function onNewActivityPubActivityWithObject(Actor $actor, AbstractObject $type_activity, mixed $type_object, ?ActivitypubActivity &$ap_act): bool
+    /**
+     * Convert an Activity Streams 2.0 formatted activity with a known object into Entities
+     *
+     * @param Actor                                               $actor         Actor who authored the activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_activity Activity Streams 2.0 Activity
+     * @param mixed                                               $type_object   Object
+     * @param null|\Plugin\ActivityPub\Entity\ActivitypubActivity $ap_act        Resulting ActivitypubActivity
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
+    public function onNewActivityPubActivityWithObject(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
     {
         return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
     }
 
+    /**
+     * Translate GNU social internal verb 'delete' to Activity Streams 2.0 'Delete'
+     *
+     * @param string      $verb                                GNU social's internal verb
+     * @param null|string $gs_verb_to_activity_stream_two_verb Resulting Activity Streams 2.0 verb
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
     public function onGSVerbToActivityStreamsTwoActivityType(string $verb, ?string &$gs_verb_to_activity_stream_two_verb): bool
     {
         if ($verb === 'delete') {

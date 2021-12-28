@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
@@ -21,9 +21,9 @@ declare(strict_types=1);
 
 namespace Plugin\RepeatNote;
 
-use ActivityPhp\Type\AbstractObject;
 use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
@@ -31,16 +31,17 @@ use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\BugFoundException;
+use App\Util\Exception\ClientException;
+use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Component\Language\Entity\Language;
 use Component\Posting\Posting;
 use DateTime;
-use Plugin\ActivityPub\Entity\ActivitypubActivity;
 use Plugin\RepeatNote\Entity\NoteRepeat;
-use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 use const SORT_REGULAR;
+use Symfony\Component\HttpFoundation\Request;
 
 class RepeatNote extends NoteHandlerPlugin
 {
@@ -56,30 +57,25 @@ class RepeatNote extends NoteHandlerPlugin
      * In the end, the Activity is created, and a new notification for the
      * repeat Activity created
      *
-     * @param \App\Entity\Note $note
-     * @param int              $actor_id
-     * @param string           $source
-     *
-     * @return \App\Entity\Activity|null
-     * @throws \App\Util\Exception\BugFoundException
-     * @throws \App\Util\Exception\ClientException
-     * @throws \App\Util\Exception\DuplicateFoundException
-     * @throws \App\Util\Exception\ServerException
+     * @throws BugFoundException
+     * @throws ClientException
+     * @throws DuplicateFoundException
+     * @throws ServerException
      */
     public static function repeatNote(Note $note, int $actor_id, string $source = 'web'): ?Activity
     {
         $repeat_entity = DB::findBy('note_repeat', [
-                'actor_id' => $actor_id,
-                'note_id' => $note->getId(),
-            ])[ 0 ] ?? null;
+            'actor_id' => $actor_id,
+            'note_id'  => $note->getId(),
+        ])[0] ?? null;
 
         if (!\is_null($repeat_entity)) {
             return null;
         }
 
         // If it's a repeat, the reply_to should be to the original, conversation ought to be the same
-        $og_id = $note->getId();
-        $extra_args[ 'reply_to' ] = $og_id;
+        $og_id                  = $note->getId();
+        $extra_args['reply_to'] = $og_id;
 
         // Create a new note with the same content as the original
         $repeat = Posting::storeLocalNote(
@@ -93,18 +89,18 @@ class RepeatNote extends NoteHandlerPlugin
         );
 
         DB::persist(NoteRepeat::create([
-            'note_id' => $repeat->getId(),
-            'actor_id' => $actor_id,
+            'note_id'   => $repeat->getId(),
+            'actor_id'  => $actor_id,
             'repeat_of' => $og_id,
         ]));
 
         // Log an activity
         $repeat_activity = Activity::create([
-            'actor_id' => $actor_id,
-            'verb' => 'repeat',
+            'actor_id'    => $actor_id,
+            'verb'        => 'repeat',
             'object_type' => 'note',
-            'object_id' => $note->getId(),
-            'source' => $source,
+            'object_id'   => $note->getId(),
+            'source'      => $source,
         ]);
         DB::persist($repeat_activity);
 
@@ -122,39 +118,34 @@ class RepeatNote extends NoteHandlerPlugin
      * Finally, creates a new Activity, undoing the repeat, and the respective
      * Notification is handled.
      *
-     * @param int    $note_id
-     * @param int    $actor_id
-     * @param string $source
-     *
-     * @return \App\Entity\Activity|null
-     * @throws \App\Util\Exception\ServerException
+     * @throws ServerException
      */
     public static function unrepeatNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
-        $already_repeated = DB::findBy(NoteRepeat::class, ['actor_id' => $actor_id, 'repeat_of' => $note_id])[ 0 ] ?? null;
+        $already_repeated = DB::findBy(NoteRepeat::class, ['actor_id' => $actor_id, 'repeat_of' => $note_id])[0] ?? null;
 
         if (!\is_null($already_repeated)) { // If it was repeated, then we can undo it
             // Find previous repeat activity
             $already_repeated_activity = DB::findBy(Activity::class, [
-                    'actor_id' => $actor_id,
-                    'verb' => 'repeat',
-                    'object_type' => 'note',
-                    'object_id' => $already_repeated->getRepeatOf(),
-                ])[ 0 ] ?? null;
+                'actor_id'    => $actor_id,
+                'verb'        => 'repeat',
+                'object_type' => 'note',
+                'object_id'   => $already_repeated->getRepeatOf(),
+            ])[0] ?? null;
 
             // Remove the clone note
-            DB::findBy(Note::class, ['id' => $already_repeated->getNoteId()])[ 0 ]->delete(actor: Actor::getById($actor_id));
+            DB::findBy(Note::class, ['id' => $already_repeated->getNoteId()])[0]->delete(actor: Actor::getById($actor_id));
 
             // Remove from the note_repeat table
-            DB::remove(DB::findBy(NoteRepeat::class, ['note_id' => $already_repeated->getNoteId()])[ 0 ]);
+            DB::remove(DB::findBy(NoteRepeat::class, ['note_id' => $already_repeated->getNoteId()])[0]);
 
             // Log an activity
             $undo_repeat_activity = Activity::create([
-                'actor_id' => $actor_id,
-                'verb' => 'undo',
+                'actor_id'    => $actor_id,
+                'verb'        => 'undo',
                 'object_type' => 'activity',
-                'object_id' => $already_repeated_activity->getId(),
-                'source' => $source,
+                'object_id'   => $already_repeated_activity->getId(),
+                'source'      => $source,
             ]);
             DB::persist($undo_repeat_activity);
 
@@ -164,17 +155,17 @@ class RepeatNote extends NoteHandlerPlugin
         } else {
             // Either was undoed already
             if (!\is_null($already_repeated_activity = DB::findBy('activity', [
-                    'actor_id' => $actor_id,
-                    'verb' => 'repeat',
-                    'object_type' => 'note',
-                    'object_id' => $note_id,
-                ])[ 0 ] ?? null)) {
+                'actor_id' => $actor_id,
+                'verb' => 'repeat',
+                'object_type' => 'note',
+                'object_id' => $note_id,
+            ])[0] ?? null)) {
                 return DB::findBy('activity', [
-                        'actor_id' => $actor_id,
-                        'verb' => 'undo',
-                        'object_type' => 'activity',
-                        'object_id' => $already_repeated_activity->getId(),
-                    ])[ 0 ] ?? null; // null if not undoed
+                    'actor_id'    => $actor_id,
+                    'verb'        => 'undo',
+                    'object_type' => 'activity',
+                    'object_id'   => $already_repeated_activity->getId(),
+                ])[0] ?? null; // null if not undoed
             } else {
                 // or it's an attempt to undo something that wasn't repeated in the first place,
                 return null;
@@ -182,16 +173,9 @@ class RepeatNote extends NoteHandlerPlugin
         }
     }
 
-
     /**
      * Filters repeats out of Conversations, and replaces a repeat with the
      * original Note on Actor feed
-     *
-     * @param \App\Entity\Actor|null                    $actor
-     * @param array                                     $notes
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     *
-     * @return bool
      */
     public function onFilterNoteList(?Actor $actor, array &$notes, Request $request): bool
     {
@@ -199,7 +183,7 @@ class RepeatNote extends NoteHandlerPlugin
         // it's pretty cool
         if (str_starts_with($request->get('_route'), 'actor_view_')) {
             $notes = array_map(
-                fn(Note $note) => NoteRepeat::isNoteRepeat($note)
+                fn (Note $note) => NoteRepeat::isNoteRepeat($note)
                     ? Note::getById(NoteRepeat::getByPK($note->getId())->getRepeatOf())
                     : $note,
                 $notes,
@@ -208,20 +192,15 @@ class RepeatNote extends NoteHandlerPlugin
         }
 
         // Filter out repeats altogether
-        $notes = array_filter($notes, fn(Note $note) => !NoteRepeat::isNoteRepeat($note));
+        $notes = array_filter($notes, fn (Note $note) => !NoteRepeat::isNoteRepeat($note));
         return Event::next;
     }
-
 
     /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \App\Entity\Note                          $note
-     * @param array                                     $actions
-     *
-     * @return bool                                     Event hook
+     * @return bool Event hook
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
@@ -232,13 +211,13 @@ class RepeatNote extends NoteHandlerPlugin
 
         // If note is repeated, "is_repeated" is 1, 0 otherwise.
         $is_repeat = ($note_repeat = DB::findBy('note_repeat', [
-            'actor_id' => $user->getId(),
+            'actor_id'  => $user->getId(),
             'repeat_of' => $note->getId(),
         ])) !== [] ? 1 : 0;
 
         // Generating URL for repeat action route
-        $args = ['note_id' => $is_repeat === 0 ? $note->getId() : $note_repeat[ 0 ]->getRepeatOf()];
-        $type = Router::ABSOLUTE_PATH;
+        $args              = ['note_id' => $is_repeat === 0 ? $note->getId() : $note_repeat[0]->getRepeatOf()];
+        $type              = Router::ABSOLUTE_PATH;
         $repeat_action_url = $is_repeat
             ? Router::url('repeat_remove', $args, $type)
             : Router::url('repeat_add', $args, $type);
@@ -248,8 +227,8 @@ class RepeatNote extends NoteHandlerPlugin
 
         $extra_classes = $is_repeat ? 'note-actions-set' : 'note-actions-unset';
         $repeat_action = [
-            'url' => $repeat_action_url,
-            'title' => $is_repeat ? 'Remove this repeat' : 'Repeat this note!',
+            'url'     => $repeat_action_url,
+            'title'   => $is_repeat ? 'Remove this repeat' : 'Repeat this note!',
             'classes' => "button-container repeat-button-container {$extra_classes}",
             'note_id' => 'repeat-button-container-' . $note->getId(),
         ];
@@ -257,7 +236,6 @@ class RepeatNote extends NoteHandlerPlugin
         $actions[] = $repeat_action;
         return Event::next;
     }
-
 
     /**
      * Appends in Note information stating who and what user actions were
@@ -275,11 +253,11 @@ class RepeatNote extends NoteHandlerPlugin
         // if user is the one who repeated, append on end "you repeated this, remove repeat?"
         $check_user = !\is_null(Common::user());
 
-        $note = $vars[ 'note' ];
+        $note = $vars['note'];
 
         $complementary_info = '';
-        $repeat_actor = [];
-        $note_repeats = NoteRepeat::getNoteRepeats($note);
+        $repeat_actor       = [];
+        $note_repeats       = NoteRepeat::getNoteRepeats($note);
 
         // Get actors who replied
         foreach ($note_repeats as $reply) {
@@ -294,7 +272,7 @@ class RepeatNote extends NoteHandlerPlugin
 
         // Add to complementary info
         foreach ($repeat_actor as $actor) {
-            $repeat_actor_url = $actor->getUrl();
+            $repeat_actor_url      = $actor->getUrl();
             $repeat_actor_nickname = $actor->getNickname();
 
             if ($check_user && $actor->getId() === (Common::actor())->getId()) {
@@ -305,7 +283,7 @@ class RepeatNote extends NoteHandlerPlugin
                     $you_translation = 'You';
                 }
 
-                $prepend = "<a href={$repeat_actor_url}>{$you_translation}</a>, " . ($prepend = &$complementary_info);
+                $prepend            = "<a href={$repeat_actor_url}>{$you_translation}</a>, " . ($prepend = &$complementary_info);
                 $complementary_info = $prepend;
             } else {
                 // If the repeat is from someone else
@@ -330,8 +308,6 @@ class RepeatNote extends NoteHandlerPlugin
      * - **repeat_remove**
      *  same as above, except that it undoes the aforementioned action
      *
-     * @param \App\Core\Router\RouteLoader $r
-     *
      * @return bool Event hook
      */
     public function onAddRoute(RouteLoader $r): bool
@@ -343,52 +319,41 @@ class RepeatNote extends NoteHandlerPlugin
         return Event::next;
     }
 
-    /*
-     * ActivityPub handling and processing for Repeat start
-     */
+    // ActivityPub handling and processing for Repeats is below
 
     /**
-     * Handler for the Repeat Activity
+     * ActivityPub Inbox handler for Announces and Undo Announce activities
      *
-     * @param \App\Entity\Actor                                   $actor
-     * @param \ActivityPhp\Type\AbstractObject                    $type_activity
-     * @param mixed                                               $type_object
-     * @param \Plugin\ActivityPub\Entity\ActivitypubActivity|null $ap_act
+     * @param Actor                                               $actor         Actor who authored the activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_activity Activity Streams 2.0 Activity
+     * @param mixed                                               $type_object   Activity's Object
+     * @param null|\Plugin\ActivityPub\Entity\ActivitypubActivity $ap_act        Resulting ActivitypubActivity
      *
-     * @return bool
-     * @throws \App\Util\Exception\BugFoundException
-     * @throws \App\Util\Exception\ClientException
-     * @throws \App\Util\Exception\DuplicateFoundException
-     * @throws \App\Util\Exception\NoSuchActorException
-     * @throws \App\Util\Exception\ServerException
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
      */
-    private function activitypub_handler(Actor $actor, AbstractObject $type_activity, mixed $type_object, ?ActivitypubActivity &$ap_act): bool
+    private function activitypub_handler(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
     {
         if (!\in_array($type_activity->get('type'), ['Announce', 'Undo'])) {
             return Event::next;
         }
         if ($type_activity->get('type') === 'Announce') { // Repeat
-            if ($type_object instanceof AbstractObject) {
+            if ($type_object instanceof \ActivityPhp\Type\AbstractObject) {
                 if ($type_object->get('type') === 'Note') {
-                    $note = \Plugin\ActivityPub\Util\Model\Note::fromJson($type_object);
+                    $note    = \Plugin\ActivityPub\Util\Model\Note::fromJson($type_object);
                     $note_id = $note->getId();
                 } else {
                     return Event::next;
                 }
             } elseif ($type_object instanceof Note) {
-                $note = $type_object;
+                $note    = $type_object;
                 $note_id = $note->getId();
             } else {
                 return Event::next;
             }
         } else { // Undo Repeat
-            if ($type_object instanceof AbstractObject) {
+            if ($type_object instanceof \ActivityPhp\Type\AbstractObject) {
                 $ap_prev_repeat_act = \Plugin\ActivityPub\Util\Model\Activity::fromJson($type_object);
-                $prev_repeat_act = $ap_prev_repeat_act->getActivity();
+                $prev_repeat_act    = $ap_prev_repeat_act->getActivity();
                 if ($prev_repeat_act->getVerb() === 'repeat' && $prev_repeat_act->getObjectType() === 'note') {
                     $note_id = $prev_repeat_act->getObjectId();
                 } else {
@@ -412,27 +377,55 @@ class RepeatNote extends NoteHandlerPlugin
         }
         if (!\is_null($activity)) {
             // Store ActivityPub Activity
-            $ap_act = ActivitypubActivity::create([
-                'activity_id' => $activity->getId(),
+            $ap_act = \Plugin\ActivityPub\Entity\ActivitypubActivity::create([
+                'activity_id'  => $activity->getId(),
                 'activity_uri' => $type_activity->get('id'),
-                'created' => new DateTime($type_activity->get('published') ?? 'now'),
-                'modified' => new DateTime(),
+                'created'      => new DateTime($type_activity->get('published') ?? 'now'),
+                'modified'     => new DateTime(),
             ]);
             DB::persist($ap_act);
         }
         return Event::stop;
     }
 
-    public function onNewActivityPubActivity(Actor $actor, AbstractObject $type_activity, AbstractObject $type_object, ?ActivitypubActivity &$ap_act): bool
+    /**
+     * Convert an Activity Streams 2.0 Announce or Undo Announce into the appropriate Repeat and Undo Repeat entities
+     *
+     * @param Actor                                               $actor         Actor who authored the activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_activity Activity Streams 2.0 Activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_object   Activity Streams 2.0 Object
+     * @param null|\Plugin\ActivityPub\Entity\ActivitypubActivity $ap_act        Resulting ActivitypubActivity
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
+    public function onNewActivityPubActivity(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, \ActivityPhp\Type\AbstractObject $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
     {
         return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
     }
 
-    public function onNewActivityPubActivityWithObject(Actor $actor, AbstractObject $type_activity, mixed $type_object, ?ActivitypubActivity &$ap_act): bool
+    /**
+     * Convert an Activity Streams 2.0 formatted activity with a known object into Entities
+     *
+     * @param Actor                                               $actor         Actor who authored the activity
+     * @param \ActivityPhp\Type\AbstractObject                    $type_activity Activity Streams 2.0 Activity
+     * @param mixed                                               $type_object   Object
+     * @param null|\Plugin\ActivityPub\Entity\ActivitypubActivity $ap_act        Resulting ActivitypubActivity
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
+    public function onNewActivityPubActivityWithObject(Actor $actor, \ActivityPhp\Type\AbstractObject $type_activity, mixed $type_object, ?\Plugin\ActivityPub\Entity\ActivitypubActivity &$ap_act): bool
     {
         return $this->activitypub_handler($actor, $type_activity, $type_object, $ap_act);
     }
 
+    /**
+     * Translate GNU social internal verb 'repeat' to Activity Streams 2.0 'Announce'
+     *
+     * @param string      $verb                                GNU social's internal verb
+     * @param null|string $gs_verb_to_activity_stream_two_verb Resulting Activity Streams 2.0 verb
+     *
+     * @return bool Returns `Event::stop` if handled, `Event::next` otherwise
+     */
     public function onGSVerbToActivityStreamsTwoActivityType(string $verb, ?string &$gs_verb_to_activity_stream_two_verb): bool
     {
         if ($verb === 'repeat') {
