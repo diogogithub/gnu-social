@@ -22,6 +22,7 @@ declare(strict_types = 1);
 namespace Component\Attachment;
 
 use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
@@ -56,13 +57,14 @@ class Attachment extends Component
         return Event::stop;
     }
 
-    public function onNoteDeleteRelated(Note &$note): bool
+    public function onNoteDeleteRelated(Note &$note, Actor $actor): bool
     {
         Cache::delete("note-attachments-{$note->getId()}");
-        E\AttachmentToNote::removeWhereNoteId($note->getId());
         foreach ($note->getAttachments() as $attachment) {
             $attachment->kill();
         }
+        DB::wrapInTransaction(fn () => E\AttachmentToNote::removeWhereNoteId($note->getId()));
+        Cache::delete("note-attachments-{$note->getId()}");
         return Event::next;
     }
 

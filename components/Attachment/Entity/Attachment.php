@@ -202,7 +202,7 @@ class Attachment extends Entity
     public function kill(): bool
     {
         if ($this->livesDecrementAndGet() <= 0) {
-            return $this->delete();
+            return DB::wrapInTransaction(fn () => $this->delete());
         }
         return true;
     }
@@ -237,6 +237,7 @@ class Attachment extends Entity
 
     /**
      * Attachment delete always removes dependencies, cleanups and flushes
+     * WARNING: Wrap this function in a transaction!
      *
      * @see kill() It's more likely that you want to use that rather than call delete directly
      */
