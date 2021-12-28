@@ -109,7 +109,7 @@ class Favourite extends NoteHandlerPlugin
 
         $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
-        $favourite_action_url .= !\is_null($query_string) ? '?from=' . mb_substr($query_string, 2) : '';
+        $favourite_action_url .= '?from=' . urlencode($request->getRequestUri());
 
         $extra_classes    = $is_favourite ? 'note-actions-set' : 'note-actions-unset';
         $favourite_action = [

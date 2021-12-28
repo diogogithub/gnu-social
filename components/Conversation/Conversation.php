@@ -92,8 +92,7 @@ class Conversation extends Component
 
         $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
-        $reply_action_url .= !\is_null($query_string) ? '?from=' : '&from=';
-        $reply_action_url .= mb_substr($query_string, 2);
+        $reply_action_url .= '?from=' . urlencode($request->getRequestUri());
 
         $reply_action = [
             'url'     => $reply_action_url,

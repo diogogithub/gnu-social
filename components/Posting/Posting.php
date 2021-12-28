@@ -191,6 +191,7 @@ class Posting extends Component
         array $attachments = [],
         array $processed_attachments = [],
         array $process_note_content_extra_args = [],
+        bool $notify = true,
     ): Note {
         $scope ??= VisibilityScope::EVERYWHERE; // TODO: If site is private, default to LOCAL
         $rendered = null;
@@ -281,7 +282,10 @@ class Posting extends Component
         }
 
         DB::flush();
-        Event::handle('NewNotification', [$actor, $activity, ['object' => $mentioned],  _m('{nickname} created a note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
+
+        if ($notify) {
+            Event::handle('NewNotification', [$actor, $activity, ['object' => $mentioned], _m('{nickname} created a note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
+        }
 
         return $note;
     }

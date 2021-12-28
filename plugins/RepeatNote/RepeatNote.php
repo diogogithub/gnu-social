@@ -65,6 +65,7 @@ class RepeatNote extends NoteHandlerPlugin
             language: \is_null($lang_id = $note->getLanguageId()) ? null : Language::getById($lang_id)->getLocale(),
             processed_attachments: $note->getAttachmentsWithTitle(),
             process_note_content_extra_args: $extra_args,
+            notify: false,
         );
 
         DB::persist(NoteRepeat::create([
@@ -191,11 +192,8 @@ class RepeatNote extends NoteHandlerPlugin
             ? Router::url('repeat_remove', $args, $type)
             : Router::url('repeat_add', $args, $type);
 
-        // TODO clean this up
-        // SECURITY: open redirect?
-        $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
-        $repeat_action_url .= !\is_null($query_string) ? '?from=' . mb_substr($query_string, 2) : '';
+        $repeat_action_url .= '?from=' . urlencode($request->getRequestUri());
 
         $extra_classes = $is_repeat ? 'note-actions-set' : 'note-actions-unset';
         $repeat_action = [
@@ -291,7 +289,7 @@ class RepeatNote extends NoteHandlerPlugin
                 }
             } elseif ($type_object instanceof Note) {
                 $note    = $type_object;
-                $note_id = ${$note}->getId();
+                $note_id = $note->getId();
             } else {
                 return Event::next;
             }
