@@ -24,13 +24,14 @@ declare(strict_types = 1);
 namespace Plugin\AttachmentCollections\Controller;
 
 use App\Core\DB\DB;
-use App\Util\Exception\RedirectException;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Router\Router;
+use App\Entity\LocalUser;
 use App\Util\Common;
+use App\Util\Exception\RedirectException;
+use Component\Collection\Entity\Collection;
 use Component\Feed\Util\FeedController;
-use Plugin\AttachmentCollections\Entity\Collection;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,13 +40,15 @@ class Controller extends FeedController
 {
     public function collectionsByActorNickname(Request $request, string $nickname): array
     {
-        $user = DB::findOneBy('local_user', ['nickname' => $nickname]);
+        $user = DB::findOneBy(LocalUser::class, ['nickname' => $nickname]);
         return self::collectionsView($request, $user->getId(), $nickname);
     }
+
     public function collectionsViewByActorId(Request $request, int $id): array
     {
         return self::collectionsView($request, $id, null);
     }
+
     /**
      * Generate Collections page
      *
@@ -56,11 +59,8 @@ class Controller extends FeedController
      */
     public function collectionsView(Request $request, int $id, ?string $nickname): array
     {
-        $collections = DB::dql(
-            'select collection from Plugin\AttachmentCollections\Entity\Collection collection '
-            . 'where collection.actor_id = :id',
-            ['id' => $id],
-        );
+        $collections = DB::findBy(Collection::class, ['actor_id' => $id]);
+
         // create collection form
         $create = null;
         if (Common::user()?->getId() === $id) {
@@ -92,16 +92,17 @@ class Controller extends FeedController
         }
 
         // We need to inject some functions in twig,
-        // but i don't want to create an enviroment for this
+        // but I don't want to create an environment for this
         // as twig docs suggest in https://twig.symfony.com/doc/2.x/advanced.html#functions.
         //
         // Instead, I'm using an anonymous class to encapsulate
-        // the functions and passing how the class to the template.
-        // It's suggested at https://stackoverflow.com/a/50364502.
+        // the functions and passing that class to the template.
+        // This is suggested at https://stackoverflow.com/a/50364502.
         $fn = new class($id, $nickname, $request) {
             private $id;
             private $nick;
             private $request;
+
             public function __construct($id, $nickname, $request)
             {
                 $this->id      = $id;
@@ -156,6 +157,7 @@ class Controller extends FeedController
                 }
                 return $edit->createView();
             }
+
             // creating the remove form
             public function rmForm($collection)
             {
@@ -189,23 +191,29 @@ class Controller extends FeedController
 
     public function collectionNotesByNickname(Request $request, string $nickname, int $cid): array
     {
-        $user = DB::findOneBy('local_user', ['nickname' => $nickname]);
+        $user = DB::findOneBy(LocalUser::class, ['nickname' => $nickname]);
         return self::collectionNotesByActorId($request, $user->getId(), $cid);
     }
+
     public function collectionNotesByActorId(Request $request, int $id, int $cid): array
     {
-        $collection = DB::findOneBy('attachment_collection', ['id' => $cid]);
-        $attchs     = DB::dql(
-            'select attch from attachment_album_entry entry '
-            . 'left join Component\Attachment\Entity\Attachment attch '
-                . 'with entry.attachment_id = attch.id '
-            . 'where entry.collection_id = :cid',
+        $collection        = DB::findOneBy(Collection::class, ['id' => $cid]);
+        [$attachs, $notes] = DB::dql(
+            <<<'EOF'
+                SELECT attach, notice FROM \Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry AS entry
+                LEFT JOIN \Component\Attachment\Entity\Attachment AS attach
+                    WITH entry.attachment_id = attach.id
+                LEFT JOIN \App\Entity\Note AS notice
+                    WITH entry.note_id = notice.id
+                WHERE entry.collection_id = :cid
+                EOF,
             ['cid' => $cid],
         );
         return [
             '_template'   => 'AttachmentCollections/collection.html.twig',
             'page_title'  => $collection->getName(),
-            'attachments' => $attchs,
+            'attachments' => array_values($attachs),
+            'bare_notes'  => array_values($notes),
         ];
     }
 }

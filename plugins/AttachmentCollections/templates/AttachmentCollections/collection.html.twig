@@ -13,10 +13,11 @@
     {# Backwards compatibility with hAtom 0.1 #}
     <main class="feed" tabindex="0" role="feed">
         <div class="h-feed hfeed notes">
-            {% for attachment in attachments %}
+            {% for key, attachment in attachments %}
                 <section class="section-widget section-padding">
-                    {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': null} only%}
-                    <a class="section-widget-button-like" href="{{ path('attachment_download', {'id': attachment.id}) }}"> {{ 'Download link' | trans }}</a>
+                    {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': bare_notes[key], 'title': attachment.getBestTitle(bare_notes[key])} only %}
+                    <a class="section-widget-button-like"
+                       href="{{ attachment.getDownloadUrl(bare_notes[key]) }}"> {{ 'Download link' | trans }}</a>
                 </section>
             {% else %}
                 <div id="empty-notes"><h1>{% trans %}No attachments here.{% endtrans %}</h1></div>

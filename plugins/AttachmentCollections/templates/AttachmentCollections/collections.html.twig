@@ -20,23 +20,23 @@
             {% endif %}
             <div class="h-entry hentry note attachment-collections-list">
                 <h3>{{ 'Your collections' | trans }}</h3>
-            {% for col in collections %}
-                <div class="attachment-collection-item">
-                    <a class="name" href="{{ fn.getUrl(col.id) }}">{{ col.name }}</a>
-                    <details title="Expand if you want to edit the collection's name">
-                        <summary>
-                            <div class="collection-action">{{ icon('edit') | raw }}</div>
-                        </summary>
-                        {{ form(fn.editForm(col)) }}
-                    </details>
-                    <details title="Expand if you want to delete the collection">
-                        <summary>
-                            <div class="collection-action">{{ icon('delete') | raw }}</div>
-                        </summary>
-                        {{ form(fn.rmForm(col)) }}
-                    </details>
-                </div>
-            {% endfor %}
+                {% for col in collections %}
+                    <div class="attachment-collection-item">
+                        <a class="name" href="{{ fn.getUrl(col.id) }}">{{ col.name }}</a>
+                        <details title="Expand if you want to edit the collection's name">
+                            <summary>
+                                <div class="collection-action">{{ icon('edit') | raw }}</div>
+                            </summary>
+                            {{ form(fn.editForm(col)) }}
+                        </details>
+                        <details title="Expand if you want to delete the collection">
+                            <summary>
+                                <div class="collection-action">{{ icon('delete') | raw }}</div>
+                            </summary>
+                            {{ form(fn.rmForm(col)) }}
+                        </details>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </main>

@@ -33,7 +33,6 @@ namespace Plugin\AttachmentCollections;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Util\Exception\RedirectException;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Plugin;
@@ -42,11 +41,12 @@ use App\Core\Router\Router;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
 use App\Util\Common;
+use App\Util\Exception\RedirectException;
 use App\Util\Formatting;
 use App\Util\Nickname;
+use Component\Collection\Entity\Collection;
 use Plugin\AttachmentCollections\Controller as C;
-use Plugin\AttachmentCollections\Entity\Collection;
-use Plugin\AttachmentCollections\Entity\CollectionEntry;
+use Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -80,6 +80,7 @@ class AttachmentCollections extends Plugin
         );
         return Event::next;
     }
+
     public function onCreateDefaultFeeds(int $actor_id, LocalUser $user, int &$ordering)
     {
         DB::persist(Feed::create([
@@ -91,6 +92,7 @@ class AttachmentCollections extends Plugin
         ]));
         return Event::next;
     }
+
     /**
      * Append Attachment Collections widget to the right panel.
      * It's compose of two forms: one to select collections to add
@@ -106,23 +108,23 @@ class AttachmentCollections extends Plugin
             return Event::next;
         }
 
-        $colls = DB::dql(
-            'select coll from Plugin\AttachmentCollections\Entity\Collection coll where coll.actor_id = :id',
-            ['id' => $user->getId()],
-        );
+        $collections = DB::findBy(Collection::class, ['actor_id' => $user->getId()]);
 
         // add to collection form
         $attachment_id = $vars['vars']['attachment_id'];
+        $note_id       = $vars['vars']['note_id'];
         $choices       = [];
-        foreach ($colls as $col) {
+        foreach ($collections as $col) {
             $choices[$col->getName()] = $col->getId();
         }
         $already_selected = DB::dql(
-            'select entry.collection_id from attachment_album_entry entry '
-            . 'inner join attachment_collection collection '
-                . 'with collection.id = entry.collection_id '
-            . 'where entry.attachment_id = :aid and collection.actor_id = :id',
-            ['aid' => $attachment_id, 'id' => $user->getId()],
+            <<<'EOF'
+                SELECT entry.collection_id FROM \Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry AS entry
+                INNER JOIN \Component\Collection\Entity\Collection AS attachment_collection
+                WITH attachment_collection.id = entry.collection_id
+                WHERE entry.attachment_id = :attach_id AND entry.note_id = :note_id AND attachment_collection.actor_id = :id
+                EOF,
+            ['attach_id' => $attachment_id, 'note_id' => $note_id, 'id' => $user->getId()],
         );
         $already_selected = array_map(fn ($x) => $x['collection_id'], $already_selected);
         $add_form         = Form::create([
@@ -150,24 +152,23 @@ class AttachmentCollections extends Plugin
             $collections = $add_form->getData()['collections'];
             $removed     = array_filter($already_selected, fn ($x) => !\in_array($x, $collections));
             $added       = array_filter($collections, fn ($x) => !\in_array($x, $already_selected));
-            if (\count($removed)) {
-                DB::dql(
-                    'delete from Plugin\AttachmentCollections\Entity\CollectionEntry entry '
-                    . 'where entry.attachment_id = :aid and entry.collection_id in ('
-                        . 'select collection.id from Plugin\AttachmentCollections\Entity\Collection collection '
-                        . 'where collection.id in (:ids) '
-                        // prevent user from deleting something (s)he doesn't own:
-                        . 'and collection.actor_id = :id'
-                    . ')',
-                    ['aid' => $attachment_id, 'id' => $user->getId(), 'ids' => $removed],
-                );
+            if (\count($removed) > 0) {
+                DB::dql(<<<'EOF'
+                        DELETE FROM \Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry AS entry
+                        WHERE entry.attachment_id = :attach_id AND entry.note_id = :note_id
+                        AND entry.collection_id IN (
+                            SELECT album.id FROM \Component\Collection\Entity\Collection AS album
+                            WHERE album.actor_id = :user_id
+                              AND album.id IN (:ids)
+                        )
+                    EOF, ['attach_id' => $attachment_id, 'note_id' => $note_id, 'user_id' => $user->getId(), 'ids' => $removed]);
             }
-            $collection_ids = array_map(fn ($x) => $x->getId(), $colls);
             foreach ($added as $cid) {
                 // prevent user from putting something in a collection (s)he doesn't own:
-                if (\in_array($cid, $collection_ids)) {
-                    DB::persist(CollectionEntry::create([
+                if (\in_array($cid, $collections)) {
+                    DB::persist(AttachmentCollectionEntry::create([
                         'attachment_id' => $attachment_id,
+                        'note_id'       => $note_id,
                         'collection_id' => $cid,
                     ]));
                 }
@@ -200,9 +201,9 @@ class AttachmentCollections extends Plugin
                 'actor_id' => $user->getId(),
             ]);
             DB::persist($coll);
-            DB::flush();
-            DB::persist(CollectionEntry::create([
+            DB::persist(AttachmentCollectionEntry::create([
                 'attachment_id' => $attachment_id,
+                'note_id'       => $note_id,
                 'collection_id' => $coll->getId(),
             ]));
             DB::flush();
@@ -212,13 +213,14 @@ class AttachmentCollections extends Plugin
         $res[] = Formatting::twigRenderFile(
             'AttachmentCollections/widget.html.twig',
             [
-                'has_collections' => $colls,
+                'has_collections' => $collections,
                 'add_form'        => $add_form->createView(),
                 'create_form'     => $create_form->createView(),
             ],
         );
         return Event::next;
     }
+
     /**
      * Output our dedicated stylesheet
      *

@@ -94,7 +94,7 @@ class Attachment extends Controller
                     'title'            => $res['title'],
                     'attachment'       => $res['attachment'],
                     'note'             => $res['note'],
-                    'right_panel_vars' => ['attachment_id' => $attachment_id],
+                    'right_panel_vars' => ['attachment_id' => $attachment_id, 'note_id' => $note_id],
                 ];
             });
         } catch (NotFoundException) {

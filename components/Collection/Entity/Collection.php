@@ -2,9 +2,10 @@
 
 declare(strict_types = 1);
 
-namespace Plugin\AttachmentCollections\Entity;
+namespace Component\Collection\Entity;
 
 use App\Core\Entity;
+use function mb_substr;
 
 class Collection extends Entity
 {
@@ -12,7 +13,7 @@ class Collection extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private ?string $name = null;
+    private string $name;
     private int $actor_id;
 
     public function setId(int $id): self
@@ -26,13 +27,13 @@ class Collection extends Entity
         return $this->id;
     }
 
-    public function setName(?string $name): self
+    public function setName(string $name): self
     {
-        $this->name = \is_null($name) ? null : mb_substr($name, 0, 255);
+        $this->name = mb_substr($name, 0, 255);
         return $this;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -54,10 +55,10 @@ class Collection extends Entity
     public static function schemaDef()
     {
         return [
-            'name'   => 'attachment_collection',
+            'name'   => 'collection',
             'fields' => [
                 'id'       => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'name'     => ['type' => 'varchar', 'length' => 255, 'description' => 'collection\'s name'],
+                'name'     => ['type' => 'varchar', 'length' => 255, 'not null' => true, 'description' => 'collection\'s name'],
                 'actor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to many', 'not null' => true, 'description' => 'foreign key to actor table'],
             ],
             'primary key' => ['id'],

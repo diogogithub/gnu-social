@@ -6,12 +6,13 @@ namespace Plugin\AttachmentCollections\Entity;
 
 use App\Core\Entity;
 
-class CollectionEntry extends Entity
+class AttachmentCollectionEntry extends Entity
 {
     // These tags are meant to be literally included and will be populated with the appropriate fields, setters and getters by `bin/generate_entity_fields`
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
+    private int $note_id;
     private int $attachment_id;
     private int $collection_id;
 
@@ -24,6 +25,17 @@ class CollectionEntry extends Entity
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function setNoteId(int $note_id): self
+    {
+        $this->note_id = $note_id;
+        return $this;
+    }
+
+    public function getNoteId(): int
+    {
+        return $this->note_id;
     }
 
     public function setAttachmentId(int $attachment_id): self
@@ -54,11 +66,12 @@ class CollectionEntry extends Entity
     public static function schemaDef()
     {
         return [
-            'name'   => 'attachment_album_entry',
+            'name'   => 'attachment_collection_entry',
             'fields' => [
                 'id'            => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
+                'note_id'       => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to note table'],
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to attachment table'],
-                'collection_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'AttachmentCollection.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to attachment_collection table'],
+                'collection_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Collection.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to collection table'],
             ],
             'primary key' => ['id'],
         ];
