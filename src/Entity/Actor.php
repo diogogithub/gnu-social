@@ -517,22 +517,28 @@ class Actor extends Entity
      */
     public function canAdmin(self $other): bool
     {
-        switch ($other->getType()) {
-        case self::PERSON:
-            return $this->getId() === $other->getId();
-        case self::GROUP:
-            return Cache::get(
-                self::cacheKeys($this->getId(), $other->getId())['can-admin'],
-                function () use ($other) {
-                    try {
-                        return DB::findOneBy('group_member', ['group_id' => $other->getId(), 'actor_id' => $this->getId()])->getIsAdmin();
-                    } catch (NotFoundException) {
-                        return false;
-                    }
-                },
-            );
-        default:
-            return false;
+        if ($this->getIsLocal()) {
+            switch ($other->getType()) {
+                case self::PERSON:
+                    return $this->getId() === $other->getId();
+                case self::GROUP:
+                    return Cache::get(
+                        self::cacheKeys($this->getId(), $other->getId())['can-admin'],
+                        function () use ($other) {
+                            try {
+                                return DB::findOneBy('group_member', ['group_id' => $other->getId(), 'actor_id' => $this->getId()])->getIsAdmin();
+                            } catch (NotFoundException) {
+                                return false;
+                            }
+                        },
+                    );
+                default:
+                    return false;
+            }
+        } else {
+            $canAdmin = false;
+            Event::handle('FreeNetworkActorCanAdmin', [$this, $other, &$canAdmin]);
+            return $canAdmin;
         }
     }
 

@@ -153,6 +153,24 @@ class ActivityPub extends Plugin
     }
 
     /**
+     * Fill Actor->canAdmin() for Actors that came from ActivityPub
+     */
+    public function onFreeNetworkActorCanAdmin(Actor $actor, Actor $other, bool &$canAdmin): bool
+    {
+        // Are both in AP?
+        if (
+            !\is_null($ap_actor = ActivitypubActor::getByPK(['actor_id' => $actor->getId()]))
+            && !\is_null($ap_other = ActivitypubActor::getByPK(['actor_id' => $other->getId()]))
+        ) {
+            // Are they both in the same server?
+            $canAdmin = parse_url($ap_actor->getUri(), PHP_URL_HOST) === parse_url($ap_other->getUri(), PHP_URL_HOST);
+            return Event::stop;
+        }
+
+        return Event::next;
+    }
+
+    /**
      * Overload core endpoints to make resources available in ActivityStreams 2.0
      *
      * @throws Exception
