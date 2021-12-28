@@ -43,6 +43,7 @@ class DeleteNote extends Controller
 {
     /**
      * Create delete note view
+     *
      * @throws ClientException
      * @throws NoLoggedInUser
      * @throws RedirectException
@@ -57,17 +58,6 @@ class DeleteNote extends Controller
             throw new NoSuchNoteException();
         }
 
-        // Only let the original actor delete it
-        // TODO: should be anyone with permissions to do this? Admins and what not
-        $actor    = $user->getActor();
-        $actor_id = $actor->getId();
-        if ($note->getActor()->getId() !== $actor_id) {
-            // Log this shenanigans and get the user redirected
-            Log::warning("Actor {$actor_id} attempted to delete note {$note_id} without any permissions to do so)");
-            throw new RedirectException('root');
-        }
-
-        // We made sure that the note can be deleted, lets make the form
         $form_delete = Form::create([
             ['delete_note', SubmitType::class,
                 [
@@ -81,7 +71,7 @@ class DeleteNote extends Controller
 
         $form_delete->handleRequest($request);
         if ($form_delete->isSubmitted()) {
-            if (!\is_null(\Plugin\DeleteNote\DeleteNote::deleteNote(note_id: $note_id, actor_id: $actor_id))) {
+            if (!\is_null(\Plugin\DeleteNote\DeleteNote::deleteNote(note_id: $note_id, actor_id: $user->getId()))) {
                 DB::flush();
             } else {
                 throw new ClientException(_m('Note already deleted!'));
@@ -91,7 +81,7 @@ class DeleteNote extends Controller
             // Prevent open redirect
             if (!\is_null($from = $this->string('from'))) {
                 if (Router::isAbsolute($from)) {
-                    Log::warning("Actor {$actor_id} attempted to delete to a note and then get redirected to another host, or the URL was invalid ({$from})");
+                    Log::warning("Actor {$user->getId()} attempted to delete to a note and then get redirected to another host, or the URL was invalid ({$from})");
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
                 } else {
                     // TODO anchor on element id

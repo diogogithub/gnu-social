@@ -26,6 +26,7 @@ namespace App\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
+use App\Entity\Activity;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,9 +38,13 @@ class Note extends Controller
      */
     private function note(int $id, callable $handle)
     {
-        $note = DB::findOneBy('note', ['id' => $id]);
-        if (empty($note)) {
-            throw new ClientException(_m('No such note.'), 404);
+        $note = DB::findOneBy('note', ['id' => $id], return_null: true);
+        if (\is_null($note)) {
+            if (!\is_null(DB::findOneBy(Activity::class, ['verb' => 'delete', 'object_type' => 'note', 'object_id' => $id], return_null: true))) {
+                throw new ClientException(_m('Note deleted.'), 410);
+            } else {
+                throw new ClientException(_m('No such note.'), 404);
+            }
         } else {
             if ($note->isVisibleTo(Common::actor())) {
                 return $handle($note);

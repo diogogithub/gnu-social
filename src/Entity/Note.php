@@ -35,6 +35,7 @@ use Component\Avatar\Avatar;
 use Component\Conversation\Entity\Conversation;
 use Component\Language\Entity\Language;
 use DateTimeInterface;
+use function App\Core\I18n\_m;
 
 /**
  * Entity for notices
@@ -475,22 +476,18 @@ class Note extends Entity
         return $mentioned;
     }
 
-    public function delete(?int $actor_id = null, string $source = 'web'): bool
+    public function delete(?Actor $actor = null, string $source = 'web'): Activity
     {
-        if (Event::handle('NoteDeleteRelated', [&$this]) === Event::next) {
-            DB::persist(
-                Activity::create([
-                    'actor_id'    => $actor_id ?? $this->getActorId(),
-                    'verb'        => 'delete',
-                    'object_type' => 'note',
-                    'object_id'   => $this->getId(),
-                    'source'      => $source,
-                ]),
-            );
-            DB::remove($this);
-            return true;
-        }
-        return false;
+        Event::handle('NoteDeleteRelated', [&$this, $actor]);
+        DB::persist($activity = Activity::create([
+            'actor_id'    => $actor->getId(),
+            'verb'        => 'delete',
+            'object_type' => 'note',
+            'object_id'   => $this->getId(),
+            'source'      => $source,
+        ]));
+        DB::remove(DB::findOneBy(self::class, ['id' => $this->id]));
+        return $activity;
     }
 
     public static function schemaDef(): array

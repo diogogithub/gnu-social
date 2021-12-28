@@ -23,6 +23,7 @@ declare(strict_types = 1);
 
 namespace Component\Conversation;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
@@ -177,6 +178,18 @@ class Conversation extends Component
             $context_actor = Actor::getById((int) $to_query);
             return Event::stop;
         }
+        return Event::next;
+    }
+
+    public function onNoteDeleteRelated(Note &$note, Actor $actor): bool
+    {
+        Cache::delete("note-replies-{$note->getId()}");
+        DB::wrapInTransaction(function () use ($note) {
+            foreach ($note->getReplies() as $reply) {
+                $reply->setReplyTo(null);
+            }
+        });
+        Cache::delete("note-replies-{$note->getId()}");
         return Event::next;
     }
 }
