@@ -82,12 +82,14 @@ class Notification extends Component
                         continue;
                     }
                 }
-                // TODO: use https://symfony.com/doc/current/notifier.html
-                DB::persist(Entity\Notification::create([
-                    'activity_id' => $activity->getId(),
-                    'target_id'   => $target->getId(),
-                    'reason'      => $reason,
-                ]));
+                if (Event::handle('NewNotificationShould', [$activity, $target]) === Event::next) {
+                    // TODO: use https://symfony.com/doc/current/notifier.html
+                    DB::persist(Entity\Notification::create([
+                        'activity_id' => $activity->getId(),
+                        'target_id'   => $target->getId(),
+                        'reason'      => $reason,
+                    ]));
+                }
             } else {
                 // We have no authority nor responsibility of notifying remote actors of a remote actor's doing
                 if ($sender->getIsLocal()) {
