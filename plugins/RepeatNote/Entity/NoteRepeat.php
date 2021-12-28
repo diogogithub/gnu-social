@@ -76,6 +76,16 @@ class NoteRepeat extends Entity
         return $this->repeat_of;
     }
 
+
+    /**
+     * @param Note $note
+     * @return bool Returns true if Note provided is a repeat of another Note
+     */
+    public static function isNoteRepeat(Note $note): bool
+    {
+        return DB::count(self::class, ['note_id' => $note->getId()]) > 0;
+    }
+
     public static function getNoteRepeats(Note $note): array
     {
         return DB::dql(

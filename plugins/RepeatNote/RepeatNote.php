@@ -31,8 +31,6 @@ use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exception\DuplicateFoundException;
-use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Component\Language\Entity\Language;
@@ -92,11 +90,11 @@ class RepeatNote extends NoteHandlerPlugin
 
     public static function unrepeatNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
-        $already_repeated = DB::findBy('note_repeat', ['actor_id' => $actor_id, 'repeat_of' => $note_id])[0] ?? null;
+        $already_repeated = DB::findBy(NoteRepeat::class, ['actor_id' => $actor_id, 'repeat_of' => $note_id])[0] ?? null;
 
         if (!\is_null($already_repeated)) { // If it was repeated, then we can undo it
             // Find previous repeat activity
-            $already_repeated_activity = DB::findBy('activity', [
+            $already_repeated_activity = DB::findBy(Activity::class, [
                 'actor_id'    => $actor_id,
                 'verb'        => 'repeat',
                 'object_type' => 'note',
@@ -104,10 +102,10 @@ class RepeatNote extends NoteHandlerPlugin
             ])[0] ?? null;
 
             // Remove the clone note
-            DB::findBy(Note::class, ['id' => $already_repeated->getNoteId()])[0]->delete();
+            DB::findBy(Note::class, ['id' => $already_repeated->getNoteId()])[0]->delete(actor: Actor::getById($actor_id));
 
             // Remove from the note_repeat table
-            DB::remove(DB::findBy('note_repeat', ['note_id' => $already_repeated->getNoteId()])[0]);
+            DB::remove(DB::findBy(NoteRepeat::class, ['note_id' => $already_repeated->getNoteId()])[0]);
 
             // Log an activity
             $undo_repeat_activity = Activity::create([
@@ -144,6 +142,30 @@ class RepeatNote extends NoteHandlerPlugin
     }
 
     /**
+     * Filters repeats out of Conversations, and replaces a repeat with the original Note on Actor feed
+     *
+     * @return bool
+     */
+    public function onFilterNoteList(?Actor $actor, array &$notes, Request $request)
+    {
+        // Replaces repeat with original note on Actor feed
+        // it's pretty cool
+        if (str_starts_with($request->get('_route'), 'actor_view_')) {
+            $notes = array_map(
+                fn (Note $note) => NoteRepeat::isNoteRepeat($note)
+                        ? Note::getById(NoteRepeat::getByPK($note->getId())->getRepeatOf())
+                        : $note,
+                $notes,
+            );
+            return Event::next;
+        }
+
+        // Filter out repeats altogether
+        $notes = array_filter($notes, fn (Note $note) => !NoteRepeat::isNoteRepeat($note));
+        return Event::next;
+    }
+
+    /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
      *
@@ -158,21 +180,9 @@ class RepeatNote extends NoteHandlerPlugin
 
         // If note is repeated, "is_repeated" is 1, 0 otherwise.
         $is_repeat = ($note_repeat = DB::findBy('note_repeat', [
-            'actor_id' => $user->getId(),
-            'note_id'  => $note->getId(),
+            'actor_id'  => $user->getId(),
+            'repeat_of' => $note->getId(),
         ])) !== [] ? 1 : 0;
-
-        // If note was already repeated, do not add the action
-        try {
-            if (DB::findOneBy('note_repeat', [
-                'repeat_of' => $note->getId(),
-                'actor_id' => $user->getId(),
-            ])) {
-                return Event::next;
-            }
-        } catch (DuplicateFoundException|NotFoundException) {
-            // It's okay
-        }
 
         // Generating URL for repeat action route
         $args              = ['note_id' => $is_repeat === 0 ? $note->getId() : $note_repeat[0]->getRepeatOf()];
