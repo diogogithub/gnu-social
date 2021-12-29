@@ -54,8 +54,6 @@ abstract class Main
         $r->connect('security_recover_password_token', '/main/recover-password/{token?}', [C\ResetPassword::class, 'reset']);
 
         $r->connect('root', '/', RedirectController::class, ['defaults' => ['route' => 'feed_public']]);
-        $r->connect('feed_public', '/feed/public', [C\Feeds::class, 'public']);
-        $r->connect('feed_home', '/feed/home', [C\Feeds::class, 'home']);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);

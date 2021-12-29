@@ -26,9 +26,11 @@ namespace Component\Feed;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Component;
+use App\Core\Router\RouteLoader;
 use App\Entity\Actor;
 use App\Entity\Subscription;
 use App\Util\Formatting;
+use Component\Feed\Controller as C;
 use Component\Search\Util\Parser;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\Query\Expr;
@@ -36,6 +38,13 @@ use Doctrine\ORM\QueryBuilder;
 
 class Feed extends Component
 {
+    public function onAddRoute(RouteLoader $r): bool
+    {
+        $r->connect('feed_public', '/feed/public', [C\Feeds::class, 'public']);
+        $r->connect('feed_home', '/feed/home', [C\Feeds::class, 'home']);
+        return Event::next;
+    }
+
     /**
      * Perform a high level query on notes or actors
      *

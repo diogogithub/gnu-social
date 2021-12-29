@@ -33,7 +33,7 @@ declare(strict_types = 1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Controller;
+namespace Component\Feed\Controller;
 
 use function App\Core\I18n\_m;
 use App\Util\Common;
@@ -65,12 +65,13 @@ class Feeds extends FeedController
      */
     public function home(Request $request): array
     {
-        Common::ensureLoggedIn();
-        $data = Feed::query(
+        $user  = Common::ensureLoggedIn();
+        $actor = $user->getActor();
+        $data  = Feed::query(
             query: 'note-from:subscribed-person,subscribed-group,subscribed-organization,subscribed-business',
             page: $this->int('p'),
-            language: Common::actor()?->getTopLanguage()?->getLocale(),
-            actor: Common::actor(),
+            language: $actor?->getTopLanguage()?->getLocale(),
+            actor: $actor,
         );
         return [
             '_template'  => 'feed/feed.html.twig',
