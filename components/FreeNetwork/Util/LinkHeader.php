@@ -71,7 +71,7 @@ class LinkHeader
         $this->type = null;
 
         // remove uri-reference from header
-        $str = mb_substr($str, \mb_strlen($uri_reference[0]));
+        $str = mb_substr($str, mb_strlen($uri_reference[0]));
 
         // parse link-params
         $params = explode(';', $str);
@@ -124,6 +124,5 @@ class LinkHeader
                 }
             }
         }
-
     }
 }

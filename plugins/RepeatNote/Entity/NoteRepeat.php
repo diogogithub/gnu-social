@@ -76,9 +76,7 @@ class NoteRepeat extends Entity
         return $this->repeat_of;
     }
 
-
     /**
-     * @param Note $note
      * @return bool Returns true if Note provided is a repeat of another Note
      */
     public static function isNoteRepeat(Note $note): bool

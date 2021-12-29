@@ -89,6 +89,6 @@ abstract class Bitmap
 
     public static function isValue(int $value): bool
     {
-        return in_array($value, (new ReflectionClass(static::class))->getConstants());
+        return \in_array($value, (new ReflectionClass(static::class))->getConstants());
     }
 }
