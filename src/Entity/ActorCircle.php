@@ -24,6 +24,7 @@ namespace App\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Router\Router;
 use DateTimeInterface;
 
 /**
@@ -183,6 +184,10 @@ class ActorCircle extends Entity
                     'limit'        => $limit, ],
             ),
         );
+    }
+
+    public function getUrl(int $type = Router::ABSOLUTE_PATH): string {
+        return Router::url('actor_circle', ['actor_id' => $this->getTagger(), 'tag' => $this->getTag()]);
     }
 
     public static function schemaDef(): array

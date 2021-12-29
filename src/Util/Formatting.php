@@ -39,9 +39,12 @@ use App\Entity\Note;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\ServerException;
 use Component\Group\Entity\LocalGroup;
+use Component\Tag\Tag;
 use Exception;
 use Functional as F;
 use InvalidArgumentException;
+use App\Core\DB\DB;
+use App\Entity\ActorCircle;
 
 abstract class Formatting
 {
@@ -327,33 +330,43 @@ abstract class Formatting
                 }
             }
 
+            @#/tag
             // TODO Tag subscriptions
             // @#tag => mention of all subscriptions tagged 'tag'
-            // $tag_matches = [];
-            // preg_match_all(
-            //     '/' . Nickname::BEFORE_MENTIONS . '@#([\pL\pN_\-\.]{1,64})/',
-            //     $text,
-            //     $tag_matches,
-            //     PREG_OFFSET_CAPTURE
-            // );
-            // foreach ($tag_matches[1] as $tag_match) {
-            //     $tag   = self::canonicalTag($tag_match[0]);
-            //     $plist = Profile_list::getByTaggerAndTag($actor->getID(), $tag);
-            //     if (!$plist instanceof Profile_list || $plist->private) {
-            //         continue;
-            //     }
-            //     $tagged = $actor->getTaggedSubscribers($tag);
-            //     $url = common_local_url(
-            //         'showprofiletag',
-            //         ['nickname' => $actor->getNickname(), 'tag' => $tag]
-            //     );
-            //     $mentions[] = ['mentioned' => $tagged,
-            //         'type'                 => 'list',
-            //         'text'                 => $tag_match[0],
-            //         'position'             => $tag_match[1],
-            //         'length'               => mb_strlen($tag_match[0]),
-            //         'url'                  => $url, ];
-            // }
+            $tag_matches = [];
+            preg_match_all(
+                Tag::TAG_CIRCLE_REGEX,
+                $text,
+                $tag_matches,
+                PREG_OFFSET_CAPTURE
+            );
+            foreach ($tag_matches[1] as $tag_match) {
+                $tag = Tag::ensureValid($tag_match[0]);
+                $ac  = DB::findOneBy(ActorCircle::class, [
+                    'or' => [
+                        'tagger' => $actor->getID(),
+                        'and' => [
+                            'tagger' => null,
+                            'tagged' => $actor->getID(),
+                        ]
+                    ],
+                    'tag' => $tag,
+                ], return_null: true);
+
+                if (\is_null($ac) || $ac->getPrivate()) {
+                    continue;
+                }
+                $tagged = $ac->getSubscribedActors();
+                $url    = $ac->getUrl();
+                $mentions[] = [
+                    'mentioned' => $tagged,
+                    'type'      => 'list',
+                    'text'      => $tag_match[0],
+                    'position'  => $tag_match[1],
+                    'length'    => mb_strlen($tag_match[0]),
+                    'url'       => $url,
+                ];
+            }
 
             // Group mentions
             $group_matches = self::findMentionsRaw($text, '!');

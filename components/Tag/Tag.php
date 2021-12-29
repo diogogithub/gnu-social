@@ -47,6 +47,7 @@ use Doctrine\ORM\QueryBuilder;
 use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Util\Nickname;
 
 /**
  * Component responsible for extracting tags from posted notes, as well as normalizing them
@@ -57,9 +58,10 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class Tag extends Component
 {
-    public const MAX_TAG_LENGTH = 64;
-    public const TAG_REGEX      = '/(^|\\s)(#[\\pL\\pN_\\-]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
-    public const TAG_SLUG_REGEX = '[A-Za-z0-9]{1,64}';
+    public const MAX_TAG_LENGTH    = 64;
+    public const TAG_REGEX         = '/(^|\\s)(#[\\pL\\pN_\\-]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
+    public const TAG_CIRCLE_REGEX  = '/' . Nickname::BEFORE_MENTIONS . '@#([\pL\pN_\-\.]{1,64})/';
+    public const TAG_SLUG_REGEX    = '[A-Za-z0-9]{1,64}';
 
     public function onAddRoute($r): bool
     {
