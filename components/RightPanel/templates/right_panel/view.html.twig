@@ -14,7 +14,12 @@
                              title="{{ 'Expand if you want to access more options.' | trans }}">
                         <summary class="section-title-summary">
                             <h2>
-                                {{ "Create a note" | trans }}
+                                {% set current_path = app.request.get('_route') %}
+                                {% if current_path == 'reply_add' %}
+                                    {{ "Reply to note" | trans }}
+                                {% else %}
+                                    {{ "Create a note" | trans }}
+                                {% endif %}
                             </h2>
                             {{ icon('arrow-down', 'icon icon-details-open') | raw }}
                         </summary>
