@@ -95,11 +95,11 @@
     border-radius: var(--s);
 }
 .h-entry .replies {
-    margin-bottom: var(--m);
+    margin-bottom: var(--s);
     padding: 0 var(--s) 0 var(--s);
     border-left: 1px solid var(--border);
 }
-.replies small {
+.replies > strong > small {
     opacity: 0.5;
 }
 .note-info,
@@ -130,7 +130,6 @@ embed header {
 .note-conversation-url,
 .note-url {
     font-style: italic;
-    opacity: 0.5;
 }
 embed header {
     justify-content: space-between;
@@ -138,6 +137,10 @@ embed header {
 .note-author-url {
     float: left;
     margin-left: 4px;
+}
+.note-author-nickname,
+.note-conversation-info {
+    opacity: 0.5;
 }
 .note-author-fullname {
     font-weight: bold;
@@ -261,13 +264,12 @@ embed header {
     margin-bottom: var(--s);
 }
 .note-complementary {
+    font-size: 0.937rem;
     border-left: 2px solid var(--accent);
     border-end-start-radius: var(--s);
     border-end-end-radius: var(--s);
     padding-left: var(--s);
-    padding-top: 5px;
-    padding-bottom: 5px;
-    margin-bottom: var(--s);
+    margin-bottom: 4px;
     margin-right: var(--s);
     background: var(--gradient) !important;
 }
