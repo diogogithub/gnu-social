@@ -354,7 +354,7 @@ class Note extends Entity
      */
     public function getReplies(): array
     {
-        return Cache::get('note-replies-' . $this->getId(), fn () => DB::dql('select n from note n where n.reply_to = :id', ['id' => $this->getId()]));
+        return DB::findBy('note', ['reply_to' => $this->getId()], order_by: ['created' => 'DESC', 'id' => 'DESC']);
     }
 
     /**

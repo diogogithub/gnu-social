@@ -21,11 +21,12 @@ declare(strict_types = 1);
 
 namespace Plugin\Favourite\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Entity\Note;
 use DateTimeInterface;
 
-class Favourite extends Entity
+class NoteFavourite extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
@@ -81,6 +82,20 @@ class Favourite extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public static function getNoteFavouriteActors(Note $note): array
+    {
+        return DB::dql(
+            <<<'EOF'
+                select a from actor as a
+                inner join note_favourite as nf
+                with nf.note_id = :note_id 
+                where a.id = nf.actor_id
+                order by nf.created DESC
+                EOF,
+            ['note_id' => $note->getId()],
+        );
+    }
+
     public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
         if (!\array_key_exists('object', $ids_already_known)) {
@@ -102,7 +117,7 @@ class Favourite extends Entity
     public static function schemaDef()
     {
         return [
-            'name'   => 'favourite',
+            'name'   => 'note_favourite',
             'fields' => [
                 'note_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'App\Entity\Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'note that is the favorite of'],
                 'actor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'App\Entity\Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'actor who favourited this note'],  // note: formerly referenced notice.id, but we can now record remote users' favorites

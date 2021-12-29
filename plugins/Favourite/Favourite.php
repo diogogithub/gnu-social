@@ -37,7 +37,7 @@ use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Nickname;
 use DateTime;
-use Plugin\Favourite\Entity\Favourite as FavouriteEntity;
+use Plugin\Favourite\Entity\NoteFavourite as FavouriteEntity;
 use Symfony\Component\HttpFoundation\Request;
 
 class Favourite extends NoteHandlerPlugin
@@ -45,7 +45,7 @@ class Favourite extends NoteHandlerPlugin
     public static function favourNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
         $opts                  = ['note_id' => $note_id, 'actor_id' => $actor_id];
-        $note_already_favoured = DB::find('favourite', $opts);
+        $note_already_favoured = DB::find('note_favourite', $opts);
         $activity              = null;
         if (\is_null($note_already_favoured)) {
             DB::persist(FavouriteEntity::create($opts));
@@ -65,7 +65,7 @@ class Favourite extends NoteHandlerPlugin
 
     public static function unfavourNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
-        $note_already_favoured = DB::find('favourite', ['note_id' => $note_id, 'actor_id' => $actor_id]);
+        $note_already_favoured = DB::find('note_favourite', ['note_id' => $note_id, 'actor_id' => $actor_id]);
         $activity              = null;
         if (!\is_null($note_already_favoured)) {
             DB::remove($note_already_favoured);
@@ -98,7 +98,7 @@ class Favourite extends NoteHandlerPlugin
 
         // If note is favourite, "is_favourite" is 1
         $opts         = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
-        $is_favourite = DB::find('favourite', $opts) !== null;
+        $is_favourite = DB::find('note_favourite', $opts) !== null;
 
         // Generating URL for favourite action route
         $args                 = ['id' => $note->getId()];
@@ -125,10 +125,24 @@ class Favourite extends NoteHandlerPlugin
 
     public function onAppendCardNote(array $vars, array &$result)
     {
-        // if note is the original, append on end "user favoured this"
-        $actor = $vars['actor'];
-        $note  = $vars['note'];
+        // If note is the original and user isn't the one who repeated, append on end "user repeated this"
+        // If user is the one who repeated, append on end "you repeated this, remove repeat?"
+        $check_user = !\is_null(Common::user());
 
+        // The current Note being rendered
+        $note = $vars['note'];
+
+        // Will have actors array, and action string
+        // Actors are the subjects, action is the verb (in the final phrase)
+        $favourite_actors       = FavouriteEntity::getNoteFavouriteActors($note);
+
+        if (\count($favourite_actors) < 1) {
+            return Event::next;
+        }
+
+        // Filter out multiple replies from the same actor
+        $favourite_actors = array_unique($favourite_actors, SORT_REGULAR);
+        $result[] = ['actors' => $favourite_actors, 'action' => 'favourited'];
         return Event::next;
     }
 

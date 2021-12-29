@@ -245,57 +245,35 @@ class RepeatNote extends NoteHandlerPlugin
      * @param array $result Rendered String containing anchors for Actors that
      *                      repeated the Note
      *
-     * @return array|bool
+     * @return bool
      */
     public function onAppendCardNote(array $vars, array &$result)
     {
-        // if note is the original and user isn't the one who repeated, append on end "user repeated this"
-        // if user is the one who repeated, append on end "you repeated this, remove repeat?"
+        // If note is the original and user isn't the one who repeated, append on end "user repeated this"
+        // If user is the one who repeated, append on end "you repeated this, remove repeat?"
         $check_user = !\is_null(Common::user());
 
+        // The current Note being rendered
         $note = $vars['note'];
 
-        $complementary_info = '';
-        $repeat_actor       = [];
+        // Will have actors array, and action string
+        // Actors are the subjects, action is the verb (in the final phrase)
+        $repeat_actors       = [];
         $note_repeats       = NoteRepeat::getNoteRepeats($note);
 
-        // Get actors who replied
-        foreach ($note_repeats as $reply) {
-            $repeat_actor[] = Actor::getByPK($reply->getActorId());
+        // Get actors who repeated the note
+        foreach ($note_repeats as $repeat) {
+            $repeat_actors[] = Actor::getByPK($repeat->getActorId());
         }
-        if (\count($repeat_actor) < 1) {
+        if (\count($repeat_actors) < 1) {
             return Event::next;
         }
 
         // Filter out multiple replies from the same actor
-        $repeat_actor = array_unique($repeat_actor, SORT_REGULAR);
+        $repeat_actors = array_unique($repeat_actors, SORT_REGULAR);
+        $result[] = ['actors' => $repeat_actors, 'action' => 'repeated'];
 
-        // Add to complementary info
-        foreach ($repeat_actor as $actor) {
-            $repeat_actor_url      = $actor->getUrl();
-            $repeat_actor_nickname = $actor->getNickname();
-
-            if ($check_user && $actor->getId() === (Common::actor())->getId()) {
-                // If the repeat is yours
-                try {
-                    $you_translation = _m('You');
-                } catch (ServerException $e) {
-                    $you_translation = 'You';
-                }
-
-                $prepend            = "<a href={$repeat_actor_url}>{$you_translation}</a>, " . ($prepend = &$complementary_info);
-                $complementary_info = $prepend;
-            } else {
-                // If the repeat is from someone else
-                $complementary_info .= "<a href={$repeat_actor_url}>{$repeat_actor_nickname}</a>, ";
-            }
-        }
-
-        $complementary_info = rtrim(trim($complementary_info), ',');
-        $complementary_info .= ' repeated this note.';
-        $result[] = Formatting::twigRenderString($complementary_info, []);
-
-        return $result;
+        return Event::next;
     }
 
     /**

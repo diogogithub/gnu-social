@@ -118,45 +118,29 @@ class Conversation extends Component
      */
     public function onAppendCardNote(array $vars, array &$result): bool
     {
-        // if note is the original, append on end "user replied to this"
-        // if note is the reply itself: append on end "in response to user in conversation"
+        // If note is the original and user isn't the one who repeated, append on end "user repeated this"
+        // If user is the one who repeated, append on end "you repeated this, remove repeat?"
         $check_user = !\is_null(Common::user());
-        $note       = $vars['note'];
 
-        $complementary_info = '';
-        $reply_actor        = [];
-        $note_replies       = $note->getReplies();
+        // The current Note being rendered
+        $note = $vars['note'];
 
-        // Get actors who replied
+        // Will have actors array, and action string
+        // Actors are the subjects, action is the verb (in the final phrase)
+        $reply_actors       = [];
+        $note_replies      = $note->getReplies();
+
+        // Get actors who repeated the note
         foreach ($note_replies as $reply) {
-            $reply_actor[] = Actor::getByPK($reply->getActorId());
+            $reply_actors[] = Actor::getByPK($reply->getActorId());
         }
-        if (\count($reply_actor) < 1) {
+        if (\count($reply_actors) < 1) {
             return Event::next;
         }
 
         // Filter out multiple replies from the same actor
-        $reply_actor = array_unique($reply_actor, \SORT_REGULAR);
-
-        // Add to complementary info
-        foreach ($reply_actor as $actor) {
-            $reply_actor_url      = $actor->getUrl();
-            $reply_actor_nickname = $actor->getNickname();
-
-            if ($check_user && $actor->getId() === (Common::actor())->getId()) {
-                // If the reply is yours
-                $you_translation    = _m('You');
-                $prepend            = "<a href={$reply_actor_url}>{$you_translation}</a>, " . ($prepend = &$complementary_info);
-                $complementary_info = $prepend;
-            } else {
-                // If the repeat is from someone else
-                $complementary_info .= "<a href={$reply_actor_url}>{$reply_actor_nickname}</a>, ";
-            }
-        }
-
-        $complementary_info = rtrim(trim($complementary_info), ',');
-        $complementary_info .= _m(' replied to this note.');
-        $result[] = Formatting::twigRenderString($complementary_info, []);
+        $reply_actors = array_unique($reply_actors, SORT_REGULAR);
+        $result[] = ['actors' => $reply_actors, 'action' => 'replied to'];
 
         return Event::next;
     }

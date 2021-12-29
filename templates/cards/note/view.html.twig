@@ -134,11 +134,21 @@
 
             {{ block('note_replies') }}
 
-            {% for block in handle_event('AppendCardNote', {'note': note, 'actor': note.getActor() }) %}
-                <aside title="{{ 'Note\'s complementary information' | trans }}" class="note-complementary">
-                    {{ block | raw }}
-                </aside>
+
+            {% for complementary_info in handle_event('AppendCardNote', {'note': note }) %}
+            <aside title="{{ 'Note\'s complementary information' | trans }}" class="note-complementary">
+                {% for complementary_info_actor in complementary_info['actors'] %}
+                    {% if complementary_info_actor is defined %}
+                        <a href="{{ complementary_info_actor.getUrl() }}">{{ complementary_info_actor.getNickname() }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if complementary_info['action'] is defined and not null %}
+                    {{ ' has ' ~ complementary_info['action'] ~ ' this note' | trans }}
+                {% endif %}
+            </aside>
             {% endfor %}
+
+
         </div>
     </article>
 {% endmacro macro_note %}
