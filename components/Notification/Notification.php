@@ -46,7 +46,7 @@ class Notification extends Component
     {
         DB::persist(\App\Entity\Feed::create([
             'actor_id' => $actor_id,
-            'url'      => Router::url($route = 'feed_notifications', ['nickname' => $user->getNickname()]),
+            'url'      => Router::url($route = 'feed_notifications'),
             'route'    => $route,
             'title'    => _m('Notifications'),
             'ordering' => $ordering++,
