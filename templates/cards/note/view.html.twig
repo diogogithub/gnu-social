@@ -134,20 +134,29 @@
 
             {{ block('note_replies') }}
 
-
             {% for complementary_info in handle_event('AppendCardNote', {'note': note }) %}
             <aside title="{{ 'Note\'s complementary information' | trans }}" class="note-complementary">
+                {% set actor_count = complementary_info['actors'] | length %}
+                {% set counter = 0 %}
                 {% for complementary_info_actor in complementary_info['actors'] %}
                     {% if complementary_info_actor is defined %}
-                        <a href="{{ complementary_info_actor.getUrl() }}">{{ complementary_info_actor.getNickname() }}</a>
+                        <a href="{{ complementary_info_actor.getUrl() }}">{{complementary_info_actor.getNickname()}}{% if actor_count > 1 and counter < actor_count - 2 %}{{', ' | trans }}{% endif %}</a>
+                        {% if counter == actor_count - 2 %}
+                            {{ ' and ' | trans }}
+                        {% endif %}
                     {% endif %}
+                    {% set counter = counter + 1 %}
                 {% endfor %}
                 {% if complementary_info['action'] is defined and not null %}
-                    {{ ' has ' ~ complementary_info['action'] ~ ' this note' | trans }}
+                    {% if counter > 1 %}
+                        {{ ' have ' | trans }}
+                    {% else %}
+                        {{ ' has ' | trans }}
+                    {% endif %}
+                    {{ complementary_info['action'] ~ ' this note' | trans }}
                 {% endif %}
             </aside>
             {% endfor %}
-
 
         </div>
     </article>
