@@ -392,7 +392,7 @@ abstract class Formatting
                         'text'      => $match[0],
                         'position'  => $match[1],
                         'length'    => mb_strlen($match[0]),
-                        'title'     => $mentioned?->getFullname() ?? $mentioned?->getNickname(),
+                        'title'     => $mentioned->getFullname() ?? $mentioned->getNickname(),
                         'url'       => $url,
                     ];
                 }

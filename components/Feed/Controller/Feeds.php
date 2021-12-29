@@ -70,7 +70,7 @@ class Feeds extends FeedController
         $data  = Feed::query(
             query: 'note-from:subscribed-person,subscribed-group,subscribed-organization,subscribed-business',
             page: $this->int('p'),
-            language: $actor?->getTopLanguage()?->getLocale(),
+            language: $actor->getTopLanguage()->getLocale(),
             actor: $actor,
         );
         return [

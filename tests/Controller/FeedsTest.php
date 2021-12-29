@@ -23,13 +23,13 @@ declare(strict_types = 1);
 
 namespace App\Tests\Controller;
 
-use App\Controller\Feeds;
 use App\Core\DB\DB;
 use App\Core\Security;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\GNUsocialTestCase;
+use Component\Feed\Controller\Feeds;
 use Jchook\AssertThrows\AssertThrows;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
