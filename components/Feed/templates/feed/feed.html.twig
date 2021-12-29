@@ -9,6 +9,7 @@
 {% endblock stylesheets %}
 
 {% block body %}
+    {% if notes is defined and notes is not empty %}
     <header class="feed-header">
         {% if page_title is defined %}
             <h1>{{ page_title | trans }}</h1>
@@ -19,6 +20,7 @@
             {% endfor %}
         </nav>
     </header>
+    {% endif %}
 
     {# Backwards compatibility with hAtom 0.1 #}
     <main class="feed" tabindex="0" role="feed">
@@ -35,7 +37,9 @@
                     {% endblock current_note %}
                 {% endfor %}
             {% else %}
-                <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
+                <div class="feed-empty">
+                    {{ icon('logo', 'icon feed-background') | raw }}
+                </div>
             {% endif %}
         </div>
     </main>

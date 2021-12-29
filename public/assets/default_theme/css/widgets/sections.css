@@ -44,6 +44,7 @@
 }
 .section-title {
     font-weight: 700;
+    margin-bottom: unset;
 }
 .section-widget {
     display: flex;
@@ -171,4 +172,12 @@ textarea.form-row-widget {
     padding: 2px 6px;
     margin-top: 6px;
     margin-bottom: 6px;
+}
+.footer ul {
+    display: inline-flex;
+    width: 100%;
+    justify-content: flex-start;
+}
+.footer ul li {
+    margin-right: 5px;
 }

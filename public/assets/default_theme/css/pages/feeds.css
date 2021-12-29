@@ -284,6 +284,18 @@ embed header {
     color: var(--foreground);
     border-radius: 0 0 var(--s) 0;
 }
+.feed-empty {
+    display: flex;
+    flex-direction: column;
+}
+.feed-empty .feed-background {
+    opacity: 3%;
+    width: 40%;
+    height: auto;
+    margin-top: var(--xxl);
+    margin-left: auto;
+    margin-right: auto;
+}
 
 /* < 720p */
 @media only screen and (max-width:1280px) {
