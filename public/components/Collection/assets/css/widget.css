@@ -1,0 +1,17 @@
+.collections {
+    background-color: red;
+}
+.collections .collections-selections-options {
+    display: flex;
+    margin-top: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+.acollections .collections-selections-options button {
+    margin: 0 !important;
+}
+#add_collections {
+    height: auto !important;
+    max-height: 20rem !important;
+    overflow-y: auto !important;
+}

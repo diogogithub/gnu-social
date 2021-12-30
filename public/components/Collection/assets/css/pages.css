@@ -1,0 +1,106 @@
+.collection-add, .collections-list {
+    padding: 10px 12px;
+}
+.collection-add > form > div {
+    display: flex;
+    align-items: flex-end;
+}
+.collection-add > form > div .mb-6 {
+    margin-right: 12px;
+}
+.collection-add > form > div button {
+    margin-top: 0px;
+    margin-bottom: var(--s);
+}
+@media only screen and (max-width:465px) {
+    .collection-add > form, .collection-add > form > div .mb-6 {
+        width: 100%;
+        margin: 0px;
+    }
+    .collection-add > form > div {
+        flex-direction: column;
+    }
+    .collection-add > form > div button {
+        margin-top: var(--s);;
+        margin-bottom: 0px;
+    }
+}
+
+:root {
+    --collections-list-quantity: 3;
+}
+@media only screen and (min:1281px) {
+  :root {
+      --collections-list-quantity: 3;
+  }
+}
+@media only screen and (max-width:1280px) {
+  :root {
+      --collections-list-quantity: 4;
+  }
+}
+@media only screen and (max-width:900px) {
+  :root {
+      --collections-list-quantity: 3;
+  }
+}
+@media only screen and (max-width:700px) {
+  :root {
+      --collections-list-quantity: 2;
+  }
+}
+@media only screen and (max-width:465px) {
+  :root {
+      --collections-list-quantity: 1;
+  }
+}
+
+
+.collections-list {
+    display: grid !important;
+    grid-gap: 12px;
+    grid-template-columns: repeat(var(--collections-list-quantity), 1fr);
+}
+.collections-list h3, .collections-list h2, .collections-list h1 {
+    grid-column-start: 1;
+    grid-column-end: calc(var(--collections-list-quantity) + 1);
+}
+.collections-list .collection-item {
+    border: 2px solid var(--border);
+    border-radius: var(--s);
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.collections-list .collection-item .name {
+    margin-right: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    word-break: break-word;
+    margin-right: 60px;
+}
+.collections-list .collection-item summary {
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    width: 16px;
+}
+.collections-list .collection-item details + details > summary {
+    right: 20px;
+}
+.collections-list .collection-item details {
+    margin-top: 12px;
+}
+.collections-list .collection-item svg {
+    fill: var(--foreground);
+}
+.collections-list .collection-item svg:hover {
+    fill: var(--accent);
+}
+.collections-list .collection-item details label {
+    display: none;
+}
+.collections-list .collection-item details .danger {
+    color: #cb2d2d;
+}

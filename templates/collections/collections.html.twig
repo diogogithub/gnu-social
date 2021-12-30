@@ -9,19 +9,19 @@
 {% endblock stylesheets %}
 
 {% block body %}
-    <h1>{{ 'Attachment Collections' | trans }}</h1>
+    <h1>{{ page_title | trans }}</h1>
     {# Backwards compatibility with hAtom 0.1 #}
     <main class="feed" tabindex="0" role="feed">
         <div class="h-feed hfeed notes">
             {% if add_collection %}
-                <div class="h-entry hentry note attachment-collection-add">
+                <div class="h-entry hentry note collection-add">
                     {{ form(add_collection) }}
                 </div>
             {% endif %}
-            <div class="h-entry hentry note attachment-collections-list">
+            <div class="h-entry hentry note collections-list">
                 <h3>{{ 'Your collections' | trans }}</h3>
                 {% for col in collections %}
-                    <div class="attachment-collection-item">
+                        <div class="collection-item">
                         <a class="name" href="{{ fn.getUrl(col.id) }}">{{ col.name }}</a>
                         <details title="Expand if you want to edit the collection's name">
                             <summary>

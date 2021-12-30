@@ -33,27 +33,95 @@ namespace Plugin\AttachmentCollections;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Form;
 use function App\Core\I18n\_m;
-use App\Core\Modules\Plugin;
+use App\Core\Modules\Collection;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
+use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
-use App\Util\Common;
-use App\Util\Exception\RedirectException;
-use App\Util\Formatting;
 use App\Util\Nickname;
-use Component\Collection\Entity\Collection;
 use Plugin\AttachmentCollections\Controller as C;
+use Plugin\AttachmentCollections\Entity\AttachmentCollection;
 use Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
-class AttachmentCollections extends Plugin
+class AttachmentCollections extends Collection
 {
+    protected function createCollection(Actor $owner, array $vars, string $name)
+    {
+        $col = AttachmentCollection::create([
+            'name'     => $name,
+            'actor_id' => $owner->getId(),
+        ]);
+        DB::persist($col);
+        DB::persist(AttachmentCollectionEntry::create([
+            'attachment_id' => $vars['vars']['attachment_id'],
+            'note_id'       => $vars['vars']['note_id'],
+            'collection_id' => $col->getId(),
+        ]));
+    }
+    protected function removeItems(Actor $owner, array $vars, $items, array $collections)
+    {
+        return DB::dql(<<<'EOF'
+            DELETE FROM \Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry AS entry
+            WHERE entry.attachment_id = :attach_id AND entry.note_id = :note_id
+            AND entry.collection_id IN (
+                SELECT album.id FROM \Plugin\AttachmentCollections\Entity\AttachmentCollection AS album
+                WHERE album.actor_id = :user_id
+                  AND album.id IN (:ids)
+            )
+            EOF, [
+            'attach_id' => $vars['vars']['attachment_id'],
+            'note_id'   => $vars['vars']['note_id'],
+            'user_id'   => $owner->getId(),
+            'ids'       => $items,
+        ]);
+    }
+
+    protected function addItems(Actor $owner, array $vars, $items, array $collections)
+    {
+        foreach ($items as $id) {
+            // prevent user from putting something in a collection (s)he doesn't own:
+            if (\in_array($id, $collections)) {
+                DB::persist(AttachmentCollectionEntry::create([
+                    'attachment_id' => $vars['vars']['attachment_id'],
+                    'note_id'       => $vars['vars']['note_id'],
+                    'collection_id' => $id,
+                ]));
+            }
+        }
+    }
+
+    protected function shouldAddToRightPanel(Actor $user, $vars, Request $request): bool
+    {
+        return $vars['path'] === 'note_attachment_show';
+    }
+    protected function getCollectionsBy(Actor $owner, ?array $vars = null, bool $ids_only = false): array
+    {
+        if (\is_null($vars)) {
+            $res = DB::findBy(AttachmentCollection::class, ['actor_id' => $owner->getId()]);
+        } else {
+            $res = DB::dql(
+                <<<'EOF'
+                    SELECT entry.collection_id FROM \Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry AS entry
+                    INNER JOIN \Plugin\AttachmentCollections\Entity\AttachmentCollection AS attachment_collection
+                    WITH attachment_collection.id = entry.collection_id
+                    WHERE entry.attachment_id = :attach_id AND entry.note_id = :note_id AND attachment_collection.actor_id = :id
+                    EOF,
+                [
+                    'id'        => $owner->getId(),
+                    'note_id'   => $vars['vars']['note_id'],
+                    'attach_id' => $vars['vars']['attachment_id'],
+                ],
+            );
+        }
+        if (!$ids_only) {
+            return $res;
+        }
+        return array_map(fn ($x) => $x['collection_id'], $res);
+    }
+
     public function onAddRoute(RouteLoader $r): bool
     {
         // View all collections by actor id and nickname
@@ -90,148 +158,6 @@ class AttachmentCollections extends Plugin
             'title'    => _m('Attachment Collections'),
             'ordering' => $ordering++,
         ]));
-        return Event::next;
-    }
-
-    /**
-     * Append Attachment Collections widget to the right panel.
-     * It's compose of two forms: one to select collections to add
-     * the current attachment to, and another to create a new collection.
-     */
-    public function onAppendRightPanelBlock($vars, Request $request, &$res): bool
-    {
-        if ($vars['path'] !== 'note_attachment_show') {
-            return Event::next;
-        }
-        $user = Common::user();
-        if (\is_null($user)) {
-            return Event::next;
-        }
-
-        $collections = DB::findBy(Collection::class, ['actor_id' => $user->getId()]);
-
-        // add to collection form
-        $attachment_id = $vars['vars']['attachment_id'];
-        $note_id       = $vars['vars']['note_id'];
-        $choices       = [];
-        foreach ($collections as $col) {
-            $choices[$col->getName()] = $col->getId();
-        }
-        $already_selected = DB::dql(
-            <<<'EOF'
-                SELECT entry.collection_id FROM \Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry AS entry
-                INNER JOIN \Component\Collection\Entity\Collection AS attachment_collection
-                WITH attachment_collection.id = entry.collection_id
-                WHERE entry.attachment_id = :attach_id AND entry.note_id = :note_id AND attachment_collection.actor_id = :id
-                EOF,
-            ['attach_id' => $attachment_id, 'note_id' => $note_id, 'id' => $user->getId()],
-        );
-        $already_selected = array_map(fn ($x) => $x['collection_id'], $already_selected);
-        $add_form         = Form::create([
-            ['collections', ChoiceType::class, [
-                'choices'     => $choices,
-                'multiple'    => true,
-                'required'    => false,
-                'choice_attr' => function ($id) use ($already_selected) {
-                    if (\in_array($id, $already_selected)) {
-                        return ['selected' => 'selected'];
-                    }
-                    return [];
-                },
-            ]],
-            ['add', SubmitType::class, [
-                'label' => _m('Add to collections'),
-                'attr'  => [
-                    'title' => _m('Add to collection'),
-                ],
-            ]],
-        ]);
-
-        $add_form->handleRequest($request);
-        if ($add_form->isSubmitted() && $add_form->isValid()) {
-            $collections = $add_form->getData()['collections'];
-            $removed     = array_filter($already_selected, fn ($x) => !\in_array($x, $collections));
-            $added       = array_filter($collections, fn ($x) => !\in_array($x, $already_selected));
-            if (\count($removed) > 0) {
-                DB::dql(<<<'EOF'
-                        DELETE FROM \Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry AS entry
-                        WHERE entry.attachment_id = :attach_id AND entry.note_id = :note_id
-                        AND entry.collection_id IN (
-                            SELECT album.id FROM \Component\Collection\Entity\Collection AS album
-                            WHERE album.actor_id = :user_id
-                              AND album.id IN (:ids)
-                        )
-                    EOF, ['attach_id' => $attachment_id, 'note_id' => $note_id, 'user_id' => $user->getId(), 'ids' => $removed]);
-            }
-            foreach ($added as $cid) {
-                // prevent user from putting something in a collection (s)he doesn't own:
-                if (\in_array($cid, $collections)) {
-                    DB::persist(AttachmentCollectionEntry::create([
-                        'attachment_id' => $attachment_id,
-                        'note_id'       => $note_id,
-                        'collection_id' => $cid,
-                    ]));
-                }
-            }
-            DB::flush();
-            throw new RedirectException();
-        }
-        // add to new collection form
-        $create_form = Form::create([
-            ['name', TextType::class, [
-                'label' => _m('Add to a new collection'),
-                'attr'  => [
-                    'placeholder' => _m('New collection name'),
-                    'required'    => 'required',
-                ],
-                'data' => '',
-            ]],
-            ['create', SubmitType::class, [
-                'label' => _m('Create a new collection'),
-                'attr'  => [
-                    'title' => _m('Create a new collection'),
-                ],
-            ]],
-        ]);
-        $create_form->handleRequest($request);
-        if ($create_form->isSubmitted() && $create_form->isValid()) {
-            $name = $create_form->getData()['name'];
-            $coll = Collection::create([
-                'name'     => $name,
-                'actor_id' => $user->getId(),
-            ]);
-            DB::persist($coll);
-            DB::persist(AttachmentCollectionEntry::create([
-                'attachment_id' => $attachment_id,
-                'note_id'       => $note_id,
-                'collection_id' => $coll->getId(),
-            ]));
-            DB::flush();
-            throw new RedirectException();
-        }
-
-        $res[] = Formatting::twigRenderFile(
-            'AttachmentCollections/widget.html.twig',
-            [
-                'has_collections' => $collections,
-                'add_form'        => $add_form->createView(),
-                'create_form'     => $create_form->createView(),
-            ],
-        );
-        return Event::next;
-    }
-
-    /**
-     * Output our dedicated stylesheet
-     *
-     * @param array $styles stylesheets path
-     *
-     * @return bool hook value; true means continue processing, false means stop
-     */
-    public function onEndShowStyles(array &$styles, string $route): bool
-    {
-        $styles[] = 'plugins/AttachmentCollections/assets/css/widget.css';
-        $styles[] = 'plugins/AttachmentCollections/assets/css/pages.css';
         return Event::next;
     }
 }

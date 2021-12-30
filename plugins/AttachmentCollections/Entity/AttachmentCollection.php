@@ -2,12 +2,12 @@
 
 declare(strict_types = 1);
 
-namespace Component\Collection\Entity;
+namespace Plugin\AttachmentCollections\Entity;
 
 use App\Core\Entity;
 use function mb_substr;
 
-class Collection extends Entity
+class AttachmentCollection extends Entity
 {
     // These tags are meant to be literally included and will be populated with the appropriate fields, setters and getters by `bin/generate_entity_fields`
     // {{{ Autocode

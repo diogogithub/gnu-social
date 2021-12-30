@@ -23,181 +23,35 @@ declare(strict_types = 1);
 
 namespace Plugin\AttachmentCollections\Controller;
 
+use App\Core\Controller\CollectionController;
 use App\Core\DB\DB;
-use App\Core\Form;
-use function App\Core\I18n\_m;
 use App\Core\Router\Router;
-use App\Entity\LocalUser;
-use App\Util\Common;
-use App\Util\Exception\RedirectException;
-use Component\Collection\Entity\Collection;
-use Component\Feed\Util\FeedController;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\HttpFoundation\Request;
+use Plugin\AttachmentCollections\Entity\AttachmentCollection;
 
-class Controller extends FeedController
+class Controller extends CollectionController
 {
-    public function collectionsByActorNickname(Request $request, string $nickname): array
+    public function createCollection(int $owner_id, string $name)
     {
-        $user = DB::findOneBy(LocalUser::class, ['nickname' => $nickname]);
-        return self::collectionsView($request, $user->getId(), $nickname);
+        DB::persist(AttachmentCollection::create([
+            'name'     => $name,
+            'actor_id' => $owner_id,
+        ]));
     }
-
-    public function collectionsViewByActorId(Request $request, int $id): array
+    public function getCollectionUrl(int $owner_id, ?string $owner_nickname, int $collection_id): string
     {
-        return self::collectionsView($request, $id, null);
-    }
-
-    /**
-     * Generate Collections page
-     *
-     * @param int     $id       actor id
-     * @param ?string $nickname actor nickname
-     *
-     * @return array twig template options
-     */
-    public function collectionsView(Request $request, int $id, ?string $nickname): array
-    {
-        $collections = DB::findBy(Collection::class, ['actor_id' => $id]);
-
-        // create collection form
-        $create = null;
-        if (Common::user()?->getId() === $id) {
-            $create = Form::create([
-                ['name', TextType::class, [
-                    'label' => _m('Create collection'),
-                    'attr'  => [
-                        'placeholder' => _m('Name'),
-                        'required'    => 'required',
-                    ],
-                    'data' => '',
-                ]],
-                ['add_collection', SubmitType::class, [
-                    'label' => _m('Create collection'),
-                    'attr'  => [
-                        'title' => _m('Create collection'),
-                    ],
-                ]],
-            ]);
-            $create->handleRequest($request);
-            if ($create->isSubmitted() && $create->isValid()) {
-                DB::persist(Collection::create([
-                    'name'     => $create->getData()['name'],
-                    'actor_id' => $id,
-                ]));
-                DB::flush();
-                throw new RedirectException();
-            }
+        if (\is_null($owner_nickname)) {
+            return Router::url(
+                'collection_notes_view_by_actor_id',
+                ['id' => $owner_id, 'cid' => $collection_id],
+            );
         }
-
-        // We need to inject some functions in twig,
-        // but I don't want to create an environment for this
-        // as twig docs suggest in https://twig.symfony.com/doc/2.x/advanced.html#functions.
-        //
-        // Instead, I'm using an anonymous class to encapsulate
-        // the functions and passing that class to the template.
-        // This is suggested at https://stackoverflow.com/a/50364502.
-        $fn = new class($id, $nickname, $request) {
-            private $id;
-            private $nick;
-            private $request;
-
-            public function __construct($id, $nickname, $request)
-            {
-                $this->id      = $id;
-                $this->nick    = $nickname;
-                $this->request = $request;
-            }
-            // there's already a injected function called path,
-            // that maps to Router::url(name, args), but since
-            // I want to preserve nicknames, I think it's better
-            // to use that getUrl function
-            public function getUrl($cid)
-            {
-                if (\is_null($this->nick)) {
-                    return Router::url(
-                        'collection_notes_view_by_actor_id',
-                        ['id' => $this->id, 'cid' => $cid],
-                    );
-                }
-                return Router::url(
-                    'collection_notes_view_by_nickname',
-                    ['nickname' => $this->nick, 'cid' => $cid],
-                );
-            }
-            // There are many collections in this page and we need two
-            // forms for each one of them: one form to edit the collection's
-            // name and another to remove the collection.
-
-            // creating the edit form
-            public function editForm($collection)
-            {
-                $edit = Form::create([
-                    ['name', TextType::class, [
-                        'attr' => [
-                            'placeholder' => 'New name',
-                            'required'    => 'required',
-                        ],
-                        'data' => '',
-                    ]],
-                    ['update_' . $collection->getId(), SubmitType::class, [
-                        'label' => _m('Save'),
-                        'attr'  => [
-                            'title' => _m('Save'),
-                        ],
-                    ]],
-                ]);
-                $edit->handleRequest($this->request);
-                if ($edit->isSubmitted() && $edit->isValid()) {
-                    $collection->setName($edit->getData()['name']);
-                    DB::persist($collection);
-                    DB::flush();
-                    throw new RedirectException();
-                }
-                return $edit->createView();
-            }
-
-            // creating the remove form
-            public function rmForm($collection)
-            {
-                $rm = Form::create([
-                    ['remove_' . $collection->getId(), SubmitType::class, [
-                        'label' => _m('Delete collection'),
-                        'attr'  => [
-                            'title' => _m('Delete collection'),
-                            'class' => 'danger',
-                        ],
-                    ]],
-                ]);
-                $rm->handleRequest($this->request);
-                if ($rm->isSubmitted()) {
-                    DB::remove($collection);
-                    DB::flush();
-                    throw new RedirectException();
-                }
-                return $rm->createView();
-            }
-        };
-
-        return [
-            '_template'      => 'AttachmentCollections/collections.html.twig',
-            'page_title'     => 'Attachment Collections list',
-            'add_collection' => $create?->createView(),
-            'fn'             => $fn,
-            'collections'    => $collections,
-        ];
+        return Router::url(
+            'collection_notes_view_by_nickname',
+            ['nickname' => $owner_nickname, 'cid' => $collection_id],
+        );
     }
-
-    public function collectionNotesByNickname(Request $request, string $nickname, int $cid): array
+    public function getCollectionItems(int $owner_id, $collection_id): array
     {
-        $user = DB::findOneBy(LocalUser::class, ['nickname' => $nickname]);
-        return self::collectionNotesByActorId($request, $user->getId(), $cid);
-    }
-
-    public function collectionNotesByActorId(Request $request, int $id, int $cid): array
-    {
-        $collection        = DB::findOneBy(Collection::class, ['id' => $cid]);
         [$attachs, $notes] = DB::dql(
             <<<'EOF'
                 SELECT attach, notice FROM \Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry AS entry
@@ -207,13 +61,20 @@ class Controller extends FeedController
                     WITH entry.note_id = notice.id
                 WHERE entry.collection_id = :cid
                 EOF,
-            ['cid' => $cid],
+            ['cid' => $collection_id],
         );
         return [
             '_template'   => 'AttachmentCollections/collection.html.twig',
-            'page_title'  => $collection->getName(),
             'attachments' => array_values($attachs),
             'bare_notes'  => array_values($notes),
         ];
+    }
+    public function getCollectionsBy(int $owner_id): array
+    {
+        return DB::findBy(AttachmentCollection::class, ['actor_id' => $owner_id], order_by: ['id' => 'desc']);
+    }
+    public function getCollectionBy(int $owner_id, int $collection_id): AttachmentCollection
+    {
+        return DB::findOneBy(AttachmentCollection::class, ['id' => $collection_id]);
     }
 }
