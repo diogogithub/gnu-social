@@ -23,7 +23,8 @@
                 </li>
                 {% for current_action in get_note_actions(note) %}
                     <li>
-                        <a title="{{ current_action["title"] | trans }}" class="{{ current_action["classes"] }}"
+                        <a title="{{ current_action["title"] | trans }}"
+                           class="{{ current_action["classes"] }}"
                            href="{{ current_action["url"] }}"></a>
                     </li>
                 {% endfor %}
@@ -34,7 +35,8 @@
 
 {% block note_replies %}
     {% if replies is defined and replies is not empty %}
-        <div class="u-in-reply-to replies" tabindex="0" title="{{ 'Begin replies to ' | trans }}{{ nickname }}{{ '\'s note!' | trans }}">
+        <div class="u-in-reply-to replies" tabindex="0"
+             title="{{ 'Begin replies to ' | trans }}{{ nickname }}{{ '\'s note!' | trans }}">
             <strong><small>{{ 'Replies to ' | trans }}{{ nickname }}</small></strong>
             {% for conversation in replies %}
                 {{ _self.macro_note(conversation['note'], conversation['replies']) }}
@@ -47,9 +49,10 @@
 {% block note_attachments %}
     {% if hide_attachments is not defined %}
         {% if note.getAttachments() is not empty %}
-            <section class="note-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
+            <section class="note-attachments" tabindex="0"
+                     title="{{ 'Note attachments.' | trans }}">
                 {% for attachment in note.getAttachments() %}
-                    {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': note, 'title': attachment.getBestTitle(note)} only%}
+                    {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': note, 'title': attachment.getBestTitle(note)} only %}
                 {% endfor %}
             </section>
         {% endif %}
@@ -69,7 +72,8 @@
 {% endblock note_links %}
 
 {% block note_text %}
-    <div class="note-text" tabindex="0" title="{{ 'Note text content.' | trans }}">
+    <div class="note-text" tabindex="0"
+         title="{{ 'Note text content.' | trans }}">
         {{ note.getRendered() | raw }}
     </div>
 {% endblock note_text %}
@@ -77,24 +81,29 @@
 {% block note_author %}
     {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
     <a href="{{ actor_url }}">
-    <header class="note-author-fullname" tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}" >
-        {% if fullname is not null %}
-            {{ fullname }}
-        {% else %}
-            {{ nickname }}
-        {% endif %}
-    </header>
+        <header class="note-author-fullname" tabindex="0"
+                title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}">
+            {% if fullname is not null %}
+                {{ fullname }}
+            {% else %}
+                {{ nickname }}
+            {% endif %}
+        </header>
     </a>
 
     <small class="note-author-nickname">
-        <a href="{{ actor_uri }}" class="note-author-url u-url">{{ mention }}</a>
+        <a href="{{ actor_uri }}"
+           class="note-author-url u-url">{{ mention }}</a>
     </small>
 {% endblock note_author %}
 
 {% block note_sidebar %}
     <aside class="note-sidebar">
         {% set actor_avatar_dimensions = actor.getAvatarDimensions() %}
-        <img class="u-logo avatar" src="{{ note.getActorAvatarUrl() }}" alt="{{ nickname }}'s avatar" width="{{actor_avatar_dimensions['width']}}" height="{{actor_avatar_dimensions['height']}}">
+        <img class="u-logo avatar" src="{{ note.getActorAvatarUrl() }}"
+             alt="{{ nickname }}'s avatar"
+             width="{{ actor_avatar_dimensions['width'] }}"
+             height="{{ actor_avatar_dimensions['height'] }}">
     </aside>
 {% endblock note_sidebar %}
 
@@ -103,14 +112,43 @@
         <div class="note-info-start">
             {{ block('note_author') }}
             <small class="note-conversation-info">
-                <a href="{{ note.getConversationUrl() }}" class="note-conversation-url">{{ 'in conversation' | trans }}</a>
-                <a href="{{ note.getUrl() }}" class="note-url">{{ note.getModified() | ago }}</a>
+                <a href="{{ note.getConversationUrl() }}"
+                   class="note-conversation-url">{{ 'in conversation' | trans }}</a>
+                <a href="{{ note.getUrl() }}"
+                   class="note-url">{{ note.getModified() | ago }}</a>
             </small>
         </div>
 
         {{ block('note_actions') }}
     </div>
 {% endblock note_info %}
+
+{% block note_complementary_info %}
+    {% for complementary_info in handle_event('AppendCardNote', {'note': note }) %}
+        <aside title="{{ 'Note\'s complementary information' | trans }}"
+               class="note-complementary">
+            {% set actor_count = complementary_info['actors'] | length %}
+            {% set counter = 0 %}
+            {% for complementary_info_actor in complementary_info['actors'] %}
+                {% if complementary_info_actor is defined %}
+                    <a href="{{ complementary_info_actor.getUrl() }}">{{ complementary_info_actor.getNickname() }}{% if actor_count > 1 and counter < actor_count - 2 %}{{ ', ' | trans }}{% endif %}</a>
+                    {% if counter == actor_count - 2 %}
+                        {{ ' and ' | trans }}
+                    {% endif %}
+                {% endif %}
+                {% set counter = counter + 1 %}
+            {% endfor %}
+            {% if complementary_info['action'] is defined and not null %}
+                {% if counter > 1 %}
+                    {{ ' have ' | trans }}
+                {% else %}
+                    {{ ' has ' | trans }}
+                {% endif %}
+                {{ complementary_info['action'] ~ ' this note' | trans }}
+            {% endif %}
+        </aside>
+    {% endfor %}
+{% endblock note_complementary_info %}
 
 {% macro macro_note(note, replies) %}
     {% set actor = note.getActor() %}
@@ -133,30 +171,7 @@
             </section>
 
             {{ block('note_replies') }}
-
-            {% for complementary_info in handle_event('AppendCardNote', {'note': note }) %}
-            <aside title="{{ 'Note\'s complementary information' | trans }}" class="note-complementary">
-                {% set actor_count = complementary_info['actors'] | length %}
-                {% set counter = 0 %}
-                {% for complementary_info_actor in complementary_info['actors'] %}
-                    {% if complementary_info_actor is defined %}
-                        <a href="{{ complementary_info_actor.getUrl() }}">{{complementary_info_actor.getNickname()}}{% if actor_count > 1 and counter < actor_count - 2 %}{{', ' | trans }}{% endif %}</a>
-                        {% if counter == actor_count - 2 %}
-                            {{ ' and ' | trans }}
-                        {% endif %}
-                    {% endif %}
-                    {% set counter = counter + 1 %}
-                {% endfor %}
-                {% if complementary_info['action'] is defined and not null %}
-                    {% if counter > 1 %}
-                        {{ ' have ' | trans }}
-                    {% else %}
-                        {{ ' has ' | trans }}
-                    {% endif %}
-                    {{ complementary_info['action'] ~ ' this note' | trans }}
-                {% endif %}
-            </aside>
-            {% endfor %}
+            {{ block('note_complementary_info') }}
 
         </div>
     </article>
