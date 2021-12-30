@@ -192,6 +192,7 @@ abstract class CollectionController extends FeedController
         return [
             '_template'      => 'collections/collections.html.twig',
             'page_title'     => $this->page_title,
+            'list_title'     => 'Your ' . $this->plural_slug,
             'add_collection' => $create?->createView(),
             'fn'             => $fn,
             'collections'    => $collections,

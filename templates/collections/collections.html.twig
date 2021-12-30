@@ -19,7 +19,7 @@
                 </div>
             {% endif %}
             <div class="h-entry hentry note collections-list">
-                <h3>{{ 'Your collections' | trans }}</h3>
+                <h3>{{ list_title | trans }}</h3>
                 {% for col in collections %}
                         <div class="collection-item">
                         <a class="name" href="{{ fn.getUrl(col.id) }}">{{ col.name }}</a>

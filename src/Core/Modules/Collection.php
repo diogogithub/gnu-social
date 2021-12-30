@@ -76,6 +76,9 @@ abstract class Collection extends Plugin
         foreach ($collections as $col) {
             $choices[$col->getName()] = $col->getId();
         }
+
+        $collections = array_map(fn ($x) => $x->getId(), $collections);
+
         $already_selected = $this->getCollectionsBy($user, $vars, true);
         $add_form         = Form::create([
             ['collections', ChoiceType::class, [
@@ -98,9 +101,9 @@ abstract class Collection extends Plugin
         ]);
         $add_form->handleRequest($request);
         if ($add_form->isSubmitted() && $add_form->isValid()) {
-            $collections = $add_form->getData()['collections'];
-            $removed     = array_filter($already_selected, fn ($x) => !\in_array($x, $collections));
-            $added       = array_filter($collections, fn ($x) => !\in_array($x, $already_selected));
+            $selected = $add_form->getData()['collections'];
+            $removed  = array_filter($already_selected, fn ($x) => !\in_array($x, $selected));
+            $added    = array_filter($selected, fn ($x) => !\in_array($x, $already_selected));
             if (\count($removed) > 0) {
                 $this->removeItems($user, $vars, $removed, $collections);
             }
