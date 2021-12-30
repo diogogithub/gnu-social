@@ -48,7 +48,7 @@
             {% endif %}
 
             {% set current_path = app.request.get('_route') %}
-            {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars | default }, request) %}
+            {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'request': request, 'vars': right_panel_vars | default }, request) %}
                 {{ block | raw }}
             {% endfor %}
 
