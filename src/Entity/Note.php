@@ -281,7 +281,7 @@ class Note extends Entity
 
     public function getAttachments(): array
     {
-        return Cache::get('note-attachments-' . $this->id, function () {
+        return Cache::getList('note-attachments-' . $this->id, function () {
             return DB::dql(
                 <<<'EOF'
                     select att from attachment att
@@ -295,7 +295,7 @@ class Note extends Entity
 
     public function getAttachmentsWithTitle(): array
     {
-        return Cache::get('note-attachments-with-title-' . $this->id, function () {
+        return Cache::getList('note-attachments-with-title-' . $this->id, function () {
             $from_db = DB::dql(
                 <<<'EOF'
                     select att, atn.title
@@ -315,7 +315,7 @@ class Note extends Entity
 
     public function getLinks(): array
     {
-        return Cache::get('note-links-' . $this->id, function () {
+        return Cache::getList('note-links-' . $this->id, function () {
             return DB::dql(
                 <<<'EOF'
                     select l from link l
@@ -329,7 +329,7 @@ class Note extends Entity
 
     public function getTags(): array
     {
-        return Cache::get('note-tags-' . $this->getId(), fn () => DB::findBy('note_tag', ['note_id' => $this->getId()]));
+        return Cache::getList('note-tags-' . $this->getId(), fn () => DB::findBy('note_tag', ['note_id' => $this->getId()]));
     }
 
     /**
