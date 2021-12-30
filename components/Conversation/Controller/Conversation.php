@@ -26,10 +26,10 @@ declare(strict_types = 1);
 
 namespace Component\Conversation\Controller;
 
-use function App\Core\I18n\_m;
 use Component\Feed\Feed;
 use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 class Conversation extends FeedController
 {
@@ -40,15 +40,6 @@ class Conversation extends FeedController
      */
     public function showConversation(Request $request, int $conversation_id)
     {
-        // TODO:
-        // if note is root -> just link
-        // if note is a reply -> link from above plus anchor
-
-        /*        $notes = DB::findBy(
-                    table: 'note',
-                    criteria: ['conversation_id' => $conversation_id],
-                    order_by: ['created' => 'DESC', 'id' => 'DESC']
-                );*/
         $data  = Feed::query(query: "note-conversation:{$conversation_id}", page: $this->int('p') ?? 1);
         $notes = $data['notes'];
         return [

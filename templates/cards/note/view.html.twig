@@ -159,7 +159,8 @@
     {% set mention = mention(actor) %}
     {% set note_language = note.getNoteLanguageShortDisplay() %}
 
-    <article class="h-entry hentry note" lang={{ note.getLanguageLocale() }}>
+    <article id="{{ 'note-anchor-' ~ note.getId() }}"
+             class="h-entry hentry note" lang={{ note.getLanguageLocale() }}>
         {{ block('note_sidebar') }}
         <div class="note-wrapper">
             {{ block('note_info') }}

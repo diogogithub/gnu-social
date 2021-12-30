@@ -26,17 +26,16 @@ namespace Component\Conversation;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
-use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Formatting;
 use Component\Conversation\Controller\Reply as ReplyController;
 use Component\Conversation\Entity\Conversation as ConversationEntity;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 class Conversation extends Component
 {
@@ -92,7 +91,7 @@ class Conversation extends Component
 
         $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
-        $reply_action_url .= '?from=' . urlencode($request->getRequestUri());
+        $reply_action_url .= '?from=' . urlencode($request->getRequestUri()) . '#note-anchor-' . $note->getId();
 
         $reply_action = [
             'url'     => $reply_action_url,

@@ -32,8 +32,10 @@ use App\Util\Exception\ClientException;
 use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\ServerException;
+use Component\Feed\Feed;
 use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 class Reply extends FeedController
 {
@@ -56,9 +58,14 @@ class Reply extends FeedController
             throw new NoSuchNoteException();
         }
 
+        $conversation_id = $note->getConversationId();
+        $data  = Feed::query(query: "note-conversation:{$conversation_id}", page: $this->int('p') ?? 1);
+        $notes = $data['notes'];
         return [
-            '_template' => 'reply/add_reply.html.twig',
-            'note'      => $note,
+            '_template'     => 'feed/feed.html.twig',
+            'notes'         => $notes,
+            'should_format' => false,
+            'page_title'    => _m('Conversation'),
         ];
     }
 }

@@ -14,6 +14,9 @@
 .notes hr {
     margin-top: var(--s);
 }
+article[id^="note-anchor-"]:target {
+    border: 2px solid var(--accent) !important;
+}
 .note-wrapper {
     width: 100%;
     height: inherit;
@@ -106,7 +109,7 @@
 embed header {
     display: flex;
     border-bottom: unset;
-    border-radius: var(--s) var(--s) 0 0;
+    border-radius: 0 var(--s) 0 0;
     line-height: initial;
     padding: 8px var(--s) 8px 0;
 }
