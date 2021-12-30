@@ -132,14 +132,14 @@ abstract class Controller extends AbstractController implements EventSubscriberI
         Event::handle('OverrideTemplate', [$this->vars, &$template]); // Allow plugins to replace the template used for anything
         unset($this->vars['_template'], $response['_template']);
 
-        $controller = $request->get('_controller');
+        $controller = $this->vars['controller'];
         if (\is_array($controller)) {
             $controller = $controller[0];
         }
 
         // XXX: Could we do this differently?
         if (is_subclass_of($controller, FeedController::class)) {
-            $this->vars = FeedController::postProcess($this->vars);
+            $this->vars = $controller->postProcess($this->vars);
         }
 
         // Respond in the most preferred acceptable content type
