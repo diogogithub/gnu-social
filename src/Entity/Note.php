@@ -34,8 +34,6 @@ use App\Util\Formatting;
 use Component\Avatar\Avatar;
 use Component\Conversation\Entity\Conversation;
 use Component\Language\Entity\Language;
-use DateTimeInterface;
-use function App\Core\I18n\_m;
 
 /**
  * Entity for notices
@@ -354,7 +352,7 @@ class Note extends Entity
      */
     public function getReplies(): array
     {
-        return DB::findBy('note', ['reply_to' => $this->getId()], order_by: ['created' => 'DESC', 'id' => 'DESC']);
+        return Cache::getList('note-replies-' . $this->getId(), fn () => DB::findBy('note', ['reply_to' => $this->getId()], order_by: ['created' => 'DESC', 'id' => 'DESC']));
     }
 
     /**
