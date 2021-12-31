@@ -35,9 +35,8 @@
 
 {% block note_replies %}
     {% if replies is defined and replies is not empty %}
-        <div class="u-in-reply-to replies" tabindex="0"
-             title="{{ 'Begin replies to ' | trans }}{{ nickname }}{{ '\'s note!' | trans }}">
-            <strong><small>{{ 'Replies to ' | trans }}{{ nickname }}</small></strong>
+        <div class="u-in-reply-to replies">
+            <span class="note-replies-start" tabindex="0">{{ 'Replies to ' | trans }}{{ nickname }}{{ '\'s note' | trans }}</span>
             {% for conversation in replies %}
                 {{ _self.macro_note(conversation['note'], conversation['replies']) }}
                 <hr tabindex="0" title="{{ 'End of reply' | trans }}">

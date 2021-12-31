@@ -14,9 +14,6 @@
 .notes hr {
     margin-top: var(--s);
 }
-article[id^="note-anchor-"]:target {
-    border: 2px solid var(--accent) !important;
-}
 .note-wrapper {
     width: 100%;
     height: inherit;
@@ -42,11 +39,13 @@ article[id^="note-anchor-"]:target {
     margin-top: var(--s);
 }
 .h-entry:not(embed) {
-    border: 2px solid var(--border) !important;
-    box-shadow: var(--shadow);
+    box-shadow: inset 0 0 0 2px var(--border);
 }
 .h-entry img {
     background: repeating-conic-gradient(#ffffff66 0deg 90deg, #ffffff33 0deg 180deg) 0 0/40px 40px round;
+}
+.h-entry[id^="note-anchor-"]:target {
+    border: 2px solid var(--accent) !important;
 }
 .embed {
     display: flex;
@@ -102,18 +101,22 @@ article[id^="note-anchor-"]:target {
     padding: 0 var(--s) 0 var(--s);
     border-left: 1px solid var(--border);
 }
-.replies > strong > small {
+.note-replies-start {
+    font-size: 0.937rem;
+    font-weight: 700;
     opacity: 0.5;
 }
 .note-info,
 embed header {
     display: flex;
     border-bottom: unset;
-    border-radius: 0 var(--s) 0 0;
+    border-radius: 0 2px 0 0;
     line-height: initial;
     padding: 8px var(--s) 8px 0;
 }
 .note-info {
+    margin-top: 2px;
+    margin-right: 2px;
     background: var(--gradient-backwards);
 }
 .note-info > * {
