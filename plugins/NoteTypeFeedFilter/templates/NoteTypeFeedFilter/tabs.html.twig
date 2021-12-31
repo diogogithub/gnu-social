@@ -1,0 +1,3 @@
+{% for tab in tabs %}
+    <a {{ tab.active ? 'class="active"' : '' }} href="{{ tab.url }}">{{ tab['icon'] }}</a>
+{% endfor %}

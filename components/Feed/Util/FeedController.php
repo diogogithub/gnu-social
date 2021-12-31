@@ -34,12 +34,9 @@ namespace Component\Feed\Util;
 
 use App\Core\Controller;
 use App\Core\Event;
-use function App\Core\I18n\_m;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exception\ClientException;
-use App\Util\Formatting;
 use Functional as F;
 
 abstract class FeedController extends Controller
@@ -56,52 +53,11 @@ abstract class FeedController extends Controller
         if (\array_key_exists('notes', $result)) {
             $notes = $result['notes'];
             self::enforceScope($notes, $actor);
-            $types = $this->string('types');
-            if (!\is_null($types)) {
-                self::filterNoteType($notes, $types);
-            }
             Event::handle('FilterNoteList', [$actor, &$notes, $result['request']]);
             Event::handle('FormatNoteList', [$notes, &$result['notes']]);
         }
 
         return $result;
-    }
-
-    private static function filterNoteType(array &$notes, string $types): void
-    {
-        $types = explode(',', $types);
-        $types = [
-            ...$types,
-            // Add any missing types as a negation
-            ...array_diff(['!media', '!link', '!text', '!tags'], F\map($types, fn ($t) => $t[0] === '!' ? $t : '!' . $t)),
-        ];
-
-        $notes = F\select($notes, function (Note $note) use ($types) {
-            $include = false;
-            foreach ($types as $type) {
-                $is_negate = $type[0] === '!';
-                $type = Formatting::removePrefix($type, '!');
-                $ret = (function () use ($note, $type) {
-                    switch ($type) {
-                    case 'media':
-                        return !empty($note->getAttachments());
-                    case 'link':
-                        return !empty($note->getLinks());
-                    case 'text':
-                        return !\is_null($note->getContent());
-                    case 'tags':
-                        return !empty($note->getTags());
-                    default:
-                        throw new ClientException(_m('Unknown note type requested ({type})', ['{type}' => $type]));
-                    }
-                })();
-                if ($is_negate && $ret) {
-                    return false;
-                }
-                $include = $include || $ret;
-            }
-            return $include;
-        });
     }
 
     private static function enforceScope(array &$notes, ?Actor $actor): void
