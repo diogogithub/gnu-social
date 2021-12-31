@@ -49,7 +49,7 @@ class Reply extends FeedController
      *
      * @return array
      */
-    public function addReply(Request $request, int $note_id, int $actor_id)
+    public function addReply(Request $request, int $note_id)
     {
         $user = Common::ensureLoggedIn();
 

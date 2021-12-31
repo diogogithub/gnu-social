@@ -86,9 +86,9 @@ class Conversation extends Component
         }
 
         // Generating URL for reply action route
-        $args             = ['note_id' => $note->getId(), 'actor_id' => $note->getActor()->getId()];
+        $args             = ['note_id' => $note->getId()];
         $type             = Router::ABSOLUTE_PATH;
-        $reply_action_url = Router::url('reply_add', $args, $type);
+        $reply_action_url = Router::url('conversation_reply_to', $args, $type);
 
         $query_string = $request->getQueryString();
         // Concatenating get parameter to redirect the user to where he came from
@@ -109,7 +109,7 @@ class Conversation extends Component
     {
         // If Actor is adding a reply, get parent's Note id
         // Else it's null
-        $extra_args['reply_to'] = $request->get('_route') === 'reply_add' ? (int) $request->get('note_id') : null;
+        $extra_args['reply_to'] = $request->get('_route') === 'conversation_reply_to' ? (int) $request->get('note_id') : null;
         return Event::next;
     }
 
@@ -147,7 +147,7 @@ class Conversation extends Component
 
     public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect('reply_add', '/object/note/new?to={actor_id<\d+>}&reply_to={note_id<\d+>}', [ReplyController::class, 'addReply']);
+        $r->connect('conversation_reply_to', '/conversation/reply?reply_to_note={note_id<\d+>}', [ReplyController::class, 'addReply']);
         $r->connect('conversation', '/conversation/{conversation_id<\d+>}', [Controller\Conversation::class, 'showConversation']);
         $r->connect('conversation_mute', '/conversation/{conversation_id<\d+>}/mute', [Controller\Conversation::class, 'muteConversation']);
 

@@ -352,7 +352,7 @@ class Note extends Entity
      */
     public function getReplies(): array
     {
-        return Cache::getList('note-replies-' . $this->getId(), fn () => DB::findBy('note', ['reply_to' => $this->getId()], order_by: ['created' => 'DESC', 'id' => 'DESC']));
+        return DB::findBy('note', ['reply_to' => $this->getId()], order_by: ['created' => 'DESC', 'id' => 'DESC']);
     }
 
     /**

@@ -23,30 +23,72 @@ namespace Plugin\TreeNotes;
 
 use App\Core\Modules\Plugin;
 use App\Entity\Note;
+use Symfony\Component\HttpFoundation\Request;
 
 class TreeNotes extends Plugin
 {
+
     /**
-     * Format the given $notes_in_trees_out in a list of reply trees
+     * Formatting notes without taking a direct reply out of context
+     * Show whole conversation in conversation related routes
+     *
+     * @param array                                     $notes_in
+     * @param array                                     $notes_out
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return void
      */
-    public function onFormatNoteList(array $notes_in, ?array &$notes_out)
+    public function onFormatNoteList(array $notes_in, array &$notes_out, Request $request)
     {
-        $roots     = array_filter($notes_in, static fn (Note $note) => \is_null($note->getReplyTo()));
-        $notes_out = $this->build_tree($roots, $notes_in);
+        if (str_starts_with($request->get('_route'), 'conversation')) {
+            $parents = $this->conversationFormat($notes_in);
+            $notes_out = $this->conversationFormatTree($parents, $notes_in);
+        } else {
+            $notes_out = $this->feedFormatTree($notes_in);
+        }
     }
 
-    private function build_tree(array $parents, array $notes)
+    private function feedFormatTree(array $notes): array
+    {
+        $tree = [];
+        $notes = array_reverse($notes);
+        foreach ($notes as $note) {
+            if (!is_null($children = $note->getReplies())) {
+                $notes = array_filter($notes, fn (Note $n) => !in_array($n, $children));
+
+                $tree[] = [
+                    'note' => $note,
+                    'replies' => array_map(
+                        function ($n) {
+                            return ['note' => $n, 'replies' => []];
+                        },
+                        $children
+                    ),
+                ];
+            } else {
+                $tree[] = ['note' => $note, 'replies' => []];
+            }
+        }
+        return array_reverse($tree);
+    }
+
+    private function conversationFormat(array $notes_in)
+    {
+        return array_filter($notes_in, static fn (Note $note) => \is_null($note->getReplyTo()));
+    }
+
+    private function conversationFormatTree(array $parents, array $notes)
     {
         $subtree = [];
         foreach ($parents as $p) {
-            $subtree[] = $this->build_subtree($p, $notes);
+            $subtree[] = $this->conversationFormatSubTree($p, $notes);
         }
         return $subtree;
     }
 
-    private function build_subtree(Note $parent, array $notes)
+    private function conversationFormatSubTree(Note $parent, array $notes)
     {
         $children = array_filter($notes, fn (Note $note) => $note->getReplyTo() === $parent->getId());
-        return ['note' => $parent, 'replies' => $this->build_tree($children, $notes)];
+        return ['note' => $parent, 'replies' => $this->conversationFormatTree($children, $notes)];
     }
 }

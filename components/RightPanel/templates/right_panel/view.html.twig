@@ -15,7 +15,7 @@
                         <summary class="section-title-summary">
                             <h2>
                                 {% set current_path = app.request.get('_route') %}
-                                {% if current_path == 'reply_add' %}
+                                {% if current_path == 'conversation_reply_to' %}
                                     {{ "Reply to note" | trans }}
                                 {% else %}
                                     {{ "Create a note" | trans }}

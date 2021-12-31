@@ -38,6 +38,7 @@ use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
 use Functional as F;
+use function App\Core\I18n\_m;
 
 abstract class FeedController extends Controller
 {
@@ -49,12 +50,11 @@ abstract class FeedController extends Controller
     protected function postProcess(array $result): array
     {
         $actor = Common::actor();
-
         if (\array_key_exists('notes', $result)) {
             $notes = $result['notes'];
             self::enforceScope($notes, $actor);
             Event::handle('FilterNoteList', [$actor, &$notes, $result['request']]);
-            Event::handle('FormatNoteList', [$notes, &$result['notes']]);
+            Event::handle('FormatNoteList', [$notes, &$result['notes'], &$result['request']]);
         }
 
         return $result;
