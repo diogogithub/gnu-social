@@ -39,6 +39,7 @@ use App\Util\Exception\ClientException;
 use App\Util\Formatting;
 use App\Util\Functional as GSF;
 use App\Util\HTML;
+use App\Util\Nickname;
 use Component\Language\Entity\Language;
 use Component\Tag\Controller as C;
 use Doctrine\Common\Collections\ExpressionBuilder;
@@ -47,7 +48,6 @@ use Doctrine\ORM\QueryBuilder;
 use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\HttpFoundation\Request;
-use App\Util\Nickname;
 
 /**
  * Component responsible for extracting tags from posted notes, as well as normalizing them
@@ -58,10 +58,10 @@ use App\Util\Nickname;
  */
 class Tag extends Component
 {
-    public const MAX_TAG_LENGTH    = 64;
-    public const TAG_REGEX         = '/(^|\\s)(#[\\pL\\pN_\\-]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
-    public const TAG_CIRCLE_REGEX  = '/' . Nickname::BEFORE_MENTIONS . '@#([\pL\pN_\-\.]{1,64})/';
-    public const TAG_SLUG_REGEX    = '[A-Za-z0-9]{1,64}';
+    public const MAX_TAG_LENGTH   = 64;
+    public const TAG_REGEX        = '/(^|\\s)(#[\\pL\\pN_\\-]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
+    public const TAG_CIRCLE_REGEX = '/' . Nickname::BEFORE_MENTIONS . '@#([\pL\pN_\-\.]{1,64})/';
+    public const TAG_SLUG_REGEX   = '[A-Za-z0-9]{1,64}';
 
     public function onAddRoute($r): bool
     {
@@ -177,7 +177,7 @@ class Tag extends Component
                 $note_expr = $temp_note_expr;
             } elseif (Formatting::startsWith($term, ['people:', 'actor:'])) {
                 $actor_expr = $temp_actor_expr;
-            } elseif (Formatting::startsWith($term, GSF::cartesianProduct('-', ['people', 'actor'], ['circle:', 'list:']))) {
+            } elseif (Formatting::startsWith($term, GSF::cartesianProduct([['people', 'actor'], ['circle', 'list'], [':']], separator: ['-', '_']))) {
                 $null_tagger_expr = $eb->isNull('actor_circle.tagger');
                 $tagger_expr      = \is_null($actor_expr) ? $null_tagger_expr : $eb->orX($null_tagger_expr, $eb->eq('actor_circle.tagger', $actor->getId()));
                 $tags             = array_unique([$search_term, $canon_search_term]);
