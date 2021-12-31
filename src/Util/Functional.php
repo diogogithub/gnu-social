@@ -32,12 +32,16 @@ declare(strict_types = 1);
 
 namespace App\Util;
 
+use Stringable;
+
 abstract class Functional
 {
     /**
      * TODO replace with \Functional\cartesian_product when it gets merged upstream
+     *
+     * @param array<array<string|Stringable>> $collections
      */
-    public static function cartesianProduct(string|array $separator, ...$collections)
+    public static function cartesianProduct(array $collections, string|array $separator = ''): array
     {
         $aggregation = [];
         $left        = array_shift($collections);
