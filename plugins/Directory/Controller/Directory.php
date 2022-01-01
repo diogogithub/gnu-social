@@ -56,10 +56,10 @@ class Directory extends FeedController
             $order_by_op = mb_substr($order_by_qs, -1);
             if (\in_array($order_by_op, ['^', '<'])) {
                 $order_by_field = mb_substr($order_by_qs, 0, -1);
-                $order_by_op    = 'ASC';
+                $order_by_op    = 'DESC';
             } elseif (\in_array($order_by_op, ['v', '>'])) {
                 $order_by_field = mb_substr($order_by_qs, 0, -1);
-                $order_by_op    = 'DESC';
+                $order_by_op    = 'ASC';
             } else {
                 $order_by_field = $order_by_qs;
                 $order_by_op    = 'ASC';
