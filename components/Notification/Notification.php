@@ -32,6 +32,7 @@ use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
 use Component\FreeNetwork\FreeNetwork;
+use Component\Group\Entity\GroupInbox;
 use Component\Notification\Controller\Feed;
 
 class Notification extends Component
@@ -76,6 +77,10 @@ class Notification extends Component
             if ($target->getIsLocal()) {
                 if ($target->isGroup()) {
                     // FIXME: Make sure we check (for both local and remote) users are in the groups they send to!
+                    DB::persist(GroupInbox::create([
+                        'group_id'    => $target->getId(),
+                        'activity_id' => $activity->getId(),
+                    ]));
                 } else {
                     if ($target->hasBlocked($activity->getActor())) {
                         Log::info("Not saving reply to actor {$target->getId()} from sender {$sender->getId()} because of a block.");

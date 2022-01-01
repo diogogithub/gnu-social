@@ -46,7 +46,6 @@ use App\Util\Formatting;
 use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\AttachmentToNote;
 use Component\Conversation\Conversation;
-use Component\Group\Entity\GroupInbox;
 use Component\Group\Entity\LocalGroup;
 use Component\Language\Entity\Language;
 use Functional as F;
@@ -267,24 +266,12 @@ class Posting extends Component
             }
         }
 
-        $mentioned = [];
-        foreach (F\unique(F\flat_map($mentions, fn (array $m) => $m['mentioned'] ?? []), fn (Actor|null $a) => $a?->getId()) as $m) {
-            if (!\is_null($m)) {
-                $mentioned[] = $m->getId();
-
-                if ($m->isGroup()) {
-                    DB::persist(GroupInbox::create([
-                        'group_id'    => $m->getId(),
-                        'activity_id' => $activity->getId(),
-                    ]));
-                }
-            }
-        }
+        $mention_ids = F\unique(F\flat_map($mentions, fn (array $m) => F\map($m['mentioned'] ?? [], fn (Actor $a) => $a->getId())));
 
         DB::flush();
 
         if ($notify) {
-            Event::handle('NewNotification', [$actor, $activity, ['object' => $mentioned], _m('{nickname} created a note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
+            Event::handle('NewNotification', [$actor, $activity, ['object' => $mention_ids], _m('{nickname} created a note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
         }
 
         return $note;
