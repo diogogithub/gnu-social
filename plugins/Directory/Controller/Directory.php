@@ -24,38 +24,45 @@ declare(strict_types = 1);
 namespace Plugin\Directory\Controller;
 
 use App\Core\DB\DB;
+use function App\Core\I18n\_m;
 use App\Entity\Actor;
 use App\Util\Exception\BugFoundException;
 use App\Util\Exception\ClientException;
 use Component\Feed\Util\FeedController;
-use function App\Core\I18n\_m;
 use Symfony\Component\HttpFoundation\Request;
 
 class Directory extends FeedController
 {
+    public const PER_PAGE       = 32;
+    public const ALLOWED_FIELDS = ['nickname', 'created', 'modified', 'activity', 'subscribers'];
 
-    const PER_PAGE = 32;
-    const ALLOWED_FIELDS = ['nickname', 'created', 'modified', 'activity', 'subscribers'];
-
+    /**
+     * Function responsible for displaying a list of actors of a given
+     * $actor_type, sorted by the `order_by` GET parameter, if given
+     */
     private function impl(Request $request, string $template, int $actor_type): array
     {
-        $page = $this->int('page') ?? 1;
-        $limit = self::PER_PAGE;
+        if ($actor_type !== Actor::PERSON && $actor_type !== Actor::GROUP) {
+            throw new BugFoundException("Unimplemented for actor type: {$actor_type}");
+        }
+
+        $page   = $this->int('page') ?? 1;
+        $limit  = self::PER_PAGE;
         $offset = self::PER_PAGE * ($page - 1);
 
+        // -------- Figure out the order by field and operator --------
         $order_by_qs = $this->string('order_by');
         if (!\is_null($order_by_qs) && mb_detect_encoding($order_by_qs, 'ASCII', strict: true) !== false) {
-
-            $order_by_op = substr($order_by_qs, -1);
+            $order_by_op = mb_substr($order_by_qs, -1);
             if (\in_array($order_by_op, ['^', '<'])) {
-                $order_by_field = substr($order_by_qs, 0, -1);
-                $order_by_op = 'ASC';
-            } else if (\in_array($order_by_op, ['v', '>'])) {
-                $order_by_field = substr($order_by_qs, 0, -1);
-                $order_by_op = 'DESC';
+                $order_by_field = mb_substr($order_by_qs, 0, -1);
+                $order_by_op    = 'ASC';
+            } elseif (\in_array($order_by_op, ['v', '>'])) {
+                $order_by_field = mb_substr($order_by_qs, 0, -1);
+                $order_by_op    = 'DESC';
             } else {
                 $order_by_field = $order_by_qs;
-                $order_by_op = 'ASC';
+                $order_by_op    = 'ASC';
             }
 
             if (!\in_array($order_by_field, self::ALLOWED_FIELDS)) {
@@ -63,16 +70,15 @@ class Directory extends FeedController
             }
         } else {
             $order_by_field = 'nickname';
-            $order_by_op = 'ASC';
+            $order_by_op    = 'ASC';
         }
-
         $order_by = [$order_by_field => $order_by_op];
-        $route = $request->get('_route');
+        // -------- *** --------
 
-        $query_fn = function (int $actor_type, string $table, string $join_field) use ($limit, $offset) {
-            return function (string $func, string $order) use ($actor_type, $table, $join_field, $limit, $offset) {
-                return DB::sql(
-                    <<<EOQ
+        // -------- Query builder for selecting actors joined with another table, namely activity and group_inbox --------
+        $general_query_fn_fn = function (string $func, string $order) use ($limit, $offset) {
+            return fn (string $table, string $join_field) => fn (int $actor_type) => DB::sql(
+                <<<EOQ
                     select {select}
                     from actor actr
                     join (
@@ -84,69 +90,52 @@ class Directory extends FeedController
                     order by actor_activity.{$order}
                     limit :limit offset :offset
                     EOQ,
-                    [
-                        'type' => $actor_type,
-                        'limit' => $limit,
-                        'offset' => $offset,
-                    ],
-                    ['actr' => Actor::class]
-                );
-            };
+                [
+                    'type'   => $actor_type,
+                    'limit'  => $limit,
+                    'offset' => $offset,
+                ],
+                ['actr' => Actor::class],
+            );
         };
+        // -------- *** --------
 
-        $person_activity_query = $query_fn(actor_type: Actor::PERSON, table: 'activity', join_field: 'actor_id');
-        $group_activity_query  = $query_fn(actor_type: Actor::GROUP, table: 'group_inbox', join_field: 'group_id');
+        // -------- Start setting up the queries --------
+        $actor_query_fn    = fn (int $actor_type) => DB::findBy(Actor::class, ['type' => $actor_type], order_by: $order_by, limit: $limit, offset: $offset);
+        $modified_query_fn = $general_query_fn_fn(func: $order_by_op === 'ASC' ? 'MAX' : 'MIN', order: "created {$order_by_op}");
+        $activity_query_fn = $general_query_fn_fn(func: 'COUNT', order: "created {$order_by_op}");
+        // -------- *** --------
 
-        switch ($order_by_field) {
-        case 'nickname':
-        case 'created':
-            $actors = DB::findBy(Actor::class, ['type' => $actor_type], order_by: $order_by, limit: $limit, offset: $offset);
-            break;
+        // -------- Figure out the final query --------
+        $query_fn = match ($order_by_field) {
+            'nickname', 'created' => $actor_query_fn, // select only from actors
 
-        case 'modified':
-            $query = match ($actor_type) {
-                Actor::PERSON => $person_activity_query,
-                Actor::GROUP  => $group_activity_query,
-                default => throw new BugFoundException("Unimplemented for actor type: {$actor_type}"),
-            };
-            $actors = $query(func: $order_by_op === 'ASC' ? 'MAX' : 'MIN', order: "created {$order_by_op}");
-            break;
+            'modified'        => match ($actor_type) { // select by most/least recent activity
+                Actor::PERSON => $modified_query_fn(table: 'activity', join_field: 'actor_id'),
+                Actor::GROUP  => $modified_query_fn(table: 'group_inbox', join_field: 'group_id'),
+            },
 
-        case 'activity':
-            $query = match ($actor_type) {
-                Actor::PERSON => $person_activity_query,
-                Actor::GROUP  => $group_activity_query,
-                default => throw new BugFoundException("Unimplemented for actor type: {$actor_type}"),
-            };
-            $actors = $query(func: 'COUNT', order: "created {$order_by_op}");
-            break;
+            'activity'        => match ($actor_type) { // select by most/least activity amount
+                Actor::PERSON => $activity_query_fn(table: 'activity', join_field: 'actor_id'),
+                Actor::GROUP  => $activity_query_fn(table: 'group_inbox', join_field: 'group_id'),
+            },
 
-        default:
-            throw new BugFoundException("Unkown order by found, but should have been validated: {$order_by_field}");
-        }
+            default => throw new BugFoundException("Unkown order by found, but should have been validated: {$order_by_field}"),
+        };
+        // -------- *** --------
 
         return [
             '_template' => $template,
-            'actors'    => $actors,
+            'actors'    => $query_fn($actor_type),
             'page'      => $page,
         ];
     }
 
-    /**
-     * people stream
-     *
-     * @return array template
-     */
     public function people(Request $request): array
     {
         return $this->impl($request, 'directory/people.html.twig', Actor::PERSON);
     }
 
-    /**
-     * groups stream
-     *
-     * @return array template
-     */
     public function groups(Request $request): array
     {
         return $this->impl($request, 'directory/groups.html.twig', Actor::GROUP);
