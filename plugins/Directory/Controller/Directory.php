@@ -31,14 +31,14 @@ use Symfony\Component\HttpFoundation\Request;
 class Directory extends FeedController
 {
     /**
-     * actors stream
+     * people stream
      *
      * @return array template
      */
-    public function actors(Request $request): array
+    public function people(Request $request): array
     {
         return [
-            '_template' => 'directory/actors.html.twig',
+            '_template' => 'directory/people.html.twig',
             'actors'    => DB::findBy(Actor::class, ['type' => Actor::PERSON], order_by: ['created' => 'DESC', 'nickname' => 'ASC']),
         ];
     }

@@ -35,7 +35,7 @@ class Directory extends Plugin
      */
     public function onAddRoute(RouteLoader $r)
     {
-        $r->connect('directory_actors', '/directory/actors', [Controller\Directory::class, 'actors']);
+        $r->connect('directory_people', '/directory/people', [Controller\Directory::class, 'people']);
         $r->connect('directory_groups', '/directory/groups', [Controller\Directory::class, 'groups']);
 
         return Event::next;
@@ -50,8 +50,8 @@ class Directory extends Plugin
      */
     public function onAddMainNavigationItem(array $vars, array &$res): bool
     {
-        $res[] = ['title' => 'Actors', 'path' => Router::url('directory_actors', []), 'path_id' => 'directory_actors'];
-        $res[] = ['title' => 'Groups', 'path' => Router::url('directory_groups', []), 'path_id' => 'directory_groups'];
+        $res[] = ['title' => 'People', 'path' => Router::url($path_id = 'directory_people', []), 'path_id' => $path_id];
+        $res[] = ['title' => 'Groups', 'path' => Router::url($path_id = 'directory_groups', []), 'path_id' => $path_id];
         return Event::next;
     }
 }
