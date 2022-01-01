@@ -20,16 +20,23 @@ declare(strict_types = 1);
 
 /**
  * @author    Hugo Sales <hugo@hsal.es>
- * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Eliseu Amaro <mail@eliseuama.ro>
+ * @copyright 2021-2022 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 namespace Component\Conversation\Controller;
 
+use App\Core\DB\DB;
+use App\Core\Form;
+use function App\Core\I18n\_m;
+use App\Util\Common;
+use App\Util\Exception\RedirectException;
+use Component\Conversation\Entity\ConversationBlock;
 use Component\Feed\Feed;
 use Component\Feed\Util\FeedController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
 class Conversation extends FeedController
 {
@@ -47,6 +54,26 @@ class Conversation extends FeedController
             'notes'         => $notes,
             'should_format' => false,
             'page_title'    => _m('Conversation'),
+        ];
+    }
+
+    public function muteConversation(Request $request, int $conversation_id)
+    {
+        $user = Common::ensureLoggedIn();
+        $form = Form::create([
+            ['mute_conversation', SubmitType::class, ['label' => _m('Mute conversation')]],
+        ]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            DB::persist(ConversationBlock::create(['conversation_id' => $conversation_id, 'actor_id' => $user->getId()]));
+            DB::flush();
+            throw new RedirectException();
+        }
+
+        return [
+            '_template' => 'conversation/mute.html.twig',
+            'form'      => $form->createView(),
         ];
     }
 }

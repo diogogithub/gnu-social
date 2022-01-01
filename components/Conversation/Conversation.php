@@ -26,16 +26,17 @@ namespace Component\Conversation;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
+use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
 use Component\Conversation\Controller\Reply as ReplyController;
 use Component\Conversation\Entity\Conversation as ConversationEntity;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
 class Conversation extends Component
 {
@@ -126,8 +127,8 @@ class Conversation extends Component
 
         // Will have actors array, and action string
         // Actors are the subjects, action is the verb (in the final phrase)
-        $reply_actors       = [];
-        $note_replies      = $note->getReplies();
+        $reply_actors = [];
+        $note_replies = $note->getReplies();
 
         // Get actors who repeated the note
         foreach ($note_replies as $reply) {
@@ -138,8 +139,8 @@ class Conversation extends Component
         }
 
         // Filter out multiple replies from the same actor
-        $reply_actors = array_unique($reply_actors, SORT_REGULAR);
-        $result[] = ['actors' => $reply_actors, 'action' => 'replied to'];
+        $reply_actors = array_unique($reply_actors, \SORT_REGULAR);
+        $result[]     = ['actors' => $reply_actors, 'action' => 'replied to'];
 
         return Event::next;
     }
@@ -148,6 +149,7 @@ class Conversation extends Component
     {
         $r->connect('reply_add', '/object/note/new?to={actor_id<\d+>}&reply_to={note_id<\d+>}', [ReplyController::class, 'addReply']);
         $r->connect('conversation', '/conversation/{conversation_id<\d+>}', [Controller\Conversation::class, 'showConversation']);
+        $r->connect('conversation_mute', '/conversation/{conversation_id<\d+>}/mute', [Controller\Conversation::class, 'muteConversation']);
 
         return Event::next;
     }
@@ -173,5 +175,40 @@ class Conversation extends Component
         });
         Cache::delete("note-replies-{$note->getId()}");
         return Event::next;
+    }
+
+    public function onAddExtraNoteActions(Request $request, Note $note, array &$actions)
+    {
+        if (\is_null($actor = Common::actor())) {
+            return Event::next;
+        }
+
+        $actions[] = [
+            'title'   => _m('Mute conversation'),
+            'classes' => '',
+            'url'     => Router::url('conversation_mute', ['conversation_id' => $note->getConversationId()]),
+        ];
+
+        return Event::next;
+    }
+
+    public function onNewNotificationShould(Activity $activity, Actor $actor)
+    {
+        if ($activity->getObjectType() === 'note') {
+            $is_blocked = !empty(DB::dql(
+                <<<'EOQ'
+                    select 1
+                    from note n
+                    join conversation_block cb with n.conversation_id = cb.conversation_id
+                    where n.id = :object_id
+                    EOQ,
+                ['object_id' => $activity->getObjectId()],
+            ));
+            if ($is_blocked) {
+                return Event::stop;
+            } else {
+                return Event::next;
+            }
+        }
     }
 }
