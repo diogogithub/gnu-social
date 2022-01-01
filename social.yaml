@@ -274,7 +274,7 @@ parameters:
       proxy_auth_scheme:
 
     discovery:
-      cors: false
+      cors: true
 
     streams:
       notes_per_page: 32
