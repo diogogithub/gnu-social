@@ -236,11 +236,11 @@ abstract class Controller extends AbstractController implements EventSubscriberI
     {
         switch ($method) {
         case 'int':
-            return $this->request->query->getInt($args[0]);
+            return !$this->request->query->has($args[0]) ? null : $this->request->query->getInt($args[0]);
         case 'bool':
-            return $this->request->query->getBoolean($args[0]);
+            return !$this->request->query->has($args[0]) ? null : $this->request->query->getBoolean($args[0]);
         case 'string':
-            return $this->request->query->get($args[0]);
+            return !$this->request->query->has($args[0]) ? null : $this->request->query->get($args[0]);
         case 'params':
             return $this->request->query->all();
         default:
