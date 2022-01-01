@@ -1,19 +1,20 @@
 {% extends 'stdgrid.html.twig' %}
 
-{% block title %}Groups{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block body %}
 <section class="section-widget section-padding">
-    <h2 class="section-title">{{ "Groups" | trans }}</h2>
+    <h2 class="section-title">{{ title }}</h2>
 
     <div class="section-padding">
-        {% if groups is defined and groups is not empty %}
-            {% for actor in groups %}
+        {% if actors is defined and actors is not empty %}
+            {% for actor in actors %}
                 {% block profile_view %}{% include 'cards/profile/view.html.twig' %}{% endblock profile_view %}
                 <hr>
             {% endfor %}
+            <p>{% trans %}Page: %page%{% endtrans %}</p>
         {% else %}
-            <h1>{% trans %}No groups here.{% endtrans %}</h1>
+            <h3>{{ empty_message }}</h3>
         {% endif %}
     </div>
 </section>

@@ -40,7 +40,7 @@ class Directory extends FeedController
      * Function responsible for displaying a list of actors of a given
      * $actor_type, sorted by the `order_by` GET parameter, if given
      */
-    private function impl(Request $request, string $template, int $actor_type): array
+    private function impl(Request $request, int $actor_type, string $title, string $empty_message): array
     {
         if ($actor_type !== Actor::PERSON && $actor_type !== Actor::GROUP) {
             throw new BugFoundException("Unimplemented for actor type: {$actor_type}");
@@ -130,19 +130,21 @@ class Directory extends FeedController
         // -------- *** --------
 
         return [
-            '_template' => $template,
-            'actors'    => $query_fn($actor_type),
-            'page'      => $page,
+            '_template'     => 'directory/actors.html.twig',
+            'actors'        => $query_fn($actor_type),
+            'title'         => $title,
+            'empty_message' => $empty_message,
+            'page'          => $page,
         ];
     }
 
     public function people(Request $request): array
     {
-        return $this->impl($request, 'directory/people.html.twig', Actor::PERSON);
+        return $this->impl($request, Actor::PERSON, title: _m('People'), empty_message: _m('No people here'));
     }
 
     public function groups(Request $request): array
     {
-        return $this->impl($request, 'directory/groups.html.twig', Actor::GROUP);
+        return $this->impl($request, Actor::GROUP, title: _m('Groups'), empty_message: _m('No groups here'));
     }
 }
