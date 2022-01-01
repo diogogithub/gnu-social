@@ -77,17 +77,17 @@ class Directory extends FeedController
 
         // -------- Query builder for selecting actors joined with another table, namely activity and group_inbox --------
         $general_query_fn_fn = function (string $func, string $order) use ($limit, $offset) {
-            return fn (string $table, string $join_field) => fn (int $actor_type) => DB::sql(
+            return fn (string $table, string $join_field, string $aggregate_field) => fn (int $actor_type) => DB::sql(
                 <<<EOQ
                     select {select}
                     from actor actr
                     join (
-                        select tbl.{$join_field}, {$func}(tbl.created) as created
+                        select tbl.{$join_field}, {$func}(tbl.{$aggregate_field}) as aggr
                         from {$table} tbl
                         group by tbl.{$join_field}
                     ) actor_activity on actr.id = actor_activity.{$join_field}
                     where actr.type = :type
-                    order by actor_activity.{$order}
+                    order by actor_activity.aggr {$order}
                     limit :limit offset :offset
                     EOQ,
                 [
@@ -101,9 +101,9 @@ class Directory extends FeedController
         // -------- *** --------
 
         // -------- Start setting up the queries --------
-        $actor_query_fn    = fn (int $actor_type) => DB::findBy(Actor::class, ['type' => $actor_type], order_by: $order_by, limit: $limit, offset: $offset);
-        $modified_query_fn = $general_query_fn_fn(func: $order_by_op === 'ASC' ? 'MAX' : 'MIN', order: "created {$order_by_op}");
-        $activity_query_fn = $general_query_fn_fn(func: 'COUNT', order: "created {$order_by_op}");
+        $actor_query_fn  = fn (int $actor_type) => DB::findBy(Actor::class, ['type' => $actor_type], order_by: $order_by, limit: $limit, offset: $offset);
+        $minmax_query_fn = $general_query_fn_fn(func: $order_by_op === 'ASC' ? 'MAX' : 'MIN', order: $order_by_op);
+        $count_query_fn  = $general_query_fn_fn(func: 'COUNT', order: $order_by_op);
         // -------- *** --------
 
         // -------- Figure out the final query --------
@@ -111,13 +111,18 @@ class Directory extends FeedController
             'nickname', 'created' => $actor_query_fn, // select only from actors
 
             'modified'        => match ($actor_type) { // select by most/least recent activity
-                Actor::PERSON => $modified_query_fn(table: 'activity', join_field: 'actor_id'),
-                Actor::GROUP  => $modified_query_fn(table: 'group_inbox', join_field: 'group_id'),
+                Actor::PERSON => $minmax_query_fn(table: 'activity', join_field: 'actor_id', aggregate_field: 'created'),
+                Actor::GROUP  => $minmax_query_fn(table: 'group_inbox', join_field: 'group_id', aggregate_field: 'created'),
             },
 
             'activity'        => match ($actor_type) { // select by most/least activity amount
-                Actor::PERSON => $activity_query_fn(table: 'activity', join_field: 'actor_id'),
-                Actor::GROUP  => $activity_query_fn(table: 'group_inbox', join_field: 'group_id'),
+                Actor::PERSON => $count_query_fn(table: 'activity', join_field: 'actor_id', aggregate_field: 'created'),
+                Actor::GROUP  => $count_query_fn(table: 'group_inbox', join_field: 'group_id', aggregate_field: 'created'),
+            },
+
+            'subscribers'     => match ($actor_type) { // select by actors with most/least subscribers/members
+                Actor::PERSON => $count_query_fn(table: 'subscription', join_field: 'subscribed', aggregate_field: 'subscriber'),
+                Actor::GROUP  => $count_query_fn(table: 'group_member', join_field: 'group_id', aggregate_field: 'actor_id'),
             },
 
             default => throw new BugFoundException("Unkown order by found, but should have been validated: {$order_by_field}"),
