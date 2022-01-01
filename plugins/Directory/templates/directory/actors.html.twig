@@ -6,6 +6,13 @@
 <section class="section-widget section-padding">
     <h2 class="section-title">{{ title }}</h2>
 
+    <div>
+        <p>{% trans %}Sort by:{% endtrans %}</p>
+        {% for option in sort_options %}
+            <a {{ option.active ? 'class="active"' : '' }} href="{{ option.url }}">{{ option.label }}</a>
+        {% endfor %}
+    </div>
+
     <div class="section-padding">
         {% if actors is defined and actors is not empty %}
             {% for actor in actors %}

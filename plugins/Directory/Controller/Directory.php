@@ -129,11 +129,26 @@ class Directory extends FeedController
         };
         // -------- *** --------
 
+        $sort_options = [];
+        foreach (self::ALLOWED_FIELDS as $al) {
+            $sort_options[] = [
+                'active' => false,
+                'url'    => '?order_by=' . $al . '^',
+                'label'  => _m('{order_by} ascending', ['{order_by}' => ucfirst($al)]),
+            ];
+            $sort_options[] = [
+                'active' => false,
+                'url'    => '?order_by=' . $al . 'v',
+                'label'  => _m('{order_by} descending', ['{order_by}' => ucfirst($al)]),
+            ];
+        }
+
         return [
             '_template'     => 'directory/actors.html.twig',
             'actors'        => $query_fn($actor_type),
             'title'         => $title,
             'empty_message' => $empty_message,
+            'sort_options'  => $sort_options,
             'page'          => $page,
         ];
     }
