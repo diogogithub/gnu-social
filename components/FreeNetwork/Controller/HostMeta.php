@@ -16,7 +16,7 @@ use Component\FreeNetwork\Util\XrdController;
 
 class HostMeta extends XrdController
 {
-    protected string $default_mimetype = Discovery::XRD_MIMETYPE;
+    protected string $default_mimetype = Discovery::JRD_MIMETYPE;
 
     public function setXRD()
     {
