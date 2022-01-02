@@ -38,7 +38,6 @@ use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use Component\Collection\Util\Controller\FeedController;
-use Component\Feed\Feed;
 use Symfony\Component\HttpFoundation\Request;
 
 class Feeds extends FeedController
@@ -52,9 +51,8 @@ class Feeds extends FeedController
     public function network(Request $request): array
     {
         Common::ensureLoggedIn();
-        $data = Feed::query(
+        $data = $this->query(
             query: 'note-local:false',
-            page: $this->int('p'),
             language: Common::actor()?->getTopLanguage()?->getLocale(),
         );
         return [
@@ -101,9 +99,8 @@ class Feeds extends FeedController
     public function federated(Request $request): array
     {
         Common::ensureLoggedIn();
-        $data = Feed::query(
+        $data = $this->query(
             query: '',
-            page: $this->int('p'),
             language: Common::actor()?->getTopLanguage()?->getLocale(),
         );
         return [

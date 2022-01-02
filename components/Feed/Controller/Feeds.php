@@ -38,7 +38,6 @@ namespace Component\Feed\Controller;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use Component\Collection\Util\Controller\FeedController;
-use Component\Feed\Feed;
 use Symfony\Component\HttpFoundation\Request;
 
 class Feeds extends FeedController
@@ -48,9 +47,8 @@ class Feeds extends FeedController
      */
     public function public(Request $request): array
     {
-        $data = Feed::query(
+        $data = $this->query(
             query: 'note-local:true',
-            page: $this->int('p'),
             language: Common::actor()?->getTopLanguage()?->getLocale(),
         );
         return [
@@ -67,9 +65,8 @@ class Feeds extends FeedController
     {
         $user  = Common::ensureLoggedIn();
         $actor = $user->getActor();
-        $data  = Feed::query(
+        $data  = $this->query(
             query: 'note-from:subscribed-person,subscribed-group,subscribed-organization,subscribed-business',
-            page: $this->int('p'),
             language: $actor->getTopLanguage()->getLocale(),
             actor: $actor,
         );

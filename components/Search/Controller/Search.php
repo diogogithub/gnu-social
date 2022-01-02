@@ -31,7 +31,6 @@ use App\Util\Exception\RedirectException;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;
 use Component\Collection\Util\Controller\FeedController;
-use Component\Feed\Feed;
 use Component\Search as Comp;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -49,7 +48,7 @@ class Search extends FeedController
         $language = !\is_null($actor) ? $actor->getTopLanguage()->getLocale() : null;
         $q        = $this->string('q');
 
-        $data   = Feed::query(query: $q, page: $this->int('p'), language: $language);
+        $data   = $this->query(query: $q, language: $language);
         $notes  = $data['notes'];
         $actors = $data['actors'];
 

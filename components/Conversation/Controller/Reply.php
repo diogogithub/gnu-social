@@ -59,8 +59,8 @@ class Reply extends FeedController
         }
 
         $conversation_id = $note->getConversationId();
-        $data  = Feed::query(query: "note-conversation:{$conversation_id}", page: $this->int('p') ?? 1);
-        $notes = $data['notes'];
+        $data            = $this->query(query: "note-conversation:{$conversation_id}");
+        $notes           = $data['notes'];
         return [
             '_template'     => 'collection/notes.html.twig',
             'notes'         => $notes,

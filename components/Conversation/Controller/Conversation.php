@@ -34,7 +34,6 @@ use App\Util\Common;
 use App\Util\Exception\RedirectException;
 use Component\Collection\Util\Controller\FeedController;
 use Component\Conversation\Entity\ConversationMute;
-use Component\Feed\Feed;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -47,7 +46,7 @@ class Conversation extends FeedController
      */
     public function showConversation(Request $request, int $conversation_id)
     {
-        $data  = Feed::query(query: "note-conversation:{$conversation_id}", page: $this->int('p') ?? 1);
+        $data  = $this->query(query: "note-conversation:{$conversation_id}");
         $notes = $data['notes'];
         return [
             '_template'     => 'collection/notes.html.twig',
