@@ -26,6 +26,7 @@ namespace Component\Avatar\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
 use App\Core\Router\Router;
 use App\Util\Common;
 use Component\Attachment\Entity\Attachment;
@@ -148,10 +149,11 @@ class Avatar extends Entity
      */
     public function delete(): bool
     {
-        DB::remove($this);
+        $actor_id   = $this->getActorId();
         $attachment = $this->getAttachment();
+        DB::wrapInTransaction(fn () => DB::removeBy(static::class, ['actor_id' => $actor_id]));
         $attachment->kill();
-        DB::flush();
+        Event::handle('AvatarUpdate', [$actor_id]);
         return true;
     }
 

@@ -135,11 +135,16 @@ class Actor extends Model
                         $temp_file->write($media);
                         $attachment = GSFile::storeFileAsAttachment($temp_file);
                         // Delete current avatar if there's one
-                        $avatar = DB::find('avatar', ['actor_id' => $actor->getId()]);
-                        $avatar?->delete();
-                        DB::wrapInTransaction(function () use ($attachment, $actor) {
+                        if (!\is_null($avatar = DB::findOneBy(\Component\Avatar\Entity\Avatar::class, ['actor_id' => $actor->getId()], return_null: true))) {
+                            $avatar->delete();
+                        }
+                        DB::wrapInTransaction(function () use ($attachment, $actor, $person) {
                             DB::persist($attachment);
-                            DB::persist(\Component\Avatar\Entity\Avatar::create(['actor_id' => $actor->getId(), 'attachment_id' => $attachment->getId()]));
+                            DB::persist(\Component\Avatar\Entity\Avatar::create([
+                                'actor_id'      => $actor->getId(),
+                                'attachment_id' => $attachment->getId(),
+                                'title'         => $person->get('icon')->get('name') ?? null,
+                            ]));
                         });
                         Event::handle('AvatarUpdate', [$actor->getId()]);
                     }
@@ -176,11 +181,11 @@ class Actor extends Model
         }
         $rsa        = ActivitypubRsa::getByActor($object);
         $public_key = $rsa->getPublicKey();
-        $uri        = null;
+        $uri        = $object->getUri(Router::ABSOLUTE_URL);
         $attr       = [
             '@context'  => 'https://www.w3.org/ns/activitystreams',
             'type'      => 'Person',
-            'id'        => $object->getUri(Router::ABSOLUTE_URL),
+            'id'        => $uri,
             'inbox'     => Router::url('activitypub_actor_inbox', ['gsactor_id' => $object->getId()], Router::ABSOLUTE_URL),
             'outbox'    => Router::url('activitypub_actor_outbox', ['gsactor_id' => $object->getId()], Router::ABSOLUTE_URL),
             'following' => Router::url('actor_subscriptions_id', ['id' => $object->getId()], Router::ABSOLUTE_URL),
@@ -198,17 +203,38 @@ class Actor extends Model
             'published' => $object->getCreated()->format(DateTimeInterface::RFC3339),
             'summary'   => $object->getBio(),
             //'tag' => $object->getSelfTags(),
-            'updated' => $object->getModified()->format(DateTimeInterface::RFC3339),
-            'url'     => $object->getUrl(Router::ABSOLUTE_URL),
+            'updated'   => $object->getModified()->format(DateTimeInterface::RFC3339),
+            'url'       => $object->getUrl(Router::ABSOLUTE_URL),
+            'endpoints' => [
+                'sharedInbox' => Router::url('activitypub_inbox', type: Router::ABSOLUTE_URL),
+            ],
         ];
 
         // Avatar
         try {
             $avatar       = Avatar::getAvatar($object->getId());
-            $attr['icon'] = $attr['image'] = [
+            $attr['icon'] = [
                 'type'      => 'Image',
+                'summary'   => 'Small Avatar',
+                'name'      => \is_null($avatar->getTitle()) ? null : 'small-' . $avatar->getTitle(),
                 'mediaType' => $avatar->getAttachment()->getMimetype(),
-                'url'       => $avatar->getUrl(type: Router::ABSOLUTE_URL),
+                'url'       => $avatar->getUrl(size: 'small', type: Router::ABSOLUTE_URL),
+            ];
+            $attr['image'] = [
+                [
+                    'type'      => 'Image',
+                    'summary'   => 'Medium Avatar',
+                    'name'      => \is_null($avatar->getTitle()) ? null : 'medium-' . $avatar->getTitle(),
+                    'mediaType' => $avatar->getAttachment()->getMimetype(),
+                    'url'       => $avatar->getUrl(size: 'medium', type: Router::ABSOLUTE_URL),
+                ],
+                [
+                    'type'      => 'Image',
+                    'summary'   => 'Full Avatar',
+                    'name'      => $avatar->getTitle(),
+                    'mediaType' => $avatar->getAttachment()->getMimetype(),
+                    'url'       => $avatar->getUrl(size: 'full', type: Router::ABSOLUTE_URL),
+                ],
             ];
         } catch (Exception) {
             // No icon for this actor
