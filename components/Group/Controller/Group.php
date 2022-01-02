@@ -39,6 +39,7 @@ use Component\Collection\Util\ActorControllerTrait;
 use Component\Collection\Util\Controller\FeedController;
 use Component\Group\Entity\GroupMember;
 use Component\Group\Entity\LocalGroup;
+use Component\Subscription\Entity\Subscription;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -91,7 +92,7 @@ class Group extends FeedController
                         'group_id' => $group->getId(),
                         'nickname' => $nickname,
                     ]));
-                    DB::persist(E\Subscription::create([
+                    DB::persist(Subscription::create([
                         'subscriber' => $group->getId(),
                         'subscribed' => $group->getId(),
                     ]));
@@ -115,7 +116,7 @@ class Group extends FeedController
         } else {
             if (!\is_null($actor)
                 && \is_null(Cache::get(
-                    E\Subscription::cacheKeys($actor, $group)['subscribed'],
+                    Subscription::cacheKeys($actor, $group)['subscribed'],
                     fn () => DB::findOneBy('subscription', [
                         'subscriber' => $actor->getId(),
                         'subscribed' => $group->getId(),
@@ -125,14 +126,14 @@ class Group extends FeedController
                 $subscribe_form = Form::create([['subscribe', SubmitType::class, ['label' => _m('Subscribe to this group')]]]);
                 $subscribe_form->handleRequest($request);
                 if ($subscribe_form->isSubmitted() && $subscribe_form->isValid()) {
-                    DB::persist(E\Subscription::create([
+                    DB::persist(Subscription::create([
                         'subscriber' => $actor->getId(),
                         'subscribed' => $group->getId(),
                     ]));
                     DB::flush();
                     Cache::delete(E\Actor::cacheKeys($group->getId())['subscriber']);
                     Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribed']);
-                    Cache::delete(E\Subscription::cacheKeys($actor, $group)['subscribed']);
+                    Cache::delete(Subscription::cacheKeys($actor, $group)['subscribed']);
                 }
             }
         }

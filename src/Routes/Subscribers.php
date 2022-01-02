@@ -34,9 +34,9 @@ declare(strict_types = 1);
 
 namespace App\Routes;
 
-use App\Controller as C;
 use App\Core\Router\RouteLoader;
 use App\Util\Nickname;
+use Component\Subscription\Controller as C;
 
 abstract class Subscribers
 {

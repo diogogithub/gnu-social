@@ -21,34 +21,40 @@ declare(strict_types = 1);
 
 // }}}
 
-namespace App\Controller;
+namespace Component\Subscription\Controller;
 
-use App\Core\Controller\ActorController;
+use function App\Core\I18n\_m;
+use Component\Collection\Util\ActorControllerTrait;
+use Component\Collection\Util\Controller\CircleController;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Collection of an actor's subscriptions
+ * Collection of an actor's subscribers
  */
-class Subscriptions extends ActorController
+class Subscribers extends CircleController
 {
-    public function subscriptionsByActorId(Request $request, int $id)
+    use ActorControllerTrait;
+    public function subscribersByActorId(Request $request, int $id)
     {
         return $this->handleActorById(
             $id,
             fn ($actor) => [
-                '_template' => 'subscriptions/view.html.twig',
-                'actor'     => $actor,
+                'actor' => $actor,
             ],
         );
     }
 
-    public function subscriptionsByActorNickname(Request $request, string $nickname)
+    public function subscribersByActorNickname(Request $request, string $nickname)
     {
         return $this->handleActorByNickname(
             $nickname,
             fn ($actor) => [
-                '_template' => 'subscriptions/view.html.twig',
-                'actor'     => $actor,
+                '_template'     => 'collection/actors.html.twig',
+                'title'         => _m('Subscribers'),
+                'empty_message' => _m('No subscribers'),
+                'sort_options'  => [],
+                'page'          => $this->int('page') ?? 1,
+                'actors'        => $actor->getSubscribers(),
             ],
         );
     }

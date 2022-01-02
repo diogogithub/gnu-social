@@ -37,6 +37,7 @@ use App\Util\Nickname;
 use Component\Avatar\Avatar;
 use Component\Language\Entity\ActorLanguage;
 use Component\Language\Entity\Language;
+use Component\Subscription\Entity\Subscription;
 use DateTimeInterface;
 use Functional as F;
 
@@ -242,26 +243,26 @@ class Actor extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public const PERSON       = 1;
-    public const GROUP        = 2;
+    public const PERSON = 1;
+    public const GROUP = 2;
     public const ORGANIZATION = 3;
-    public const BUSINESS     = 4;
-    public const BOT          = 5;
+    public const BUSINESS = 4;
+    public const BOT = 5;
 
     public static function cacheKeys(int|self $actor_id, mixed $other = null): array
     {
         $actor_id = \is_int($actor_id) ? $actor_id : $actor_id->getId();
 
         return [
-            'id'                => "actor-id-{$actor_id}",
-            'nickname'          => "actor-nickname-id-{$actor_id}",
-            'fullname'          => "actor-fullname-id-{$actor_id}",
-            'tags'              => \is_null($other) ? "actor-tags-{$actor_id}" : "actor-tags-{$actor_id}-by-{$other}", // $other is $context_id
-            'circles'           => "actor-circles-{$actor_id}",
-            'subscriber'        => "subscriber-{$actor_id}",
-            'subscribed'        => "subscribed-{$actor_id}",
+            'id' => "actor-id-{$actor_id}",
+            'nickname' => "actor-nickname-id-{$actor_id}",
+            'fullname' => "actor-fullname-id-{$actor_id}",
+            'tags' => \is_null($other) ? "actor-tags-{$actor_id}" : "actor-tags-{$actor_id}-by-{$other}", // $other is $context_id
+            'circles' => "actor-circles-{$actor_id}",
+            'subscriber' => "subscriber-{$actor_id}",
+            'subscribed' => "subscribed-{$actor_id}",
             'relative-nickname' => "actor-{$actor_id}-relative-nickname-{$other}", // $other is $nickname
-            'can-admin'         => "actor-{$actor_id}-can-admin-{$other}", // $other is an actor id
+            'can-admin' => "actor-{$actor_id}-can-admin-{$other}", // $other is an actor id
         ];
     }
 
@@ -286,17 +287,17 @@ class Actor extends Entity
 
     public static function getById(int $id): ?self
     {
-        return Cache::get(self::cacheKeys($id)['id'], fn () => DB::find('actor', ['id' => $id]));
+        return Cache::get(self::cacheKeys($id)['id'], fn() => DB::find('actor', ['id' => $id]));
     }
 
     public static function getNicknameById(int $id): string
     {
-        return Cache::get(self::cacheKeys($id)['nickname'], fn () => self::getById($id)->getNickname());
+        return Cache::get(self::cacheKeys($id)['nickname'], fn() => self::getById($id)->getNickname());
     }
 
     public static function getFullnameById(int $id): ?string
     {
-        return Cache::get(self::cacheKeys($id)['fullname'], fn () => self::getById($id)->getFullname());
+        return Cache::get(self::cacheKeys($id)['fullname'], fn() => self::getById($id)->getFullname());
     }
 
     /**
@@ -324,8 +325,8 @@ class Actor extends Entity
      *                                - If null = All tags attributed to self by other actors (excludes self tags)
      *                                - If self = Same as getSelfTags
      *                                - otherwise = Tags that $context attributed to $this
-     * @param null|int       $offset  Offset from latest
-     * @param null|int       $limit   Max number to get
+     * @param null|int $offset Offset from latest
+     * @param null|int $limit Max number to get
      *
      * @return ActorTag[] resulting lists
      */
@@ -334,7 +335,7 @@ class Actor extends Entity
         if (\is_null($context)) {
             return Cache::getList(
                 self::cacheKeys($this->getId())['tags'],
-                fn () => DB::dql(
+                fn() => DB::dql(
                     <<< 'EOQ'
                         SELECT tag
                         FROM actor_tag tag
@@ -349,7 +350,7 @@ class Actor extends Entity
             $context_id = \is_int($context) ? $context : $context->getId();
             return Cache::getList(
                 self::cacheKeys($this->getId(), $context_id)['tags'],
-                fn () => DB::dql(
+                fn() => DB::dql(
                     <<< 'EOQ'
                         SELECT tag
                         FROM actor_tag tag
@@ -367,7 +368,7 @@ class Actor extends Entity
     {
         return Cache::getList(
             self::cacheKeys($this->getId())['circles'],
-            fn () => DB::findBy('actor_circle', ['tagger' => $this->getId()]),
+            fn() => DB::findBy('actor_circle', ['tagger' => $this->getId()]),
         );
     }
 
@@ -375,10 +376,7 @@ class Actor extends Entity
     {
         return Cache::get(
             self::cacheKeys($this->getId())[$which],
-            fn () => DB::dql(
-                "select count(s) from subscription s where s.{$column} = :{$column}", // Not injecting the parameter value
-                [$column => $this->getId()],
-            )[0][1] - ($this->getIsLocal() ? 1 : 0), // Remove self subscription if local
+            fn() => DB::count(Subscription::class, [$column => $this->getId()]) - ($this->getIsLocal() ? 1 : 0)
         );
     }
 
@@ -387,9 +385,29 @@ class Actor extends Entity
         return $this->getSubCount(which: 'subscriber', column: 'subscribed_id');
     }
 
-    public function getSubscribedCount()
+    public function getSubscribedCount(): int
     {
         return $this->getSubCount(which: 'subscribed', column: 'subscriber_id');
+    }
+
+    public function getSubscriptions(): array
+    {
+        return DB::dql(<<<EOF
+            SELECT a FROM actor AS a
+            INNER JOIN subscription AS s
+            WITH a.id = s.subscribed_id
+            WHERE s.subscriber_id = :self AND a.id != :self
+        EOF, ['self' => $this->getId()]);
+    }
+
+    public function getSubscribers(): array
+    {
+        return DB::dql(<<<EOF
+            SELECT a FROM actor AS a
+            INNER JOIN subscription AS s
+            WITH a.id = s.subscriber_id
+            WHERE s.subscribed_id = :self AND a.id != :self
+        EOF, ['self' => $this->getId()]);
     }
 
     /**

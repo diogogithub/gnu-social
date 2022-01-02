@@ -9,10 +9,10 @@ use App\Core\VisibilityScope;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Entity\Note;
-use App\Entity\Subscription;
 use Component\Group\Entity\GroupInbox;
 use Component\Group\Entity\GroupMember;
 use Component\Group\Entity\LocalGroup;
+use Component\Subscription\Entity\Subscription;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
