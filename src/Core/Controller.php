@@ -132,6 +132,8 @@ abstract class Controller extends AbstractController implements EventSubscriberI
         Event::handle('OverrideTemplate', [$this->vars, &$template]); // Allow plugins to replace the template used for anything
         unset($this->vars['_template'], $response['_template']);
 
+        $redirect = $this->vars['_redirect'] ?? false;
+
         $controller = $this->vars['controller'];
         if (\is_array($controller)) {
             $controller = $controller[0];
@@ -156,7 +158,9 @@ abstract class Controller extends AbstractController implements EventSubscriberI
                 $event->setResponse(new JsonResponse($response));
                 break;
             default: // html (assume if not specified)
-                if ($template !== null) {
+                if ($redirect !== false) {
+                    $event->setResponse(new RedirectResponse($redirect));
+                } elseif (!\is_null($template)) {
                     $event->setResponse($this->render($template, $this->vars));
                     break;
                 } else {

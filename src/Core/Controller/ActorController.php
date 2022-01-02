@@ -36,7 +36,6 @@ use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Core\Router\Router;
 use App\Util\Exception\ClientException;
-use App\Util\Exception\RedirectException;
 use Component\Feed\Util\FeedController;
 
 abstract class ActorController extends FeedController
@@ -48,7 +47,7 @@ abstract class ActorController extends FeedController
     {
         $actor = DB::findOneBy('actor', ['id' => $id]);
         if ($actor->getIsLocal()) {
-            throw new RedirectException(url: $actor->getUrl(Router::ABSOLUTE_PATH));
+            return ['_redirect' => $actor->getUrl(Router::ABSOLUTE_PATH), 'actor' => $actor];
         }
         if (empty($actor)) {
             throw new ClientException(_m('No such actor.'), 404);
