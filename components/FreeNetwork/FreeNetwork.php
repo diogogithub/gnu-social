@@ -54,8 +54,6 @@ use Component\FreeNetwork\Util\WebfingerResource;
 use Component\FreeNetwork\Util\WebfingerResource\WebfingerResourceActor;
 use Component\FreeNetwork\Util\WebfingerResource\WebfingerResourceNote;
 use Exception;
-use Plugin\ActivityPub\Entity\ActivitypubActivity;
-use Plugin\ActivityPub\Util\TypeResponse;
 use const PREG_SET_ORDER;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -209,9 +207,8 @@ class FreeNetwork extends Component
             return Event::stop; // We got our target, stop handler execution
         }
 
-        $APNote = ActivitypubActivity::getByPK(['object_uri' => $resource]);
-        if ($APNote instanceof ActivitypubActivity) {
-            $target = new WebfingerResourceNote(Note::getByPK(['id' => $APNote->getObjectId()]));
+        if (!\is_null($note = DB::findOneBy(Note::class, ['url' => $resource], return_null: true))) {
+            $target = new WebfingerResourceNote($note);
             return Event::stop; // We got our target, stop handler execution
         }
 
@@ -270,7 +267,7 @@ class FreeNetwork extends Component
      * @throws ClientException
      * @throws ServerException
      */
-    public function onControllerResponseInFormat(string $route, array $accept_header, array $vars, ?TypeResponse &$response = null): bool
+    public function onControllerResponseInFormat(string $route, array $accept_header, array $vars, ?Response &$response = null): bool
     {
         if (!\in_array($route, ['freenetwork_hostmeta', 'freenetwork_hostmeta_format', 'freenetwork_webfinger', 'freenetwork_webfinger_format', 'freenetwork_ownerxrd'])) {
             return Event::next;
@@ -300,6 +297,9 @@ class FreeNetwork extends Component
             Discovery::XRD_MIMETYPE => new Response(content: $vars['xrd']->to('xml'), headers: $headers),
             Discovery::JRD_MIMETYPE, Discovery::JRD_MIMETYPE_OLD => new JsonResponse(data: $vars['xrd']->to('json'), headers: $headers, json: true),
         };
+
+        $response->headers->set('cache-control', 'no-store, no-cache, must-revalidate');
+
         return Event::stop;
     }
 

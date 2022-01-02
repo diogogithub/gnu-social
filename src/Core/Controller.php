@@ -158,16 +158,6 @@ abstract class Controller extends AbstractController implements EventSubscriberI
             default: // html (assume if not specified)
                 if ($template !== null) {
                     $event->setResponse($this->render($template, $this->vars));
-
-                    /*                    // Setting the Content-Security-Policy response header
-                                        $policy = "default-src 'self';"
-                                            . "script-src 'strict-dynamic' https: http:;"
-                                            . "object-src 'none'; base-uri 'none'";
-                                        $potential_response = $event->getResponse();
-                                        $potential_response->headers->set('Content-Security-Policy', $policy);
-                                        $potential_response->headers->set('X-Content-Security-Policy', $policy);
-                                        $potential_response->headers->set('X-WebKit-CSP', $policy);*/
-
                     break;
                 } else {
                     throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
@@ -179,6 +169,18 @@ abstract class Controller extends AbstractController implements EventSubscriberI
             }
             $event->setResponse($potential_response); // @phpstan-ignore-line
         }
+
+        // Set some inoffensive headers to every controller
+        // TODO: If response already has this set, do not reset!
+        $event->getResponse()->headers->set('permissions-policy', 'interest-cohort=()');
+        $event->getResponse()->headers->set('strict-transport-security', 'max-age=15768000; preload;');
+        $event->getResponse()->headers->set('vary', 'Accept-Encoding,Cookie');
+        $event->getResponse()->headers->set('x-frame-options', 'SAMEORIGIN');
+        $event->getResponse()->headers->set('x-xss-protection', '1; mode=block');
+        $policy = "default-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; style-src 'self' 'unsafe-inline'; img-src * blob: data:;";
+        $event->getResponse()->headers->set('Content-Security-Policy', $policy);
+        $event->getResponse()->headers->set('X-Content-Security-Policy', $policy);
+        $event->getResponse()->headers->set('X-WebKit-CSP', $policy);
 
         Event::handle('CleanupModule');
 
