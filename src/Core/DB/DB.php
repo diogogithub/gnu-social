@@ -269,7 +269,7 @@ class DB
 
     public static function removeBy(string $table, array $criteria): void
     {
-        $class = self::$table_map[$table];
+        $class = self::$table_map[$table] ?? $table; // We're often already given the class's name
         if (empty(array_intersect(self::getPKForClass($class), array_keys($criteria)))) {
             self::remove(self::findOneBy($class, $criteria));
         } else {
