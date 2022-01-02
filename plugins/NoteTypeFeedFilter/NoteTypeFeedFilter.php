@@ -53,6 +53,11 @@ class NoteTypeFeedFilter extends Plugin
         return new ClientException(_m('Unknown note type requested ({type})', ['{type}' => $type]));
     }
 
+    /**
+     * Normalize the given $types so only those in self::ALLOWED_TYPES
+     * are present, filling in the missing ones with the negated
+     * version
+     */
     private function normalizeTypesList(array $types, bool $add_missing = true): array
     {
         if (empty($types)) {
@@ -84,13 +89,23 @@ class NoteTypeFeedFilter extends Plugin
         }
     }
 
+    /**
+     * Remove Notes from $notes if the GET parameter note-types requests they shoud
+     *
+     * Includes if any positive type matches, but removes if any negated matches
+     */
     public function onFilterNoteList(?Actor $actor, array &$notes, Request $request): bool
     {
         $types = $this->normalizeTypesList(\is_null($request->get('note-types')) ? [] : explode(',', $request->get('note-types')));
         $notes = F\select(
             $notes,
+            /**
+             * Filter each note based on the requested $types
+             *
+             * @TODO Would like to express this as a reduce of some sort
+             */
             function (Note $note) use ($types) {
-                $include = false; // TODO Would like to express this as a reduce of some sort...
+                $include = false;
                 foreach ($types as $type) {
                     $is_negate = $type[0] === '!';
                     $type = Formatting::removePrefix($type, '!');

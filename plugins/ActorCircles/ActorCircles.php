@@ -60,6 +60,7 @@ class ActorCircles extends MetaCollectionPlugin
         $actor = DB::findOneBy(Actor::class, ['nickname' => $nick]);
         return $actor->getId();
     }
+
     protected function createCollection(Actor $owner, array $vars, string $name)
     {
         $actor_id = $this->getActorIdFromVars($vars);
@@ -73,6 +74,7 @@ class ActorCircles extends MetaCollectionPlugin
             'circle_id' => $col->getId(),
         ]));
     }
+
     protected function removeItems(Actor $owner, array $vars, $items, array $collections)
     {
         $actor_id = $this->getActorIdFromVars($vars);
@@ -86,6 +88,7 @@ class ActorCircles extends MetaCollectionPlugin
             'ids'      => $items,
         ]);
     }
+
     protected function addItems(Actor $owner, array $vars, $items, array $collections)
     {
         $actor_id = $this->getActorIdFromVars($vars);
@@ -99,6 +102,10 @@ class ActorCircles extends MetaCollectionPlugin
             }
         }
     }
+
+    /**
+     * @see MetaCollectionPlugin->shouldAddToRightPanel
+     */
     protected function shouldAddToRightPanel(Actor $user, $vars, Request $request): bool
     {
         return
@@ -107,6 +114,7 @@ class ActorCircles extends MetaCollectionPlugin
             || $vars['path'] === 'group_actor_view_nickname'
             || $vars['path'] === 'group_actor_view_id';
     }
+
     protected function getCollectionsBy(Actor $owner, ?array $vars = null, bool $ids_only = false): array
     {
         if (\is_null($vars)) {
@@ -158,6 +166,7 @@ class ActorCircles extends MetaCollectionPlugin
         );
         return Event::next;
     }
+
     public function onCreateDefaultFeeds(int $actor_id, LocalUser $user, int &$ordering)
     {
         DB::persist(Feed::create([

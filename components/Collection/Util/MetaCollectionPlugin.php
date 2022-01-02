@@ -54,8 +54,12 @@ abstract class MetaCollectionPlugin extends Plugin
     abstract protected function removeItems(Actor $owner, array $vars, $items, array $collections);
     abstract protected function addItems(Actor $owner, array $vars, $items, array $collections);
 
+    /**
+     * Check the route to determine whether the widget should be added
+     */
     abstract protected function shouldAddToRightPanel(Actor $user, $vars, Request $request): bool;
     abstract protected function getCollectionsBy(Actor $owner, ?array $vars = null, bool $ids_only = false): array;
+
     /**
      * Append Collections widget to the right panel.
      * It's compose of two forms: one to select collections to add
@@ -152,6 +156,7 @@ abstract class MetaCollectionPlugin extends Plugin
         );
         return Event::next;
     }
+
     public function onEndShowStyles(array &$styles, string $route): bool
     {
         $styles[] = 'components/Collection/assets/css/widget.css';

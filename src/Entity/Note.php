@@ -407,6 +407,10 @@ class Note extends Entity
         $this->object_mentions_ids = $mentions;
         return $this;
     }
+
+    /**
+     * @see Entity->getNotificationTargetIds
+     */
     public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
         $target_ids = $this->object_mentions_ids ?? [];
