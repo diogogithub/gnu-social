@@ -28,7 +28,7 @@ use App\Core\DB\DB;
 use App\Core\Router\Router;
 use Plugin\AttachmentCollections\Entity\AttachmentCollection;
 
-class Controller extends CollectionController
+class AttachmentCollections extends CollectionController
 {
     public function createCollection(int $owner_id, string $name)
     {
@@ -64,7 +64,7 @@ class Controller extends CollectionController
             ['cid' => $collection_id],
         );
         return [
-            '_template'   => 'AttachmentCollections/collection.html.twig',
+            '_template'   => 'AttachmentCollections/collection_entry_view.html.twig',
             'attachments' => array_values($attachs),
             'bare_notes'  => array_values($notes),
         ];

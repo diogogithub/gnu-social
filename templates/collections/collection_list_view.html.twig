@@ -1,0 +1,34 @@
+{% extends 'stdgrid.html.twig' %}
+
+{% block title %}{{ page_title | trans }}{% endblock %}
+
+{% block body %}
+    <div class="section-widget section-padding">
+        <h2 class="section-widget-title">{{ page_title | trans }}</h2>
+        {% if add_collection %}
+            <div class="section-widget section-form">
+                {{ form(add_collection) }}
+            </div>
+        {% endif %}
+        <div class="section-widget collections-list">
+            <h3>{{ list_title | trans }}</h3>
+            {% for col in collections %}
+                <div class="collection-item">
+                    <a class="name" href="{{ fn.getUrl(col.id) }}">{{ col.name }}</a>
+                    <details title="Expand if you want to edit the collection's name">
+                        <summary>
+                            <span class="collection-action">{{ icon('edit') | raw }}</span>
+                        </summary>
+                        {{ form(fn.editForm(col)) }}
+                    </details>
+                    <details title="Expand if you want to delete the collection">
+                        <summary>
+                            <span class="collection-action">{{ icon('delete') | raw }}</span>
+                        </summary>
+                        {{ form(fn.rmForm(col)) }}
+                    </details>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock body %}

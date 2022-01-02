@@ -33,7 +33,6 @@ namespace Plugin\AttachmentCollections;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use function App\Core\I18n\_m;
 use App\Core\Modules\Collection;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
@@ -41,10 +40,11 @@ use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
 use App\Util\Nickname;
-use Plugin\AttachmentCollections\Controller as C;
+use Plugin\AttachmentCollections\Controller\AttachmentCollections as AttachmentCollectionsController;
 use Plugin\AttachmentCollections\Entity\AttachmentCollection;
 use Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 class AttachmentCollections extends Collection
 {
@@ -128,23 +128,23 @@ class AttachmentCollections extends Collection
         $r->connect(
             id: 'collections_view_by_actor_id',
             uri_path: '/actor/{id<\d+>}/collections',
-            target: [C\Controller::class, 'collectionsViewByActorId'],
+            target: [AttachmentCollectionsController::class, 'collectionsListViewByActorId'],
         );
         $r->connect(
             id: 'collections_view_by_nickname',
             uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/collections',
-            target: [C\Controller::class, 'collectionsByActorNickname'],
+            target: [AttachmentCollectionsController::class, 'collectionsListViewByActorNickname'],
         );
         // View notes from a collection by actor id and nickname
         $r->connect(
             id: 'collection_notes_view_by_actor_id',
             uri_path: '/actor/{id<\d+>}/collections/{cid<\d+>}',
-            target: [C\Controller::class, 'collectionNotesViewByActorId'],
+            target: [AttachmentCollectionsController::class, 'collectionsEntryViewNotesByActorId'],
         );
         $r->connect(
             id: 'collection_notes_view_by_nickname',
             uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/collections/{cid<\d+>}',
-            target: [C\Controller::class, 'collectionNotesByNickname'],
+            target: [AttachmentCollectionsController::class, 'collectionsEntryViewNotesByNickname'],
         );
         return Event::next;
     }
