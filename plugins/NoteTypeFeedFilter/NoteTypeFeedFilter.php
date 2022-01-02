@@ -43,6 +43,7 @@ use App\Util\Functional as GSF;
 use Functional as F;
 use Symfony\Component\HttpFoundation\Request;
 
+// TODO: Migrate this to query filters
 class NoteTypeFeedFilter extends Plugin
 {
     public const ALLOWED_TYPES = ['media', 'link', 'text', 'tag'];

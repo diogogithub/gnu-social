@@ -28,7 +28,7 @@ use function App\Core\I18n\_m;
 use App\Entity\Actor;
 use App\Util\Exception\BugFoundException;
 use App\Util\Exception\ClientException;
-use Component\Feed\Util\FeedController;
+use Component\Collection\Util\Controller\CircleController;
 use Symfony\Component\HttpFoundation\Request;
 
 class Directory extends FeedController
@@ -144,7 +144,7 @@ class Directory extends FeedController
         }
 
         return [
-            '_template'     => 'directory/actors.html.twig',
+            '_template'     => 'collection/actors.html.twig',
             'actors'        => $query_fn($actor_type),
             'title'         => $title,
             'empty_message' => $empty_message,

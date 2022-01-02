@@ -35,7 +35,7 @@ use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use Component\Feed\Util\FeedController;
+use Component\Collection\Util\Controller\FeedController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -174,7 +174,7 @@ class Favourite extends FeedController
         );
 
         return [
-            '_template'  => 'feed/feed.html.twig',
+            '_template'  => 'collection/notes.html.twig',
             'page_title' => 'Favourites feed.',
             'notes'      => $notes,
         ];
@@ -207,7 +207,7 @@ class Favourite extends FeedController
         );
 
         return [
-            '_template'  => 'feed/feed.html.twig',
+            '_template'  => 'collection/notes.html.twig',
             'page_title' => 'Reverse favourites feed.',
             'notes'      => $notes,
         ];

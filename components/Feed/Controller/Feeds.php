@@ -37,8 +37,8 @@ namespace Component\Feed\Controller;
 
 use function App\Core\I18n\_m;
 use App\Util\Common;
+use Component\Collection\Util\Controller\FeedController;
 use Component\Feed\Feed;
-use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
 
 class Feeds extends FeedController
@@ -54,7 +54,7 @@ class Feeds extends FeedController
             language: Common::actor()?->getTopLanguage()?->getLocale(),
         );
         return [
-            '_template'  => 'feed/feed.html.twig',
+            '_template'  => 'collection/notes.html.twig',
             'page_title' => _m(\is_null(Common::user()) ? 'Feed' : 'Planet'),
             'notes'      => $data['notes'],
         ];
@@ -74,7 +74,7 @@ class Feeds extends FeedController
             actor: $actor,
         );
         return [
-            '_template'  => 'feed/feed.html.twig',
+            '_template'  => 'collection/notes.html.twig',
             'page_title' => _m('Home'),
             'notes'      => $data['notes'],
         ];

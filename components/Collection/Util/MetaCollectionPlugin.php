@@ -29,12 +29,13 @@ declare(strict_types = 1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Core\Modules;
+namespace Component\Collection\Util;
 
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Core\Modules\Plugin;
 use App\Entity\Actor;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
@@ -44,7 +45,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
-abstract class Collection extends Plugin
+abstract class MetaCollectionPlugin extends Plugin
 {
     protected string $slug        = 'collection';
     protected string $plural_slug = 'collections';
@@ -140,7 +141,7 @@ abstract class Collection extends Plugin
         }
 
         $res[] = Formatting::twigRenderFile(
-            'collections/widget.html.twig',
+            'collection/widget_add_to.html.twig',
             [
                 'ctitle'          => _m('Add to ' . $this->plural_slug),
                 'user'            => $user,

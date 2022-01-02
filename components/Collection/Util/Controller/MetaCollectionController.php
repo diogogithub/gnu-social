@@ -29,20 +29,19 @@ declare(strict_types = 1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Core\Controller;
+namespace Component\Collection\Util\Controller;
 
 use App\Core\DB\DB;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Entity\LocalUser;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
-use Component\Feed\Util\FeedController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
-abstract class CollectionController extends FeedController
+abstract class MetaCollectionController extends FeedController
 {
     protected string $slug        = 'collectionsEntry';
     protected string $plural_slug = 'collectionsList';
@@ -50,19 +49,19 @@ abstract class CollectionController extends FeedController
 
     abstract public function getCollectionUrl(int $owner_id, string $owner_nickname, int $collection_id): string;
     abstract public function getCollectionItems(int $owner_id, $collection_id): array;
-    abstract public function getCollectionsBy(int $owner_id): array;
+    abstract public function getCollectionsByActorId(int $owner_id): array;
     abstract public function getCollectionBy(int $owner_id, int $collection_id);
     abstract public function createCollection(int $owner_id, string $name);
 
-    public function collectionsListViewByActorNickname(Request $request, string $nickname): array
+    public function collectionsViewByActorNickname(Request $request, string $nickname): array
     {
         $user = DB::findOneBy(LocalUser::class, ['nickname' => $nickname]);
-        return self::collectionsListView($request, $user->getId(), $nickname);
+        return self::collectionsView($request, $user->getId(), $nickname);
     }
 
-    public function collectionsListViewByActorId(Request $request, int $id): array
+    public function collectionsViewByActorId(Request $request, int $id): array
     {
-        return self::collectionsListView($request, $id, null);
+        return self::collectionsView($request, $id, null);
     }
 
     /**
@@ -73,12 +72,12 @@ abstract class CollectionController extends FeedController
      *
      * @return array twig template options
      */
-    public function collectionsListView(Request $request, int $id, ?string $nickname): array
+    public function collectionsView(Request $request, int $id, ?string $nickname): array
     {
-        $collections = $this->getCollectionsBy($id);
+        $collections = $this->getCollectionsByActorId($id);
 
-        $create_title = _m('Create a ' . mb_strtolower(preg_replace( '/([a-z0-9])([A-Z])/', "$1 $2", $this->slug)));
-        $collections_title = _m('Your ' . mb_strtolower(preg_replace( '/([a-z0-9])([A-Z])/', "$1 $2", $this->plural_slug)));
+        $create_title      = _m('Create a ' . mb_strtolower(preg_replace('/([a-z0-9])([A-Z])/', '$1 $2', $this->slug)));
+        $collections_title = _m('Your ' . mb_strtolower(preg_replace('/([a-z0-9])([A-Z])/', '$1 $2', $this->plural_slug)));
         // create collection form
         $create = null;
         if (Common::user()?->getId() === $id) {
@@ -191,7 +190,7 @@ abstract class CollectionController extends FeedController
         };
 
         return [
-            '_template'      => 'collections/collection_list_view.html.twig',
+            '_template'      => 'collection/meta_collections.html.twig',
             'page_title'     => $this->page_title,
             'list_title'     => $collections_title,
             'add_collection' => $create?->createView(),

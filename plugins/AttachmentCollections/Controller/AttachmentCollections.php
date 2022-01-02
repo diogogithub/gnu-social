@@ -23,12 +23,12 @@ declare(strict_types = 1);
 
 namespace Plugin\AttachmentCollections\Controller;
 
-use App\Core\Controller\CollectionController;
 use App\Core\DB\DB;
 use App\Core\Router\Router;
+use Component\Collection\Util\Controller\MetaCollectionController;
 use Plugin\AttachmentCollections\Entity\AttachmentCollection;
 
-class AttachmentCollections extends CollectionController
+class AttachmentCollections extends MetaCollectionController
 {
     public function createCollection(int $owner_id, string $name)
     {
@@ -69,7 +69,7 @@ class AttachmentCollections extends CollectionController
             'bare_notes'  => array_values($notes),
         ];
     }
-    public function getCollectionsBy(int $owner_id): array
+    public function getCollectionsByActorId(int $owner_id): array
     {
         return DB::findBy(AttachmentCollection::class, ['actor_id' => $owner_id], order_by: ['id' => 'desc']);
     }

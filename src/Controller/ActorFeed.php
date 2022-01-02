@@ -23,12 +23,14 @@ declare(strict_types = 1);
 
 namespace App\Controller;
 
-use App\Core\Controller\ActorController;
 use App\Entity as E;
+use Component\Collection\Util\ActorControllerTrait;
+use Component\Collection\Util\Controller\FeedController;
 use Symfony\Component\HttpFoundation\Request;
 
-class Actor extends ActorController
+class ActorFeed extends FeedController
 {
+    use ActorControllerTrait;
     public function actorViewId(Request $request, int $id)
     {
         return $this->handleActorById(

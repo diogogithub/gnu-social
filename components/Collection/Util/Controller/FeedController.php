@@ -30,17 +30,15 @@ declare(strict_types = 1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace Component\Feed\Util;
+namespace Component\Collection\Util\Controller;
 
-use App\Core\Controller;
 use App\Core\Event;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
 use Functional as F;
-use function App\Core\I18n\_m;
 
-abstract class FeedController extends Controller
+abstract class FeedController extends OrderedCollection
 {
     /**
      * Post-processing of the result of a feed controller, to remove any

@@ -57,7 +57,7 @@ class Feed extends Controller
                 )
             EOF, ['id' => $user->getId()]);
         return [
-            '_template'     => 'feed/feed.html.twig',
+            '_template'     => 'collection/notes.html.twig',
             'page_title'    => _m('Notifications'),
             'should_format' => true,
             'notes'         => $notes,

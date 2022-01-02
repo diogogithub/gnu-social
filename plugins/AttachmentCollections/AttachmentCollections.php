@@ -33,20 +33,20 @@ namespace Plugin\AttachmentCollections;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Modules\Collection;
+use function App\Core\I18n\_m;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
 use App\Util\Nickname;
+use Component\Collection\Util\MetaCollectionPlugin;
 use Plugin\AttachmentCollections\Controller\AttachmentCollections as AttachmentCollectionsController;
 use Plugin\AttachmentCollections\Entity\AttachmentCollection;
 use Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
-class AttachmentCollections extends Collection
+class AttachmentCollections extends MetaCollectionPlugin
 {
     protected function createCollection(Actor $owner, array $vars, string $name)
     {
@@ -128,12 +128,12 @@ class AttachmentCollections extends Collection
         $r->connect(
             id: 'collections_view_by_actor_id',
             uri_path: '/actor/{id<\d+>}/collections',
-            target: [AttachmentCollectionsController::class, 'collectionsListViewByActorId'],
+            target: [AttachmentCollectionsController::class, 'collectionsViewByActorId'],
         );
         $r->connect(
             id: 'collections_view_by_nickname',
             uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/collections',
-            target: [AttachmentCollectionsController::class, 'collectionsListViewByActorNickname'],
+            target: [AttachmentCollectionsController::class, 'collectionsViewByActorNickname'],
         );
         // View notes from a collection by actor id and nickname
         $r->connect(

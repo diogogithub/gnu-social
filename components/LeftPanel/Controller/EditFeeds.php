@@ -33,7 +33,7 @@ use App\Entity\Feed;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
-use Component\Feed\Util\FeedController;
+use Component\Collection\Util\Controller\FeedController;
 use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;

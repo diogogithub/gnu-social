@@ -30,15 +30,14 @@ declare(strict_types = 1);
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Core\Controller;
+namespace Component\Collection\Util;
 
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Core\Router\Router;
 use App\Util\Exception\ClientException;
-use Component\Feed\Util\FeedController;
 
-abstract class ActorController extends FeedController
+trait ActorControllerTrait
 {
     /**
      * Generic function that handles getting a representation for an actor from id

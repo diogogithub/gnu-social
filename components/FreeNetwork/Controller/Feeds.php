@@ -37,8 +37,8 @@ namespace Component\FreeNetwork\Controller;
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Util\Common;
+use Component\Collection\Util\Controller\FeedController;
 use Component\Feed\Feed;
-use Component\Feed\Util\FeedController;
 use Symfony\Component\HttpFoundation\Request;
 
 class Feeds extends FeedController
@@ -58,7 +58,7 @@ class Feeds extends FeedController
             language: Common::actor()?->getTopLanguage()?->getLocale(),
         );
         return [
-            '_template'     => 'feed/feed.html.twig',
+            '_template'     => 'collection/notes.html.twig',
             'page_title'    => _m('Meteorites'),
             'should_format' => true,
             'notes'         => $data['notes'],
@@ -86,7 +86,7 @@ class Feeds extends FeedController
                 EOF,
         );
         return [
-            '_template'     => 'feed/feed.html.twig',
+            '_template'     => 'collection/notes.html.twig',
             'page_title'    => _m('Planetary System'),
             'should_format' => true,
             'notes'         => $notes,
@@ -107,7 +107,7 @@ class Feeds extends FeedController
             language: Common::actor()?->getTopLanguage()?->getLocale(),
         );
         return [
-            '_template'     => 'feed/feed.html.twig',
+            '_template'     => 'collection/notes.html.twig',
             'page_title'    => _m('Galaxy'),
             'should_format' => true,
             'notes'         => $data['notes'],

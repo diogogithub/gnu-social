@@ -78,7 +78,7 @@ class FeedsTest extends GNUsocialTestCase
             static::assertThrows(ClientException::class, fn () => $feeds->home($req));
         }
         $result = $feeds->{$route}($req, ...$extra_args);
-        static::assertSame($result['_template'], 'feed/feed.html.twig');
+        static::assertSame($result['_template'], 'collection/notes.html.twig');
         foreach ($result['notes'] as $n) {
             static::assertIsArray($n['replies']);
         }

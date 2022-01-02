@@ -39,7 +39,7 @@ use App\Util\Exception\BugFoundException;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use Component\Feed\Util\FeedController;
+use Component\Collection\Util\Controller\FeedController;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

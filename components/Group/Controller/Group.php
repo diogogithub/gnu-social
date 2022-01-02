@@ -24,7 +24,6 @@ declare(strict_types = 1);
 namespace Component\Group\Controller;
 
 use App\Core\Cache;
-use App\Core\Controller\ActorController;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
@@ -36,13 +35,16 @@ use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use App\Util\Form\ActorForms;
 use App\Util\Nickname;
+use Component\Collection\Util\ActorControllerTrait;
+use Component\Collection\Util\Controller\FeedController;
 use Component\Group\Entity\GroupMember;
 use Component\Group\Entity\LocalGroup;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
-class Group extends ActorController
+class Group extends FeedController
 {
+    use ActorControllerTrait;
     public function groupViewId(Request $request, int $id)
     {
         return $this->handleActorById(

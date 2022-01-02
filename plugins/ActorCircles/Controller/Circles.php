@@ -23,12 +23,12 @@ declare(strict_types = 1);
 
 namespace Plugin\ActorCircles\Controller;
 
-use App\Core\Controller\CollectionController;
 use App\Core\DB\DB;
 use App\Core\Router\Router;
+use Component\Collection\Util\Controller\MetaCollectionController;
 use Plugin\ActorCircles\Entity\ActorCircles;
 
-class Controller extends CollectionController
+class Circles extends MetaCollectionController
 {
     protected string $slug        = 'circle';
     protected string $plural_slug = 'circles';
@@ -69,16 +69,16 @@ class Controller extends CollectionController
             ['circle_id' => $collection_id],
         );
         return [
-            '_template' => 'feed/feed.html.twig',
+            '_template' => 'collection/notes.html.twig',
             'notes'     => array_values($notes),
         ];
     }
-    public function getCollectionsBy(int $owner_id): array
+    public function getCollectionsByActorId(int $owner_id): array
     {
         return DB::findBy(ActorCircles::class, ['actor_id' => $owner_id], order_by: ['id' => 'desc']);
     }
     public function getCollectionBy(int $owner_id, int $collection_id): ActorCircles
     {
-        return DB::findOneBy(ActorCircles::class, ['id' => $collection_id]);
+        return DB::findOneBy(ActorCircles::class, ['id' => $collection_id, 'actor_id' => $owner_id]);
     }
 }

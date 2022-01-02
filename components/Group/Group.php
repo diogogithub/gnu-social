@@ -94,7 +94,7 @@ class Group extends Component
         $group = $this->getGroupFromContext($request);
         if (!\is_null($group)) {
             $nick           = '!' . $group->getNickname();
-            $targets[$nick] = $nick;
+            $targets[$nick] = $group->getId();
         }
         return Event::next;
     }

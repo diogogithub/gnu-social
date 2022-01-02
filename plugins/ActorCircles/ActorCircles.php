@@ -34,18 +34,18 @@ namespace Plugin\ActorCircles;
 use App\Core\DB\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
-use App\Core\Modules\Collection;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
 use App\Util\Nickname;
+use Component\Collection\Util\MetaCollectionPlugin;
 use Plugin\ActorCircles\Controller as C;
 use Plugin\ActorCircles\Entity as E;
 use Symfony\Component\HttpFoundation\Request;
 
-class ActorCircles extends Collection
+class ActorCircles extends MetaCollectionPlugin
 {
     protected string $slug        = 'circle';
     protected string $plural_slug = 'circles';
@@ -138,23 +138,23 @@ class ActorCircles extends Collection
         $r->connect(
             id: 'actor_circles_view_by_actor_id',
             uri_path: '/actor/{id<\d+>}/circles',
-            target: [C\Controller::class, 'collectionsViewByActorId'],
+            target: [C\Circles::class, 'collectionsViewByActorId'],
         );
         $r->connect(
             id: 'actor_circles_view_by_nickname',
             uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/circles',
-            target: [C\Controller::class, 'collectionsByActorNickname'],
+            target: [C\Circles::class, 'collectionsViewByActorNickname'],
         );
         // View notes from a circle by actor id and nickname
         $r->connect(
             id: 'actor_circles_notes_view_by_actor_id',
             uri_path: '/actor/{id<\d+>}/circles/{cid<\d+>}',
-            target: [C\Controller::class, 'collectionNotesViewByActorId'],
+            target: [C\Circles::class, 'collectionsEntryViewNotesByActorId'],
         );
         $r->connect(
             id: 'actor_circles_notes_view_by_nickname',
             uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/circles/{cid<\d+>}',
-            target: [C\Controller::class, 'collectionNotesByNickname'],
+            target: [C\Circles::class, 'collectionsEntryViewNotesByNickname'],
         );
         return Event::next;
     }

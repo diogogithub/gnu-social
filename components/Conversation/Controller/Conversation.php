@@ -29,12 +29,12 @@ namespace Component\Conversation\Controller;
 
 use App\Core\DB\DB;
 use App\Core\Form;
+use Component\Collection\Util\Controller\FeedController;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
 use Component\Conversation\Entity\ConversationBlock;
 use Component\Feed\Feed;
-use Component\Feed\Util\FeedController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -50,7 +50,7 @@ class Conversation extends FeedController
         $data  = Feed::query(query: "note-conversation:{$conversation_id}", page: $this->int('p') ?? 1);
         $notes = $data['notes'];
         return [
-            '_template'     => 'feed/feed.html.twig',
+            '_template'     => 'collection/notes.html.twig',
             'notes'         => $notes,
             'should_format' => false,
             'page_title'    => _m('Conversation'),

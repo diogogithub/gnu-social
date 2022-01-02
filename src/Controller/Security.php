@@ -163,7 +163,7 @@ class Security extends Controller
                     $actor,
                     $user,
                     function (int $id) use ($user) {
-                        // Self subscription
+                        // Self subscription for the Home feed and alike
                         DB::persist(Subscription::create(['subscriber_id' => $id, 'subscribed_id' => $id]));
                         Feed::createDefaultFeeds($id, $user);
                     },
