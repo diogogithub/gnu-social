@@ -110,7 +110,7 @@
 embed header {
     display: flex;
     border-bottom: unset;
-    border-radius: 0 2px 0 0;
+    border-radius: 0 var(--s) 0 0;
     line-height: initial;
     padding: 8px var(--s) 8px 0;
 }
@@ -281,6 +281,9 @@ embed header {
 }
 .note-complementary a {
     font-weight: bold;
+}
+.note-complementary:last-of-type {
+    margin-bottom: var(--s);
 }
 .h-entry-language {
     position: relative;
