@@ -197,10 +197,10 @@ class Conversation extends Component
         if ($activity->getObjectType() === 'note') {
             $is_blocked = !empty(DB::dql(
                 <<<'EOQ'
-                    select 1
-                    from note n
-                    join conversation_block cb with n.conversation_id = cb.conversation_id
-                    where n.id = :object_id
+                    SELECT 1
+                    FROM note AS n
+                    JOIN conversation_mute AS cm WITH n.conversation_id = cm.conversation_id
+                    WHERE n.id = :object_id
                     EOQ,
                 ['object_id' => $activity->getObjectId()],
             ));

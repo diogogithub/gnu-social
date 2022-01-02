@@ -27,7 +27,7 @@ use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity class for ConversationsBlocks
+ * Entity class for Conversations Mutes
  *
  * @category  DB
  * @package   GNUsocial
@@ -36,7 +36,7 @@ use DateTimeInterface;
  * @copyright 2022 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ConversationBlock extends Entity
+class ConversationMute extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
@@ -83,7 +83,7 @@ class ConversationBlock extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'conversation_block',
+            'name'   => 'conversation_mute',
             'fields' => [
                 'conversation_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Conversation.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'The conversation being blocked'],
                 'actor_id'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'Who blocked the conversation'],

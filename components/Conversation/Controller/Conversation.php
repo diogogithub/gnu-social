@@ -29,11 +29,11 @@ namespace Component\Conversation\Controller;
 
 use App\Core\DB\DB;
 use App\Core\Form;
-use Component\Collection\Util\Controller\FeedController;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
-use Component\Conversation\Entity\ConversationBlock;
+use Component\Collection\Util\Controller\FeedController;
+use Component\Conversation\Entity\ConversationMute;
 use Component\Feed\Feed;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -66,7 +66,7 @@ class Conversation extends FeedController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            DB::persist(ConversationBlock::create(['conversation_id' => $conversation_id, 'actor_id' => $user->getId()]));
+            DB::persist(ConversationMute::create(['conversation_id' => $conversation_id, 'actor_id' => $user->getId()]));
             DB::flush();
             throw new RedirectException();
         }
