@@ -82,6 +82,11 @@ class NoteFavourite extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public static function getNoteFavourites(Note $note): array
+    {
+        return DB::findBy('note_favourite', ['note_id' => $note->getId()]);
+    }
+
     public static function getNoteFavouriteActors(Note $note): array
     {
         return DB::dql(
