@@ -40,11 +40,11 @@ use Throwable;
 
 class BugFoundException extends ServerException
 {
-    public function __construct(string $log_message, string $message = '', int $code = 500, ?Throwable $previous = null)
+    public function __construct(string $log_message, array $log_context = [], string $message = '', int $code = 500, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
         $frame = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, limit: 2)[1];
         $file  = mb_substr($frame['file'], mb_strlen(INSTALLDIR) + 1);
-        Log::critical("{$log_message} in {$file}:{$frame['line']}");
+        Log::critical("{$log_message} in {$file}:{$frame['line']}", $log_context);
     }
 }
