@@ -8,9 +8,14 @@
 
     <div>
         <p>{% trans %}Sort by:{% endtrans %}</p>
-        {% for option in sort_options %}
-            <a {{ option.active ? 'class="active"' : '' }} href="{{ option.url }}">{{ option.label }}</a>
-        {% endfor %}
+        <form method="GET">
+            {% for field in sort_form_fields %}
+                <label for="order_by_{{ field.value }}">{{ field.label }}</label>
+                <input id="order_by_{{ field.value }}" type="radio" name="order_by" value="{{ field.value }}" {% if field.checked %}checked="checked"{% endif %}>
+            {% endfor %}
+            <button type="submit" name="order_op" value="ASC">{% trans %}Ascending{% endtrans %}</button>
+            <button type="submit" name="order_op" value="DESC">{% trans %}Descending{% endtrans %}</button>
+        </form>
     </div>
 
     <div class="section-padding">

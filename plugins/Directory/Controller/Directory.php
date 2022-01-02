@@ -31,7 +31,7 @@ use App\Util\Exception\ClientException;
 use Component\Collection\Util\Controller\CircleController;
 use Symfony\Component\HttpFoundation\Request;
 
-class Directory extends FeedController
+class Directory extends CircleController
 {
     public const PER_PAGE       = 32;
     public const ALLOWED_FIELDS = ['nickname', 'created', 'modified', 'activity', 'subscribers'];
@@ -62,7 +62,11 @@ class Directory extends FeedController
                 $order_by_op    = 'ASC';
             } else {
                 $order_by_field = $order_by_qs;
-                $order_by_op    = 'ASC';
+                $order_by_op    = match ($this->string('order_op')) {
+                    'ASC'   => 'ASC',
+                    'DESC'  => 'DESC',
+                    default => 'ASC',
+                };
             }
 
             if (!\in_array($order_by_field, self::ALLOWED_FIELDS)) {
@@ -129,27 +133,22 @@ class Directory extends FeedController
         };
         // -------- *** --------
 
-        $sort_options = [];
+        $sort_form_fields = [];
         foreach (self::ALLOWED_FIELDS as $al) {
-            $sort_options[] = [
-                'active' => false,
-                'url'    => '?order_by=' . $al . '^',
-                'label'  => _m('{order_by} ascending', ['{order_by}' => ucfirst($al)]),
-            ];
-            $sort_options[] = [
-                'active' => false,
-                'url'    => '?order_by=' . $al . 'v',
-                'label'  => _m('{order_by} descending', ['{order_by}' => ucfirst($al)]),
+            $sort_form_fields[] = [
+                'checked' => $order_by_field === $al,
+                'value'   => $al,
+                'label'   => _m(ucfirst($al)),
             ];
         }
 
         return [
-            '_template'     => 'collection/actors.html.twig',
-            'actors'        => $query_fn($actor_type),
-            'title'         => $title,
-            'empty_message' => $empty_message,
-            'sort_options'  => $sort_options,
-            'page'          => $page,
+            '_template'        => 'collection/actors.html.twig',
+            'actors'           => $query_fn($actor_type),
+            'title'            => $title,
+            'empty_message'    => $empty_message,
+            'sort_form_fields' => $sort_form_fields,
+            'page'             => $page,
         ];
     }
 
