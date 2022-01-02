@@ -83,4 +83,32 @@ class ActivityFollow extends Activity
         DB::persist($ap_act);
         return $ap_act;
     }
+
+    public static function handle_undo(\App\Entity\Actor $actor, AbstractObject $type_activity, GSActivity $type_object, ?ActivitypubActivity &$ap_act): ActivitypubActivity
+    {
+        // Remove Subscription
+        DB::removeBy(Subscription::class, [
+            'subscriber_id' => $type_object->getActorId(),
+            'subscribed_id' => $type_object->getObjectId(),
+        ]);
+        // Store Activity
+        $act = GSActivity::create([
+            'actor_id'    => $actor->getId(),
+            'verb'        => 'undo',
+            'object_type' => 'activity',
+            'object_id'   => $type_object->getId(),
+            'created'     => new DateTime($type_activity->get('published') ?? 'now'),
+            'source'      => 'ActivityPub',
+        ]);
+        DB::persist($act);
+        // Store ActivityPub Activity
+        $ap_act = ActivitypubActivity::create([
+            'activity_id'  => $act->getId(),
+            'activity_uri' => $type_activity->get('id'),
+            'created'      => new DateTime($type_activity->get('published') ?? 'now'),
+            'modified'     => new DateTime(),
+        ]);
+        DB::persist($ap_act);
+        return $ap_act;
+    }
 }

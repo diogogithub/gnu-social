@@ -32,6 +32,7 @@ declare(strict_types = 1);
 
 namespace Plugin\ActivityPub\Util\Model;
 
+use _PHPStan_4a258568e\Nette\NotImplementedException;
 use ActivityPhp\Type;
 use ActivityPhp\Type\AbstractObject;
 use App\Core\Event;
@@ -108,6 +109,23 @@ class Activity extends Model
                 break;
             case 'Follow':
                 ActivityFollow::handle_core_activity($actor, $type_activity, $type_object, $ap_act);
+                break;
+            case 'Undo':
+                $object_type = $type_object instanceof AbstractObject ? match ($type_object->get('type')) {
+                    'Note' => \App\Entity\Note::class,
+                    // no break
+                    default => throw new NotImplementedException('Unsupported Undo of Object Activity.'),
+                } : $type_object::class;
+                switch ($object_type) {
+                    case GSActivity::class:
+                        switch ($type_object->getVerb()) {
+                            case 'subscribe':
+                                ActivityFollow::handle_undo($actor, $type_activity, $type_object, $ap_act);
+                                break;
+                        }
+                        break;
+                }
+                break;
         }
         return $ap_act;
     }
