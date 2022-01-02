@@ -238,17 +238,17 @@ class Note extends Entity
 
     public function getActor(): Actor
     {
-        return Actor::getById($this->actor_id);
+        return Actor::getById($this->getActorId());
     }
 
     public function getActorNickname(): string
     {
-        return Actor::getNicknameById($this->actor_id);
+        return Actor::getNicknameById($this->getActorId());
     }
 
     public function getActorFullname(): ?string
     {
-        return Actor::getFullnameById($this->actor_id);
+        return Actor::getFullnameById($this->getActorId());
     }
 
     public function getActorAvatarUrl(string $size = 'medium'): string

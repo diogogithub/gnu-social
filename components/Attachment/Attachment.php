@@ -77,7 +77,7 @@ class Attachment extends Component
     /**
      * Populate $note_expr with the criteria for looking for notes with attachments
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr)
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr): bool
     {
         $include_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
         if (Formatting::startsWith($term, ['note-types:', 'notes-incude:', 'note-filter:'])) {

@@ -9,18 +9,16 @@
 {% endblock stylesheets %}
 
 {% block body %}
-    {% if notes is defined and notes is not empty %}
-    <header class="feed-header">
-        {% if page_title is defined %}
-            <h1>{{ page_title | trans }}</h1>
-        {% endif %}
-        <nav class="feed-actions">
-            {% for block in handle_event('AddFeedActions', app.request) %}
-                {{ block | raw }}
-            {% endfor %}
-        </nav>
-    </header>
+<header class="feed-header">
+    {% if page_title is defined %}
+        <h1>{{ page_title | trans }}</h1>
     {% endif %}
+    <nav class="feed-actions">
+        {% for block in handle_event('AddFeedActions', app.request) %}
+            {{ block | raw }}
+        {% endfor %}
+    </nav>
+</header>
 
     {# Backwards compatibility with hAtom 0.1 #}
     <main class="feed" tabindex="0" role="feed">

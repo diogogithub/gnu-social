@@ -34,16 +34,13 @@ namespace Plugin\ActivityPub\Util\Model;
 
 use ActivityPhp\Type;
 use ActivityPhp\Type\AbstractObject;
-use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Router\Router;
 use App\Entity\Activity as GSActivity;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Exception\NotFoundException;
-use DateTime;
 use DateTimeInterface;
-use Exception;
 use InvalidArgumentException;
 use Plugin\ActivityPub\ActivityPub;
 use Plugin\ActivityPub\Entity\ActivitypubActivity;
@@ -105,34 +102,12 @@ class Activity extends Model
 
     private static function handle_core_activity(\App\Entity\Actor $actor, AbstractObject $type_activity, mixed $type_object, ?ActivitypubActivity &$ap_act): ActivitypubActivity
     {
-        if ($type_activity->get('type') === 'Create' && $type_object->get('type') === 'Note') {
-            if ($type_object instanceof AbstractObject) {
-                $note = Note::fromJson($type_object, ['test_authority' => true, 'actor_uri' => $type_activity->get('actor'), 'actor' => $actor, 'actor_id' => $actor->getId()]);
-            } else {
-                if ($type_object instanceof \App\Entity\Note) {
-                    $note = $type_object;
-                } else {
-                    throw new Exception('dunno bro');
-                }
-            }
-            // Store Activity
-            $act = GSActivity::create([
-                'actor_id'    => $actor->getId(),
-                'verb'        => 'create',
-                'object_type' => 'note',
-                'object_id'   => $note->getId(),
-                'created'     => new DateTime($type_activity->get('published') ?? 'now'),
-                'source'      => 'ActivityPub',
-            ]);
-            DB::persist($act);
-            // Store ActivityPub Activity
-            $ap_act = ActivitypubActivity::create([
-                'activity_id'  => $act->getId(),
-                'activity_uri' => $type_activity->get('id'),
-                'created'      => new DateTime($type_activity->get('published') ?? 'now'),
-                'modified'     => new DateTime(),
-            ]);
-            DB::persist($ap_act);
+        switch ($type_activity->get('type')) {
+            case 'Create':
+                ActivityCreate::handle_core_activity($actor, $type_activity, $type_object, $ap_act);
+                break;
+            case 'Follow':
+                ActivityFollow::handle_core_activity($actor, $type_activity, $type_object, $ap_act);
         }
         return $ap_act;
     }
@@ -145,27 +120,28 @@ class Activity extends Model
     public static function toJson(mixed $object, ?int $options = null): string
     {
         if ($object::class !== GSActivity::class) {
-            throw new InvalidArgumentException('First argument type is Activity');
+            throw new InvalidArgumentException('First argument type must be an Activity.');
         }
 
-        $gs_verb_to_activity_stream_two_verb = null;
-        if (Event::handle('GSVerbToActivityStreamsTwoActivityType', [($verb = $object->getVerb()), &$gs_verb_to_activity_stream_two_verb]) === Event::next) {
-            $gs_verb_to_activity_stream_two_verb = match ($verb) {
-                'create' => 'Create',
-                'undo'   => 'Undo',
-                default  => throw new ClientException('Invalid verb'),
+        $gs_verb_to_activity_streams_two_verb = null;
+        if (Event::handle('GSVerbToActivityStreamsTwoActivityType', [($verb = $object->getVerb()), &$gs_verb_to_activity_streams_two_verb]) === Event::next) {
+            $gs_verb_to_activity_streams_two_verb = match ($verb) {
+                'undo'      => 'Undo',
+                'create'    => 'Create',
+                'subscribe' => 'Follow',
+                default     => throw new ClientException('Invalid verb'),
             };
         }
 
         $attr = [
-            'type'      => $gs_verb_to_activity_stream_two_verb,
+            'type'      => $gs_verb_to_activity_streams_two_verb,
             '@context'  => 'https://www.w3.org/ns/activitystreams',
             'id'        => Router::url('activity_view', ['id' => $object->getId()], Router::ABSOLUTE_URL),
             'published' => $object->getCreated()->format(DateTimeInterface::RFC3339),
             'actor'     => $object->getActor()->getUri(Router::ABSOLUTE_URL),
-            'to'        => ['https://www.w3.org/ns/activitystreams#Public'], // TODO: implement proper scope address
-            'cc'        => ['https://www.w3.org/ns/activitystreams#Public'],
         ];
+
+        // Get object or Tombstone
         try {
             $object         = $object->getObject(); // Throws NotFoundException
             $attr['object'] = ($attr['type'] === 'Create') ? self::jsonToType(Model::toJson($object)) : ActivityPub::getUriByObject($object);
@@ -181,9 +157,13 @@ class Activity extends Model
             ]);
         }
 
-        if (!\is_string($attr['object'])) {
-            $attr['to'] = array_unique(array_merge($attr['to'], $attr['object']->get('to') ?? []));
-            $attr['cc'] = array_unique(array_merge($attr['cc'], $attr['object']->get('cc') ?? []));
+        // If embedded non tombstone Object
+        if (!\is_string($attr['object']) && $attr['object']->get('type') !== 'Tombstone') {
+            // Little special case
+            if ($attr['type'] === 'Create' && $attr['object']->get('type') === 'Note') {
+                $attr['to'] = $attr['object']->get('to') ?? [];
+                $attr['cc'] = $attr['object']->get('cc') ?? [];
+            }
         }
 
         $type = self::jsonToType($attr);

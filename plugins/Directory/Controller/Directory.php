@@ -121,7 +121,7 @@ class Directory extends FeedController
             },
 
             'subscribers'     => match ($actor_type) { // select by actors with most/least subscribers/members
-                Actor::PERSON => $count_query_fn(table: 'subscription', join_field: 'subscribed', aggregate_field: 'subscriber'),
+                Actor::PERSON => $count_query_fn(table: 'subscription', join_field: 'subscribed_id', aggregate_field: 'subscriber_id'),
                 Actor::GROUP  => $count_query_fn(table: 'group_member', join_field: 'group_id', aggregate_field: 'actor_id'),
             },
 

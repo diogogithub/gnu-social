@@ -14,7 +14,6 @@ use App\Core\UserRoles;
 use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
-use App\Entity\Subscription;
 use App\Security\Authenticator;
 use App\Security\EmailVerifier;
 use App\Util\Common;
@@ -30,6 +29,7 @@ use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use App\Util\Nickname;
+use Component\Subscription\Entity\Subscription;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use LogicException;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -164,7 +164,7 @@ class Security extends Controller
                     $user,
                     function (int $id) use ($user) {
                         // Self subscription
-                        DB::persist(Subscription::create(['subscriber' => $id, 'subscribed' => $id]));
+                        DB::persist(Subscription::create(['subscriber_id' => $id, 'subscribed_id' => $id]));
                         Feed::createDefaultFeeds($id, $user);
                     },
                 );

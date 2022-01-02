@@ -38,13 +38,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Language extends Component
 {
-    public function onAddRoute(RouteLoader $r)
+    public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect('settings_sort_languages', '/settings/sort_languages', [C\Language::class, 'sortLanguages']);
         return Event::next;
     }
 
-    public function onFilterNoteList(?Actor $actor, array &$notes, Request $request)
+    public function onFilterNoteList(?Actor $actor, array &$notes, Request $request): bool
     {
         if (\is_null($actor)) {
             return Event::next;
@@ -60,7 +60,7 @@ class Language extends Component
     /**
      * Populate $note_expr or $actor_expr with an expression to match a language
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr)
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr): bool
     {
         $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
 

@@ -165,8 +165,11 @@ class Tag extends Component
      *
      * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr)
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr): bool
     {
+        if (!str_contains($term, ':')) {
+            return Event::next;
+        }
         [$search_type, $search_term] = explode(':', $term);
         if (str_starts_with($search_term, '#')) {
             $search_term       = self::ensureValid($search_term);

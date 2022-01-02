@@ -384,12 +384,12 @@ class Actor extends Entity
 
     public function getSubscribersCount(): int
     {
-        return $this->getSubCount(which: 'subscriber', column: 'subscribed');
+        return $this->getSubCount(which: 'subscriber', column: 'subscribed_id');
     }
 
     public function getSubscribedCount()
     {
-        return $this->getSubCount(which: 'subscribed', column: 'subscriber');
+        return $this->getSubCount(which: 'subscribed', column: 'subscriber_id');
     }
 
     /**
@@ -411,8 +411,8 @@ class Actor extends Entity
             fn () => DB::dql(
                 <<<'EOF'
                     select a from actor a where
-                    a.id in (select fa.subscribed from subscription fa join actor aa with fa.subscribed = aa.id where fa.subscriber = :actor_id and aa.nickname = :nickname) or
-                    a.id in (select fb.subscriber from subscription fb join actor ab with fb.subscriber = ab.id where fb.subscribed = :actor_id and ab.nickname = :nickname) or
+                    a.id in (select fa.subscribed_id from subscription fa join actor aa with fa.subscribed = aa.id where fa.subscriber = :actor_id and aa.nickname = :nickname) or
+                    a.id in (select fb.subscriber_id from subscription fb join actor ab with fb.subscriber = ab.id where fb.subscribed = :actor_id and ab.nickname = :nickname) or
                     a.nickname = :nickname
                     EOF,
                 ['nickname' => $nickname, 'actor_id' => $this->getId()],

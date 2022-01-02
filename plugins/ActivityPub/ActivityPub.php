@@ -44,6 +44,7 @@ use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\BugFoundException;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Nickname;
 use Component\FreeNetwork\Entity\FreeNetworkActorProtocol;
@@ -372,26 +373,35 @@ class ActivityPub extends Plugin
      */
     public static function getUriByObject(mixed $object): string
     {
-        if ($object instanceof Note) {
-            if ($object->getIsLocal()) {
-                return $object->getUrl();
-            } else {
-                // Try known remote objects
-                $known_object = ActivitypubObject::getByPK(['object_type' => 'note', 'object_id' => $object->getId()]);
-                if ($known_object instanceof ActivitypubObject) {
-                    return $known_object->getObjectUri();
+        switch ($object::class) {
+            case Note::class:
+                if ($object->getIsLocal()) {
+                    return $object->getUrl();
+                } else {
+                    // Try known remote objects
+                    $known_object = ActivitypubObject::getByPK(['object_type' => 'note', 'object_id' => $object->getId()]);
+                    if ($known_object instanceof ActivitypubObject) {
+                        return $known_object->getObjectUri();
+                    } else {
+                        throw new BugFoundException('ActivityPub cannot generate an URI for a stored note.', [$object, $known_object]);
+                    }
                 }
-            }
-        } elseif ($object instanceof Activity) {
-            // Try known remote activities
-            $known_activity = ActivitypubActivity::getByPK(['activity_id' => $object->getId()]);
-            if ($known_activity instanceof ActivitypubActivity) {
-                return $known_activity->getActivityUri();
-            } else {
-                return Router::url('activity_view', ['id' => $object->getId()], Router::ABSOLUTE_URL);
-            }
+                break;
+            case Actor::class:
+                return $object->getUri();
+                break;
+            case Activity::class:
+                // Try known remote activities
+                $known_activity = ActivitypubActivity::getByPK(['activity_id' => $object->getId()]);
+                if ($known_activity instanceof ActivitypubActivity) {
+                    return $known_activity->getActivityUri();
+                } else {
+                    return Router::url('activity_view', ['id' => $object->getId()], Router::ABSOLUTE_URL);
+                }
+                break;
+            default:
+                throw new InvalidArgumentException('ActivityPub::getUriByObject found a limitation with: ' . var_export($object, true));
         }
-        throw new InvalidArgumentException('ActivityPub::getUriByObject found a limitation with: ' . var_export($object, true));
     }
 
     /**
@@ -407,29 +417,36 @@ class ActivityPub extends Plugin
      */
     public static function getObjectByUri(string $resource, bool $try_online = true)
     {
-        // Try known objects
+        // Try known object
         $known_object = ActivitypubObject::getByPK(['object_uri' => $resource]);
         if ($known_object instanceof ActivitypubObject) {
             return $known_object->getObject();
         }
 
-        // Try known activities
+        // Try known activity
         $known_activity = ActivitypubActivity::getByPK(['activity_uri' => $resource]);
         if ($known_activity instanceof ActivitypubActivity) {
             return $known_activity->getActivity();
         }
 
-        // Try local Notes (pretty incomplete effort, I know)
+        // Try local Note
         if (Common::isValidHttpUrl($resource)) {
             // This means $resource is a valid url
             $resource_parts = parse_url($resource);
             // TODO: Use URLMatcher
             if ($resource_parts['host'] === $_ENV['SOCIAL_DOMAIN']) { // XXX: Common::config('site', 'server')) {
-                $local_note = DB::findOneBy('note', ['url' => $resource]);
+                $local_note = DB::findOneBy('note', ['url' => $resource], return_null: true);
                 if ($local_note instanceof Note) {
                     return $local_note;
                 }
             }
+        }
+
+        // Try Actor
+        try {
+            return self::getActorByUri($resource, try_online: false);
+        } catch (Exception) {
+            // Ignore, this is brute forcing, it's okay not to find
         }
 
         // Try remote
@@ -457,7 +474,7 @@ class ActivityPub extends Plugin
      *
      * @return Actor got from URI
      */
-    public static function getActorByUri(string $resource): Actor
+    public static function getActorByUri(string $resource, bool $try_online = true): Actor
     {
         // Try local
         if (Common::isValidHttpUrl($resource)) {
@@ -478,11 +495,12 @@ class ActivityPub extends Plugin
             }
         }
         // Try remote
-        $aprofile = ActivitypubActor::getByAddr($resource);
-        if ($aprofile instanceof ActivitypubActor) {
-            return Actor::getById($aprofile->getActorId());
-        } else {
-            throw new NoSuchActorException("From URI: {$resource}");
+        if ($try_online) {
+            $aprofile = ActivitypubActor::getByAddr($resource);
+            if ($aprofile instanceof ActivitypubActor) {
+                return Actor::getById($aprofile->getActorId());
+            }
         }
+        throw new NoSuchActorException("From URI: {$resource}");
     }
 }

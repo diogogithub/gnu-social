@@ -28,10 +28,10 @@ use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Core\Router\RouteLoader;
 use App\Entity\Actor;
-use App\Entity\Subscription;
 use App\Util\Formatting;
 use Component\Feed\Controller as C;
 use Component\Search\Util\Parser;
+use Component\Subscription\Entity\Subscription;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
@@ -80,9 +80,9 @@ class Feed extends Component
         return ['notes' => $notes ?? null, 'actors' => $actors ?? null];
     }
 
-    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb)
+    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
-        $note_qb->leftJoin(Subscription::class, 'subscription', Expr\Join::WITH, 'note.actor_id = subscription.subscribed')
+        $note_qb->leftJoin(Subscription::class, 'subscription', Expr\Join::WITH, 'note.actor_id = subscription.subscribed_id')
             ->leftJoin(Actor::class, 'note_actor', Expr\Join::WITH, 'note.actor_id = note_actor.id');
         return Event::next;
     }
@@ -117,7 +117,7 @@ class Feed extends Component
                     break;
                 case 'note-from':
                 case 'notes-from':
-                    $subscribed_expr = $eb->eq('subscription.subscriber', $actor->getId());
+                    $subscribed_expr = $eb->eq('subscription.subscriber_id', $actor->getId());
                     $type_consts     = [];
                     if ($term[1] === 'subscribed') {
                         $type_consts = null;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -17,11 +19,13 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Subscription\Entity;
 
 use App\Core\Entity;
-use DateTimeInterface;
+use App\Entity\Actor;
+use App\Entity\LocalUser;
 use Component\Group\Entity\LocalGroup;
+use DateTimeInterface;
 
 /**
  * Entity for subscription
@@ -41,57 +45,67 @@ class Subscription extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $subscriber;
-    private int $subscribed;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private int $subscriber_id;
+    private int $subscribed_id;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
-    public function setSubscriber(int $subscriber): self
+    public function setSubscriberId(int $subscriber_id): self
     {
-        $this->subscriber = $subscriber;
+        $this->subscriber_id = $subscriber_id;
         return $this;
     }
 
-    public function getSubscriber(): int
+    public function getSubscriberId(): int
     {
-        return $this->subscriber;
+        return $this->subscriber_id;
     }
 
-    public function setSubscribed(int $subscribed): self
+    public function setSubscribedId(int $subscribed_id): self
     {
-        $this->subscribed = $subscribed;
+        $this->subscribed_id = $subscribed_id;
         return $this;
     }
 
-    public function getSubscribed(): int
+    public function getSubscribedId(): int
     {
-        return $this->subscribed;
+        return $this->subscribed_id;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public function getSubscriber(): Actor
+    {
+        return Actor::getById($this->getSubscriberId());
+    }
+
+    public function getSubscribed(): Actor
+    {
+        return Actor::getById($this->getSubscribedId());
+    }
 
     public static function cacheKeys(LocalUser|LocalGroup|Actor $subject, LocalUser|LocalGroup|Actor $target): array
     {
@@ -105,15 +119,15 @@ class Subscription extends Entity
         return [
             'name'   => 'subscription',
             'fields' => [
-                'subscriber' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'subscrib_subscriber_fkey', 'not null' => true,  'description' => 'actor listening'],
-                'subscribed' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'subscrib_subscribed_fkey', 'not null' => true,  'description' => 'actor being listened to'],
-                'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'subscriber_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'subscription_subscriber_fkey', 'not null' => true,  'description' => 'actor listening'],
+                'subscribed_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'subscription_subscribed_fkey', 'not null' => true,  'description' => 'actor being listened to'],
+                'created'       => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['subscriber', 'subscribed'],
+            'primary key' => ['subscriber_id', 'subscribed_id'],
             'indexes'     => [
-                'subscrib_subscriber_idx' => ['subscriber', 'created'],
-                'subscrib_subscribed_idx' => ['subscribed', 'created'],
+                'subscription_subscriber_idx' => ['subscriber_id', 'created'],
+                'subscription_subscribed_idx' => ['subscribed_id', 'created'],
             ],
         ];
     }
