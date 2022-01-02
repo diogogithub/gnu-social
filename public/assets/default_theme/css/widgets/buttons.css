@@ -3,11 +3,12 @@ input {
 }
 input[type=checkbox] {
     all: unset;
-    display: inline-block;
+    display: inline-block !important;
     cursor: pointer !important;
-    width: 0.8rem !important;
-    height: 0.8rem !important;
+    width: 1em !important;
+    height: 1em !important;
     background: var(--accent) !important;
+    background-repeat: no-repeat !important;
 }
 input[type=checkbox]:not(:hover, :focus) {
     background: var(--foreground) !important;
@@ -37,8 +38,8 @@ input[type=file] {
     background: var(--gradient) !important;
 }
 input[type=checkbox] {
-    background-size: 100%;
-    margin-right: 2px;
+    background-size: contain !important;
+    margin-right: 4px !important;
     -webkit-mask-image: url("../../icons/check-off.svg") !important;
     -o-mask-image: url("../../icons/check-off.svg") !important;
     -moz-mask-image: url("../../icons/check-off.svg") !important;
