@@ -14,7 +14,7 @@
         <h1>{{ page_title | trans }}</h1>
     {% endif %}
     <nav class="feed-actions">
-        {% for block in handle_event('AddFeedActions', app.request) %}
+        {% for block in handle_event('AddFeedActions', app.request, notes is defined and notes is not empty) %}
             {{ block | raw }}
         {% endfor %}
     </nav>
