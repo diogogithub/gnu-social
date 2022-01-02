@@ -26,6 +26,7 @@ namespace Plugin\Directory\Controller;
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Entity\Actor;
+use App\Util\Common;
 use App\Util\Exception\BugFoundException;
 use App\Util\Exception\ClientException;
 use Component\Collection\Util\Controller\CircleController;

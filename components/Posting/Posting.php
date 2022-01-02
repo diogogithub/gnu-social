@@ -253,17 +253,16 @@ class Posting extends Component
         DB::persist($activity);
 
         if (!\is_null($target)) {
-            switch ($target[0]) {
-            case '!':
-                $mentions[] = [
-                    'mentioned' => [LocalGroup::getActorByNickname(mb_substr($target, 1))],
-                    'type'      => 'group',
-                    'text'      => mb_substr($target, 1),
-                ];
-                break;
-            default:
-                throw new ClientException(_m('Unknown target type give in \'In\' field: ' . $target));
-            }
+            $target     = \is_int($target) ? Actor::getById($target) : $target;
+            $mentions[] = [
+                'mentioned'       => [$target],
+                'type'            => match ($target->getType()) {
+                    Actor::PERSON => 'mention',
+                    Actor::GROUP  => 'group',
+                    default       => throw new ClientException(_m('Unknown target type give in \'In\' field: {target}', ['{target}' => $target?->getNickname() ?? '<null>'])),
+                },
+                'text' => $target->getNickname(),
+            ];
         }
 
         $mention_ids = F\unique(F\flat_map($mentions, fn (array $m) => F\map($m['mentioned'] ?? [], fn (Actor $a) => $a->getId())));
