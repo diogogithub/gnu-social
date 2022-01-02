@@ -76,11 +76,13 @@
         "symfony/browser-kit": "^5.4.",
         "symfony/css-selector": "^5.4.",
         "symfony/debug-bundle": "^5.4.",
+        "symfony/error-handler": "^5.4.",
         "symfony/maker-bundle": "^1.14",
         "symfony/phpunit-bridge": "^5.4.",
         "symfony/stopwatch": "5.4.*",
         "symfony/web-profiler-bundle": "^5.4.",
-        "symfony/error-handler": "^5.4."
+        "ulrichsg/getopt-php": "*",
+        "wp-cli/php-cli-tools": "^0.11.13"
     },
     "config": {
         "preferred-install": {
@@ -144,5 +146,44 @@
                 "plugins/*/composer.json"
             ]
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "niels-de-blaauw/php-doc-check",
+                "version": "0.2.2",
+                "bin": [
+                    "bin/php-doc-check"
+                ],
+                "autoload": {
+                    "psr-4": {
+                        "NdB\\PhpDocCheck\\": "src"
+                    }
+                },
+                "source": {
+                    "url": "https://github.com/someonewithpc/php-doc-check.git",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "ulrichsg/getopt-php",
+                "version": "4.0.0",
+                "autoload": {
+                    "psr-4": {
+                        "GetOpt\\": "src"
+                    }
+                },
+                "source": {
+                    "url": "https://github.com/someonewithpc/getopt-php.git",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        }
+    ]
 }
