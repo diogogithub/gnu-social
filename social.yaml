@@ -276,5 +276,5 @@ parameters:
     discovery:
       cors: true
 
-    streams:
-      notes_per_page: 32
+    feeds:
+      entries_per_page: 32

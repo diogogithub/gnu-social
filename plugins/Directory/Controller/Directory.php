@@ -33,7 +33,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Directory extends CircleController
 {
-    public const PER_PAGE       = 32;
     public const ALLOWED_FIELDS = ['nickname', 'created', 'modified', 'activity', 'subscribers'];
 
     /**
@@ -47,8 +46,8 @@ class Directory extends CircleController
         }
 
         $page   = $this->int('page') ?? 1;
-        $limit  = self::PER_PAGE;
-        $offset = self::PER_PAGE * ($page - 1);
+        $limit  = Common::config('feeds', 'entries_per_page');
+        $offset = $limit * ($page - 1);
 
         // -------- Figure out the order by field and operator --------
         $order_by_qs = $this->string('order_by');

@@ -430,7 +430,7 @@ abstract class Cache
         }
 
         if (\is_null($per_page)) {
-            $per_page = Common::config('streams', 'notes_per_page');
+            $per_page = Common::config('feeds', 'entries_per_page');
         }
 
         $filter_scope = fn (Note|Actor $o) => $o->isVisibleTo($actor);
