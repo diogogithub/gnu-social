@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1366"
+   height="768"
+   viewBox="0 0 1366 768"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
+   sodipodi:docname="basic-layout.svg"
+   inkscape:export-filename="/home/booh/Work/gnu-social-documentation/basic-layou.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#070707"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="px"
+     showgrid="false"
+     showguides="true"
+     inkscape:zoom="0.8125"
+     inkscape:cx="667.07692"
+     inkscape:cy="422.15385"
+     inkscape:window-width="1920"
+     inkscape:window-height="1007"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g138495" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:none;stroke:#ffffff;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-dasharray:0.1,0.1;stroke-opacity:1;paint-order:stroke markers fill;stroke-miterlimit:4;stroke-dashoffset:0"
+       id="rect918"
+       width="1344.7627"
+       height="46.717339"
+       x="10.618625"
+       y="10.618625" />
+    <text
+       xml:space="preserve"
+       style="font-size:32px;line-height:1.25;font-family:'Mx437 IBM XGA-AI 12x20';-inkscape-font-specification:'Mx437 IBM XGA-AI 12x20';fill:#ffffff"
+       x="626.19995"
+       y="43.577293"
+       id="text8019"><tspan
+         sodipodi:role="line"
+         id="tspan8017"
+         x="626.19995"
+         y="43.577293">Header</tspan></text>
+    <rect
+       style="fill:none;stroke:#ffffff;stroke-width:0.977782;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:0.0977782, 0.0977782;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
+       id="rect16129"
+       width="301.02222"
+       height="700.70471"
+       x="10.607515"
+       y="57.478703" />
+    <rect
+       style="fill:none;stroke:#ffffff;stroke-width:0.977782;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:0.0977782, 0.0977782;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
+       id="rect16129-3"
+       width="301.02222"
+       height="700.70471"
+       x="1054.3591"
+       y="57.335964" />
+    <rect
+       style="fill:none;stroke:#ffffff;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:0.1, 0.1;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
+       id="rect49857"
+       width="742.72937"
+       height="700.56195"
+       x="311.62973"
+       y="57.478703" />
+    <text
+       xml:space="preserve"
+       style="font-size:21.3333px;line-height:1.25;font-family:'Mx437 IBM XGA-AI 12x20';-inkscape-font-specification:'Mx437 IBM XGA-AI 12x20'"
+       x="597.01569"
+       y="412.55966"
+       id="text57880"><tspan
+         sodipodi:role="line"
+         id="tspan57878"
+         x="597.01569"
+         y="412.55966"
+         style="fill:#ffffff">Current page</tspan></text>
+    <rect
+       style="fill:none;stroke:#ffffff;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:0.1, 0.1;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
+       id="rect62142-5"
+       width="26"
+       height="26"
+       x="1319.381"
+       y="21.461538" />
+    <text
+       xml:space="preserve"
+       style="font-size:13.3333px;line-height:1.25;font-family:'Mx437 IBM XGA-AI 12x20';-inkscape-font-specification:'Mx437 IBM XGA-AI 12x20'"
+       x="50.911686"
+       y="36.977287"
+       id="text68176"><tspan
+         sodipodi:role="line"
+         id="tspan68174"
+         x="50.911686"
+         y="36.977287"
+         style="font-size:13.3333px;fill:#ffffff">-&gt; Opens Left panel</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:13.3333px;line-height:1.25;font-family:'Mx437 IBM XGA-AI 12x20';-inkscape-font-specification:'Mx437 IBM XGA-AI 12x20'"
+       x="1156.0417"
+       y="36.977287"
+       id="text88173"><tspan
+         sodipodi:role="line"
+         id="tspan88171"
+         x="1156.0417"
+         y="36.977287"
+         style="font-size:13.3333px;fill:#ffffff">Opens Right panel &lt;-</tspan></text>
+    <g
+       id="g98259">
+      <rect
+         style="fill:none;stroke:#ffffff;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:0.1, 0.1;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
+         id="rect62142"
+         width="26"
+         height="26"
+         x="20.5"
+         y="20.977295" />
+      <path
+         style="fill:#ffffff;stroke:#feffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+         d="m 20.5,46.977295 c 26,-26 26,-26 26,-26 l -26,26 26,-26"
+         id="path97234" />
+      <path
+         style="fill:#ffffff;fill-opacity:1;stroke:#feffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 46.5,46.977295 c -26,-26 -26,-26 -26,-26 l 26,26 -26,-26"
+         id="path97234-6" />
+    </g>
+    <g
+       id="g98259-2"
+       transform="translate(1060.3462,-63.208064)">
+      <path
+         style="fill:#ffffff;fill-opacity:1;stroke:#feffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 259.03478,110.6696 c 26,-25.999998 26,-25.999998 26,-25.999998 l -26,25.999998 26,-25.999998"
+         id="path97234-1" />
+      <path
+         style="fill:#ffffff;fill-opacity:1;stroke:#feffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 285.03478,110.6696 c -26,-25.999996 -26,-25.999996 -26,-25.999996 l 26,25.999996 -26,-25.999996"
+         id="path97234-6-2" />
+      <g
+         id="g138454"
+         transform="translate(0,-14.04183)">
+        <text
+           xml:space="preserve"
+           style="font-size:21.3333px;line-height:1.25;font-family:'Mx437 IBM XGA-AI 12x20';-inkscape-font-specification:'Mx437 IBM XGA-AI 12x20'"
+           x="98.718689"
+           y="420.67288"
+           id="text24170"
+           transform="translate(-1060.3462,63.208064)"><tspan
+             sodipodi:role="line"
+             id="tspan24168"
+             x="98.718689"
+             y="420.67288"
+             style="fill:#ffffff">Left panel</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:16px;line-height:1.25;font-family:'Mx437 IBM XGA-AI 12x20';-inkscape-font-specification:'Mx437 IBM XGA-AI 12x20'"
+           x="-1000.0276"
+           y="496.68094"
+           id="text110837"><tspan
+             sodipodi:role="line"
+             id="tspan110835"
+             x="-1000.0276"
+             y="496.68094"
+             style="fill:#ffffff">[.section-panel-left]</tspan></text>
+      </g>
+      <g
+         id="g138495"
+         transform="translate(0,-19.454344)">
+        <text
+           xml:space="preserve"
+           style="font-size:21.3333px;line-height:1.25;font-family:'Mx437 IBM XGA-AI 12x20';-inkscape-font-specification:'Mx437 IBM XGA-AI 12x20'"
+           x="1136.0703"
+           y="425.94266"
+           id="text24170-6"
+           transform="translate(-1060.3462,63.208064)"><tspan
+             sodipodi:role="line"
+             id="tspan24168-7"
+             x="1136.0703"
+             y="425.94266"
+             style="fill:#ffffff">Right panel</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-size:16px;line-height:1.25;font-family:'Mx437 IBM XGA-AI 12x20';-inkscape-font-specification:'Mx437 IBM XGA-AI 12x20'"
+           x="38.923981"
+           y="501.95071"
+           id="text110837-7"><tspan
+             sodipodi:role="line"
+             id="tspan110835-0"
+             x="38.923981"
+             y="501.95071"
+             style="fill:#ffffff">[.section-panel-right]</tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>
