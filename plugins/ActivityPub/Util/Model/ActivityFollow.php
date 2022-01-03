@@ -35,7 +35,8 @@ namespace Plugin\ActivityPub\Util\Model;
 use ActivityPhp\Type\AbstractObject;
 use App\Core\DB\DB;
 use App\Entity\Activity as GSActivity;
-use Component\Subscription\Entity\Subscription;
+use App\Util\Exception\ClientException;
+use Component\Subscription\Subscription;
 use DateTime;
 use InvalidArgumentException;
 use Plugin\ActivityPub\Entity\ActivitypubActivity;
@@ -51,28 +52,17 @@ class ActivityFollow extends Activity
     protected static function handle_core_activity(\App\Entity\Actor $actor, AbstractObject $type_activity, mixed $type_object, ?ActivitypubActivity &$ap_act): ActivitypubActivity
     {
         if ($type_object instanceof AbstractObject) {
-            $subscribed = Actor::fromJson($type_object);
+            $subscribed = Actor::fromJson($type_object)->getActorId();
         } elseif ($type_object instanceof \App\Entity\Actor) {
             $subscribed = $type_object;
         } else {
             throw new InvalidArgumentException('Follow{:Object} should be either an AbstractObject or an Actor.');
         }
-        // Store Subscription
-        DB::persist(Subscription::create([
-            'subscriber_id' => $actor->getId(),
-            'subscribed_id' => $subscribed->getActorId(),
-            'created'       => new DateTime($type_activity->get('published') ?? 'now'),
-        ]));
-        // Store Activity
-        $act = GSActivity::create([
-            'actor_id'    => $actor->getId(),
-            'verb'        => 'subscribe',
-            'object_type' => 'actor',
-            'object_id'   => $subscribed->getActorId(),
-            'created'     => new DateTime($type_activity->get('published') ?? 'now'),
-            'source'      => 'ActivityPub',
-        ]);
-        DB::persist($act);
+        // Execute Subscribe
+        $act = Subscription::subscribe($actor, $subscribed, 'ActivityPub');
+        if (\is_null($act)) {
+            throw new ClientException('You are already subscribed to this actor.');
+        }
         // Store ActivityPub Activity
         $ap_act = ActivitypubActivity::create([
             'activity_id'  => $act->getId(),
@@ -86,21 +76,11 @@ class ActivityFollow extends Activity
 
     public static function handle_undo(\App\Entity\Actor $actor, AbstractObject $type_activity, GSActivity $type_object, ?ActivitypubActivity &$ap_act): ActivitypubActivity
     {
-        // Remove Subscription
-        DB::removeBy(Subscription::class, [
-            'subscriber_id' => $type_object->getActorId(),
-            'subscribed_id' => $type_object->getObjectId(),
-        ]);
-        // Store Activity
-        $act = GSActivity::create([
-            'actor_id'    => $actor->getId(),
-            'verb'        => 'undo',
-            'object_type' => 'activity',
-            'object_id'   => $type_object->getId(),
-            'created'     => new DateTime($type_activity->get('published') ?? 'now'),
-            'source'      => 'ActivityPub',
-        ]);
-        DB::persist($act);
+        // Execute Unsubscribe
+        $act = Subscription::unsubscribe($actor, $type_object->getObjectId(), 'ActivityPub');
+        if (\is_null($act)) {
+            throw new ClientException('You are already unsubscribed of this actor.');
+        }
         // Store ActivityPub Activity
         $ap_act = ActivitypubActivity::create([
             'activity_id'  => $act->getId(),

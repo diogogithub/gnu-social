@@ -32,7 +32,6 @@ declare(strict_types = 1);
 
 namespace Plugin\ActivityPub\Util\Model;
 
-use _PHPStan_4a258568e\Nette\NotImplementedException;
 use ActivityPhp\Type;
 use ActivityPhp\Type\AbstractObject;
 use App\Core\Event;
@@ -41,6 +40,7 @@ use App\Entity\Activity as GSActivity;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Exception\NotFoundException;
+use App\Util\Exception\NotImplementedException;
 use DateTimeInterface;
 use InvalidArgumentException;
 use Plugin\ActivityPub\ActivityPub;
@@ -168,7 +168,7 @@ class Activity extends Model
             $uri = match ($object->getObjectType()) {
                 'note'  => Router::url('note_view', ['id' => $object->getObjectId()], type: Router::ABSOLUTE_URL),
                 'actor' => Router::url('actor_view_id', ['id' => $object->getObjectId()], type: Router::ABSOLUTE_URL),
-                default => throw new \App\Util\Exception\NotImplementedException(),
+                default => throw new NotImplementedException(),
             };
             $attr['object'] = Type::create('Tombstone', [
                 'id' => $uri,

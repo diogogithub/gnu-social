@@ -91,7 +91,7 @@ class Actor extends Model
         }
 
         if (!isset($options['objects']['Actor'])) {
-            DB::persist($actor);
+            DB::wrapInTransaction(fn () => DB::persist($actor));
         }
 
         // ActivityPub Actor
@@ -104,7 +104,7 @@ class Actor extends Model
         ], $options['objects']['ActivitypubActor'] ?? null);
 
         if (!isset($options['objects']['ActivitypubActor'])) {
-            DB::persist($ap_actor);
+            DB::wrapInTransaction(fn () => DB::persist($ap_actor));
         }
 
         // Public Key
@@ -114,7 +114,7 @@ class Actor extends Model
         ], $options['objects']['ActivitypubRsa'] ?? null);
 
         if (!isset($options['objects']['ActivitypubRsa'])) {
-            DB::persist($apRSA);
+            DB::wrapInTransaction(fn () => DB::persist($apRSA));
         }
 
         // Avatar

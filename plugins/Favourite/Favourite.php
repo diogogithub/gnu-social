@@ -25,6 +25,7 @@ namespace Plugin\Favourite;
 
 use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
@@ -38,7 +39,6 @@ use App\Util\Nickname;
 use DateTime;
 use Plugin\Favourite\Entity\NoteFavourite as FavouriteEntity;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
 class Favourite extends NoteHandlerPlugin
 {
@@ -48,33 +48,28 @@ class Favourite extends NoteHandlerPlugin
      *
      * A new notification is then handled, informing all interested Actors of this action
      *
-     * @param int    $note_id
-     * @param int    $actor_id
-     * @param string $source
-     *
-     * @return \App\Entity\Activity|null
      * @throws \App\Util\Exception\ServerException
-     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\TransactionRequiredException
      */
     public static function favourNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
-        $opts = ['note_id' => $note_id, 'actor_id' => $actor_id];
-        $note_already_favoured = DB::find('note_favourite', $opts);
-        $activity = null;
+        $opts                  = ['note_id' => $note_id, 'actor_id' => $actor_id];
+        $note_already_favoured = DB::findOneBy('note_favourite', $opts, return_null: true);
+        $activity              = null;
         if (\is_null($note_already_favoured)) {
             DB::persist(FavouriteEntity::create($opts));
             $activity = Activity::create([
-                'actor_id' => $actor_id,
-                'verb' => 'favourite',
+                'actor_id'    => $actor_id,
+                'verb'        => 'favourite',
                 'object_type' => 'note',
-                'object_id' => $note_id,
-                'source' => $source,
+                'object_id'   => $note_id,
+                'source'      => $source,
             ]);
             DB::persist($activity);
 
-            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [], _m('{nickname} favoured note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [], _m('{nickname} favoured note {note_id}.', ['{nickname}' => $actor->getNickname(), '{note_id}' => $activity->getObjectId()])]);
         }
         return $activity;
     }
@@ -84,33 +79,28 @@ class Favourite extends NoteHandlerPlugin
      *
      * Informs all interested Actors of this action, handling out the NewNotification event
      *
-     * @param int    $note_id
-     * @param int    $actor_id
-     * @param string $source
-     *
-     * @return \App\Entity\Activity|null
      * @throws \App\Util\Exception\ServerException
-     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\TransactionRequiredException
      */
     public static function unfavourNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
-        $note_already_favoured = DB::find('note_favourite', ['note_id' => $note_id, 'actor_id' => $actor_id]);
-        $activity = null;
+        $note_already_favoured = DB::findOneBy('note_favourite', ['note_id' => $note_id, 'actor_id' => $actor_id], return_null: true);
+        $activity              = null;
         if (!\is_null($note_already_favoured)) {
             DB::remove($note_already_favoured);
-            $favourite_activity = DB::findBy('activity', ['verb' => 'favourite', 'object_type' => 'note', 'object_id' => $note_id], order_by: ['created' => 'DESC'])[ 0 ];
-            $activity = Activity::create([
-                'actor_id' => $actor_id,
-                'verb' => 'undo', // 'undo_favourite',
+            $favourite_activity = DB::findBy('activity', ['verb' => 'favourite', 'object_type' => 'note', 'object_id' => $note_id], order_by: ['created' => 'DESC'])[0];
+            $activity           = Activity::create([
+                'actor_id'    => $actor_id,
+                'verb'        => 'undo', // 'undo_favourite',
                 'object_type' => 'activity', // 'note',
-                'object_id' => $favourite_activity->getId(), // $note_id,
-                'source' => $source,
+                'object_id'   => $favourite_activity->getId(), // $note_id,
+                'source'      => $source,
             ]);
             DB::persist($activity);
 
-            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [], _m('{nickname} unfavoured note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $activity, [], _m('{nickname} unfavoured note {note_id}.', ['{nickname}' => $actor->getNickname(), '{note_id}' => $activity->getObjectId()])]);
         }
         return $activity;
     }
@@ -119,14 +109,11 @@ class Favourite extends NoteHandlerPlugin
      * HTML rendering event that adds the favourite form as a note
      * action, if a user is logged in
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \App\Entity\Note                          $note
-     * @param array                                     $actions
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\TransactionRequiredException
      *
      * @return bool Event hook
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
@@ -135,12 +122,12 @@ class Favourite extends NoteHandlerPlugin
         }
 
         // If note is favourite, "is_favourite" is 1
-        $opts = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
-        $is_favourite = DB::find('note_favourite', $opts) !== null;
+        $opts         = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
+        $is_favourite = !\is_null(DB::findOneBy('note_favourite', $opts, return_null: true));
 
         // Generating URL for favourite action route
-        $args = ['id' => $note->getId()];
-        $type = Router::ABSOLUTE_PATH;
+        $args                 = ['id' => $note->getId()];
+        $type                 = Router::ABSOLUTE_PATH;
         $favourite_action_url = $is_favourite
             ? Router::url('favourite_remove', $args, $type)
             : Router::url('favourite_add', $args, $type);
@@ -149,12 +136,12 @@ class Favourite extends NoteHandlerPlugin
         // Concatenating get parameter to redirect the user to where he came from
         $favourite_action_url .= '?from=' . urlencode($request->getRequestUri());
 
-        $extra_classes = $is_favourite ? 'note-actions-set' : 'note-actions-unset';
+        $extra_classes    = $is_favourite ? 'note-actions-set' : 'note-actions-unset';
         $favourite_action = [
-            'url' => $favourite_action_url,
-            'title' => $is_favourite ? 'Remove this note from favourites' : 'Favourite this note!',
+            'url'     => $favourite_action_url,
+            'title'   => $is_favourite ? 'Remove this note from favourites' : 'Favourite this note!',
             'classes' => "button-container favourite-button-container {$extra_classes}",
-            'id' => 'favourite-button-container-' . $note->getId(),
+            'id'      => 'favourite-button-container-' . $note->getId(),
         ];
 
         $actions[] = $favourite_action;
@@ -168,7 +155,7 @@ class Favourite extends NoteHandlerPlugin
         $check_user = !\is_null(Common::user());
 
         // The current Note being rendered
-        $note = $vars[ 'note' ];
+        $note = $vars['note'];
 
         // Will have actors array, and action string
         // Actors are the subjects, action is the verb (in the final phrase)
@@ -179,18 +166,13 @@ class Favourite extends NoteHandlerPlugin
         }
 
         // Filter out multiple replies from the same actor
-        $favourite_actors = array_unique($favourite_actors, SORT_REGULAR);
-        $result[] = ['actors' => $favourite_actors, 'action' => 'favourited'];
+        $favourite_actors = array_unique($favourite_actors, \SORT_REGULAR);
+        $result[]         = ['actors' => $favourite_actors, 'action' => 'favourited'];
         return Event::next;
     }
 
     /**
      * Deletes every favourite entity in table related to a deleted Note
-     *
-     * @param \App\Entity\Note  $note
-     * @param \App\Entity\Actor $actor
-     *
-     * @return bool
      */
     public function onNoteDeleteRelated(Note &$note, Actor $actor): bool
     {

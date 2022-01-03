@@ -494,6 +494,13 @@ class ActivityPub extends Plugin
                 }
             }
         }
+
+        // Try known remote
+        $aprofile = DB::findOneBy(ActivitypubActor::class, ['uri' => $resource], return_null: true);
+        if (!\is_null($aprofile)) {
+            return Actor::getById($aprofile->getActorId());
+        }
+
         // Try remote
         if ($try_online) {
             $aprofile = ActivitypubActor::getByAddr($resource);
