@@ -30,10 +30,13 @@ use App\Core\Event;
 use App\Core\Log;
 use App\Core\Router\Router;
 use App\Core\VisibilityScope;
+use App\Util\Exception\ClientException;
+use App\Util\Exception\NoSuchNoteException;
 use App\Util\Formatting;
 use Component\Avatar\Avatar;
 use Component\Conversation\Entity\Conversation;
 use Component\Language\Entity\Language;
+use function App\Core\I18n\_m;
 
 /**
  * Entity for notices
@@ -221,6 +224,18 @@ class Note extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public static function cacheKeys(int $note_id)
+    {
+        return [
+            'note'        => "note-{$note_id}",
+            'attachments' => "note-attachments-{$note_id}",
+            'attachments-title' => "note-attachments-with-title-{$note_id}",
+            'links' => "note-links-{$note_id}",
+            'tags' => "note-tags-{$note_id}",
+            'replies' => "note-replies-{$note_id}",
+        ];
+    }
+
     public function getConversation(): Conversation
     {
         return Conversation::getByPK(['id' => $this->getConversationId()]);
@@ -258,17 +273,17 @@ class Note extends Entity
 
     public static function getById(int $note_id): self
     {
-        return Cache::get("note-{$note_id}", fn () => DB::findOneBy('note', ['id' => $note_id]));
+        return Cache::get(self::cacheKeys($note_id)['note'], fn () => DB::findOneBy('note', ['id' => $note_id]));
     }
 
     public function getNoteLanguageShortDisplay(): ?string
     {
-        return !\is_null($this->language_id) ? Language::getById($this->language_id)->getShortDisplay() : null;
+        return !\is_null($this->getLanguageId()) ? Language::getById($this->getLanguageId())->getShortDisplay() : null;
     }
 
     public function getLanguageLocale(): ?string
     {
-        return !\is_null($this->language_id) ? Language::getById($this->language_id)->getLocale() : null;
+        return !\is_null($this->getLanguageId()) ? Language::getById($this->getLanguageId())->getLocale() : null;
     }
 
     public static function getAllNotesByActor(Actor $actor): array
@@ -279,7 +294,7 @@ class Note extends Entity
 
     public function getAttachments(): array
     {
-        return Cache::getList('note-attachments-' . $this->id, function () {
+        return Cache::getList(self::cacheKeys($this->getId())['attachments'], function () {
             return DB::dql(
                 <<<'EOF'
                     select att from attachment att
@@ -293,7 +308,7 @@ class Note extends Entity
 
     public function getAttachmentsWithTitle(): array
     {
-        return Cache::getList('note-attachments-with-title-' . $this->id, function () {
+        return Cache::getList(self::cacheKeys($this->getId())['attachments-title'], function () {
             $from_db = DB::dql(
                 <<<'EOF'
                     select att, atn.title
@@ -313,7 +328,7 @@ class Note extends Entity
 
     public function getLinks(): array
     {
-        return Cache::getList('note-links-' . $this->id, function () {
+        return Cache::getList(self::cacheKeys($this->getId())['links'], function () {
             return DB::dql(
                 <<<'EOF'
                     select l from link l
@@ -327,7 +342,7 @@ class Note extends Entity
 
     public function getTags(): array
     {
-        return Cache::getList('note-tags-' . $this->getId(), fn () => DB::findBy('note_tag', ['note_id' => $this->getId()]));
+        return Cache::getList(self::cacheKeys($this->getId())['tags'], fn () => DB::findBy('note_tag', ['note_id' => $this->getId()]));
     }
 
     /**
@@ -352,7 +367,7 @@ class Note extends Entity
      */
     public function getReplies(): array
     {
-        return DB::findBy('note', ['reply_to' => $this->getId()], order_by: ['created' => 'DESC', 'id' => 'DESC']);
+        return Cache::getList(self::cacheKeys($this->getId())['replies'], fn () => DB::findBy('note', ['reply_to' => $this->getId()], order_by: ['created' => 'DESC', 'id' => 'DESC']));
     }
 
     /**
@@ -490,6 +505,17 @@ class Note extends Entity
         ]));
         DB::remove(DB::findOneBy(self::class, ['id' => $this->id]));
         return $activity;
+    }
+
+    public static function ensureCanInteract(?Note $note, LocalUser|Actor $actor): Note
+    {
+        if (\is_null($note)) {
+            throw new NoSuchNoteException();
+        } elseif (!$note->isVisibleTo($actor)) {
+            throw new ClientException(_m('You don\'t have permissions to view this note.'), 401);
+        } else {
+            return $note;
+        }
     }
 
     public static function schemaDef(): array
