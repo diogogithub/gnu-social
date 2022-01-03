@@ -27,11 +27,17 @@ declare(strict_types = 1);
 
 namespace Component\Conversation\Controller;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
+use App\Util\Exception\NoLoggedInUser;
+use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use Component\Collection\Util\Controller\FeedController;
 use Component\Conversation\Entity\ConversationMute;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -50,15 +56,33 @@ class Conversation extends FeedController
      */
     public function showConversation(Request $request, int $conversation_id): array
     {
-        $data  = $this->query(query: "note-conversation:{$conversation_id}");
-        $notes = $data['notes'];
-
         return [
             '_template'     => 'collection/notes.html.twig',
-            'notes'         => $notes,
+            'notes'         => $this->query(query: "note-conversation:{$conversation_id}")['notes'] ?? [],
             'should_format' => false,
             'page_title'    => _m('Conversation'),
         ];
+    }
+
+    /**
+     * Controller for the note reply non-JS page
+     *
+     * Leverages the `PostingModifyData` event to add the `reply_to_id` field from the GET variable 'reply_to_id'
+     *
+     * @throws ClientException
+     * @throws NoLoggedInUser
+     * @throws NoSuchNoteException
+     * @throws ServerException
+     *
+     * @return array
+     */
+    public function addReply(Request $request)
+    {
+        $user            = Common::ensureLoggedIn();
+        $note_id         = $this->int('reply_to_id', new ClientException(_m('Malformed query.')));
+        $note            = Note::ensureCanInteract(Note::getByPK($note_id), $user);
+        $conversation_id = $note->getConversationId();
+        return $this->showConversation($request, $conversation_id);
     }
 
     /**
@@ -72,17 +96,23 @@ class Conversation extends FeedController
      *
      * @return array Array containing templating where the form is to be rendered, and the form itself
      */
-    public function muteConversation(Request $request, int $conversation_id): array
+    public function muteConversation(Request $request, int $conversation_id)
     {
-        $user = Common::ensureLoggedIn();
-        $form = Form::create([
-            ['mute_conversation', SubmitType::class, ['label' => _m('Mute conversation')]],
+        $user     = Common::ensureLoggedIn();
+        $is_muted = ConversationMute::isMuted($conversation_id, $user);
+        $form     = Form::create([
+            ['mute_conversation', SubmitType::class, ['label' => $is_muted ? _m('Mute conversation') : _m('Unmute conversation')]],
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            DB::persist(ConversationMute::create(['conversation_id' => $conversation_id, 'actor_id' => $user->getId()]));
+            if ($is_muted) {
+                DB::persist(ConversationMute::create(['conversation_id' => $conversation_id, 'actor_id' => $user->getId()]));
+            } else {
+                DB::removeBy('conversation_mute', ['conversation_id' => $conversation_id, 'actor_id' => $user->getId()]);
+            }
             DB::flush();
+            Cache::delete(ConversationMute::cacheKeys($conversation_id, $user->getId())['mute']);
             throw new RedirectException();
         }
 

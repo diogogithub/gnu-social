@@ -23,7 +23,13 @@ declare(strict_types = 1);
 
 namespace Component\Conversation\Entity;
 
+use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Entity\Activity;
+use App\Entity\Actor;
+use App\Entity\LocalUser;
+use App\Entity\Note;
 use DateTimeInterface;
 
 /**
@@ -79,6 +85,33 @@ class ConversationMute extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public static function cacheKeys(int $conversation_id, int $actor_id): array
+    {
+        return [
+            'mute' => "conversation-mute-{$conversation_id}-{$actor_id}",
+        ];
+    }
+
+    /**
+     * Check if a conversation referenced by $object is muted form $actor
+     */
+    public static function isMuted(Activity|Note|int $object, Actor|LocalUser $actor): bool
+    {
+        $conversation_id = null;
+        if (\is_int($object)) {
+            $conversation_id = $object;
+        } elseif ($object instanceof Note) {
+            $conversation_id = $object->getConversationId();
+        } elseif ($object instanceof Activity) {
+            $conversation_id = Note::getById($object->getObjectId())->getConversationId();
+        }
+
+        return Cache::get(
+            self::cacheKeys($conversation_id, $actor->getId())['mute'],
+            fn () => (bool) DB::count('conversation_mute', ['conversation_id' => $conversation_id, 'actor_id' => $actor->getId()]),
+        );
+    }
 
     public static function schemaDef(): array
     {

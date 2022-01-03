@@ -34,12 +34,22 @@ use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Common;
-use Component\Conversation\Controller\Reply as ReplyController;
 use Component\Conversation\Entity\Conversation as ConversationEntity;
+use Component\Conversation\Entity\ConversationMute;
+use Functional as F;
 use Symfony\Component\HttpFoundation\Request;
 
 class Conversation extends Component
 {
+    public function onAddRoute(RouteLoader $r): bool
+    {
+        $r->connect('conversation', '/conversation/{conversation_id<\d+>}', [Controller\Conversation::class, 'showConversation']);
+        $r->connect('conversation_mute', '/conversation/{conversation_id<\d+>}/mute', [Controller\Conversation::class, 'muteConversation']);
+        $r->connect('conversation_reply_to', '/conversation/reply', [Controller\Conversation::class, 'addReply']);
+
+        return Event::next;
+    }
+
     /**
      * **Assigns** the given local Note it's corresponding **Conversation**.
      *
@@ -96,14 +106,18 @@ class Conversation extends Component
             return Event::next;
         }
 
-        // Generating URL for reply action route
-        $args             = ['note_id' => $note->getId()];
-        $type             = Router::ABSOLUTE_PATH;
-        $reply_action_url = Router::url('conversation_reply_to', $args, $type);
+        $from = $request->query->has('from')
+              ? $request->query->get('from')
+              : $request->getPathInfo();
 
-        $query_string = $request->getQueryString();
-        // Concatenating get parameter to redirect the user to where he came from
-        $reply_action_url .= '?from=' . urlencode($request->getRequestUri()) . '#note-anchor-' . $note->getId();
+        $reply_action_url = Router::url(
+            'conversation_reply_to',
+            [
+                'reply_to_id' => $note->getId(),
+                'from'        => $from . '#note-anchor-' . $note->getId(),
+            ],
+            Router::ABSOLUTE_PATH,
+        );
 
         $reply_action = [
             'url'     => $reply_action_url,
@@ -117,10 +131,18 @@ class Conversation extends Component
         return Event::next;
     }
 
-    public function onAddExtraArgsToNoteContent(Request $request, Actor $actor, array $data, array &$extra_args): bool
+    /**
+     * Posting event to add extra info to a note
+     */
+    public function onPostingModifyData(Request $request, Actor $actor, array &$data): bool
     {
-        $extra_args['reply_to'] = 'conversation_reply_to' === $request->get('_route') ? (int) $request->get('note_id') : null;
+        $data['reply_to_id'] = $request->get('_route') === 'conversation_reply_to' && $request->query->has('reply_to_id')
+                             ? $request->query->getInt('reply_to_id')
+                             : null;
 
+        if (!\is_null($data['reply_to_id'])) {
+            Note::ensureCanInteract(Note::getById($data['reply_to_id']), $actor);
+        }
         return Event::next;
     }
 
@@ -132,43 +154,23 @@ class Conversation extends Component
      */
     public function onAppendCardNote(array $vars, array &$result): bool
     {
-        // If note is the original and user isn't the one who repeated, append on end "user repeated this"
-        // If user is the one who repeated, append on end "you repeated this, remove repeat?"
-        $check_user = !\is_null(Common::user());
-
         // The current Note being rendered
         $note = $vars['note'];
 
         // Will have actors array, and action string
         // Actors are the subjects, action is the verb (in the final phrase)
-        $reply_actors = [];
-        $note_replies = $note->getReplies();
+        $reply_actors = F\map(
+            $note->getReplies(),
+            fn (Note $reply) => Actor::getByPK($reply->getActorId()),
+        );
 
-        // Get actors who repeated the note
-        foreach ($note_replies as $reply) {
-            $reply_actors[] = Actor::getByPK($reply->getActorId());
-        }
-        if (\count($reply_actors) < 1) {
+        if (empty($reply_actors)) {
             return Event::next;
         }
 
         // Filter out multiple replies from the same actor
         $reply_actors = array_unique($reply_actors, \SORT_REGULAR);
         $result[]     = ['actors' => $reply_actors, 'action' => 'replied to'];
-
-        return Event::next;
-    }
-
-    /**
-     * Connects the various Conversation related routes to their respective controllers.
-     *
-     * @return bool EventHook
-     */
-    public function onAddRoute(RouteLoader $r): bool
-    {
-        $r->connect('conversation_reply_to', '/conversation/reply?reply_to_note={note_id<\d+>}', [ReplyController::class, 'addReply']);
-        $r->connect('conversation', '/conversation/{conversation_id<\d+>}', [Controller\Conversation::class, 'showConversation']);
-        $r->connect('conversation_mute', '/conversation/{conversation_id<\d+>}/mute', [Controller\Conversation::class, 'muteConversation']);
 
         return Event::next;
     }
@@ -181,15 +183,14 @@ class Conversation extends Component
      * @param \App\Entity\Actor      $actor         The Actor currently attempting to post a Note
      * @param null|\App\Entity\Actor $context_actor The 'owner' of the current route (e.g. Group or Actor), used to target it
      */
-    public function onPostingGetContextActor(Request $request, Actor $actor, ?Actor &$context_actor): bool
+    public function onPostingGetContextActor(Request $request, Actor $actor, ?Actor &$context_actor)
     {
-        // TODO: check if actor is posting in group, changing the context actor to that group
-        /*$to_query = $request->get('actor_id');
-        if (!\is_null($to_query)) {
+        $to_note_id = $request->query->get('reply_to_id');
+        if (!\is_null($to_note_id)) {
             // Getting the actor itself
-            $context_actor = Actor::getById((int) $to_query);
+            $context_actor = Actor::getById(Note::getById((int) $to_note_id)->getActorId());
             return Event::stop;
-        }*/
+        }
         return Event::next;
     }
 
@@ -202,14 +203,10 @@ class Conversation extends Component
      */
     public function onNoteDeleteRelated(Note &$note, Actor $actor): bool
     {
-        Cache::delete("note-replies-{$note->getId()}");
-        DB::wrapInTransaction(function () use ($note) {
-            foreach ($note->getReplies() as $reply) {
-                $reply->setReplyTo(null);
-            }
-        });
-        Cache::delete("note-replies-{$note->getId()}");
-
+        // Ensure we have the most up to date replies
+        Cache::delete(Note::cacheKeys($note->getId())['replies']);
+        DB::wrapInTransaction(fn () => F\each($note->getReplies(), fn (Note $note) => $note->setReplyTo(null)));
+        Cache::delete(Note::cacheKeys($note->getId())['replies']);
         return Event::next;
     }
 
@@ -225,12 +222,12 @@ class Conversation extends Component
      */
     public function onAddExtraNoteActions(Request $request, Note $note, array &$actions)
     {
-        if (\is_null($actor = Common::actor())) {
+        if (\is_null($user = Common::user())) {
             return Event::next;
         }
 
         $actions[] = [
-            'title'   => _m('Mute conversation'),
+            'title'   => ConversationMute::isMuted($note, $user) ? _m('Mute conversation') : _m('Unmute conversation'),
             'classes' => '',
             'url'     => Router::url('conversation_mute', ['conversation_id' => $note->getConversationId()]),
         ];
@@ -240,21 +237,9 @@ class Conversation extends Component
 
     public function onNewNotificationShould(Activity $activity, Actor $actor)
     {
-        if ('note' === $activity->getObjectType()) {
-            $is_blocked = !empty(DB::dql(
-                <<<'EOQ'
-                    SELECT 1
-                    FROM note AS n
-                    JOIN conversation_mute AS cm WITH n.conversation_id = cm.conversation_id
-                    WHERE n.id = :object_id
-                    EOQ,
-                ['object_id' => $activity->getObjectId()],
-            ));
-            if ($is_blocked) {
-                return Event::stop;
-            } else {
-                return Event::next;
-            }
+        if ($activity->getObjectType() === 'note' && ConversationMute::isMuted($activity, $actor)) {
+            return Event::stop;
         }
+        return Event::next;
     }
 }
