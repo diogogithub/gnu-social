@@ -55,6 +55,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Validator\Constraints\Length;
 
 class Posting extends Component
@@ -129,6 +130,8 @@ class Posting extends Component
             try {
                 if ($form->isValid()) {
                     $data = $form->getData();
+                    Event::handle('PostingModifyData', [$request, $actor, &$data, $form_params, $form]);
+
                     if (empty($data['content']) && empty($data['attachments'])) {
                         // TODO Display error: At least one of `content` and `attachments` must be provided
                         throw new ClientException(_m('You must enter content or provide at least one attachment to post a note.'));
@@ -148,15 +151,28 @@ class Posting extends Component
                         content_type: $content_type,
                         language: $data['language'],
                         scope: VisibilityScope::from($data['visibility']),
-                        target: $data['in'] ?? null,
+                        target: $data['in'] ?? $context_actor,
+                        reply_to_id: $data['reply_to_id'],
                         attachments: $data['attachments'],
                         process_note_content_extra_args: $extra_args,
                     );
 
+                    try {
+                        if ($request->query->has('from')) {
+                            $from = $request->query->get('from');
+                            if (str_contains($from, '#')) {
+                                [$from, $fragment] = explode('#', $from);
+                            }
+                            Router::match($from);
+                            throw new RedirectException(url: $from . (isset($fragment) ? '#' . $fragment : ''));
+                        }
+                    } catch (ResourceNotFoundException $e) {
+                        // continue
+                    }
                     throw new RedirectException();
                 }
-            } catch (FormSizeFileException $sizeFileException) {
-                throw new FormSizeFileException();
+            } catch (FormSizeFileException $e) {
+                throw new ClientException(_m('Invalid file size given'), previous: $e);
             }
         }
 
@@ -185,7 +201,8 @@ class Posting extends Component
         string $content_type,
         ?string $language = null,
         ?VisibilityScope $scope = null,
-        ?string $target = null,
+        null|int|Actor $target = null,
+        ?int $reply_to_id = null,
         array $attachments = [],
         array $processed_attachments = [],
         array $process_note_content_extra_args = [],
@@ -206,6 +223,7 @@ class Posting extends Component
             'language_id'  => !\is_null($language) ? Language::getByLocale($language)->getId() : null,
             'is_local'     => true,
             'scope'        => $scope,
+            'reply_to'     => $reply_to_id,
         ]);
 
         /** @var UploadedFile[] $attachments */
@@ -222,11 +240,6 @@ class Posting extends Component
 
         DB::persist($note);
 
-        // Assign conversation to this note
-        // AddExtraArgsToNoteContent already added the info we need
-        $reply_to = $process_note_content_extra_args['reply_to'];
-        Conversation::assignLocalConversation($note, $reply_to);
-
         // Need file and note ids for the next step
         $note->setUrl(Router::url('note_view', ['id' => $note->getId()], Router::ABSOLUTE_URL));
         if (!empty($content)) {
@@ -241,6 +254,8 @@ class Posting extends Component
                 DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
             }
         }
+
+        Conversation::assignLocalConversation($note, $reply_to_id);
 
         $activity = Activity::create([
             'actor_id'    => $actor->getId(),
@@ -269,7 +284,7 @@ class Posting extends Component
         DB::flush();
 
         if ($notify) {
-            Event::handle('NewNotification', [$actor, $activity, ['object' => $mention_ids], _m('{nickname} created a note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
+            Event::handle('NewNotification', [$actor, $activity, ['object' => $mention_ids], _m('{nickname} created a note {note_id}.', ['{nickname}' => $actor->getNickname(), '{note_id}' => $activity->getObjectId()])]);
         }
 
         return $note;

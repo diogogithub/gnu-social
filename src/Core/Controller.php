@@ -56,9 +56,9 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Throwable;
 
 /**
- * @method ?int    int(string $param)
- * @method ?bool   bool(string $param)
- * @method ?string string(string $param)
+ * @method ?int    int(string $param, ?\Throwable $throw = null)
+ * @method ?bool   bool(string $param, ?\Throwable $throw = null)
+ * @method ?string string(string $param, ?\Throwable $throw = null)
  * @method ?string params(string $param)
  * @method mixed   handle(Request $request, mixed ...$extra)
  */
@@ -257,7 +257,6 @@ abstract class Controller extends AbstractController implements EventSubscriberI
             } else {
                 return null;
             }
-            break;
         case 'params':
             return $this->request->query->all();
         default:
