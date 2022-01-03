@@ -55,7 +55,7 @@ class AttachmentShowRelated extends Plugin
      */
     public function onEndShowStyles(array &$styles, string $path): bool
     {
-        if ($path === 'attachment_show') {
+        if ($path === 'note_attachment_show') {
             $styles[] = '/assets/default_theme/css/pages/feeds.css';
         }
         return Event::next;
