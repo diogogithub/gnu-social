@@ -41,7 +41,7 @@ use Symfony\Component\HttpFoundation\Request;
 class Conversation extends Component
 {
     /**
-     * **Assigns** the given local Note it's corresponding **Conversation**
+     * **Assigns** the given local Note it's corresponding **Conversation**.
      *
      * **If a _$parent_id_ is not given**, then the Actor is not attempting a reply,
      * therefore, we can assume (for now) that we need to create a new Conversation and assign it
@@ -49,6 +49,9 @@ class Conversation extends Component
      *
      * **On the other hand**, given a _$parent_id_, the Actor is attempting to post a reply. Meaning that,
      * this Note conversation_id should be same as the parent Note
+     *
+     * @param \App\Entity\Note $current_note Local Note currently being assigned a Conversation
+     * @param null|int         $parent_id    If present, it's a reply
      */
     public static function assignLocalConversation(Note $current_note, ?int $parent_id): void
     {
@@ -77,7 +80,15 @@ class Conversation extends Component
 
     /**
      * HTML rendering event that adds a reply link as a note
-     * action, if a user is logged in
+     * action, if a user is logged in.
+     *
+     * @param \App\Entity\Note $note    The Note being rendered
+     * @param array            $actions Contains keys 'url' (linking 'conversation_reply_to'
+     *                                  route), 'title' (used as title for aforementioned url),
+     *                                  'classes' (CSS styling classes used to visually inform the user of action context),
+     *                                  'id' (HTML markup id used to redirect user to this anchor upon performing the action)
+     *
+     * @throws \App\Util\Exception\ServerException
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
@@ -102,19 +113,22 @@ class Conversation extends Component
         ];
 
         $actions[] = $reply_action;
+
         return Event::next;
     }
 
     public function onAddExtraArgsToNoteContent(Request $request, Actor $actor, array $data, array &$extra_args): bool
     {
-        // If Actor is adding a reply, get parent's Note id
-        // Else it's null
-        $extra_args['reply_to'] = $request->get('_route') === 'conversation_reply_to' ? (int) $request->get('note_id') : null;
+        $extra_args['reply_to'] = 'conversation_reply_to' === $request->get('_route') ? (int) $request->get('note_id') : null;
+
         return Event::next;
     }
 
     /**
-     * Append on note information about user actions
+     * Append on note information about user actions.
+     *
+     * @param array $vars   Contains information related to Note currently being rendered
+     * @param array $result Contains keys 'actors', and 'action'. Needed to construct a string, stating who ($result['actors']), has already performed a reply ($result['action']), in the given Note (vars['note'])
      */
     public function onAppendCardNote(array $vars, array &$result): bool
     {
@@ -145,6 +159,11 @@ class Conversation extends Component
         return Event::next;
     }
 
+    /**
+     * Connects the various Conversation related routes to their respective controllers.
+     *
+     * @return bool EventHook
+     */
     public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect('conversation_reply_to', '/conversation/reply?reply_to_note={note_id<\d+>}', [ReplyController::class, 'addReply']);
@@ -154,17 +173,33 @@ class Conversation extends Component
         return Event::next;
     }
 
-    public function onPostingGetContextActor(Request $request, Actor $actor, ?Actor $context_actor)
+    /**
+     * Informs **\App\Component\Posting::onAppendRightPostingBlock**, of the **current page context** in which the given
+     * Actor is in. This is valuable when posting within a group route, allowing \App\Component\Posting to create a
+     * Note **targeting** that specific Group.
+     *
+     * @param \App\Entity\Actor      $actor         The Actor currently attempting to post a Note
+     * @param null|\App\Entity\Actor $context_actor The 'owner' of the current route (e.g. Group or Actor), used to target it
+     */
+    public function onPostingGetContextActor(Request $request, Actor $actor, ?Actor &$context_actor): bool
     {
-        $to_query = $request->get('actor_id');
+        // TODO: check if actor is posting in group, changing the context actor to that group
+        /*$to_query = $request->get('actor_id');
         if (!\is_null($to_query)) {
             // Getting the actor itself
             $context_actor = Actor::getById((int) $to_query);
             return Event::stop;
-        }
+        }*/
         return Event::next;
     }
 
+    /**
+     * Event launched when deleting given Note, it's deletion implies further changes to object related to this Note.
+     * Please note, **replies are NOT deleted**, their reply_to is only set to null since this Note no longer exists.
+     *
+     * @param \App\Entity\Note  $note  Note being deleted
+     * @param \App\Entity\Actor $actor Actor that performed the delete action
+     */
     public function onNoteDeleteRelated(Note &$note, Actor $actor): bool
     {
         Cache::delete("note-replies-{$note->getId()}");
@@ -174,9 +209,20 @@ class Conversation extends Component
             }
         });
         Cache::delete("note-replies-{$note->getId()}");
+
         return Event::next;
     }
 
+    /**
+     * Adds extra actions related to Conversation Component, that act upon/from the given Note.
+     *
+     * @param \App\Entity\Note $note    Current Note being rendered
+     * @param array            $actions Containing 'url' (Controller connected route), 'title' (used in anchor link containing the url), ?'classes' (CSS classes required for styling, if needed)
+     *
+     * @throws \App\Util\Exception\ServerException
+     *
+     * @return bool EventHook
+     */
     public function onAddExtraNoteActions(Request $request, Note $note, array &$actions)
     {
         if (\is_null($actor = Common::actor())) {
@@ -194,7 +240,7 @@ class Conversation extends Component
 
     public function onNewNotificationShould(Activity $activity, Actor $actor)
     {
-        if ($activity->getObjectType() === 'note') {
+        if ('note' === $activity->getObjectType()) {
             $is_blocked = !empty(DB::dql(
                 <<<'EOQ'
                     SELECT 1
