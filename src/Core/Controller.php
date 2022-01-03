@@ -53,6 +53,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use Throwable;
 
 /**
  * @method ?int    int(string $param)
@@ -242,11 +243,21 @@ abstract class Controller extends AbstractController implements EventSubscriberI
     {
         switch ($method) {
         case 'int':
-            return !$this->request->query->has($args[0]) ? null : $this->request->query->getInt($args[0]);
         case 'bool':
-            return !$this->request->query->has($args[0]) ? null : $this->request->query->getBoolean($args[0]);
         case 'string':
-            return !$this->request->query->has($args[0]) ? null : $this->request->query->get($args[0]);
+            if ($this->request->query->has($args[0])) {
+                return match ($method) {
+                    'int'    => $this->request->query->getInt($args[0]),
+                    'bool'   => $this->request->query->getBoolean($args[0]),
+                    'string' => $this->request->query->get($args[0]),
+                    default  => throw new BugFoundException('Inconsistent switch/match spotted'),
+                };
+            } elseif (\array_key_exists(1, $args) && $args[1] instanceof Throwable) {
+                throw $args[1];
+            } else {
+                return null;
+            }
+            break;
         case 'params':
             return $this->request->query->all();
         default:
