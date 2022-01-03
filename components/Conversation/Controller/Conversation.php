@@ -40,14 +40,19 @@ use Symfony\Component\HttpFoundation\Request;
 class Conversation extends FeedController
 {
     /**
-     * Render conversation page
+     * Render conversation page.
      *
-     * @return array
+     * @param int $conversation_id To identify what Conversation is to be rendered
+     *
+     * @throws \App\Util\Exception\ServerException
+     *
+     * @return array Array containing keys: 'notes' (all known notes in the given Conversation), 'should_format' (boolean, stating if onFormatNoteList events may or not format given notes), 'page_title' (used as the title header)
      */
-    public function showConversation(Request $request, int $conversation_id)
+    public function showConversation(Request $request, int $conversation_id): array
     {
         $data  = $this->query(query: "note-conversation:{$conversation_id}");
         $notes = $data['notes'];
+
         return [
             '_template'     => 'collection/notes.html.twig',
             'notes'         => $notes,
@@ -56,7 +61,18 @@ class Conversation extends FeedController
         ];
     }
 
-    public function muteConversation(Request $request, int $conversation_id)
+    /**
+     * Creates form view for Muting Conversation extra action.
+     *
+     * @param int $conversation_id The Conversation id that this action targets
+     *
+     * @throws \App\Util\Exception\NoLoggedInUser
+     * @throws \App\Util\Exception\RedirectException
+     * @throws \App\Util\Exception\ServerException
+     *
+     * @return array Array containing templating where the form is to be rendered, and the form itself
+     */
+    public function muteConversation(Request $request, int $conversation_id): array
     {
         $user = Common::ensureLoggedIn();
         $form = Form::create([
