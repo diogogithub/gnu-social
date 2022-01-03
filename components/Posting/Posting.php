@@ -46,7 +46,6 @@ use App\Util\Formatting;
 use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\AttachmentToNote;
 use Component\Conversation\Conversation;
-use Component\Group\Entity\LocalGroup;
 use Component\Language\Entity\Language;
 use Functional as F;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -253,7 +252,7 @@ class Posting extends Component
         DB::persist($activity);
 
         if (!\is_null($target)) {
-            $target     = \is_int($target) ? Actor::getById($target) : $target;
+            $target     = is_numeric($target) ? Actor::getById((int) $target) : $target;
             $mentions[] = [
                 'mentioned'       => [$target],
                 'type'            => match ($target->getType()) {
