@@ -49,12 +49,12 @@ class Subscribers extends CircleController
         return $this->handleActorByNickname(
             $nickname,
             fn ($actor) => [
-                '_template'     => 'collection/actors.html.twig',
-                'title'         => _m('Subscribers'),
-                'empty_message' => _m('No subscribers'),
-                'sort_options'  => [],
-                'page'          => $this->int('page') ?? 1,
-                'actors'        => $actor->getSubscribers(),
+                '_template'        => 'collection/actors.html.twig',
+                'title'            => _m('Subscribers'),
+                'empty_message'    => _m('No subscribers.'),
+                'sort_form_fields' => [],
+                'page'             => $this->int('page') ?? 1,
+                'actors'           => $actor->getSubscribers(),
             ],
         );
     }

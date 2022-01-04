@@ -27,13 +27,26 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
+use App\Core\Router\RouteLoader;
 use App\Entity\Activity;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Exception\ServerException;
+use App\Util\Nickname;
+use Component\Subscription\Controller\Subscribers;
+use Component\Subscription\Controller\Subscriptions;
 
 class Subscription extends Component
 {
+    public function onAddRoute(RouteLoader $r): bool
+    {
+        $r->connect(id: 'actor_subscriptions_id', uri_path: '/actor/{id<\d+>}/subscriptions', target: [Subscriptions::class, 'subscriptionsByActorId']);
+        $r->connect(id: 'actor_subscriptions_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/subscriptions', target: [Subscriptions::class, 'subscriptionsByActorNickname']);
+        $r->connect(id: 'actor_subscribers_id', uri_path: '/actor/{id<\d+>}/subscribers', target: [Subscribers::class, 'subscribersByActorId']);
+        $r->connect(id: 'actor_subscribers_nickname', uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/subscribers', target: [Subscribers::class, 'subscribersByActorNickname']);
+        return Event::next;
+    }
+
     /**
      * Persists a new Subscription Entity from Subscriber to Subject (Actor being subscribed) and Activity
      *
