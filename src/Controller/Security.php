@@ -29,6 +29,7 @@ use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use App\Util\Nickname;
+use Component\Language\Entity\ActorLanguage;
 use Component\Subscription\Entity\Subscription;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use LogicException;
@@ -166,6 +167,11 @@ class Security extends Controller
                         // Self subscription for the Home feed and alike
                         DB::persist(Subscription::create(['subscriber_id' => $id, 'subscribed_id' => $id]));
                         Feed::createDefaultFeeds($id, $user);
+                        DB::persist(ActorLanguage::create([
+                            'actor_id'    => $id,
+                            'language_id' => Common::currentLanguage()->getId(),
+                            'ordering'    => 1,
+                        ]));
                     },
                 );
 

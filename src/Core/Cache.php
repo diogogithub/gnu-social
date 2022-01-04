@@ -235,6 +235,7 @@ abstract class Cache
     /**
      * Retrieve a list from the cache, with a different implementation
      * for redis and others, trimming to $max_count if given
+     * TODO(hugo): $calculate = [] is the same as false miss
      *
      * @param callable(?CacheItem $item, bool &$save): (string|object|array<int,mixed>) $calculate
      */
