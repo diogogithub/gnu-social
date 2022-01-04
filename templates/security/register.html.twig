@@ -12,6 +12,7 @@
 
         <form class="section-form" method="post">
             {{ form_start(registration_form) }}
+            {{ form_errors(registration_form) }}
             <fieldset>
                 <legend class="section-form-legend">{{ "Register" | trans }}</legend>
 

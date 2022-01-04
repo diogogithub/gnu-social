@@ -13,6 +13,7 @@
 
         {{ form_start(search_form) }}
         <section class="section-widget section-form">
+            {{ form_errors(search_form) }}
             {{ form_row(search_form.search_query) }}
             {% if actor is not null %}
                 <details class="section-widget-subtitle-details">
