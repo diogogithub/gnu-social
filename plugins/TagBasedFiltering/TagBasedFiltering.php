@@ -31,12 +31,10 @@ use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
-use App\Entity\ActorTag;
-use App\Entity\ActorTagBlock;
 use App\Entity\LocalUser;
 use App\Entity\Note;
-use App\Entity\NoteTag;
-use App\Entity\NoteTagBlock;
+use Component\Tag\Entity\NoteTag;
+use Component\Tag\Entity\NoteTagBlock;
 use Functional as F;
 use Plugin\TagBasedFiltering\Controller as C;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,10 +86,6 @@ class TagBasedFiltering extends Plugin
             self::cacheKeys($actor)['note'],
             fn () => DB::dql('select ntb from note_tag_block ntb where ntb.blocker = :blocker', ['blocker' => $actor->getId()]),
         );
-        $blocked_actor_tags = Cache::get(
-            self::cacheKeys($actor)['actor'],
-            fn () => DB::dql('select atb from actor_tag_block atb where atb.blocker = :blocker', ['blocker' => $actor->getId()]),
-        );
 
         $notes = F\reject(
             $notes,
@@ -101,10 +95,6 @@ class TagBasedFiltering extends Plugin
                     F\some(
                         NoteTag::getByNoteId($n->getId()),
                         fn ($nt) => NoteTagBlock::checkBlocksNoteTag($nt, $blocked_note_tags),
-                    )
-                    || F\some(
-                        ActorTag::getByActorId($n->getActor()->getId()),
-                        fn ($at) => ActorTagBlock::checkBlocksActorTag($at, $blocked_actor_tags),
                     )
                 )
             ),
@@ -121,12 +111,6 @@ class TagBasedFiltering extends Plugin
                 'desc'       => 'Edit your muted note tags',
                 'id'         => 'settings-muting-note-tags',
                 'controller' => C\EditBlocked::editBlockedNoteTags($request),
-            ];
-            $tabs[] = [
-                'title'      => 'Muted people tags',
-                'desc'       => 'Edit your muted people tags',
-                'id'         => 'settings-muting-actor-tags',
-                'controller' => C\EditBlocked::editBlockedActorTags($request),
             ];
         }
         return Event::next;

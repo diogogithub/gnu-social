@@ -257,7 +257,7 @@ class Actor extends Entity
             'id' => "actor-id-{$actor_id}",
             'nickname' => "actor-nickname-id-{$actor_id}",
             'fullname' => "actor-fullname-id-{$actor_id}",
-            'tags' => \is_null($other) ? "actor-tags-{$actor_id}" : "actor-tags-{$actor_id}-by-{$other}", // $other is $context_id
+            'self-tags' =>  "actor-self-tags-{$actor_id}",
             'circles' => "actor-circles-{$actor_id}",
             'subscriber' => "subscriber-{$actor_id}",
             'subscribed' => "subscribed-{$actor_id}",
@@ -309,62 +309,20 @@ class Actor extends Entity
     }
 
     /**
-     * Tags attributed to self, shortcut function for increased legibility
-     *
-     * @return ActorTag[] resulting lists
+     * @return array ActorTag[] Self Tag Circles of which this actor is a member
      */
-    public function getSelfTags(bool $_test_force_recompute = false): array
+    public function getSelfTags(): array
     {
-        return $this->getOtherTags(context: $this->getId(), _test_force_recompute: $_test_force_recompute);
+        return Cache::getList(
+            self::cacheKeys($this->getId())['self-tags'],
+            fn() => DB::findBy('actor_tag', ['tagger' => $this->getId(), 'tagged' => $this->getId()], order_by: ['modified' => 'DESC']),
+        );
     }
 
     /**
-     * Get tags that other people put on this actor, in reverse-chron order
-     *
-     * @param null|Actor|int $context Actor we are requesting as:
-     *                                - If null = All tags attributed to self by other actors (excludes self tags)
-     *                                - If self = Same as getSelfTags
-     *                                - otherwise = Tags that $context attributed to $this
-     * @param null|int $offset Offset from latest
-     * @param null|int $limit Max number to get
-     *
-     * @return ActorTag[] resulting lists
+     * @return array ActorCircle[]
      */
-    public function getOtherTags(self|int|null $context = null, ?int $offset = null, ?int $limit = null, bool $_test_force_recompute = false): array
-    {
-        if (\is_null($context)) {
-            return Cache::getList(
-                self::cacheKeys($this->getId())['tags'],
-                fn() => DB::dql(
-                    <<< 'EOQ'
-                        SELECT tag
-                        FROM actor_tag tag
-                        WHERE tag.tagged = :id
-                        ORDER BY tag.modified DESC, tag.tagged DESC
-                        EOQ,
-                    ['id' => $this->getId()],
-                    options: ['offset' => $offset, 'limit' => $limit],
-                ),
-            );
-        } else {
-            $context_id = \is_int($context) ? $context : $context->getId();
-            return Cache::getList(
-                self::cacheKeys($this->getId(), $context_id)['tags'],
-                fn() => DB::dql(
-                    <<< 'EOQ'
-                        SELECT tag
-                        FROM actor_tag tag
-                        WHERE tag.tagged = :tagged_id AND tag.tagger = :tagger_id
-                        ORDER BY tag.modified DESC, tag.tagged DESC
-                        EOQ,
-                    ['tagged_id' => $this->getId(), 'tagger_id' => $context_id],
-                    options: ['offset' => $offset, 'limit' => $limit],
-                ),
-            );
-        }
-    }
-
-    public function getActorCircles()
+    public function getCircles(): array
     {
         return Cache::getList(
             self::cacheKeys($this->getId())['circles'],
@@ -410,6 +368,24 @@ class Actor extends Entity
         EOF, ['self' => $this->getId()]);
     }
 
+    public function getSubscriptionsUrl(): string
+    {
+        if ($this->getIsLocal()) {
+            return Router::url('actor_subscriptions_nickname', ['nickname' => $this->getNickname()]);
+        } else {
+            return Router::url('actor_subscriptions_id', ['id' => $this->getId()]);
+        }
+    }
+
+    public function getSubscribersUrl(): string
+    {
+        if ($this->getIsLocal()) {
+            return Router::url('actor_subscribers_nickname', ['nickname' => $this->getNickname()]);
+        } else {
+            return Router::url('actor_subscribers_id', ['id' => $this->getId()]);
+        }
+    }
+
     /**
      * Resolve an ambiguous nickname reference, checking in following order:
      * - Actors that $sender subscribes to
@@ -428,9 +404,9 @@ class Actor extends Entity
             self::cacheKeys($this->getId(), $nickname)['relative-nickname'],
             fn () => DB::dql(
                 <<<'EOF'
-                    select a from actor a where
-                    a.id in (select fa.subscribed_id from subscription fa join actor aa with fa.subscribed = aa.id where fa.subscriber = :actor_id and aa.nickname = :nickname) or
-                    a.id in (select fb.subscriber_id from subscription fb join actor ab with fb.subscriber = ab.id where fb.subscribed = :actor_id and ab.nickname = :nickname) or
+                    SELECT a FROM actor AS a WHERE
+                    a.id IN (SELECT sa.subscribed_id FROM subscription sa JOIN actor aa WITH sa.subscribed_id = aa.id WHERE sa.subscriber_id = :actor_id AND aa.nickname = :nickname) OR
+                    a.id IN (SELECT sb.subscriber_id FROM subscription sb JOIN actor ab WITH sb.subscriber_id = ab.id WHERE sb.subscribed_id = :actor_id AND ab.nickname = :nickname) OR
                     a.nickname = :nickname
                     EOF,
                 ['nickname' => $nickname, 'actor_id' => $this->getId()],

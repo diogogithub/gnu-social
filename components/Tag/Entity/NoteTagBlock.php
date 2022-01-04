@@ -19,7 +19,7 @@ declare(strict_types = 1);
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Tag\Entity;
 
 use App\Core\Cache;
 use App\Core\DB\DB;
@@ -46,7 +46,7 @@ class NoteTagBlock extends Entity
     private string $tag;
     private string $canonical;
     private bool $use_canonical;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setBlocker(int $blocker): self
     {
@@ -61,7 +61,7 @@ class NoteTagBlock extends Entity
 
     public function setTag(string $tag): self
     {
-        $this->tag = \mb_substr($tag, 0, 64);
+        $this->tag = mb_substr($tag, 0, 64);
         return $this;
     }
 
@@ -72,7 +72,7 @@ class NoteTagBlock extends Entity
 
     public function setCanonical(string $canonical): self
     {
-        $this->canonical = \mb_substr($canonical, 0, 64);
+        $this->canonical = mb_substr($canonical, 0, 64);
         return $this;
     }
 
@@ -92,13 +92,13 @@ class NoteTagBlock extends Entity
         return $this->use_canonical;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }

@@ -19,12 +19,15 @@ declare(strict_types = 1);
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Tag\Entity;
 
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Router\Router;
+use App\Entity\Actor;
+use App\Entity\Note;
+use Component\Language\Entity\Language;
 use Component\Tag\Tag;
 use DateTimeInterface;
 
@@ -39,6 +42,7 @@ use DateTimeInterface;
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
  * @author    Hugo Sales <hugo@hsal.es>
+ * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -51,11 +55,11 @@ class NoteTag extends Entity
     private int $note_id;
     private bool $use_canonical;
     private ?int $language_id = null;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $created;
 
     public function setTag(string $tag): self
     {
-        $this->tag = \mb_substr($tag, 0, 64);
+        $this->tag = mb_substr($tag, 0, 64);
         return $this;
     }
 
@@ -66,7 +70,7 @@ class NoteTag extends Entity
 
     public function setCanonical(string $canonical): self
     {
-        $this->canonical = \mb_substr($canonical, 0, 64);
+        $this->canonical = mb_substr($canonical, 0, 64);
         return $this;
     }
 
@@ -108,13 +112,13 @@ class NoteTag extends Entity
         return $this->language_id;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
@@ -132,15 +136,24 @@ class NoteTag extends Entity
 
     public static function getByNoteId(int $note_id): array
     {
-        return Cache::getList(self::cacheKey($note_id), fn () => DB::dql('select nt from note_tag nt join note n with n.id = nt.note_id where n.id = :id', ['id' => $note_id]));
+        return Cache::getList(self::cacheKey($note_id), fn () => DB::dql('SELECT nt FROM note_tag AS nt JOIN note AS n WITH n.id = nt.note_id WHERE n.id = :id', ['id' => $note_id]));
     }
 
     public function getUrl(?Actor $actor = null, int $type = Router::ABSOLUTE_PATH): string
     {
-        $params = ['canon' => $this->getCanonical(), 'tag' => $this->getTag()];
-        if (!\is_null($actor)) {
-            $params['lang'] = $actor->getTopLanguage()->getLocale();
+        $params['tag'] = $this->getTag();
+
+        if (\is_null($this->getLanguageId())) {
+            if (!\is_null($actor)) {
+                $params['locale'] = $actor->getTopLanguage()->getLocale();
+            }
+        } else {
+            $params['locale'] = Language::getById($this->getLanguageId())->getLocale();
         }
+        if ($this->getUseCanonical()) {
+            $params['canonical'] = $this->getCanonical();
+        }
+
         return Router::url(id: 'single_note_tag', args: $params, type: $type);
     }
 
@@ -150,18 +163,18 @@ class NoteTag extends Entity
             'name'        => 'note_tag',
             'description' => 'Hash tags on notes',
             'fields'      => [
+                'note_id'       => ['type' => 'int',      'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to tagged note'],
                 'tag'           => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag associated with this note'],
                 'canonical'     => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
-                'note_id'       => ['type' => 'int',      'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to tagged note'],
                 'use_canonical' => ['type' => 'bool',     'not null' => true, 'description' => 'whether the user wanted to use canonical tags in this note. Separate for blocks'],
                 'language_id'   => ['type' => 'int',      'not null' => false, 'foreign key' => true, 'target' => 'Language.id', 'multiplicity' => 'many to many', 'description' => 'the language this entry refers to'],
                 'created'       => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['tag', 'note_id'],
+            'primary key' => ['note_id', 'tag'], // No need to require language in this association because all the related tags will be in the note's language already
             'indexes'     => [
                 'note_tag_created_idx'             => ['created'],
                 'note_tag_note_id_idx'             => ['note_id'],
-                'note_tag_canonical_idx'           => ['canonical'],
+                'note_tag_tag_language_id_idx'     => ['tag', 'language_id'],
                 'note_tag_tag_created_note_id_idx' => ['tag', 'created', 'note_id'],
             ],
         ];

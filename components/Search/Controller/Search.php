@@ -48,7 +48,7 @@ class Search extends FeedController
         $language = !\is_null($actor) ? $actor->getTopLanguage()->getLocale() : null;
         $q        = $this->string('q');
 
-        $data   = $this->query(query: $q, language: $language);
+        $data   = $this->query(query: $q, locale: $language);
         $notes  = $data['notes'];
         $actors = $data['actors'];
 

@@ -29,14 +29,12 @@ use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Entity\Actor;
-use App\Entity\ActorTag;
-use App\Entity\ActorTagBlock;
 use App\Entity\Note;
-use App\Entity\NoteTag;
-use App\Entity\NoteTagBlock;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
 use Component\Language\Entity\Language;
+use Component\Tag\Entity\NoteTag;
+use Component\Tag\Entity\NoteTagBlock;
 use Component\Tag\Tag;
 use Functional as F;
 use Plugin\TagBasedFiltering\TagBasedFiltering as TagFilerPlugin;
@@ -67,10 +65,10 @@ class AddBlocked extends Controller
 
         $form_definition = [];
         foreach ($blockable_tags as $nt) {
-            $canon             = $nt->getCanonical();
-            $form_definition[] = ["{$canon}:tag", TextType::class, ['data' => '#' . $nt->getTag(), 'label' => ' ']];
-            $form_definition[] = ["{$canon}:use-canon", CheckboxType::class, ['label' => _m('Use canonical'), 'help' => _m('Block all similar tags'), 'required' => false, 'data' => true]];
-            $form_definition[] = ["{$canon}:add", SubmitType::class, ['label' => _m('Block')]];
+            $canonical         = $nt->getCanonical();
+            $form_definition[] = ["{$canonical}:tag", TextType::class, ['data' => '#' . $nt->getTag(), 'label' => ' ']];
+            $form_definition[] = ["{$canonical}:use-canonical", CheckboxType::class, ['label' => _m('Use canonical'), 'help' => _m('Block all similar tags'), 'required' => false, 'data' => true]];
+            $form_definition[] = ["{$canonical}:add", SubmitType::class, ['label' => _m('Block')]];
         }
 
         $form = null;
@@ -80,24 +78,24 @@ class AddBlocked extends Controller
             if ($form->isSubmitted() && $form->isValid()) {
                 $data = $form->getData();
                 foreach ($form_definition as [$id, $_, $opts]) {
-                    [$canon, $type] = explode(':', $id);
+                    [$canonical, $type] = explode(':', $id);
                     if ($type === 'add') {
                         /** @var SubmitButton $button */
                         $button = $form->get($id);
                         if ($button->isClicked()) {
                             Cache::delete($block_class::cacheKey($user->getId()));
                             Cache::delete(TagFilerPlugin::cacheKeys($user->getId())[$type_name]);
-                            $new_tag       = Tag::ensureValid($data[$canon . ':tag']);
+                            $new_tag       = Tag::sanitize($data[$canonical . ':tag']);
                             $language      = $target instanceof Note ? Language::getByNote($target)->getLocale() : $user->getActor()->getTopLanguage()->getLocale();
                             $canonical_tag = Tag::canonicalTag($new_tag, $language);
                             DB::persist($block_class::create([
                                 'blocker'       => $user->getId(),
                                 'tag'           => $new_tag,
                                 'canonical'     => $canonical_tag,
-                                'use_canonical' => $data[$canon . ':use-canon'],
+                                'use_canonical' => $data[$canonical . ':use-canonical'],
                             ]));
                             DB::flush();
-                            throw new RedirectException;
+                            throw new RedirectException();
                         }
                     }
                 }
@@ -129,22 +127,6 @@ class AddBlocked extends Controller
             ),
             label: _m('Tags in the note above:'),
             block_class: NoteTagBlock::class,
-        );
-    }
-
-    public function addBlockedActorTags(Request $request, int $actor_id)
-    {
-        return self::addBlocked(
-            request: $request,
-            type_name: 'actor',
-            calculate_target: fn ()      => Actor::getById($actor_id),
-            calculate_blocks: fn ($user) => ActorTagBlock::getByActorId($user->getId()),
-            calculate_tags: fn ($blocks) => F\reject(
-                ActorTag::getByActorId($actor_id),
-                fn (ActorTag $nt) => ActorTagBlock::checkBlocksActorTag($nt, $blocks),
-            ),
-            label: _m('Tags of the account above:'),
-            block_class: ActorTagBlock::class,
         );
     }
 }

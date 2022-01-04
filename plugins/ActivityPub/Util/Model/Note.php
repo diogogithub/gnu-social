@@ -44,7 +44,6 @@ use App\Core\Log;
 use App\Core\Router\Router;
 use App\Core\VisibilityScope;
 use App\Entity\Note as GSNote;
-use App\Entity\NoteTag;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\DuplicateFoundException;
@@ -57,6 +56,7 @@ use Component\Attachment\Entity\AttachmentToNote;
 use Component\Conversation\Conversation;
 use Component\FreeNetwork\FreeNetwork;
 use Component\Language\Entity\Language;
+use Component\Tag\Entity\NoteTag;
 use Component\Tag\Tag;
 use DateTime;
 use DateTimeInterface;
@@ -254,7 +254,7 @@ class Note extends Model
                     break;
                 case 'Hashtag':
                     $match         = ltrim($ap_tag->get('name'), '#');
-                    $tag           = Tag::ensureValid($match);
+                    $tag           = Tag::extract($match);
                     $canonical_tag = $ap_tag->get('canonical') ?? Tag::canonicalTag($tag, \is_null($lang_id = $obj->getLanguageId()) ? null : Language::getById($lang_id)->getLocale());
                     DB::persist(NoteTag::create([
                         'tag'           => $tag,

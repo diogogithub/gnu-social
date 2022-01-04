@@ -25,9 +25,8 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Plugin;
-use App\Entity\ActorTag;
-use App\Entity\NoteTag;
-
+use Component\Circle\Entity\ActorTag;
+use Component\Tag\Entity\NoteTag;
 use Symfony\Component\HttpFoundation\Request;
 
 class RelatedTags extends Plugin
@@ -37,21 +36,25 @@ class RelatedTags extends Plugin
      */
     public function onAddPinnedFeedContent(Request $request, array &$pinned)
     {
-        $tags = $request->attributes->get('canons');
-        $tags = !\is_null($tags) ? explode(',', $tags) : [$request->attributes->get('canon')];
+        // Lets not use language, probably wouldn't make it more helpful
+        //$locale = $request->attributes->get('locale');
+        //$language_id = !empty($locale) ? Language::getByLocale($locale)->getId() : Common::actor()->getTopLanguage()->getId();
+        $tags = $request->attributes->get('tags');
+        $tags = !\is_null($tags) ? explode(',', $tags) : [$request->attributes->get('tag')];
 
         switch ($request->attributes->get('_route')) {
         case 'single_note_tag':
             // fall-through
         case 'multi_note_tags':
             $related = Cache::getList(
+                //"related-note-tags-{$language_id}-" . implode('-', $tags),
                 'related-note-tags-' . implode('-', $tags),
                 fn () => DB::sql(
                     <<<'EOQ'
-                        select distinct on (nt.canonical) canonical, nt.tag, nt.note_id, nt.created
+                        select distinct on (nt.canonical) canonical, nt.tag, nt.note_id, nt.canonical, nt.use_canonical, nt.created
                         from note_tag nt
-                        where nt.note_id in (select n.id from note n join note_tag nt on n.id = nt.note_id where nt.canonical in (:tags))
-                              and not nt.canonical in (:tags)
+                        where nt.note_id in (select n.id from note n join note_tag nt on n.id = nt.note_id where nt.tag in (:tags))
+                              and not nt.tag in (:tags)
                         limit 5
                         EOQ,
                     ['tags' => $tags],
@@ -68,10 +71,10 @@ class RelatedTags extends Plugin
                 'related-actor-tags-' . implode('-', $tags),
                 fn () => DB::sql(
                     <<<'EOQ'
-                        select distinct on (at.canonical) canonical, at.tagger, at.tagged, at.tag, at.use_canonical, at.modified
+                        select distinct on (at.tag) tag, at.tagger, at.tagged, at.tag, at.modified
                         from actor_tag at
-                        where at.tagged in (select at.tagged from actor_tag at where at.canonical in (:tags))
-                              and not at.canonical in (:tags)
+                        where at.tagged in (select at.tagged from actor_tag at where at.tag in (:tags))
+                              and not at.tag in (:tags)
                         limit 5
                         EOQ,
                     ['tags' => $tags],

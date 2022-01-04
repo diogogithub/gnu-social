@@ -30,18 +30,15 @@ use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\Router;
 use App\Entity\Actor;
-use App\Entity\ActorCircle;
-use App\Entity\ActorTag;
 use App\Entity\Note;
-use App\Entity\NoteTag;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Formatting;
 use App\Util\Functional as GSF;
 use App\Util\HTML;
-use App\Util\Nickname;
+use Component\Circle\Entity\ActorTag;
 use Component\Language\Entity\Language;
-use Component\Tag\Controller as C;
+use Component\Tag\Entity\NoteTag;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
@@ -53,22 +50,20 @@ use Symfony\Component\HttpFoundation\Request;
  * Component responsible for extracting tags from posted notes, as well as normalizing them
  *
  * @author    Hugo Sales <hugo@hsal.es>
+ * @author    Diogo Peralta Cordeiro <@diogo.site>
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Tag extends Component
 {
-    public const MAX_TAG_LENGTH   = 64;
-    public const TAG_REGEX        = '/(^|\\s)(#[\\pL\\pN_\\-]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
-    public const TAG_CIRCLE_REGEX = '/' . Nickname::BEFORE_MENTIONS . '@#([\pL\pN_\-\.]{1,64})/';
-    public const TAG_SLUG_REGEX   = '[A-Za-z0-9]{1,64}';
+    public const MAX_TAG_LENGTH = 64;
+    public const TAG_REGEX      = '/(^|\\s)(#[\\pL\\pN_\\-]{1,64})/u'; // Brion Vibber 2011-02-23 v2:classes/Notice.php:367 function saveTags
+    public const TAG_SLUG_REGEX = '[A-Za-z0-9]{1,64}';
 
     public function onAddRoute($r): bool
     {
-        $r->connect('single_note_tag', '/note-tag/{canon<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_note_tag']);
-        $r->connect('multi_note_tags', '/note-tags/{canons<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_note_tags']);
-        $r->connect('single_actor_tag', '/actor-tag/{canon<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_actor_tag']);
-        $r->connect('multi_actor_tags', '/actor-tags/{canons<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_actor_tags']);
+        $r->connect('single_note_tag', '/note-tag/{tag<' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'single_note_tag']);
+        $r->connect('multi_note_tags', '/note-tags/{tags<(' . self::TAG_SLUG_REGEX . ',)+' . self::TAG_SLUG_REGEX . '>}', [Controller\Tag::class, 'multi_note_tags']);
         return Event::next;
     }
 
@@ -86,7 +81,10 @@ class Tag extends Component
         preg_match_all(self::TAG_REGEX, $content, $matched_tags, \PREG_SET_ORDER);
         $matched_tags = array_unique(F\map($matched_tags, fn ($m) => $m[2]));
         foreach ($matched_tags as $match) {
-            $tag           = self::ensureValid($match);
+            $tag = self::extract($match);
+            if (!self::validate($tag)) {
+                continue; // Ignore invalid tag candidates
+            }
             $canonical_tag = self::canonicalTag($tag, \is_null($lang_id = $note->getLanguageId()) ? null : Language::getById($lang_id)->getLocale());
             DB::persist(NoteTag::create([
                 'tag'           => $tag,
@@ -103,38 +101,54 @@ class Tag extends Component
         return Event::next;
     }
 
-    public function onRenderPlainTextNoteContent(string &$text, ?string $language = null): bool
+    public function onRenderPlainTextNoteContent(string &$text, ?string $locale = null): bool
     {
-        $text = preg_replace_callback(self::TAG_REGEX, fn ($m) => $m[1] . self::tagLink($m[2], $language), $text);
+        $text = preg_replace_callback(self::TAG_REGEX, fn ($m) => $m[1] . self::tagLink($m[2], $locale), $text);
         return Event::next;
     }
 
-    public static function cacheKeys(string $canon_single_or_multi): array
+    public static function cacheKeys(string $tag_single_or_multi): array
     {
         return [
-            'note_single'  => "note-tag-feed-{$canon_single_or_multi}",
-            'note_multi'   => "note-tags-feed-{$canon_single_or_multi}",
-            'actor_single' => "actor-tag-feed-{$canon_single_or_multi}",
-            'actor_multi'  => "actor-tags-feed-{$canon_single_or_multi}",
+            'note_single'  => "note-tag-feed-{$tag_single_or_multi}",
+            'note_multi'   => "note-tags-feed-{$tag_single_or_multi}",
+            'actor_single' => "actor-tag-feed-{$tag_single_or_multi}",
+            'actor_multi'  => "actor-tags-feed-{$tag_single_or_multi}",
         ];
     }
 
-    private static function tagLink(string $tag, ?string $language): string
+    private static function tagLink(string $tag, ?string $locale): string
     {
-        $tag       = self::ensureLength($tag);
-        $canonical = self::canonicalTag($tag, $language);
-        $url       = Router::url('single_note_tag', !\is_null($language) ? ['canon' => $canonical, 'lang' => $language, 'tag' => $tag] : ['canon' => $canonical, 'tag' => $tag]);
-        return HTML::html(['a' => ['attrs' => ['href' => $url, 'title' => $tag, 'rel' => 'tag'], $tag]], options: ['indent' => false]);
+        $tag = self::extract($tag);
+        $url = Router::url('single_note_tag', !\is_null($locale) ? ['tag' => $tag, 'locale' => $locale] : ['tag' => $tag]);
+        return HTML::html(['span' => ['attrs' => ['class' => 'tag'],
+            '#' . HTML::html(['a' => [
+                'attrs' => [
+                    'href' => $url,
+                    'rel'  => 'tag', // https://microformats.org/wiki/rel-tag
+                ],
+                $tag,
+            ]], options: ['indent' => false]),
+        ]], options: ['indent' => false, 'raw' => true]);
     }
 
-    public static function ensureValid(string $tag)
+    public static function extract(string $tag): string
     {
-        $tag = self::ensureLength(Formatting::removePrefix($tag, '#'));
-        if (preg_match(self::TAG_REGEX, '#' . $tag)) {
-            return $tag;
-        } else {
+        return self::ensureLength(Formatting::removePrefix($tag, '#'));
+    }
+
+    public static function validate(string $tag): bool
+    {
+        return preg_match(self::TAG_REGEX, '#' . $tag) === 1;
+    }
+
+    public static function sanitize(string $tag): string
+    {
+        $tag = self::extract($tag);
+        if (!self::validate($tag)) {
             throw new ClientException(_m('Invalid tag given: {tag}', ['{tag}' => $tag]));
         }
+        return $tag;
     }
 
     public static function ensureLength(string $tag): string
@@ -143,11 +157,11 @@ class Tag extends Component
     }
 
     /**
-     * Convert a tag to it's canonical representation, by splitting it
+     * Convert a tag to its canonical representation, by splitting it
      * into words, stemming it in the given language (if enabled) and
      * sluggifying it (turning it into an ASCII representation)
      */
-    public static function canonicalTag(string $tag, ?string $language): string
+    public static function canonicalTag(string $tag, ?string $language = null): string
     {
         $result = '';
         foreach (Formatting::splitWords(str_replace('#', '', $tag)) as $word) {
@@ -165,17 +179,20 @@ class Tag extends Component
      *
      * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr): bool
+    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $locale, ?Actor $actor, &$note_expr, &$actor_expr): bool
     {
         if (!str_contains($term, ':')) {
             return Event::next;
         }
+        if (\is_null($locale)) {
+            $locale = Common::currentLanguage();
+        }
         [$search_type, $search_term] = explode(':', $term);
         if (str_starts_with($search_term, '#')) {
-            $search_term       = self::ensureValid($search_term);
-            $canon_search_term = self::canonicalTag($search_term, $language);
-            $temp_note_expr    = $eb->eq('note_tag.canonical', $canon_search_term);
-            $temp_actor_expr   = $eb->eq('actor_tag.canonical', $canon_search_term);
+            $search_term           = self::sanitize($search_term);
+            $canonical_search_term = self::canonicalTag($search_term, $locale);
+            $temp_note_expr        = $eb->eq('note_tag.canonical', $canonical_search_term);
+            $temp_actor_expr       = $eb->eq('actor_tag.canonical', $canonical_search_term);
             if (Formatting::startsWith($term, ['note:', 'tag:', 'people:'])) {
                 $note_expr = $temp_note_expr;
             } elseif (Formatting::startsWith($term, ['people:', 'actor:'])) {
@@ -183,7 +200,7 @@ class Tag extends Component
             } elseif (Formatting::startsWith($term, GSF::cartesianProduct([['people', 'actor'], ['circle', 'list'], [':']], separator: ['-', '_']))) {
                 $null_tagger_expr = $eb->isNull('actor_circle.tagger');
                 $tagger_expr      = \is_null($actor_expr) ? $null_tagger_expr : $eb->orX($null_tagger_expr, $eb->eq('actor_circle.tagger', $actor->getId()));
-                $tags             = array_unique([$search_term, $canon_search_term]);
+                $tags             = array_unique([$search_term, $canonical_search_term]);
                 $tag_expr         = \count($tags) === 1 ? $eb->eq('actor_circle.tag', $tags[0]) : $eb->in('actor_circle.tag', $tags);
                 $search_expr      = $eb->andX(
                     $tagger_expr,
@@ -202,52 +219,23 @@ class Tag extends Component
 
     public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
-        $note_qb->leftJoin(NoteTag::class, 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id')
-            ->leftJoin(ActorCircle::class, 'actor_circle', Expr\Join::WITH, 'note_actor.id = actor_circle.tagged');
-        $actor_qb->leftJoin(ActorTag::class, 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id')
-            ->leftJoin(ActorCircle::class, 'actor_circle', Expr\Join::WITH, 'actor.id = actor_circle.tagged');
+        $note_qb->leftJoin(NoteTag::class, 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
+        $actor_qb->leftJoin(ActorTag::class, 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id');
         return Event::next;
     }
 
-    public function onPostingAddFormEntries(Request $request, Actor $actor, array &$form_params)
+    public function onPostingAddFormEntries(Request $request, Actor $actor, array &$form_params): bool
     {
         $form_params[] = ['tag_use_canonical', CheckboxType::class, ['required' => false, 'data' => true, 'label' => _m('Make note tags canonical'), 'help' => _m('Canonical tags will be treated as a version of an existing tag with the same root/stem (e.g. \'#great_tag\' will be considered as a version of \'#great\', if it already exists)')]];
         return Event::next;
     }
 
-    public function onAddExtraArgsToNoteContent(Request $request, Actor $actor, array $data, array &$extra_args)
+    public function onAddExtraArgsToNoteContent(Request $request, Actor $actor, array $data, array &$extra_args): bool
     {
         if (!isset($data['tag_use_canonical'])) {
-            throw new ClientException;
+            throw new ClientException(_m('Missing Use Canonical preference for Tags.'));
         }
         $extra_args['tag_use_canonical'] = $data['tag_use_canonical'];
-        return Event::next;
-    }
-
-    public function onPopulateSettingsTabs(Request $request, string $section, array &$tabs)
-    {
-        if ($section === 'profile' && $request->get('_route') === 'settings') {
-            $tabs[] = [
-                'title'      => 'Self tags',
-                'desc'       => 'Add or remove tags on yourself',
-                'id'         => 'settings-self-tags',
-                'controller' => C\Tag::settingsSelfTags($request, Common::actor(), 'settings-self-tags-details'),
-            ];
-        }
-        return Event::next;
-    }
-
-    public function onPostingFillTargetChoices(Request $request, Actor $actor, array &$targets)
-    {
-        $actor_id = $actor->getId();
-        $tags     = Cache::get(
-            "actor-circle-{$actor_id}",
-            fn () => DB::dql('select c.tag from actor_circle c where c.tagger = :tagger', ['tagger' => $actor_id]),
-        );
-        foreach ($tags as $t) {
-            $t           = '#' . $t['tag'];
-            $targets[$t] = $t;
-        }
         return Event::next;
     }
 }

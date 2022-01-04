@@ -142,12 +142,6 @@ class Activity extends Entity
         return DB::findOneBy($this->getObjectType(), ['id' => $this->getObjectId()]);
     }
 
-    public function getNotificationTargetIdsFromActorTags(): array
-    {
-        $actor_circles = $this->getActor()->getActorCircles();
-        return F\flat_map($actor_circles, fn ($circle) => $circle->getSubscribedActors());
-    }
-
     /**
      * Who should be notified about this object?
      *
@@ -156,13 +150,6 @@ class Activity extends Entity
     public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
         $target_ids = [];
-
-        // Actor Circles
-        if (\array_key_exists('actor_circle', $ids_already_known)) {
-            array_push($target_ids, ...$ids_already_known['actor_circle']);
-        } else {
-            array_push($target_ids, ...$this->getNotificationTargetIdsFromActorTags());
-        }
 
         // Notifications
         if (\array_key_exists('notification_activity', $ids_already_known)) {

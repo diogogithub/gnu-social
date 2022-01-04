@@ -28,10 +28,9 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
-use App\Entity\ActorTagBlock;
-use App\Entity\NoteTagBlock;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
+use Component\Tag\Entity\NoteTagBlock;
 use Component\Tag\Tag;
 use Plugin\TagBasedFiltering\TagBasedFiltering as TagFilerPlugin;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -105,7 +104,7 @@ class EditBlocked extends Controller
             $data = $add_block_form->getData();
             Cache::delete($block_class::cacheKey($user->getId()));
             Cache::delete(TagFilerPlugin::cacheKeys($user->getId())[$type_name]);
-            $new_tag       = Tag::ensureValid($data['tag']);
+            $new_tag       = Tag::sanitize($data['tag']);
             $language      = $user->getActor()->getTopLanguage()->getLocale();
             $canonical_tag = Tag::canonicalTag($new_tag, $language);
             DB::persist($block_class::create([
@@ -135,17 +134,6 @@ class EditBlocked extends Controller
             calculate_blocks: fn ($user) => NoteTagBlock::getByActorId($user->getId()),
             label: _m('Add blocked note tag:'),
             block_class: NoteTagBlock::class,
-        );
-    }
-
-    public static function editBlockedActorTags(Request $request)
-    {
-        return self::editBlocked(
-            request: $request,
-            type_name: 'actor',
-            calculate_blocks: fn ($user) => ActorTagBlock::getByActorId($user->getId()),
-            label: _m('Add blocked people tag:'),
-            block_class: ActorTagBlock::class,
         );
     }
 }
