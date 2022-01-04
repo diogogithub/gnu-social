@@ -89,11 +89,14 @@ class Notification extends Component
                 }
                 if (Event::handle('NewNotificationShould', [$activity, $target]) === Event::next) {
                     // TODO: use https://symfony.com/doc/current/notifier.html
-                    DB::persist(Entity\Notification::create([
+                    // XXX: Unideal as in failures the rollback will leave behind a false notification,
+                    // but most notifications (all) require flushing the objects first
+                    // Should be okay as long as implementors bear this in mind
+                    DB::wrapInTransaction(fn() => DB::persist(Entity\Notification::create([
                         'activity_id' => $activity->getId(),
                         'target_id'   => $target->getId(),
                         'reason'      => $reason,
-                    ]));
+                    ])));
                 }
             } else {
                 // We have no authority nor responsibility of notifying remote actors of a remote actor's doing

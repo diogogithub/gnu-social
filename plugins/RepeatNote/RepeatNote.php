@@ -23,6 +23,7 @@ namespace Plugin\RepeatNote;
 
 use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
@@ -38,9 +39,8 @@ use Component\Language\Entity\Language;
 use Component\Posting\Posting;
 use DateTime;
 use Plugin\RepeatNote\Entity\NoteRepeat as RepeatEntity;
-use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 use const SORT_REGULAR;
+use Symfony\Component\HttpFoundation\Request;
 
 class RepeatNote extends NoteHandlerPlugin
 {
@@ -64,17 +64,17 @@ class RepeatNote extends NoteHandlerPlugin
     public static function repeatNote(Note $note, int $actor_id, string $source = 'web'): ?Activity
     {
         $repeat_entity = DB::findBy('note_repeat', [
-                'actor_id' => $actor_id,
-                'note_id' => $note->getId(),
-            ])[ 0 ] ?? null;
+            'actor_id' => $actor_id,
+            'note_id'  => $note->getId(),
+        ])[0] ?? null;
 
         if (!\is_null($repeat_entity)) {
             return null;
         }
 
         // If it's a repeat, the reply_to should be to the original, conversation ought to be the same
-        $original_note_id = $note->getId();
-        $extra_args[ 'reply_to' ] = $original_note_id;
+        $original_note_id       = $note->getId();
+        $extra_args['reply_to'] = $original_note_id;
 
         $attachments = $note->getAttachmentsWithTitle();
         foreach ($attachments as $attachment) {
@@ -88,25 +88,25 @@ class RepeatNote extends NoteHandlerPlugin
             actor: Actor::getById($actor_id),
             content: $note->getContent(),
             content_type: $note->getContentType(),
-            language: \is_null($lang_id = $note->getLanguageId()) ? null : Language::getById($lang_id)->getLocale(),
+            locale: \is_null($lang_id = $note->getLanguageId()) ? null : Language::getById($lang_id)->getLocale(),
             processed_attachments: $note->getAttachmentsWithTitle(),
             process_note_content_extra_args: $extra_args,
             notify: false,
         );
 
         DB::persist(RepeatEntity::create([
-            'note_id' => $repeat->getId(),
-            'actor_id' => $actor_id,
+            'note_id'   => $repeat->getId(),
+            'actor_id'  => $actor_id,
             'repeat_of' => $original_note_id,
         ]));
 
         // Log an activity
         $repeat_activity = Activity::create([
-            'actor_id' => $actor_id,
-            'verb' => 'repeat',
+            'actor_id'    => $actor_id,
+            'verb'        => 'repeat',
             'object_type' => 'note',
-            'object_id' => $note->getId(),
-            'source' => $source,
+            'object_id'   => $note->getId(),
+            'source'      => $source,
         ]);
         DB::persist($repeat_activity);
 
@@ -128,31 +128,31 @@ class RepeatNote extends NoteHandlerPlugin
      */
     public static function unrepeatNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
-        $already_repeated = DB::findBy(RepeatEntity::class, ['actor_id' => $actor_id, 'repeat_of' => $note_id])[ 0 ] ?? null;
+        $already_repeated = DB::findBy(RepeatEntity::class, ['actor_id' => $actor_id, 'repeat_of' => $note_id])[0] ?? null;
 
         if (!\is_null($already_repeated)) { // If it was repeated, then we can undo it
             // Find previous repeat activity
             $already_repeated_activity = DB::findBy(Activity::class, [
-                    'actor_id' => $actor_id,
-                    'verb' => 'repeat',
-                    'object_type' => 'note',
-                    'object_id' => $already_repeated->getRepeatOf(),
-                ])[ 0 ] ?? null;
+                'actor_id'    => $actor_id,
+                'verb'        => 'repeat',
+                'object_type' => 'note',
+                'object_id'   => $already_repeated->getRepeatOf(),
+            ])[0] ?? null;
 
             // Remove the clone note
-            DB::findBy(Note::class, ['id' => $already_repeated->getNoteId()])[ 0 ]->delete(actor: Actor::getById($actor_id));
+            DB::findBy(Note::class, ['id' => $already_repeated->getNoteId()])[0]->delete(actor: Actor::getById($actor_id));
             DB::flush();
 
             // Remove from the note_repeat table
-            DB::remove(DB::findBy(RepeatEntity::class, ['note_id' => $already_repeated->getNoteId()])[ 0 ]);
+            DB::remove(DB::findBy(RepeatEntity::class, ['note_id' => $already_repeated->getNoteId()])[0]);
 
             // Log an activity
             $undo_repeat_activity = Activity::create([
-                'actor_id' => $actor_id,
-                'verb' => 'undo',
+                'actor_id'    => $actor_id,
+                'verb'        => 'undo',
                 'object_type' => 'activity',
-                'object_id' => $already_repeated_activity->getId(),
-                'source' => $source,
+                'object_id'   => $already_repeated_activity->getId(),
+                'source'      => $source,
             ]);
             DB::persist($undo_repeat_activity);
 
@@ -162,17 +162,17 @@ class RepeatNote extends NoteHandlerPlugin
         } else {
             // Either was undoed already
             if (!\is_null($already_repeated_activity = DB::findBy('activity', [
-                    'actor_id' => $actor_id,
-                    'verb' => 'repeat',
-                    'object_type' => 'note',
-                    'object_id' => $note_id,
-                ])[ 0 ] ?? null)) {
+                'actor_id' => $actor_id,
+                'verb' => 'repeat',
+                'object_type' => 'note',
+                'object_id' => $note_id,
+            ])[0] ?? null)) {
                 return DB::findBy('activity', [
-                        'actor_id' => $actor_id,
-                        'verb' => 'undo',
-                        'object_type' => 'activity',
-                        'object_id' => $already_repeated_activity->getId(),
-                    ])[ 0 ] ?? null; // null if not undoed
+                    'actor_id'    => $actor_id,
+                    'verb'        => 'undo',
+                    'object_type' => 'activity',
+                    'object_id'   => $already_repeated_activity->getId(),
+                ])[0] ?? null; // null if not undoed
             } else {
                 // or it's an attempt to undo something that wasn't repeated in the first place,
                 return null;
@@ -190,7 +190,7 @@ class RepeatNote extends NoteHandlerPlugin
         // it's pretty cool
         if (str_starts_with($request->get('_route'), 'actor_view_')) {
             $notes = array_map(
-                fn(Note $note) => RepeatEntity::isNoteRepeat($note)
+                fn (Note $note) => RepeatEntity::isNoteRepeat($note)
                     ? Note::getById(RepeatEntity::getByPK($note->getId())->getRepeatOf())
                     : $note,
                 $notes,
@@ -199,7 +199,7 @@ class RepeatNote extends NoteHandlerPlugin
         }
 
         // Filter out repeats altogether
-        $notes = array_filter($notes, fn(Note $note) => !RepeatEntity::isNoteRepeat($note));
+        $notes = array_filter($notes, fn (Note $note) => !RepeatEntity::isNoteRepeat($note));
         return Event::next;
     }
 
@@ -218,13 +218,13 @@ class RepeatNote extends NoteHandlerPlugin
 
         // If note is repeated, "is_repeated" is 1, 0 otherwise.
         $is_repeat = ($note_repeat = DB::findBy('note_repeat', [
-            'actor_id' => $user->getId(),
+            'actor_id'  => $user->getId(),
             'repeat_of' => $note->getId(),
         ])) !== [] ? 1 : 0;
 
         // Generating URL for repeat action route
-        $args = ['note_id' => $is_repeat === 0 ? $note->getId() : $note_repeat[ 0 ]->getRepeatOf()];
-        $type = Router::ABSOLUTE_PATH;
+        $args              = ['note_id' => $is_repeat === 0 ? $note->getId() : $note_repeat[0]->getRepeatOf()];
+        $type              = Router::ABSOLUTE_PATH;
         $repeat_action_url = $is_repeat
             ? Router::url('repeat_remove', $args, $type)
             : Router::url('repeat_add', $args, $type);
@@ -234,8 +234,8 @@ class RepeatNote extends NoteHandlerPlugin
 
         $extra_classes = $is_repeat ? 'note-actions-set' : 'note-actions-unset';
         $repeat_action = [
-            'url' => $repeat_action_url,
-            'title' => $is_repeat ? 'Remove this repeat' : 'Repeat this note!',
+            'url'     => $repeat_action_url,
+            'title'   => $is_repeat ? 'Remove this repeat' : 'Repeat this note!',
             'classes' => "button-container repeat-button-container {$extra_classes}",
             'note_id' => 'repeat-button-container-' . $note->getId(),
         ];
@@ -261,12 +261,12 @@ class RepeatNote extends NoteHandlerPlugin
         $check_user = !\is_null(Common::user());
 
         // The current Note being rendered
-        $note = $vars[ 'note' ];
+        $note = $vars['note'];
 
         // Will have actors array, and action string
         // Actors are the subjects, action is the verb (in the final phrase)
         $repeat_actors = [];
-        $note_repeats = RepeatEntity::getNoteRepeats($note);
+        $note_repeats  = RepeatEntity::getNoteRepeats($note);
 
         // Get actors who repeated the note
         foreach ($note_repeats as $repeat) {
@@ -278,7 +278,7 @@ class RepeatNote extends NoteHandlerPlugin
 
         // Filter out multiple replies from the same actor
         $repeat_actors = array_unique($repeat_actors, SORT_REGULAR);
-        $result[] = ['actors' => $repeat_actors, 'action' => 'repeated'];
+        $result[]      = ['actors' => $repeat_actors, 'action' => 'repeated'];
 
         return Event::next;
     }
@@ -286,11 +286,6 @@ class RepeatNote extends NoteHandlerPlugin
     /**
      * Deletes every repeat entity that is related to a deleted Note in its
      * respective table
-     *
-     * @param \App\Entity\Note  $note
-     * @param \App\Entity\Actor $actor
-     *
-     * @return bool
      */
     public function onNoteDeleteRelated(Note &$note, Actor $actor): bool
     {

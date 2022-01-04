@@ -75,7 +75,6 @@ class Posting extends Component
         }
 
         $actor    = $user->getActor();
-        $actor_id = $user->getId();
 
         $placeholder_strings = ['How are you feeling?', 'Have something to share?', 'How was your day?'];
         Event::handle('PostingPlaceHolderString', [&$placeholder_strings]);
@@ -97,6 +96,8 @@ class Posting extends Component
 
         $form_params = [];
         if (!empty($in_targets)) { // @phpstan-ignore-line
+            // Add "none" option to the top of choices
+            $in_targets    = array_merge([_m('Public') => 'public'], $in_targets);
             $form_params[] = ['in', ChoiceType::class, ['label' => _m('In:'), 'multiple' => false, 'expanded' => false, 'choices' => $in_targets]];
         }
 
@@ -145,13 +146,15 @@ class Posting extends Component
                     $extra_args   = [];
                     Event::handle('AddExtraArgsToNoteContent', [$request, $actor, $data, &$extra_args, $form_params, $form]);
 
+                    $target = !array_key_exists('in', $data) || $data['in'] === 'public' ? $context_actor : null;
+
                     self::storeLocalNote(
                         actor: $user->getActor(),
                         content: $data['content'],
                         content_type: $content_type,
-                        language: $data['language'],
+                        locale: $data['language'],
                         scope: VisibilityScope::from($data['visibility']),
-                        target: $data['in'] ?? $context_actor,
+                        target: $target ?? null, // @phpstan-ignore-line
                         reply_to_id: $data['reply_to_id'],
                         attachments: $data['attachments'],
                         process_note_content_extra_args: $extra_args,
@@ -199,9 +202,9 @@ class Posting extends Component
         Actor $actor,
         ?string $content,
         string $content_type,
-        ?string $language = null,
+        ?string $locale = null,
         ?VisibilityScope $scope = null,
-        null|int|Actor $target = null,
+        null|Actor|int $target = null,
         ?int $reply_to_id = null,
         array $attachments = [],
         array $processed_attachments = [],
@@ -212,7 +215,7 @@ class Posting extends Component
         $rendered = null;
         $mentions = [];
         if (!empty($content)) {
-            Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $language, &$mentions]);
+            Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $locale, &$mentions]);
         }
 
         $note = Note::create([
@@ -220,7 +223,7 @@ class Posting extends Component
             'content'      => $content,
             'content_type' => $content_type,
             'rendered'     => $rendered,
-            'language_id'  => !\is_null($language) ? Language::getByLocale($language)->getId() : null,
+            'language_id'  => !\is_null($locale) ? Language::getByLocale($locale)->getId() : null,
             'is_local'     => true,
             'scope'        => $scope,
             'reply_to'     => $reply_to_id,
@@ -265,9 +268,8 @@ class Posting extends Component
             'source'      => 'web',
         ]);
         DB::persist($activity);
-
         if (!\is_null($target)) {
-            $target     = is_numeric($target) ? Actor::getById((int) $target) : $target;
+            $target     = \is_int($target) ? Actor::getById($target) : $target;
             $mentions[] = [
                 'mentioned'       => [$target],
                 'type'            => match ($target->getType()) {
@@ -281,11 +283,13 @@ class Posting extends Component
 
         $mention_ids = F\unique(F\flat_map($mentions, fn (array $m) => F\map($m['mentioned'] ?? [], fn (Actor $a) => $a->getId())));
 
+        // Flush before notification
         DB::flush();
 
         if ($notify) {
             Event::handle('NewNotification', [$actor, $activity, ['object' => $mention_ids], _m('{nickname} created a note {note_id}.', ['{nickname}' => $actor->getNickname(), '{note_id}' => $activity->getObjectId()])]);
         }
+
 
         return $note;
     }
