@@ -49,7 +49,7 @@ class Feeds extends FeedController
     {
         $data = $this->query(
             query: 'note-local:true',
-            language: Common::actor()?->getTopLanguage()?->getLocale(),
+            locale: Common::currentLanguage()->getLocale(),
         );
         return [
             '_template'  => 'collection/notes.html.twig',
@@ -67,7 +67,7 @@ class Feeds extends FeedController
         $actor = $user->getActor();
         $data  = $this->query(
             query: 'note-from:subscribed-person,subscribed-group,subscribed-organization,subscribed-business',
-            language: $actor->getTopLanguage()->getLocale(),
+            locale: Common::currentLanguage()->getLocale(),
             actor: $actor,
         );
         return [

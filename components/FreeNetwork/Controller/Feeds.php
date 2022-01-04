@@ -53,7 +53,7 @@ class Feeds extends FeedController
         Common::ensureLoggedIn();
         $data = $this->query(
             query: 'note-local:false',
-            language: Common::actor()?->getTopLanguage()?->getLocale(),
+            locale: Common::currentLanguage()->getLocale(),
         );
         return [
             '_template'     => 'collection/notes.html.twig',
@@ -101,7 +101,7 @@ class Feeds extends FeedController
         Common::ensureLoggedIn();
         $data = $this->query(
             query: '',
-            language: Common::actor()?->getTopLanguage()?->getLocale(),
+            locale: Common::currentLanguage()->getLocale(),
         );
         return [
             '_template'     => 'collection/notes.html.twig',

@@ -38,6 +38,7 @@ declare(strict_types = 1);
 
 namespace App\Core\I18n;
 
+use App\Util\Common;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use InvalidArgumentException;
@@ -319,7 +320,7 @@ function _m(...$args): string
     switch (\count($args)) {
     case 1:
         // Empty parameters, simple message
-        return I18n::$translator->trans($args[0], [], $domain);
+        return I18n::$translator->trans($args[0], [], $domain, Common::currentLanguage()->getLocale());
     case 3:
         // @codeCoverageIgnoreStart
         if (\is_int($args[2])) {
@@ -337,7 +338,7 @@ function _m(...$args): string
             if (\is_string($args[0])) {
                 $msg    = $args[0];
                 $params = $args[1] ?? [];
-                return I18n::$translator->trans($msg, $params, $domain);
+                return I18n::$translator->trans($msg, $params, $domain, Common::currentLanguage()->getLocale());
             }
         // Fallthrough
         // no break

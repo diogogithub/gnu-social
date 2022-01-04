@@ -34,11 +34,13 @@ declare(strict_types = 1);
 
 namespace App\Util;
 
+use App\Core\I18n\I18n;
 use App\Core\Router\Router;
 use App\Core\Security;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Exception\NoLoggedInUser;
+use Component\Language\Entity\Language;
 use Egulias\EmailValidator\EmailValidator;
 use Egulias\EmailValidator\Validation\RFCValidation as RFCEmailValidation;
 use Functional as F;
@@ -317,5 +319,10 @@ abstract class Common
             }
         }
         return $notes;
+    }
+
+    public static function currentLanguage(): Language
+    {
+        return self::actor()?->getTopLanguage() ?? Language::getByLocale(!\is_null(self::$request->headers->get('accept-language')) ? I18n::clientPreferredLanguage(self::$request->headers->get('accept-language')) : self::$request->getDefaultLocale());
     }
 }
