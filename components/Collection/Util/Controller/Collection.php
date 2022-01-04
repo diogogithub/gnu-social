@@ -14,7 +14,7 @@ class Collection extends Controller
     public function query(string $query, ?string $locale = null, ?Actor $actor = null)
     {
         $actor  ??= Common::actor();
-        $locale ??= Common::currentLanguage()->getLocale();
+        $locale ??= $actor?->getTopLanguage()?->getLocale();
         return Feed::query($query, $this->int('page') ?? 1, $locale, $actor);
     }
 }
