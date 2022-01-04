@@ -161,12 +161,12 @@ class Favourite extends FeedController
         ];
     }
 
-    public function favouritesByActorId(Request $request, int $id)
+    public function favouritesViewByActorId(Request $request, int $id)
     {
         $notes = DB::dql(
             <<< 'EOF'
                 select n from note n
-                join favourite f with n.id = f.note_id
+                join note_favourite f with n.id = f.note_id
                 where f.actor_id = :id
                 order by f.created DESC
                 EOF,
@@ -180,10 +180,10 @@ class Favourite extends FeedController
         ];
     }
 
-    public function favouritesByActorNickname(Request $request, string $nickname)
+    public function favouritesViewByActorNickname(Request $request, string $nickname)
     {
         $user = DB::findOneBy('local_user', ['nickname' => $nickname]);
-        return self::favouritesByActorId($request, $user->getId());
+        return self::favouritesViewByActorId($request, $user->getId());
     }
 
     /**
@@ -193,12 +193,12 @@ class Favourite extends FeedController
      *
      * @return array template
      */
-    public function reverseFavouritesByActorId(Request $request, int $id): array
+    public function reverseFavouritesViewByActorId(Request $request, int $id): array
     {
         $notes = DB::dql(
             <<< 'EOF'
                 select n from note n
-                join favourite f with n.id = f.note_id
+                join note_favourite f with n.id = f.note_id
                 where f.actor_id != :id
                 and n.actor_id = :id
                 order by f.created DESC
@@ -213,9 +213,9 @@ class Favourite extends FeedController
         ];
     }
 
-    public function reverseFavouritesByActorNickname(Request $request, string $nickname)
+    public function reverseFavouritesViewByActorNickname(Request $request, string $nickname)
     {
         $user = DB::findOneBy('local_user', ['nickname' => $nickname]);
-        return self::reverseFavouritesByActorId($request, $user->getId());
+        return self::reverseFavouritesViewByActorId($request, $user->getId());
     }
 }
