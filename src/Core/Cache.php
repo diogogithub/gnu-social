@@ -169,6 +169,15 @@ abstract class Cache
         }
     }
 
+    public static function incr(string $key, string $pool = 'default')
+    {
+        if (isset(self::$redis[$pool])) {
+            return self::$redis[$pool]->incr($key);
+        } else {
+            return self::$pools[$pool]->set($key, 1 + self::$pools[$pool]->get($key, fn ($i) => 0), \INF);
+        }
+    }
+
     public static function set(string $key, mixed $value, string $pool = 'default')
     {
         if (isset(self::$redis[$pool])) {
