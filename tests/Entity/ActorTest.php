@@ -22,8 +22,8 @@ declare(strict_types = 1);
 namespace App\Tests\Entity;
 
 use App\Core\DB\DB;
-use App\Entity\ActorTag;
 use App\Util\GNUsocialTestCase;
+use Component\Circle\Entity\ActorTag;
 use Functional as F;
 use Jchook\AssertThrows\AssertThrows;
 
@@ -43,7 +43,7 @@ class ActorTest extends GNUsocialTestCase
         $tags  = $actor->getSelfTags();
         $actor->setSelfTags(['foo'], $tags);
         DB::flush();
-        $get_tags = fn ($tags) => F\map($tags, fn (ActorTag $t) => (string) $t);
+        $get_tags = fn ($tags) => F\map($tags, fn (ActorTag $t) => $t->getTag());
         static::assertSame(['foo'], $get_tags($tags = $actor->getSelfTags()));
         $actor->setSelfTags(['bar'], $tags);
         DB::flush();

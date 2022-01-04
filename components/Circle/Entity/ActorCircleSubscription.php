@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -17,7 +19,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Circle\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;
@@ -45,8 +47,8 @@ class ActorCircleSubscription extends Entity
     // @codeCoverageIgnoreStart
     private int $actor_id;
     private int $circle_id;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setActorId(int $actor_id): self
     {
@@ -70,24 +72,24 @@ class ActorCircleSubscription extends Entity
         return $this->circle_id;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
@@ -98,18 +100,18 @@ class ActorCircleSubscription extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name' => 'actor_circle_subscription',
+            'name'   => 'actor_circle_subscription',
             'fields' => [
-                'actor_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_circle_subscription_actor_id_fkey', 'not null' => true, 'description' => 'foreign key to actor table'],
+                'actor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_circle_subscription_actor_id_fkey', 'not null' => true, 'description' => 'foreign key to actor table'],
                 // An actor subscribes many circles; A Circle is subscribed by many actors.
                 'circle_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'ActorCircle.id', 'multiplicity' => 'one to many', 'name' => 'actor_circle_subscription_actor_circle_fkey', 'not null' => true, 'description' => 'foreign key to actor_circle'],
                 'created'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'  => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['circle_id', 'actor_id'],
-            'indexes' => [
+            'indexes'     => [
                 'actor_circle_subscription_actor_id_idx' => ['actor_id'],
-                'actor_circle_subscription_created_idx' => ['created'],
+                'actor_circle_subscription_created_idx'  => ['created'],
             ],
         ];
     }

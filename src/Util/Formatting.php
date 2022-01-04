@@ -32,19 +32,20 @@ declare(strict_types = 1);
 
 namespace App\Util;
 
+use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Log;
 use App\Entity\Actor;
 use App\Entity\Note;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\ServerException;
+use Component\Circle\Circle;
+use Component\Circle\Entity\ActorCircle;
 use Component\Group\Entity\LocalGroup;
 use Component\Tag\Tag;
 use Exception;
 use Functional as F;
 use InvalidArgumentException;
-use App\Core\DB\DB;
-use App\Entity\ActorCircle;
 
 abstract class Formatting
 {
@@ -298,7 +299,7 @@ abstract class Formatting
         $text = str_replace('<span>', '', $text);
         if (Event::handle('StartFindMentions', [$actor, $text, &$mentions])) {
 
-            // Person mentions
+            // @person mentions
             $person_matches = self::findMentionsRaw($text, '@');
             foreach ($person_matches as $match) {
                 try {
@@ -330,45 +331,39 @@ abstract class Formatting
                 }
             }
 
-            @#/tag
-            // TODO Tag subscriptions
-            // @#tag => mention of all subscriptions tagged 'tag'
+            // @#circle/self-tag => mention of all subscribed circles tagged 'tag'
             $tag_matches = [];
             preg_match_all(
-                Tag::TAG_CIRCLE_REGEX,
+                Circle::TAG_CIRCLE_REGEX,
                 $text,
                 $tag_matches,
-                PREG_OFFSET_CAPTURE
+                \PREG_OFFSET_CAPTURE,
             );
             foreach ($tag_matches[1] as $tag_match) {
-                $tag = Tag::ensureValid($tag_match[0]);
-                $ac  = DB::findOneBy(ActorCircle::class, [
-                    'or' => [
-                        'tagger' => $actor->getID(),
-                        'and' => [
-                            'tagger' => null,
-                            'tagged' => $actor->getID(),
-                        ]
-                    ],
-                    'tag' => $tag,
+                $tag = Tag::extract($tag_match[0]);
+                if (!Tag::validate($tag)) {
+                    continue; // Ignore invalid tags
+                }
+                $ac = DB::findOneBy(ActorCircle::class, [
+                    'tag'    => $tag, // Notify circle of name tag WHERE
+                    'tagger' => $actor->getID(), // Circle was created by Actor
                 ], return_null: true);
 
                 if (\is_null($ac) || $ac->getPrivate()) {
                     continue;
                 }
-                $tagged = $ac->getSubscribedActors();
-                $url    = $ac->getUrl();
+
                 $mentions[] = [
-                    'mentioned' => $tagged,
+                    'mentioned' => $ac->getSubscribedActors(),
                     'type'      => 'list',
                     'text'      => $tag_match[0],
                     'position'  => $tag_match[1],
                     'length'    => mb_strlen($tag_match[0]),
-                    'url'       => $url,
+                    'url'       => $ac->getUrl(),
                 ];
             }
 
-            // Group mentions
+            // !group/!org mentions
             $group_matches = self::findMentionsRaw($text, '!');
             foreach ($group_matches as $match) {
                 try {
@@ -436,7 +431,7 @@ abstract class Formatting
      *
      * @return array [partially-rendered HTML, array of mentions]
      */
-    public static function linkifyMentions(string $text, Actor $author, string $language): array
+    public static function linkifyMentions(string $text, Actor $author, string $locale): array
     {
         $mentions = self::findMentions($text, $author);
 
@@ -455,7 +450,7 @@ abstract class Formatting
         foreach ($points as $position => $mention) {
             $linkText = self::linkifyMentionArray($mention);
 
-            $text = substr_replace($text, $linkText, $position, $mention['length']);
+            $text = substr_replace($text, $linkText, $position-1, $mention['length']+1);
         }
 
         return [$text, $mentions];
@@ -465,17 +460,19 @@ abstract class Formatting
     {
         $output = null;
 
-        if (Event::handle('StartLinkifyMention', [$mention, &$output])) {
+        if (Event::handle('StartLinkifyMention', [$mention, &$output]) === Event::next) {
             $attrs = [
                 'href'  => $mention['url'],
-                'class' => 'h-card u-url p-nickname ' . $mention['type'],
+                'class' => 'h-card u-url p-nickname ' . $mention['type'], // https://microformats.org/wiki/h-card
             ];
 
             if (!empty($mention['title'])) {
                 $attrs['title'] = $mention['title'];
             }
 
-            $output = HTML::html(['a' => ['attrs' => $attrs, $mention['text']]]);
+            $output = HTML::html(['span' => ['attrs' => ['class' => 'h-card'],
+                '@' . HTML::html(['a' => ['attrs' => $attrs, $mention['title']]], options: ['indent' => false]),
+            ]], options: ['indent' => false, 'raw' => true]);
 
             Event::handle('EndLinkifyMention', [$mention, &$output]);
         }

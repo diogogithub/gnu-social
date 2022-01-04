@@ -28,8 +28,8 @@
         </section>
 
         <section class="profile-info-stats">
-            <div><strong>{{ 'Subscribed' | trans }}</strong>{{ actor.getSubscribedCount() }}</div>
-            <div><strong>{{ 'Subscribers' | trans }}</strong>{{ actor.getSubscribersCount() }}</div>
+            <div><strong><a href="{{ actor.getSubscriptionsUrl() }}">{{ 'Subscribed' | trans }}</a></strong>{{ actor.getSubscribedCount() }}</div>
+            <div><strong><a href="{{ actor.getSubscribersUrl() }}">{{ 'Subscribers' | trans }}</a></strong>{{ actor.getSubscribersCount() }}</div>
         </section>
 
         <nav class="profile-info-tags">

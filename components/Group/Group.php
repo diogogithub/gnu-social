@@ -30,9 +30,9 @@ use App\Entity\Actor;
 use App\Util\Common;
 use App\Util\HTML;
 use App\Util\Nickname;
+use Component\Circle\Controller\SelfTagsSettings;
 use Component\Group\Controller as C;
 use Component\Group\Entity\LocalGroup;
-use Component\Tag\Controller\Tag as TagController;
 use Symfony\Component\HttpFoundation\Request;
 
 class Group extends Component
@@ -68,7 +68,7 @@ class Group extends Component
                 'title'      => 'Self tags',
                 'desc'       => 'Add or remove tags on this group',
                 'id'         => 'settings-self-tags',
-                'controller' => TagController::settingsSelfTags($request, $group, 'settings-self-tags-details'),
+                'controller' => SelfTagsSettings::settingsSelfTags($request, $group, 'settings-self-tags-details'),
             ];
         }
         return Event::next;

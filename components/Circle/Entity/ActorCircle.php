@@ -19,7 +19,7 @@ declare(strict_types = 1);
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Circle\Entity;
 
 use App\Core\Cache;
 use App\Core\DB\DB;
@@ -49,14 +49,12 @@ class ActorCircle extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private ?int $tagger = null;
-    private int $tagged;
+    private ?int $tagger = null; // If null, is the special global self-tag circle
     private string $tag;
-    private bool $use_canonical;
     private ?string $description = null;
-    private ?bool $private = false;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private ?bool $private       = false;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -80,37 +78,15 @@ class ActorCircle extends Entity
         return $this->tagger;
     }
 
-    public function setTagged(int $tagged): self
-    {
-        $this->tagged = $tagged;
-        return $this;
-    }
-
-    public function getTagged(): int
-    {
-        return $this->tagged;
-    }
-
     public function setTag(string $tag): self
     {
-        $this->tag = \mb_substr($tag, 0, 64);
+        $this->tag = mb_substr($tag, 0, 64);
         return $this;
     }
 
     public function getTag(): string
     {
         return $this->tag;
-    }
-
-    public function setUseCanonical(bool $use_canonical): self
-    {
-        $this->use_canonical = $use_canonical;
-        return $this;
-    }
-
-    public function getUseCanonical(): bool
-    {
-        return $this->use_canonical;
     }
 
     public function setDescription(?string $description): self
@@ -135,24 +111,24 @@ class ActorCircle extends Entity
         return $this->private;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
@@ -160,64 +136,86 @@ class ActorCircle extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public function getActorTag()
+    /**
+     * For use with MetaCollection trait only
+     */
+    public function getName(): string
+    {
+        return $this->tag;
+    }
+
+    public function getActorTags(bool $db_reference = false): array
+    {
+        $handle = fn () => DB::findBy('actor_tag', ['tagger' => $this->getTagger(), 'tag' => $this->getTag()]);
+        if ($db_reference) {
+            return $handle();
+        }
+        return Cache::get(
+            "circle-{$this->getId()}-tagged",
+            $handle,
+        );
+    }
+
+    public function getTaggedActors()
     {
         return Cache::get(
-            "actor-tag-{$this->getTag()}",
-            fn () => DB::findBy('actor_tag', ['tagger' => $this->getTagger(), 'canonical' => $this->getTag()], limit: 1)[0], // TODO jank
+            "circle-{$this->getId()}-tagged-actors",
+            function () {
+                if ($this->getTagger()) {
+                    return DB::dql('SELECT a FROM actor AS a JOIN actor_tag AS at WITH at.tagged = a.id WHERE at.tag = :tag AND at.tagger = :tagger', ['tag' => $this->getTag(), 'tagger' => $this->getTagger()]);
+                } else { // Self-tag
+                    return DB::dql('SELECT a FROM actor AS a JOIN actor_tag AS at WITH at.tagged = a.id WHERE at.tag = :tag AND at.tagger = at.tagged', ['tag' => $this->getTag()]);
+                }
+            },
         );
     }
 
     public function getSubscribedActors(?int $offset = null, ?int $limit = null): array
     {
         return Cache::get(
-            "circle-{$this->getId()}",
+            "circle-{$this->getId()}-subscribers",
             fn () => DB::dql(
                 <<< 'EOQ'
                     SELECT a
-                    FROM App\Entity\Actor a
-                    JOIN App\Entity\ActorCircleSubscription s
+                    FROM actor a
+                    JOIN actor_circle_subscription s
                         WITH a.id = s.actor_id
                     ORDER BY s.created DESC, a.id DESC
                     EOQ,
-                options: ['offset' => $offset,
-                    'limit'        => $limit, ],
+                options: [
+                    'offset' => $offset,
+                    'limit'  => $limit,
+                ],
             ),
         );
     }
 
-    public function getUrl(int $type = Router::ABSOLUTE_PATH): string {
-        return Router::url('actor_circle', ['actor_id' => $this->getTagger(), 'tag' => $this->getTag()]);
+    public function getUrl(int $type = Router::ABSOLUTE_PATH): string
+    {
+        return Router::url('actor_circle_view_by_circle_id', ['circle_id' => $this->getId()], type: $type);
     }
 
     public static function schemaDef(): array
     {
         return [
             'name'        => 'actor_circle',
-            'description' => 'a actor can have lists of actors, to separate their feed',
+            'description' => 'An actor can have lists of actors, to separate their feed or quickly mention his friend',
             'fields'      => [
-                'id'            => ['type' => 'serial',    'not null' => true, 'description' => 'unique identifier'], // An actor can be tagged by many actors
-                'tagger'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'description' => 'user making the tag'],
-                'tagged'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'not null' => true, 'description' => 'actor tagged'],
-                'tag'           => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is  // Many Actor Circles can reference (and probably will) an Actor Tag
-                'use_canonical' => ['type' => 'bool',      'not null' => true, 'description' => 'whether the user wanted to block canonical tags'],
-                'description'   => ['type' => 'text',      'description' => 'description of the people tag'],
-                'private'       => ['type' => 'bool',      'default' => false, 'description' => 'is this tag private'],
-                'created'       => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'          => ['type' => 'serial',    'not null' => true, 'description' => 'unique identifier'], // An actor can be tagged by many actors
+                'tagger'      => ['type' => 'int',       'default' => null, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'many to one', 'name' => 'actor_list_tagger_fkey', 'description' => 'user making the tag, null if self-tag'],
+                'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'ActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'actor tag'], // Join with ActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is  // Many Actor Circles can reference (and probably will) an Actor Tag
+                'description' => ['type' => 'text',      'description' => 'description of the people tag'],
+                'private'     => ['type' => 'bool',      'default' => false, 'description' => 'is this tag private'],
+                'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['id'],
+            'primary key' => ['id'], // But we will mostly refer to them with `tagger` and `tag`
             'indexes'     => [
                 'actor_list_modified_idx'   => ['modified'],
+                'actor_list_tagger_tag_idx' => ['tagger', 'tag'], // The actual identifier we will use the most
                 'actor_list_tag_idx'        => ['tag'],
-                'actor_list_tagger_tag_idx' => ['tagger', 'tag'],
                 'actor_list_tagger_idx'     => ['tagger'],
             ],
         ];
-    }
-
-    public function __toString()
-    {
-        return $this->getTag();
     }
 }

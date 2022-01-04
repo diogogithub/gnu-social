@@ -19,12 +19,12 @@ declare(strict_types = 1);
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
+namespace Component\Circle\Entity;
 
-use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Router\Router;
+use App\Entity\Actor;
 use Component\Tag\Tag;
 use DateTimeInterface;
 
@@ -54,9 +54,7 @@ class ActorTag extends Entity
     private int $tagger;
     private int $tagged;
     private string $tag;
-    private string $canonical;
-    private bool $use_canonical;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setTagger(int $tagger): self
     {
@@ -82,7 +80,7 @@ class ActorTag extends Entity
 
     public function setTag(string $tag): self
     {
-        $this->tag = \mb_substr($tag, 0, 64);
+        $this->tag = mb_substr($tag, 0, 64);
         return $this;
     }
 
@@ -91,35 +89,13 @@ class ActorTag extends Entity
         return $this->tag;
     }
 
-    public function setCanonical(string $canonical): self
-    {
-        $this->canonical = \mb_substr($canonical, 0, 64);
-        return $this;
-    }
-
-    public function getCanonical(): string
-    {
-        return $this->canonical;
-    }
-
-    public function setUseCanonical(bool $use_canonical): self
-    {
-        $this->use_canonical = $use_canonical;
-        return $this;
-    }
-
-    public function getUseCanonical(): bool
-    {
-        return $this->use_canonical;
-    }
-
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
@@ -127,18 +103,22 @@ class ActorTag extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public static function getByActorId(int $actor_id): array
+    public function getUrl(?Actor $actor = null, int $type = Router::ABSOLUTE_PATH): string
     {
-        return Cache::getList(Actor::cacheKeys($actor_id)['tags'], fn () => DB::dql('select at from actor_tag at join actor a with a.id = at.tagger where a.id = :id', ['id' => $actor_id]));
+        $params = ['tag' => $this->getTag()];
+        if (!\is_null($actor)) {
+            $params['locale'] = $actor->getTopLanguage()->getLocale();
+        }
+        return Router::url('single_actor_tag', $params, type: $type);
     }
 
-    public function getUrl(?Actor $actor = null): string
+    public function getCircle(): ActorCircle
     {
-        $params = ['canon' => $this->getCanonical(), 'tag' => $this->getTag()];
-        if (!\is_null($actor)) {
-            $params['lang'] = $actor->getTopLanguage()->getLocale();
+        if ($this->getTagger() === $this->getTagged()) { // Self-tag
+            return DB::findOneBy(ActorCircle::class, ['tagger' => null, 'tag' => $this->getTag()]);
+        } else {
+            return DB::findOneBy(ActorCircle::class, ['tagger' => $this->getTagger(), 'tag' => $this->getTag()]);
         }
-        return Router::url('single_actor_tag', $params);
     }
 
     public static function schemaDef(): array
@@ -146,24 +126,16 @@ class ActorTag extends Entity
         return [
             'name'   => 'actor_tag',
             'fields' => [
-                'tagger'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagger_fkey', 'not null' => true, 'description' => 'actor making the tag'],
-                'tagged'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'not null' => true, 'description' => 'actor tagged'],
-                'tag'           => ['type' => 'varchar',   'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hash tag associated with this actor'],
-                'canonical'     => ['type' => 'varchar',   'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'ascii slug of tag'],
-                'use_canonical' => ['type' => 'bool',      'not null' => true, 'description' => 'whether the user wanted to block canonical tags'],
-                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
-            ],
-            'primary key' => ['tagger', 'tagged', 'tag', 'use_canonical'],
+                'tagger'   => ['type' => 'int',       'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagger_fkey', 'description' => 'actor making the tag'],
+                'tagged'   => ['type' => 'int',       'not null' => true, 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'actor_tag_tagged_fkey', 'description' => 'actor tagged'],
+                'tag'      => ['type' => 'varchar',  'length' => Tag::MAX_TAG_LENGTH, 'not null' => true, 'description' => 'hashtag associated with this note'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            ], // We will always assume the tagger's preferred language for tags and circles
+            'primary key' => ['tagger', 'tagged', 'tag'],
             'indexes'     => [
-                'actor_tag_modified_idx'   => ['modified'],
                 'actor_tag_tagger_tag_idx' => ['tagger', 'tag'], // For Circles
                 'actor_tag_tagged_idx'     => ['tagged'],
             ],
         ];
-    }
-
-    public function __toString(): string
-    {
-        return $this->getTag();
     }
 }
