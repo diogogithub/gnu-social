@@ -27,6 +27,7 @@
                         <div class="section-form">
                             <fieldset>
                                 {{ form_start(blocks['post_form']) }}
+                                {{ form_errors(blocks['post_form']) }}
                                 {% if blocks['post_form'].in is defined %}
                                     {{ form_row(blocks['post_form'].in) }}
                                 {% endif %}
