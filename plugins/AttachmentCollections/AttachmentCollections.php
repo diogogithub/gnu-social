@@ -34,20 +34,24 @@ namespace Plugin\AttachmentCollections;
 use App\Core\DB\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
+use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
 use App\Util\Nickname;
-use Component\Collection\Util\MetaCollectionPlugin;
+use Component\Collection\Util\MetaCollectionTrait;
 use Plugin\AttachmentCollections\Controller\AttachmentCollections as AttachmentCollectionsController;
 use Plugin\AttachmentCollections\Entity\AttachmentCollection;
 use Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry;
 use Symfony\Component\HttpFoundation\Request;
 
-class AttachmentCollections extends MetaCollectionPlugin
+class AttachmentCollections extends Plugin
 {
+    use MetaCollectionTrait;
+    protected string $slug        = 'collection';
+    protected string $plural_slug = 'collections';
     protected function createCollection(Actor $owner, array $vars, string $name)
     {
         $col = AttachmentCollection::create([

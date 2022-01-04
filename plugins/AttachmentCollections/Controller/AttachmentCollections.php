@@ -77,4 +77,15 @@ class AttachmentCollections extends MetaCollectionController
     {
         return DB::findOneBy(AttachmentCollection::class, ['id' => $collection_id]);
     }
+
+    public function setCollectionName(int $actor_id, string $actor_nickname, AttachmentCollection $collection, string $name)
+    {
+        $collection->setName($name);
+        DB::persist($collection);
+    }
+
+    public function removeCollection(int $actor_id, string $actor_nickname, AttachmentCollection $collection)
+    {
+        DB::remove($collection);
+    }
 }

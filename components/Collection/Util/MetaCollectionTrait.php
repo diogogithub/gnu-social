@@ -35,7 +35,6 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
-use App\Core\Modules\Plugin;
 use App\Entity\Actor;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
@@ -45,10 +44,10 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
-abstract class MetaCollectionPlugin extends Plugin
+trait MetaCollectionTrait
 {
-    protected string $slug        = 'collection';
-    protected string $plural_slug = 'collections';
+    //protected string $slug        = 'collection';
+    //protected string $plural_slug = 'collections';
 
     abstract protected function createCollection(Actor $owner, array $vars, string $name);
     abstract protected function removeItems(Actor $owner, array $vars, $items, array $collections);

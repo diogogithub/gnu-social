@@ -11,10 +11,10 @@ use Component\Feed\Feed;
 
 class Collection extends Controller
 {
-    public function query(string $query, ?string $language = null, ?Actor $actor = null)
+    public function query(string $query, ?string $locale = null, ?Actor $actor = null)
     {
-        $actor    ??= Common::actor();
-        $language ??= $actor->getTopLanguage()->getLocale();
-        return Feed::query($query, $this->int('page') ?? 1, $language, $actor);
+        $actor  ??= Common::actor();
+        $locale ??= Common::currentLanguage()->getLocale();
+        return Feed::query($query, $this->int('page') ?? 1, $locale, $actor);
     }
 }

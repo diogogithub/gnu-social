@@ -77,7 +77,7 @@ abstract class MetaCollectionController extends FeedController
         $collections = $this->getCollectionsByActorId($id);
 
         $create_title      = _m('Create a ' . mb_strtolower(preg_replace('/([a-z0-9])([A-Z])/', '$1 $2', $this->slug)));
-        $collections_title = _m('Your ' . mb_strtolower(preg_replace('/([a-z0-9])([A-Z])/', '$1 $2', $this->plural_slug)));
+        $collections_title = _m('The ' . mb_strtolower(preg_replace('/([a-z0-9])([A-Z])/', '$1 $2', $this->plural_slug)));
         // create collection form
         $create = null;
         if (Common::user()?->getId() === $id) {
@@ -127,7 +127,7 @@ abstract class MetaCollectionController extends FeedController
                 $this->parent  = $parent;
                 $this->slug    = $slug;
             }
-            // there's already a injected function called path,
+            // there's already an injected function called path,
             // that maps to Router::url(name, args), but since
             // I want to preserve nicknames, I think it's better
             // to use that getUrl function
@@ -159,8 +159,7 @@ abstract class MetaCollectionController extends FeedController
                 ]);
                 $edit->handleRequest($this->request);
                 if ($edit->isSubmitted() && $edit->isValid()) {
-                    $collection->setName($edit->getData()['name']);
-                    DB::persist($collection);
+                    $this->parent->setCollectionName($this->id, $this->nick, $collection, $edit->getData()['name']);
                     DB::flush();
                     throw new RedirectException();
                 }
@@ -181,7 +180,7 @@ abstract class MetaCollectionController extends FeedController
                 ]);
                 $rm->handleRequest($this->request);
                 if ($rm->isSubmitted()) {
-                    DB::remove($collection);
+                    $this->parent->removeCollection($this->id, $this->nick, $collection);
                     DB::flush();
                     throw new RedirectException();
                 }
