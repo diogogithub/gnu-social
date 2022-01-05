@@ -10,34 +10,43 @@
 
 {% block profile_view %}
     <section id='profile-{{ actor.id }}' class='profile' title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
-        <a href="{{ actor_uri }}">
+        <header>
             <div class="profile-info">
-                <img src="{{ actor_avatar }}" class="avatar" alt="{% trans %} %actor_nickname%'s avatar. {% endtrans %}" width="{{actor_avatar_dimensions['width']}}" height="{{actor_avatar_dimensions['height']}}">
-                <strong class="profile-info-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
+                <img src="{{ actor_avatar }}" class="profile-avatar avatar" alt="{% trans %} %actor_nickname%'s avatar. {% endtrans %}" width="{{actor_avatar_dimensions['width']}}" height="{{actor_avatar_dimensions['height']}}">
+                <div>
+                    <a class="profile-info-url" href="{{ actor_uri }}">
+                        <strong class="profile-info-url-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
+                        {% if not actor_is_local %}
+                            <span class="profile-info-url-remote">{{ mention }}</span>
+                        {% endif %}
+                    </a>
+                    <ul class="profile-info-actions">
+                        {% for current_action in get_profile_actions(actor) %}
+                            <li>
+                                <a title="{{ current_action["title"] | trans }}"
+                                   class="{{ current_action["classes"] }}"
+                                   href="{{ current_action["url"] }}"></a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-        </a>
-
-        {% if not actor_is_local %}
-            <section class="profile-info-remote">
-                <span>{{ mention }}</span>
+            <div class="profile-stats">
+                <span class="profile-stats-subscriptions"><strong><a href="{{ actor.getSubscriptionsUrl() }}">{{ 'Subscribed' | trans }}</a></strong>{{ actor.getSubscribedCount() }}</span>
+                <span class="profile-stats-subscribers"><strong><a href="{{ actor.getSubscribersUrl() }}">{{ 'Subscribers' | trans }}</a></strong>{{ actor.getSubscribersCount() }}</span>
+            </div>
+        </header>
+        <div>
+            <section class="profile-bio">
+                <span>{{ actor.getBio() }}</span>
             </section>
-        {% endif %}
 
-        <section class="profile-info-bio">
-            <span>{{ actor.getBio() }}</span>
-        </section>
-
-        <section class="profile-info-stats">
-            <div><strong><a href="{{ actor.getSubscriptionsUrl() }}">{{ 'Subscribed' | trans }}</a></strong>{{ actor.getSubscribedCount() }}</div>
-            <div><strong><a href="{{ actor.getSubscribersUrl() }}">{{ 'Subscribers' | trans }}</a></strong>{{ actor.getSubscribersCount() }}</div>
-        </section>
-
-        <nav class="profile-info-tags">
-            {% for tag in actor_tags %}
-                {% include 'cards/tag/actor_tag.html.twig' with { 'tag': tag, 'actor': actor } %}
-            {% endfor %}
-        </nav>
-
+            <nav class="profile-tags">
+                {% for tag in actor_tags %}
+                    {% include 'cards/tag/actor_tag.html.twig' with { 'tag': tag, 'actor': actor } %}
+                {% endfor %}
+            </nav>
+        </div>
         {% for block in handle_event('AppendCardProfile', { 'actor': actor }) %}
             {{ block | raw }}
         {% endfor %}

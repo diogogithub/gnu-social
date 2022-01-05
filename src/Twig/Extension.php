@@ -65,6 +65,7 @@ class Extension extends AbstractExtension
             new TwigFunction('config', [Runtime::class, 'getConfig']),
             new TwigFunction('dd', 'dd'),
             new TwigFunction('die', 'die'),
+            new TwigFunction('get_profile_actions', [Runtime::class, 'getProfileActions']),
             new TwigFunction('get_extra_note_actions', [Runtime::class, 'getExtraNoteActions']),
             new TwigFunction('get_feeds', [Runtime::class, 'getFeeds']),
             new TwigFunction('get_note_actions', [Runtime::class, 'getNoteActions']),

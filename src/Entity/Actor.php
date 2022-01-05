@@ -259,7 +259,7 @@ class Actor extends Entity
             'fullname' => "actor-fullname-id-{$actor_id}",
             'self-tags' =>  "actor-self-tags-{$actor_id}",
             'circles' => "actor-circles-{$actor_id}",
-            'subscriber' => "subscriber-{$actor_id}",
+            'subscribers' => "subscribers-{$actor_id}",
             'subscribed' => "subscribed-{$actor_id}",
             'relative-nickname' => "actor-{$actor_id}-relative-nickname-{$other}", // $other is $nickname
             'can-admin' => "actor-{$actor_id}-can-admin-{$other}", // $other is an actor id
@@ -340,7 +340,7 @@ class Actor extends Entity
 
     public function getSubscribersCount(): int
     {
-        return $this->getSubCount(which: 'subscriber', column: 'subscribed_id');
+        return $this->getSubCount(which: 'subscribers', column: 'subscribed_id');
     }
 
     public function getSubscribedCount(): int

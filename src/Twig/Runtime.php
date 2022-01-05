@@ -67,6 +67,13 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return F\some($routes, F\partial_left([Formatting::class, 'startsWith'], $current_route)) ? $class : '';
     }
 
+    public function getProfileActions(Actor $actor)
+    {
+        $actions = [];
+        Event::handle('AddProfileActions', [$this->request, $actor, &$actions]);
+        return $actions;
+    }
+
     public function getNoteActions(Note $note)
     {
         $actions = [];

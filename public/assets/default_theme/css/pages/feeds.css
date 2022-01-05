@@ -160,6 +160,9 @@ embed header {
     display: flex;
     vertical-align: middle;
 }
+.note-actions ul > li {
+    margin-left: 8px;
+}
 .note-actions-extra-details {
     display: flex;
     flex-direction: column;
@@ -201,11 +204,13 @@ embed header {
     mask-repeat: no-repeat !important;
     mask-size: cover !important;
     display: inline-block;
-    margin-left: var(--s);
     width: var(--unit);
     height: var(--unit);
     background-color: var(--foreground);
     opacity: 0.33;
+}
+.button-container:not(:first-of-type) {
+    margin-left: var(--s);
 }
 .button-container:focus,
 .button-container:hover {
