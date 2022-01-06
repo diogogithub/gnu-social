@@ -37,7 +37,7 @@ use App\Util\Nickname;
 use Component\Avatar\Avatar;
 use Component\Language\Entity\ActorLanguage;
 use Component\Language\Entity\Language;
-use Component\Subscription\Entity\Subscription;
+use Component\Subscription\Entity\ActorSubscription;
 use DateTimeInterface;
 use Functional as F;
 
@@ -334,7 +334,7 @@ class Actor extends Entity
     {
         return Cache::get(
             self::cacheKeys($this->getId())[$which],
-            fn() => DB::count(Subscription::class, [$column => $this->getId()]) - ($this->getIsLocal() ? 1 : 0)
+            fn() => DB::count(ActorSubscription::class, [$column => $this->getId()]) - ($this->getIsLocal() ? 1 : 0)
         );
     }
 

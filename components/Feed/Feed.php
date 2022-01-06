@@ -31,7 +31,7 @@ use App\Entity\Actor;
 use App\Util\Formatting;
 use Component\Feed\Controller as C;
 use Component\Search\Util\Parser;
-use Component\Subscription\Entity\Subscription;
+use Component\Subscription\Entity\ActorSubscription;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
@@ -82,7 +82,7 @@ class Feed extends Component
 
     public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
-        $note_qb->leftJoin(Subscription::class, 'subscription', Expr\Join::WITH, 'note.actor_id = subscription.subscribed_id')
+        $note_qb->leftJoin(ActorSubscription::class, 'subscription', Expr\Join::WITH, 'note.actor_id = subscription.subscribed_id')
             ->leftJoin(Actor::class, 'note_actor', Expr\Join::WITH, 'note.actor_id = note_actor.id');
         return Event::next;
     }

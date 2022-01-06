@@ -30,7 +30,7 @@ use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use App\Util\Nickname;
 use Component\Language\Entity\ActorLanguage;
-use Component\Subscription\Entity\Subscription;
+use Component\Subscription\Entity\ActorSubscription;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use LogicException;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -165,7 +165,7 @@ class Security extends Controller
                     $user,
                     function (int $id) use ($user) {
                         // Self subscription for the Home feed and alike
-                        DB::persist(Subscription::create(['subscriber_id' => $id, 'subscribed_id' => $id]));
+                        DB::persist(ActorSubscription::create(['subscriber_id' => $id, 'subscribed_id' => $id]));
                         Feed::createDefaultFeeds($id, $user);
                         DB::persist(ActorLanguage::create([
                             'actor_id'    => $id,

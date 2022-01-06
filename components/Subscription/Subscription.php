@@ -97,10 +97,10 @@ class Subscription extends Component
             'subscriber_id' => $subscriber_id,
             'subscribed_id' => $subscribed_id,
         ];
-        $subscription = DB::findOneBy(table: Entity\Subscription::class, criteria: $opts, return_null: true);
+        $subscription = DB::findOneBy(table: Entity\ActorSubscription::class, criteria: $opts, return_null: true);
         $activity     = null;
         if (\is_null($subscription)) {
-            DB::persist(Entity\Subscription::create($opts));
+            DB::persist(Entity\ActorSubscription::create($opts));
             $activity = Activity::create([
                 'actor_id'    => $subscriber_id,
                 'verb'        => 'subscribe',
@@ -144,7 +144,7 @@ class Subscription extends Component
             'subscriber_id' => $subscriber_id,
             'subscribed_id' => $subscribed_id,
         ];
-        $subscription = DB::findOneBy(table: Entity\Subscription::class, criteria: $opts, return_null: true);
+        $subscription = DB::findOneBy(table: Entity\ActorSubscription::class, criteria: $opts, return_null: true);
         $activity     = null;
         if (!\is_null($subscription)) {
             // Remove Subscription
@@ -212,7 +212,7 @@ class Subscription extends Component
 
         // If subject is not subbed to object already, then route it to add subscription
         // Else, route to remove subscription
-        $subscribe_action_url = ($not_subscribed_already = \is_null(DB::findOneBy(table: Entity\Subscription::class, criteria: $opts, return_null: true))) ? Router::url(
+        $subscribe_action_url = ($not_subscribed_already = \is_null(DB::findOneBy(table: Entity\ActorSubscription::class, criteria: $opts, return_null: true))) ? Router::url(
             'actor_subscribe_add',
             [
                 'object_id' => $object_id,

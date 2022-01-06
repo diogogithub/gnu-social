@@ -12,7 +12,7 @@ use App\Entity\Note;
 use Component\Group\Entity\GroupInbox;
 use Component\Group\Entity\GroupMember;
 use Component\Group\Entity\LocalGroup;
-use Component\Subscription\Entity\Subscription;
+use Component\Subscription\Entity\ActorSubscription;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -38,7 +38,7 @@ class CoreFixtures extends Fixture
             $local_entities[$nick] = $ent;
             $manager->persist($ent);
             // Add self subscriptions
-            $manager->persist(Subscription::create(['subscriber' => $actor->getId(), 'subscribed' => $actor->getId()]));
+            $manager->persist(ActorSubscription::create(['subscriber' => $actor->getId(), 'subscribed' => $actor->getId()]));
             $actors[$nick] = $actor;
         }
 

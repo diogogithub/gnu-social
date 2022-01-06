@@ -41,7 +41,7 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Subscription extends Entity
+class ActorSubscription extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
@@ -114,10 +114,31 @@ class Subscription extends Entity
         ];
     }
 
+    /**
+     * @see Entity->getNotificationTargetIds
+     */
+    public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
+    {
+        if (!\array_key_exists('object', $ids_already_known)) {
+            $target_ids = [$this->getSubscribedId()]; // The object of any subscription is the one subscribed (or unsubscribed)
+        } else {
+            $target_ids = $ids_already_known['object'];
+        }
+
+        // Additional actors that should know about this
+        if ($include_additional && \array_key_exists('additional', $ids_already_known)) {
+            array_push($target_ids, ...$ids_already_known['additional']);
+        } else {
+            return $target_ids;
+        }
+
+        return array_unique($target_ids);
+    }
+
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'subscription',
+            'name'   => 'actor_subscription',
             'fields' => [
                 'subscriber_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'subscription_subscriber_fkey', 'not null' => true,  'description' => 'actor listening'],
                 'subscribed_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'name' => 'subscription_subscribed_fkey', 'not null' => true,  'description' => 'actor being listened to'],
