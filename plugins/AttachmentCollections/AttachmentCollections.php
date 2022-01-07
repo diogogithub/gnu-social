@@ -65,7 +65,7 @@ class AttachmentCollections extends Plugin
             'collection_id' => $col->getId(),
         ]));
     }
-    protected function removeItems(Actor $owner, array $vars, $items, array $collections)
+    protected function removeItem(Actor $owner, array $vars, array $items, array $collections)
     {
         return DB::dql(<<<'EOF'
             DELETE FROM \Plugin\AttachmentCollections\Entity\AttachmentCollectionEntry AS entry
@@ -83,7 +83,7 @@ class AttachmentCollections extends Plugin
         ]);
     }
 
-    protected function addItems(Actor $owner, array $vars, $items, array $collections)
+    protected function addItem(Actor $owner, array $vars, array $items, array $collections)
     {
         foreach ($items as $id) {
             // prevent user from putting something in a collection (s)he doesn't own:

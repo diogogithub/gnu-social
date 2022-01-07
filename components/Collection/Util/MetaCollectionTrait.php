@@ -49,14 +49,44 @@ trait MetaCollectionTrait
     //protected string $slug        = 'collection';
     //protected string $plural_slug = 'collections';
 
+    /**
+     * create a collection owned by Actor $owner.
+     *
+     * @param Actor  $owner The collection's owner
+     * @param array  $vars  Page vars sent by AppendRightPanelBlock event
+     * @param string $name  Collection's name
+     */
     abstract protected function createCollection(Actor $owner, array $vars, string $name);
-    abstract protected function removeItems(Actor $owner, array $vars, $items, array $collections);
-    abstract protected function addItems(Actor $owner, array $vars, $items, array $collections);
+    /**
+     * remove item from collections.
+     *
+     * @param Actor $owner       Current user
+     * @param array $vars        Page vars sent by AppendRightPanelBlock event
+     * @param array $items       Array of collections's ids to remove the current item from
+     * @param array $collections List of ids of collections owned by $owner
+     */
+    abstract protected function removeItem(Actor $owner, array $vars, array $items, array $collections);
+    /**
+     * add item to collections.
+     *
+     * @param Actor $owner       Current user
+     * @param array $vars        Page vars sent by AppendRightPanelBlock event
+     * @param array $items       Array of collections's ids to add the current item to
+     * @param array $collections List of ids of collections owned by $owner
+     */
+    abstract protected function addItem(Actor $owner, array $vars, array $items, array $collections);
 
     /**
      * Check the route to determine whether the widget should be added
      */
     abstract protected function shouldAddToRightPanel(Actor $user, $vars, Request $request): bool;
+    /**
+     * Get array of collections's owned by $actor
+     *
+     * @param Actor  $owner    Collection's owner
+     * @param ?array $vars     Page vars sent by AppendRightPanelBlock event
+     * @param bool   $ids_only if true, the function must return only the primary key or each collections
+     */
     abstract protected function getCollectionsBy(Actor $owner, ?array $vars = null, bool $ids_only = false): array;
 
     /**
@@ -109,10 +139,10 @@ trait MetaCollectionTrait
             $removed  = array_filter($already_selected, fn ($x) => !\in_array($x, $selected));
             $added    = array_filter($selected, fn ($x) => !\in_array($x, $already_selected));
             if (\count($removed) > 0) {
-                $this->removeItems($user, $vars, $removed, $collections);
+                $this->removeItem($user, $vars, $removed, $collections);
             }
             if (\count($added) > 0) {
-                $this->addItems($user, $vars, $added, $collections);
+                $this->addItem($user, $vars, $added, $collections);
             }
             DB::flush();
             throw new RedirectException();

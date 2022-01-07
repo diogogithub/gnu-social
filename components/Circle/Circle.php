@@ -157,7 +157,7 @@ class Circle extends Component
         ]));
     }
 
-    protected function removeItems(Actor $owner, array $vars, $items, array $collections)
+    protected function removeItem(Actor $owner, array $vars, $items, array $collections)
     {
         $tagger_id                     = $owner->getId();
         $tagged_id                     = $this->getActorIdFromVars($vars);
@@ -172,7 +172,7 @@ class Circle extends Component
         Cache::delete(Actor::cacheKeys($tagger_id)['circles']);
     }
 
-    protected function addItems(Actor $owner, array $vars, $items, array $collections)
+    protected function addItem(Actor $owner, array $vars, $items, array $collections)
     {
         $tagger_id                = $owner->getId();
         $tagged_id                = $this->getActorIdFromVars($vars);
