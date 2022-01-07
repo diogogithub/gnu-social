@@ -8,83 +8,109 @@
         </label>
     {% endif %}
 
-    <div class="section-padding">
+    <section class="section-widget section-padding">
+        <h2>{% trans %}Search{% endtrans %}</h2>
+
         {{ form_start(search_form) }}
-        <div>
+        <section class="section-widget section-form">
             {{ form_row(search_form.search_query) }}
+            {% if actor is not null %}
+                <details class="section-widget-subtitle-details">
+                    <summary class="section-subtitle-summary">
+                        <strong>{% trans %}Other options{% endtrans %}</strong>
+                        {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                    </summary>
+
+                    <div class="section-form">
+                        <details class="section-widget-subtitle-details">
+                            <summary class="section-subtitle-summary">
+                                <strong>
+                                    {% trans %}Save query as a feed{% endtrans %}
+                                </strong>
+                                {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                            </summary>
+                            <div class="section-form">
+                                {{ form_row(search_form.title) }}
+                                {{ form_row(search_form.subscribe_to_search) }}
+                            </div>
+                        </details>
+                    </div>
+                </details>
+            {% endif %}
             {{ form_row(search_form.submit_search) }}
-        </div>
-        {% if actor is not null %}
-            <details class="section-widget">
-                <summary>
-                    <h3>
-                        {% trans %}Save this search as a feed{% endtrans %}
-                        {{ icon('arrow-down', 'icon icon-details-open') | raw }}
-                    </h3>
-                </summary>
-                {{ form_row(search_form.title) }}
-                {{ form_row(search_form.subscribe_to_search) }}
-            </details>
-        {% endif %}
-        {{ form_end(search_form)}}
-        <hr>
-        <details class="section-widget">
-            <summary>
-                <h3>
-                    {% trans %}Build a search query{% endtrans %}
+        </section>
+
+        <section class="section-widget">
+            <details class="section-widget-subtitle-details">
+                <summary class="section-subtitle-summary">
+                    <strong>{% trans %}Build a search query{% endtrans %}</strong>
                     {{ icon('arrow-down', 'icon icon-details-open') | raw }}
-                </h3>
-            </summary>
-
-            {{ form_start(search_builder_form) }}
-
-            {# actor options, display if first checked, with checkbox trick #}
-            <details class="section-widget">
-                <summary>
-                    <h3>
-                        {% trans %}People search options{% endtrans %}
-                        {{ icon('arrow-down', 'icon icon-details-open') | raw }}
-                    </h3>
                 </summary>
-                {{ form_row(search_builder_form.include_actors) }}
-                {{ form_row(search_builder_form.include_actors_people) }}
-                {{ form_row(search_builder_form.include_actors_groups) }}
-                {{ form_row(search_builder_form.include_actors_lists) }}
-                {{ form_row(search_builder_form.include_actors_businesses) }}
-                {{ form_row(search_builder_form.include_actors_organizations) }}
-                {{ form_row(search_builder_form.include_actors_bots) }}
-                {{ form_row(search_builder_form.actor_langs) }}
-                {{ form_row(search_builder_form.actor_tags) }}
+
+                {{ form_start(search_builder_form) }}
+                <div class="section-form">
+                    {# actor options, display if first checked, with checkbox trick #}
+                    <details class="section-widget-subtitle-details">
+                        <summary class="section-subtitle-summary">
+                            <strong>{% trans %}People search options{% endtrans %}</strong>
+                            {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                        </summary>
+                        {{ form_row(search_builder_form.include_actors) }}
+                        {{ form_row(search_builder_form.include_actors_people) }}
+                        {{ form_row(search_builder_form.include_actors_groups) }}
+                        {{ form_row(search_builder_form.include_actors_lists) }}
+                        {{ form_row(search_builder_form.include_actors_businesses) }}
+                        {{ form_row(search_builder_form.include_actors_organizations) }}
+                        {{ form_row(search_builder_form.include_actors_bots) }}
+                        {{ form_row(search_builder_form.actor_langs) }}
+                        {{ form_row(search_builder_form.actor_tags) }}
+                    </details>
+
+                    <details class="section-widget-subtitle-details">
+                        <summary class="section-subtitle-summary">
+                            <strong>{% trans %}Note search options{% endtrans %}</strong>
+                            {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                        </summary>
+                        {{ form_row(search_builder_form.include_notes) }}
+                        {{ form_row(search_builder_form.include_notes_text) }}
+                        {{ form_row(search_builder_form.include_notes_media) }}
+                        {{ form_row(search_builder_form.include_notes_polls) }}
+                        {{ form_row(search_builder_form.include_notes_bookmarks) }}
+                        {{ form_row(search_builder_form.note_langs) }}
+                        {{ form_row(search_builder_form.note_tags) }}
+                        {{ form_row(search_builder_form.note_actor_langs) }}
+                        {{ form_row(search_builder_form.note_actor_tags) }}
+                    </details>
+                </div>
+                {{ form_end(search_builder_form) }}
             </details>
+        </section>
+    </section>
 
-            <details class="section-widget">
-                <summary>
-                    <h3>
-                        {% trans %}Note search options{% endtrans %}
-                        {{ icon('arrow-down', 'icon icon-details-open') | raw }}
-                    </h3>
-                </summary>
-                {{ form_row(search_builder_form.include_notes) }}
-                {{ form_row(search_builder_form.include_notes_text) }}
-                {{ form_row(search_builder_form.include_notes_media) }}
-                {{ form_row(search_builder_form.include_notes_polls) }}
-                {{ form_row(search_builder_form.include_notes_bookmarks) }}
-                {{ form_row(search_builder_form.note_langs) }}
-                {{ form_row(search_builder_form.note_tags) }}
-                {{ form_row(search_builder_form.note_actor_langs) }}
-                {{ form_row(search_builder_form.note_actor_tags) }}
-            </details>
-            {{ form_end(search_builder_form) }}
-        </details>
-        <hr>
-    </div>
+    {{ form_end(search_form)}}
 
-    {# Backwards compatibility with hAtom 0.1 #}
-    {{ parent() }}
+    <section class="section-widget section-padding">
+        <h2>{% trans %}Results{% endtrans %}</h2>
+        <div class="section-widget section-padding feed-empty">
+            <h3>{% trans %}Notes found{% endtrans %}</h3>
+            {% if notes is defined and notes is not empty %}
+                {{ parent() }}
+            {% else %}
+                <em>{% trans %}No notes were found for the specified query...{% endtrans %}</em>
+            {% endif %}
+        </div>
 
-    {% for actor in actors %}
-        {% include 'cards/profile/view.html.twig' with {'actor': actor} %}
-    {% endfor %}
+        <div class="section-widget section-padding feed-empty">
+            <h3>{% trans %}Actors found{% endtrans %}</h3>
+            {% if actors is defined and actors is not empty %}
+                {% for actor in actors %}
+                    {% include 'cards/profile/view.html.twig' with {'actor': actor} %}
+                {% endfor %}
+            {% else %}
+                <em>{% trans %}No Actors were found for the specified query...{% endtrans %}</em>
+            {% endif %}
+        </div>
+    </section>
 
     {{ "Page: " ~ page }}
 {% endblock body %}
