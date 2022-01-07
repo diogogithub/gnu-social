@@ -30,6 +30,10 @@
             <{{ type }} rel="{{ element['rel'] }}" type="{{ element['type'] }}" href="{{ element['href'] }}" title="{{ element['title'] }}">
         {% endfor %}
     {% endfor %}
+
+    {% for block in handle_event('AppendToHead', app.request) %}
+        {{ block | raw }}
+    {% endfor %}
 </head>
 
 <body>
