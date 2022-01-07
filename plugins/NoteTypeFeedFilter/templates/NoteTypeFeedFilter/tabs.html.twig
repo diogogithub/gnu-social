@@ -1,3 +1,8 @@
 {% for tab in tabs %}
-    <a {{ tab.active ? 'class="active"' : '' }} href="{{ tab.url }}">{{ tab['icon'] }}</a>
+    <li>
+        <a href="{{ tab.url }}" title="{{ tab.active ? ('Hide ' ~ tab['icon']) : ('Show ' ~ tab['icon']) | trans }}">
+            {{ tab['icon'] }}
+            <span>{{ icon(tab.active ? 'eye-opened' : 'eye-closed', 'icon') | raw }}</span>
+        </a>
+    </li>
 {% endfor %}

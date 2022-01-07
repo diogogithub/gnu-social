@@ -9,16 +9,25 @@
 {% endblock stylesheets %}
 
 {% block body %}
-<header class="feed-header">
-    {% if page_title is defined %}
-        <h1>{{ page_title | trans }}</h1>
-    {% endif %}
-    <nav class="feed-actions">
-        {% for block in handle_event('AddFeedActions', app.request, notes is defined and notes is not empty) %}
-            {{ block | raw }}
-        {% endfor %}
-    </nav>
-</header>
+    <header class="feed-header">
+        {% if page_title is defined %}
+            <h1 class="heading-no-margin">{{ page_title | trans }}</h1>
+        {% endif %}
+        <nav class="feed-actions">
+            <details class="feed-actions-details">
+                <summary>
+                    {{ icon('filter', 'icon icon-feed-actions') | raw }} {# button-container #}
+                </summary>
+                <div class="feed-actions-details-dropdown">
+                    <ul>
+                        {% for block in handle_event('AddFeedActions', app.request, notes is defined and notes is not empty) %}
+                            {{ block | raw }}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </details>
+        </nav>
+    </header>
 
     {# Backwards compatibility with hAtom 0.1 #}
     <main class="feed" tabindex="0" role="feed">
