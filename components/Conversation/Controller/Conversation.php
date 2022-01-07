@@ -101,12 +101,12 @@ class Conversation extends FeedController
         $user     = Common::ensureLoggedIn();
         $is_muted = ConversationMute::isMuted($conversation_id, $user);
         $form     = Form::create([
-            ['mute_conversation', SubmitType::class, ['label' => $is_muted ? _m('Mute conversation') : _m('Unmute conversation')]],
+            ['mute_conversation', SubmitType::class, ['label' => $is_muted ? _m('Unmute conversation') : _m('Mute conversation')]],
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($is_muted) {
+            if (!$is_muted) {
                 DB::persist(ConversationMute::create(['conversation_id' => $conversation_id, 'actor_id' => $user->getId()]));
             } else {
                 DB::removeBy('conversation_mute', ['conversation_id' => $conversation_id, 'actor_id' => $user->getId()]);

@@ -227,7 +227,7 @@ class Conversation extends Component
         }
 
         $actions[] = [
-            'title'   => ConversationMute::isMuted($note, $user) ? _m('Mute conversation') : _m('Unmute conversation'),
+            'title'   => ConversationMute::isMuted($note, $user) ? _m('Unmute conversation') : _m('Mute conversation'),
             'classes' => '',
             'url'     => Router::url('conversation_mute', ['conversation_id' => $note->getConversationId()]),
         ];

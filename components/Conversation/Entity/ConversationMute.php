@@ -118,11 +118,15 @@ class ConversationMute extends Entity
         return [
             'name'   => 'conversation_mute',
             'fields' => [
-                'conversation_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Conversation.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'The conversation being blocked'],
-                'actor_id'        => ['type' => 'int',       'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'Who blocked the conversation'],
-                'created'         => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'conversation_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Conversation.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'The conversation being blocked'],
+                'actor_id'        => ['type' => 'int', 'foreign key' => true, 'target' => 'Actor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'Who blocked the conversation'],
+                'created'         => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
-            'primary key' => ['conversation_id', 'actor_id'],
+            'primary key'  => ['conversation_id', 'actor_id'],
+            'foreign keys' => [
+                'conversation_id_to_id_fkey' => ['conversation', ['conversation_id' => 'id']],
+                'actor_id_to_id_fkey'        => ['actor', ['actor_id' => 'id']],
+            ],
         ];
     }
 }
