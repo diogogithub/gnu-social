@@ -141,37 +141,35 @@ class NoteTypeFeedFilter extends Plugin
      */
     public function onAddFeedActions(Request $request, bool $is_not_empty, &$res): bool
     {
-        if ($is_not_empty) {
-            $qs = [];
-            parse_str($request->getQueryString(), $qs);
-            if (\array_key_exists('p', $qs) && \is_string($qs['p'])) {
-                unset($qs['p']);
-            }
-            $types  = $this->normalizeTypesList(\is_null($request->get('note-types')) ? [] : explode(',', $request->get('note-types')), add_missing: false);
-            $ftypes = array_flip($types);
-
-            $tabs = [
-                'all' => [
-                    'active' => empty($types) || $types === self::ALLOWED_TYPES,
-                    'url'    => '?' . http_build_query(['note-types' => implode(',', self::ALLOWED_TYPES)], '', '&', \PHP_QUERY_RFC3986),
-                    'icon'   => 'All',
-                ],
-            ];
-
-            foreach (self::ALLOWED_TYPES as $allowed_type) {
-                $active               = \array_key_exists($allowed_type, $ftypes);
-                $new_types            = $this->normalizeTypesList([($active ? '!' : '') . $allowed_type, ...$types], add_missing: false);
-                $new_qs               = $qs;
-                $new_qs['note-types'] = implode(',', $new_types);
-                $tabs[$allowed_type]  = [
-                    'active' => $active,
-                    'url'    => '?' . http_build_query($new_qs, '', '&', \PHP_QUERY_RFC3986),
-                    'icon'   => $allowed_type,
-                ];
-            }
-
-            $res[] = Formatting::twigRenderFile('NoteTypeFeedFilter/tabs.html.twig', ['tabs' => $tabs]);
+        $qs = [];
+        parse_str($request->getQueryString(), $qs);
+        if (\array_key_exists('p', $qs) && \is_string($qs['p'])) {
+            unset($qs['p']);
         }
+        $types  = $this->normalizeTypesList(\is_null($request->get('note-types')) ? [] : explode(',', $request->get('note-types')), add_missing: false);
+        $ftypes = array_flip($types);
+
+        $tabs = [
+            'all' => [
+                'active' => empty($types) || $types === self::ALLOWED_TYPES,
+                'url'    => '?' . http_build_query(['note-types' => implode(',', self::ALLOWED_TYPES)], '', '&', \PHP_QUERY_RFC3986),
+                'icon'   => 'All',
+            ],
+        ];
+
+        foreach (self::ALLOWED_TYPES as $allowed_type) {
+            $active               = \array_key_exists($allowed_type, $ftypes);
+            $new_types            = $this->normalizeTypesList([($active ? '!' : '') . $allowed_type, ...$types], add_missing: false);
+            $new_qs               = $qs;
+            $new_qs['note-types'] = implode(',', $new_types);
+            $tabs[$allowed_type]  = [
+                'active' => $active,
+                'url'    => '?' . http_build_query($new_qs, '', '&', \PHP_QUERY_RFC3986),
+                'icon'   => $allowed_type,
+            ];
+        }
+
+        $res[] = Formatting::twigRenderFile('NoteTypeFeedFilter/tabs.html.twig', ['tabs' => $tabs]);
         return Event::next;
     }
 
