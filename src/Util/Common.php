@@ -323,6 +323,6 @@ abstract class Common
 
     public static function currentLanguage(): Language
     {
-        return self::actor()?->getTopLanguage() ?? Language::getByLocale(!\is_null(self::$request->headers->get('accept-language')) ? I18n::clientPreferredLanguage(self::$request->headers->get('accept-language')) : self::config('site', 'language'));
+        return self::actor()?->getTopLanguage() ?? Language::getByLocale(self::$request->headers->has('accept-language') ? I18n::clientPreferredLanguage(self::$request->headers->get('accept-language')) : self::config('site', 'language'));
     }
 }
