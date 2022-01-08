@@ -242,7 +242,7 @@ abstract class Cache
     public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, ?int $left = null, ?int $right = null, float $beta = 1.0): array
     {
         if (isset(self::$redis[$pool])) {
-            return self::redisMaybeRecompute(
+            $result = self::redisMaybeRecompute(
                 $key,
                 recompute: /**
                  * Caculate and trim the list to the correct size
@@ -268,6 +268,7 @@ abstract class Cache
                 pool: $pool,
                 beta: $beta,
             );
+            return empty($result) ? [] : $result; // TODO may be wrong? not sure
         } else {
             return self::get(
                 $key,
@@ -295,7 +296,7 @@ abstract class Cache
     {
         if (isset(self::$redis[$pool])) {
             if (empty($value)) {
-                self::$redis[$pool]->del($key); // Redis doesn't support empty lists
+                self::$redis[$pool]->set($key, []);
             } else {
                 self::$redis[$pool] // Ensure atomic
                     ->multi(Redis::MULTI)
