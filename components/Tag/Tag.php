@@ -179,7 +179,7 @@ class Tag extends Component
      *
      * $term /^(note|tag|people|actor)/ means we want to match only either a note or an actor
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $locale, ?Actor $actor, &$note_expr, &$actor_expr): bool
+    public function onCollectionQueryCreateExpression(ExpressionBuilder $eb, string $term, ?string $locale, ?Actor $actor, &$note_expr, &$actor_expr): bool
     {
         if (!str_contains($term, ':')) {
             return Event::next;
@@ -217,7 +217,7 @@ class Tag extends Component
         return Event::stop;
     }
 
-    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
+    public function onCollectionQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
         $note_qb->leftJoin(NoteTag::class, 'note_tag', Expr\Join::WITH, 'note_tag.note_id = note.id');
         $actor_qb->leftJoin(ActorTag::class, 'actor_tag', Expr\Join::WITH, 'actor_tag.tagger = actor.id');

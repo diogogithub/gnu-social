@@ -68,7 +68,7 @@ class Attachment extends Component
         return Event::next;
     }
 
-    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
+    public function onCollectionQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
         $note_qb->leftJoin(E\AttachmentToNote::class, 'attachment_to_note', Expr\Join::WITH, 'note.id = attachment_to_note.note_id');
         return Event::next;
@@ -77,7 +77,7 @@ class Attachment extends Component
     /**
      * Populate $note_expr with the criteria for looking for notes with attachments
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr): bool
+    public function onCollectionQueryCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr): bool
     {
         $include_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
         if (Formatting::startsWith($term, ['note-types:', 'notes-incude:', 'note-filter:'])) {

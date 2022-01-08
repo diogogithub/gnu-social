@@ -7,7 +7,7 @@ namespace Component\Collection\Util\Controller;
 use App\Core\Controller;
 use App\Entity\Actor;
 use App\Util\Common;
-use Component\Feed\Feed;
+use Component\Collection\Collection as CollectionModule;
 
 class Collection extends Controller
 {
@@ -15,6 +15,6 @@ class Collection extends Controller
     {
         $actor  ??= Common::actor();
         $locale ??= $actor?->getTopLanguage()?->getLocale();
-        return Feed::query($query, $this->int('page') ?? 1, $locale, $actor);
+        return CollectionModule::query($query, $this->int('page') ?? 1, $locale, $actor);
     }
 }

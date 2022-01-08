@@ -60,7 +60,7 @@ class Language extends Component
     /**
      * Populate $note_expr or $actor_expr with an expression to match a language
      */
-    public function onSearchCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr): bool
+    public function onCollectionQueryCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr): bool
     {
         $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
 
@@ -103,7 +103,7 @@ class Language extends Component
         return Event::next;
     }
 
-    public function onSearchQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
+    public function onCollectionQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
     {
         $note_qb->leftJoin('Component\Language\Entity\Language', 'note_language', Expr\Join::WITH, 'note.language_id = note_language.id')
             ->leftJoin('Component\Language\Entity\ActorLanguage', 'actor_language', Expr\Join::WITH, 'note.actor_id = actor_language.actor_id')

@@ -21,7 +21,7 @@ declare(strict_types = 1);
 
 // }}}
 
-namespace Component\Search\Util;
+namespace Component\Collection\Util;
 
 use App\Core\Event;
 use App\Entity\Actor;
@@ -78,7 +78,7 @@ abstract class Parser
                     $term      = mb_substr($input, $left, $end ? null : $right - $left);
                     $note_res  = null;
                     $actor_res = null;
-                    Event::handle('SearchCreateExpression', [$eb, $term, $language, $actor, &$note_res, &$actor_res]);
+                    Event::handle('CollectionQueryCreateExpression', [$eb, $term, $language, $actor, &$note_res, &$actor_res]);
                     if (\is_null($note_res) && \is_null($actor_res)) { // @phpstan-ignore-line
                         throw new ServerException("No one claimed responsibility for a match term: {$term}");
                     }
