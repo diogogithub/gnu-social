@@ -103,6 +103,7 @@ class ProfileColor extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
     public static function schemaDef(): array
     {
         return [

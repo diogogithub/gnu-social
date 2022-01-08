@@ -21,8 +21,11 @@ declare(strict_types = 1);
 
 namespace Plugin\Favourite\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Entity\Actor;
+use App\Entity\LocalUser;
 use App\Entity\Note;
 use DateTimeInterface;
 
@@ -82,22 +85,39 @@ class NoteFavourite extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    public static function cacheKeys(int|Note $note_id, int|Actor|LocalUser|null $actor_id = null): array
+    {
+        $note_id  = \is_int($note_id) ? $note_id : $note_id->getId();
+        $actor_id = \is_null($actor_id) ? null : (\is_int($actor_id) ? $actor_id : $actor_id->getId());
+        return [
+            'favourite'         => "note-favourite-{$note_id}-{$actor_id}",
+            'favourites'        => "note-favourites-{$note_id}",
+            'favourites-actors' => "note-favourites-actors-{$note_id}",
+        ];
+    }
+
     public static function getNoteFavourites(Note $note): array
     {
-        return DB::findBy('note_favourite', ['note_id' => $note->getId()]);
+        return Cache::getList(
+            self::cacheKeys($note)['favourites'],
+            fn () => DB::findBy('note_favourite', ['note_id' => $note->getId()]),
+        );
     }
 
     public static function getNoteFavouriteActors(Note $note): array
     {
-        return DB::dql(
-            <<<'EOF'
-                select a from actor as a
-                inner join note_favourite as nf
-                with nf.note_id = :note_id 
-                where a.id = nf.actor_id
-                order by nf.created DESC
-                EOF,
-            ['note_id' => $note->getId()],
+        return Cache::getList(
+            self::cacheKeys($note)['favourites-actors'],
+            fn () => DB::dql(
+                <<<'EOF'
+                       select a from actor a
+                       inner join note_favourite nf
+                       with a.id = nf.actor_id
+                       where nf.note_id = :note_id
+                       order by nf.created DESC
+                    EOF,
+                ['note_id' => $note->getId()],
+            ),
         );
     }
 

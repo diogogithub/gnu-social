@@ -23,6 +23,7 @@ declare(strict_types = 1);
 
 namespace Plugin\Favourite;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
@@ -56,10 +57,14 @@ class Favourite extends NoteHandlerPlugin
     public static function favourNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
         $opts                  = ['note_id' => $note_id, 'actor_id' => $actor_id];
-        $note_already_favoured = DB::findOneBy('note_favourite', $opts, return_null: true);
-        $activity              = null;
+        $note_already_favoured = Cache::get(
+            FavouriteEntity::cacheKeys($note_id, $actor_id)['favourite'],
+            fn () => DB::findOneBy('note_favourite', $opts, return_null: true),
+        );
+        $activity = null;
         if (\is_null($note_already_favoured)) {
             DB::persist(FavouriteEntity::create($opts));
+            Cache::delete(FavouriteEntity::cacheKeys($note_id, $actor_id)['favourite']);
             $activity = Activity::create([
                 'actor_id'    => $actor_id,
                 'verb'        => 'favourite',
@@ -86,11 +91,15 @@ class Favourite extends NoteHandlerPlugin
      */
     public static function unfavourNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
-        $note_already_favoured = DB::findOneBy('note_favourite', ['note_id' => $note_id, 'actor_id' => $actor_id], return_null: true);
-        $activity              = null;
+        $note_already_favoured = Cache::get(
+            FavouriteEntity::cacheKeys($note_id, $actor_id)['favourite'],
+            fn () => DB::findOneBy('note_favourite', ['note_id' => $note_id, 'actor_id' => $actor_id], return_null: true),
+        );
+        $activity = null;
         if (!\is_null($note_already_favoured)) {
             DB::remove($note_already_favoured);
-            $favourite_activity = DB::findBy('activity', ['verb' => 'favourite', 'object_type' => 'note', 'object_id' => $note_id], order_by: ['created' => 'DESC'])[0];
+            Cache::delete(FavouriteEntity::cacheKeys($note_id, $actor_id)['favourite']);
+            $favourite_activity = DB::findBy('activity', ['verb' => 'favourite', 'object_type' => 'note', 'actor_id' => $actor_id, 'object_id' => $note_id], order_by: ['created' => 'DESC'])[0];
             $activity           = Activity::create([
                 'actor_id'    => $actor_id,
                 'verb'        => 'undo', // 'undo_favourite',
@@ -123,7 +132,12 @@ class Favourite extends NoteHandlerPlugin
 
         // If note is favourite, "is_favourite" is 1
         $opts         = ['note_id' => $note->getId(), 'actor_id' => $user->getId()];
-        $is_favourite = !\is_null(DB::findOneBy('note_favourite', $opts, return_null: true));
+        $is_favourite = !\is_null(
+            Cache::get(
+            FavouriteEntity::cacheKeys($note->getId(), $user->getId())['favourite'],
+            fn () => DB::findOneBy('note_favourite', $opts, return_null: true),
+        ),
+        );
 
         // Generating URL for favourite action route
         $args                 = ['id' => $note->getId()];

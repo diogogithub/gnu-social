@@ -32,6 +32,7 @@ class Collection extends Component
         }
         $note_qb  = DB::createQueryBuilder();
         $actor_qb = DB::createQueryBuilder();
+        // TODO consider selecting note related stuff, to avoid separate queries (though they're cached, so maybe it's okay)
         $note_qb->select('note')->from('App\Entity\Note', 'note')->orderBy('note.created', 'DESC')->addOrderBy('note.id', 'DESC');
         $actor_qb->select('actor')->from('App\Entity\Actor', 'actor')->orderBy('actor.created', 'DESC')->addOrderBy('actor.id', 'DESC');
         Event::handle('CollectionQueryAddJoins', [&$note_qb, &$actor_qb, $note_criteria, $actor_criteria]);

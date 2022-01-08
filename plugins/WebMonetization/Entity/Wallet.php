@@ -50,6 +50,7 @@ class Wallet extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
     public static function schemaDef()
     {
         return [

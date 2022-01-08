@@ -22,6 +22,7 @@ declare(strict_types = 1);
 namespace Plugin\DeleteNote;
 
 use ActivityPhp\Type\AbstractObject;
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
@@ -51,6 +52,14 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class DeleteNote extends NoteHandlerPlugin
 {
+    public static function cacheKeys(int|Note $note_id): array
+    {
+        $note_id = \is_int($note_id) ? $note_id : $note_id->getId();
+        return [
+            'activity' => "deleted-note-activity-{$note_id}",
+        ];
+    }
+
     /**
      * **Checks actor permissions for the DeleteNote action, deletes given Note
      * and creates respective Activity and Notification**
@@ -85,6 +94,7 @@ class DeleteNote extends NoteHandlerPlugin
 
         // Undertaker believes the actor can terminate this note
         $activity = $note->delete(actor: $actor, source: 'web');
+        Cache::delete(self::cacheKeys($note)['activity']);
 
         // Undertaker successful
         Event::handle('NewNotification', [$actor, $activity, [], _m('{nickname} deleted note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $activity->getObjectId()])]);
@@ -106,8 +116,13 @@ class DeleteNote extends NoteHandlerPlugin
     {
         $actor = \is_int($actor) ? Actor::getById($actor) : $actor;
         $note  = \is_int($note) ? Note::getById($note) : $note;
-        // Try and find if note was already deleted
-        if (\is_null(DB::findOneBy(Activity::class, ['verb' => 'delete', 'object_type' => 'note', 'object_id' => $note->getId()], return_null: true))) {
+        // Try to find if note was already deleted
+        if (\is_null(
+            Cache::get(
+                self::cacheKeys($note)['activity'],
+                fn () => DB::findOneBy(Activity::class, ['verb' => 'delete', 'object_type' => 'note', 'object_id' => $note->getId()], return_null: true),
+            ),
+        )) {
             // If none found, then undertaker has a job to do
             return self::undertaker($actor, $note);
         } else {
@@ -145,8 +160,12 @@ class DeleteNote extends NoteHandlerPlugin
         if (\is_null($actor = Common::actor())) {
             return Event::next;
         }
-        // Only add action if note wasn't already deleted!
-        if (\is_null(DB::findOneBy(Activity::class, ['verb' => 'delete', 'object_type' => 'note', 'object_id' => $note->getId()], return_null: true))
+        if (
+            // Only add action if note wasn't already deleted!
+            \is_null(Cache::get(
+                self::cacheKeys($note)['activity'],
+                fn () => DB::findOneBy(Activity::class, ['verb' => 'delete', 'object_type' => 'note', 'object_id' => $note->getId()], return_null: true),
+            ))
             // And has permissions
             && $actor->canAdmin($note->getActor())) {
             $delete_action_url = Router::url('delete_note_action', ['note_id' => $note->getId()]);

@@ -21,6 +21,7 @@ declare(strict_types = 1);
 
 namespace Plugin\RepeatNote;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
@@ -29,6 +30,7 @@ use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Activity;
 use App\Entity\Actor;
+use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\BugFoundException;
@@ -44,6 +46,15 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RepeatNote extends NoteHandlerPlugin
 {
+    public static function cacheKeys(int|Note $note_id, int|Actor|LocalUser $actor_id): array
+    {
+        $note_id  = \is_int($note_id) ? $note_id : $note_id->getId();
+        $actor_id = \is_int($actor_id) ? $actor_id : $actor_id->getId();
+        return [
+            'repeat' => "note-repeat-{$note_id}-{$actor_id}",
+        ];
+    }
+
     /**
      * **Repeats a Note**
      *
@@ -63,12 +74,15 @@ class RepeatNote extends NoteHandlerPlugin
      */
     public static function repeatNote(Note $note, int $actor_id, string $source = 'web'): ?Activity
     {
-        $repeat_entity = DB::findBy('note_repeat', [
-            'actor_id' => $actor_id,
-            'note_id'  => $note->getId(),
-        ])[0] ?? null;
+        $note_repeat = Cache::get(
+            self::cacheKeys($note->getId(), $actor_id)['repeat'],
+            fn () => DB::findOneBy('note_repeat', [
+                'actor_id' => $actor_id,
+                'note_id'  => $note->getId(),
+            ], return_null: true),
+        );
 
-        if (!\is_null($repeat_entity)) {
+        if (!\is_null($note_repeat)) {
             return null;
         }
 
@@ -99,6 +113,7 @@ class RepeatNote extends NoteHandlerPlugin
             'actor_id'  => $actor_id,
             'repeat_of' => $original_note_id,
         ]));
+        Cache::delete(self::cacheKeys($note->getId(), $actor_id)['repeat']);
 
         // Log an activity
         $repeat_activity = Activity::create([
@@ -128,23 +143,30 @@ class RepeatNote extends NoteHandlerPlugin
      */
     public static function unrepeatNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
-        $already_repeated = DB::findBy(RepeatEntity::class, ['actor_id' => $actor_id, 'repeat_of' => $note_id])[0] ?? null;
+        $note_repeat = Cache::get(
+            self::cacheKeys($note_id, $actor_id)['repeat'],
+            fn () => DB::findOneBy('note_repeat', [
+                'actor_id' => $actor_id,
+                'note_id'  => $note_id,
+            ], return_null: true),
+        );
 
-        if (!\is_null($already_repeated)) { // If it was repeated, then we can undo it
+        if (!\is_null($note_repeat)) { // If it was repeated, then we can undo it
             // Find previous repeat activity
-            $already_repeated_activity = DB::findBy(Activity::class, [
+            $already_repeated_activity = DB::findOneBy(Activity::class, [
                 'actor_id'    => $actor_id,
                 'verb'        => 'repeat',
                 'object_type' => 'note',
-                'object_id'   => $already_repeated->getRepeatOf(),
-            ])[0] ?? null;
+                'object_id'   => $note_repeat->getRepeatOf(),
+            ], return_null: true);
 
             // Remove the clone note
-            DB::findBy(Note::class, ['id' => $already_repeated->getNoteId()])[0]->delete(actor: Actor::getById($actor_id));
+            DB::findOneBy(Note::class, ['id' => $note_repeat->getNoteId()])->delete(actor: Actor::getById($actor_id));
             DB::flush();
 
             // Remove from the note_repeat table
-            DB::remove(DB::findBy(RepeatEntity::class, ['note_id' => $already_repeated->getNoteId()])[0]);
+            DB::removeBy(RepeatEntity::class, ['note_id' => $note_repeat->getNoteId()]);
+            Cache::delete(self::cacheKeys($note_id, $actor_id)['repeat']);
 
             // Log an activity
             $undo_repeat_activity = Activity::create([
@@ -161,18 +183,18 @@ class RepeatNote extends NoteHandlerPlugin
             return $undo_repeat_activity;
         } else {
             // Either was undoed already
-            if (!\is_null($already_repeated_activity = DB::findBy('activity', [
+            if (!\is_null($already_repeated_activity = DB::findOneBy('activity', [
                 'actor_id' => $actor_id,
                 'verb' => 'repeat',
                 'object_type' => 'note',
                 'object_id' => $note_id,
-            ])[0] ?? null)) {
-                return DB::findBy('activity', [
+            ], return_null: true))) {
+                return DB::findOneBy('activity', [
                     'actor_id'    => $actor_id,
                     'verb'        => 'undo',
                     'object_type' => 'activity',
                     'object_id'   => $already_repeated_activity->getId(),
-                ])[0] ?? null; // null if not undoed
+                ], return_null: true); // null if not undoed
             } else {
                 // or it's an attempt to undo something that wasn't repeated in the first place,
                 return null;
@@ -216,14 +238,19 @@ class RepeatNote extends NoteHandlerPlugin
             return Event::next;
         }
 
+        $note_repeat = Cache::get(
+            self::cacheKeys($note->getId(), $user->getId())['repeat'],
+            fn () => DB::findOneBy('note_repeat', [
+                'actor_id' => $user->getId(),
+                'note_id'  => $note->getId(),
+            ], return_null: true),
+        );
+
         // If note is repeated, "is_repeated" is 1, 0 otherwise.
-        $is_repeat = ($note_repeat = DB::findBy('note_repeat', [
-            'actor_id'  => $user->getId(),
-            'repeat_of' => $note->getId(),
-        ])) !== [] ? 1 : 0;
+        $is_repeat = !\is_null($note_repeat);
 
         // Generating URL for repeat action route
-        $args              = ['note_id' => $is_repeat === 0 ? $note->getId() : $note_repeat[0]->getRepeatOf()];
+        $args              = ['note_id' => !$is_repeat ? $note->getId() : $note_repeat->getRepeatOf()];
         $type              = Router::ABSOLUTE_PATH;
         $repeat_action_url = $is_repeat
             ? Router::url('repeat_remove', $args, $type)
@@ -290,8 +317,8 @@ class RepeatNote extends NoteHandlerPlugin
     public function onNoteDeleteRelated(Note &$note, Actor $actor): bool
     {
         $note_repeats_list = RepeatEntity::getNoteRepeats($note);
-        foreach ($note_repeats_list as $repeat_entity) {
-            DB::remove($repeat_entity);
+        foreach ($note_repeats_list as $note_repeat) {
+            DB::remove($note_repeat);
         }
 
         return Event::next;

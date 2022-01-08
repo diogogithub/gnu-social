@@ -27,7 +27,6 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
-use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
@@ -84,16 +83,9 @@ class ProfileColor extends Plugin
         if ($actor !== null) {
             $actor_id = $actor->getId();
 
-            try {
-                $profile_color_tab = Cache::get("profile-color-{$actor_id}", fn () => DB::findOneBy('profile_color', ['actor_id' => $actor_id]));
-            } catch (NotFoundException $e) {
-                return Event::next;
-            }
-
-            $color = DB::findBy('profile_color', ['actor_id' => $actor_id])[0];
-            if ($color !== null) {
-                $color = $color->getColor();
-                $res[] = Formatting::twigRenderFile('/profileColor/profileColorView.html.twig', ['profile_color' => $profile_color_tab, 'actor' => $actor_id]);
+            $profile_color = Cache::get("profile-color-{$actor_id}", fn () => DB::findOneBy('profile_color', ['actor_id' => $actor_id], return_null: true));
+            if (!\is_null($profile_color)) {
+                $res[] = Formatting::twigRenderFile('/profileColor/profileColorView.html.twig', ['profile_color' => $profile_color, 'actor' => $actor_id]);
             }
         }
 

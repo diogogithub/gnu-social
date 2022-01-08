@@ -74,6 +74,7 @@ class WebMonetization extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
     public function getNotificationTargetIds(array $ids_already_known = [], ?int $sender_id = null, bool $include_additional = true): array
     {
         if (\array_key_exists('object', $ids_already_known)) {
@@ -88,6 +89,7 @@ class WebMonetization extends Entity
         }
         return $target_ids;
     }
+
     public static function schemaDef()
     {
         return [

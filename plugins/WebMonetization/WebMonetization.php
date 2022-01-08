@@ -31,12 +31,14 @@ declare(strict_types = 1);
 
 namespace Plugin\WebMonetization;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Plugin;
 use App\Entity\Activity;
+use App\Entity\Actor;
 use App\Entity\LocalUser;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
@@ -195,21 +197,40 @@ class WebMonetization extends Plugin
         }
         return Event::next;
     }
+
+    public static function cacheKeys(int|LocalUser|Actor $id): array
+    {
+        if (!\is_int($id)) {
+            $id = $id->getId();
+        }
+        return [
+            'wallets' => "webmonetization-wallets-sender-{$id}",
+        ];
+    }
+
     public function onAppendToHead(Request $request, &$res): bool
     {
-        $user = Common::actor();
+        $user = Common::user();
         if (\is_null($user)) {
             return Event::next;
         }
+
         // donate to everyone!
         // Using Javascript, it can be improved to donate only
         // to actors owning notes rendered on current page.
-        $entries = DB::dql(<<<'EOF'
-                SELECT wallet FROM \Plugin\WebMonetization\Entity\Wallet wallet
-                    INNER JOIN \Plugin\WebMonetization\Entity\WebMonetization wm
-                    WITH wallet.actor_id = wm.receiver
-                WHERE wm.active = :active AND wm.sender = :sender
-            EOF, ['sender' => $user->getId(), 'active' => true]);
+        $entries = Cache::getList(
+            self::cacheKeys($user->getId())['wallets'],
+            fn () => DB::dql(
+                <<<'EOF'
+                    SELECT wallet FROM webmonetizationWallet wallet
+                        INNER JOIN webmonetization wm
+                        WITH wallet.actor_id = wm.receiver
+                    WHERE wm.active = :active AND wm.sender = :sender
+                    EOF,
+                ['sender' => $user->getId(), 'active' => true],
+            ),
+        );
+
         foreach ($entries as $entry) {
             $res[] = Formatting::twigRenderString(
                 '<meta name="monetization" content="{{ address }}">',

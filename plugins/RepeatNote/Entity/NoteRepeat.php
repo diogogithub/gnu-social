@@ -23,6 +23,7 @@ declare(strict_types = 1);
 
 namespace Plugin\RepeatNote\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Entity\Note;
@@ -39,6 +40,8 @@ use App\Entity\Note;
  */
 class NoteRepeat extends Entity
 {
+    // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $note_id;
     private int $actor_id;
     private int $repeat_of;
@@ -75,26 +78,40 @@ class NoteRepeat extends Entity
     {
         return $this->repeat_of;
     }
+    // @codeCoverageIgnoreEnd
+    // }}} Autocode
+
+    public static function cacheKeys(int|Note $note_id): array
+    {
+        $note_id = \is_int($note_id) ? $note_id : $note_id->getId();
+        return [
+            'is_repeat' => "note-repeat-is-{$note_id}",
+            'repeats'   => "note-repeats-{$note_id}",
+        ];
+    }
 
     /**
      * @return bool Returns true if Note provided is a repeat of another Note
      */
     public static function isNoteRepeat(Note $note): bool
     {
-        return DB::count(self::class, ['note_id' => $note->getId()]) > 0;
+        return Cache::get(self::cacheKeys($note)['is_repeat'], fn () => DB::count(self::class, ['note_id' => $note->getId()]) > 0);
     }
 
     public static function getNoteRepeats(Note $note): array
     {
-        return DB::dql(
-            <<<'EOF'
-                select n from note as n
-                inner join note_repeat as nr
-                with nr.note_id = n.id
-                where nr.repeat_of = :note_id
-                order by n.created DESC, n.id DESC
-                EOF,
-            ['note_id' => $note->getId()],
+        return Cache::getList(
+            self::cacheKeys($note)['repeats'],
+            fn () => DB::dql(
+                <<<'EOF'
+                       select n from note as n
+                       inner join note_repeat as nr
+                       with nr.note_id = n.id
+                       where nr.repeat_of = :note_id
+                       order by n.created DESC, n.id DESC
+                    EOF,
+                ['note_id' => $note->getId()],
+            ),
         );
     }
 
