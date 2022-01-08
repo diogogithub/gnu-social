@@ -40,13 +40,13 @@ class Collection extends Component
         $actors = [];
         if (!\is_null($note_criteria)) {
             $note_qb->addCriteria($note_criteria);
+            $notes = $note_qb->getQuery()->execute();
         }
-        $notes = $note_qb->getQuery()->execute();
 
         if (!\is_null($actor_criteria)) {
             $actor_qb->addCriteria($actor_criteria);
+            $actors = $actor_qb->getQuery()->execute();
         }
-        $actors = $actor_qb->getQuery()->execute();
 
         // N.B.: Scope is only enforced at FeedController level
         return ['notes' => $notes ?? null, 'actors' => $actors ?? null];
