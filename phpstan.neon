@@ -11,6 +11,7 @@ parameters:
         - plugins/ActivityPub
         - plugins/Poll
         - components/FreeNetwork
+        - tests/CodeCeption/_support/
     earlyTerminatingMethodCalls:
         App\Core\Log:
             - unexpected_exception
