@@ -39,8 +39,14 @@ database-force-schema-update:
 tooling-docker: .PHONY
 	@cd docker/tooling && docker-compose up -d > /dev/null 2>&1
 
-accessibility: .PHONY
-	@cd docker/accessibility && docker-compose up
+stop-tooling: .PHONY
+	cd docker/tooling && docker-compose down
+
+tooling-php-shell: tooling-docker
+	docker exec -it $(call translate-container-name,tooling_php_1) sh
+
+acceptance-and-accessibility: tooling-docker
+	docker exec -it $(call translate-container-name,tooling_php_1) sh -c "SYMFONY_DEPRECATIONS_HELPER=weak vendor/bin/codecept run"
 
 test: tooling-docker
 	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,'')
@@ -53,9 +59,6 @@ doc-check: tooling-docker
 
 phpstan: tooling-docker
 	bin/phpstan
-
-stop-tooling: .PHONY
-	cd docker/tooling && docker-compose down
 
 remove-var:
 	rm -rf var/*
