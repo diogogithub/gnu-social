@@ -14,7 +14,7 @@ RUN apk add --virtual .phpize-deps $PHPIZE_DEPS \
     && cd /tmp && git clone https://github.com/libvips/php-vips-ext && cd php-vips-ext && phpize && ./configure && make install \
     && rm -rf /usr/share/php7 \
     && rm -rf /tmp/* \
-    && apk del .phpize-deps gcc g++ git autoconf > /dev/null
+    && apk del .phpize-deps gcc g++ autoconf > /dev/null
 
 RUN docker-php-ext-install bcmath exif gd gettext gmp intl mysqli opcache pdo pdo_mysql mysqli pdo_pgsql pgsql \
     && docker-php-ext-enable ds msgpack redis apcu vips
