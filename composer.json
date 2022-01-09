@@ -67,6 +67,9 @@
         "wikimedia/composer-merge-plugin": "^2.0"
     },
     "require-dev": {
+        "codeception/codeception": "^4.1",
+        "codeception/module-phpbrowser": "^2.0",
+        "codeception/module-symfony": "^2.1",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "friendsofphp/php-cs-fixer": "^3.2.1",
         "jchook/phpunit-assert-throws": "^1.0",
@@ -82,7 +85,8 @@
         "symfony/stopwatch": "5.4.*",
         "symfony/web-profiler-bundle": "^5.4.",
         "ulrichsg/getopt-php": "*",
-        "wp-cli/php-cli-tools": "^0.11.13"
+        "wp-cli/php-cli-tools": "^0.11.13",
+        "codeception/module-asserts": "^1.0.0"
     },
     "config": {
         "preferred-install": {
@@ -108,7 +112,11 @@
     "autoload-dev": {
         "psr-4": {
             "App\\Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "tests/CodeCeption/_support/_generated/AcceptanceTesterActions.php",
+            "tests/CodeCeption/_support/AcceptanceTester.php"
+        ]
     },
     "replace": {
         "paragonie/random_compat": "2.*",
@@ -182,6 +190,42 @@
                     "url": "https://github.com/someonewithpc/getopt-php.git",
                     "type": "git",
                     "reference": "master"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "codeception/codeception",
+                "version": "4.1.30",
+                "autoload": {
+                    "psr-4": {
+                        "Codeception\\": "src/Codeception",
+                        "Codeception\\Extension\\": "ext"
+                    },
+                    "files": ["functions.php"]
+                },
+                "require": {
+                    "php": ">=5.6.0 <9.0",
+                    "ext-curl": "*",
+                    "ext-json": "*",
+                    "ext-mbstring": "*",
+                    "codeception/lib-asserts": "^1.0 | 2.0.*@dev",
+                    "guzzlehttp/psr7": "^1.4 | ^2.0",
+                    "symfony/finder": ">=2.7 <6.0",
+                    "symfony/console": ">=2.7 <6.0",
+                    "symfony/event-dispatcher": ">=2.7 <6.0",
+                    "symfony/yaml": ">=2.7 <6.0",
+                    "symfony/css-selector": ">=2.7 <6.0",
+                    "behat/gherkin": "^4.4.0",
+                    "codeception/phpunit-wrapper": ">6.0.15 <6.1.0 | ^6.6.1 | ^7.7.1 | ^8.1.1 | ^9.0",
+                    "codeception/stub": "^2.0 | ^3.0 | ^4.0"
+                },
+                "bin":["codecept"],
+                "source": {
+                    "url": "https://github.com/someonewithpc/Codeception.git",
+                    "type": "git",
+                    "reference": "4.1"
                 }
             }
         }
