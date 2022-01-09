@@ -6,3 +6,5 @@ RUN apk update \
     && apk add --no-cache $PHPIZE_DEPS runuser \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug
+
+RUN apk add npm && npm install -g pa11y

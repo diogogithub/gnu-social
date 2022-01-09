@@ -22,6 +22,28 @@ services:
             - db.env
         command: /entrypoint.sh
 
+    nginx:
+        image: nginx:alpine
+        depends_on:
+            - php
+        restart: always
+        tty: false
+        # ports:
+        #     - "8080:80"
+        #     - "4443:443"
+        volumes:
+            # Nginx
+            - ../nginx/nginx.conf:/var/nginx/social.conf
+            - ../nginx/domain.sh:/var/nginx/domain.sh
+            # Certbot
+            - ../certbot/www:/var/www/certbot
+            - ../certbot/.files:/etc/letsencrypt
+            # social
+            - ../../public:/var/www/social/public
+        env_file:
+            - ../bootstrap/bootstrap.env
+        command: /bin/sh -c '/var/nginx/domain.sh; nginx -g "daemon off;"'
+
     db:
         image: postgres:alpine
         environment:
