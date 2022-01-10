@@ -166,7 +166,7 @@ class Group extends FeedController
             return [
                 '_template'          => 'group/settings.html.twig',
                 'group'              => $group,
-                'personal_info_form' => ActorForms::personalInfo($request, $group)->createView(),
+                'personal_info_form' => ActorForms::personalInfo($request, $actor, $group)->createView(),
                 'open_details_query' => $this->string('open'),
             ];
         } else {

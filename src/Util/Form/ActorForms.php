@@ -46,6 +46,7 @@ use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\ServerException;
+use Component\Group\Entity\LocalGroup;
 use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -65,7 +66,7 @@ class ActorForms
      * @throws NoLoggedInUser
      * @throws ServerException
      */
-    public static function personalInfo(Request $request, Actor $target, ?LocalUser $user = null): mixed
+    public static function personalInfo(Request $request, Actor $target, LocalUser|LocalGroup $user): mixed
     {
         // Defining the various form fields
         $form_definition = [
@@ -80,9 +81,7 @@ class ActorForms
 
         // Setting nickname normalised and setting actor cache
         $extra_step = function ($data, $extra_args) use ($user, $target) {
-            if (!\is_null($user)) {
-                $user->setNicknameSanitizedAndCached($data['nickname']);
-            }
+            $user->setNicknameSanitizedAndCached($data['nickname']);
 
             $cache_keys = Actor::cacheKeys($target->getId());
             foreach (['id', 'nickname', 'fullname'] as $key) {

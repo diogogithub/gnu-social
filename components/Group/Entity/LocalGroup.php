@@ -21,10 +21,18 @@ declare(strict_types = 1);
 
 namespace Component\Group\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 
 use App\Entity\Actor;
+use App\Util\Exception\NicknameEmptyException;
+use App\Util\Exception\NicknameException;
+use App\Util\Exception\NicknameInvalidException;
+use App\Util\Exception\NicknameNotAllowedException;
+use App\Util\Exception\NicknameTakenException;
+use App\Util\Exception\NicknameTooLongException;
+use App\Util\Nickname;
 use DateTimeInterface;
 
 /**
@@ -112,6 +120,29 @@ class LocalGroup extends Entity
     {
         $res = DB::findBy(Actor::class, ['nickname' => $nickname, 'type' => Actor::GROUP]);
         return $res === [] ? null : $res[0];
+    }
+
+    /**
+     * Checks if desired nickname is allowed, and in case it is, it sets Actor's nickname cache to newly set nickname
+     *
+     * @param string $nickname Desired NEW nickname (do not use in local user creation)
+     *
+     * @throws NicknameEmptyException
+     * @throws NicknameException
+     * @throws NicknameInvalidException
+     * @throws NicknameNotAllowedException
+     * @throws NicknameTakenException
+     * @throws NicknameTooLongException
+     *
+     * @return $this
+     */
+    public function setNicknameSanitizedAndCached(string $nickname): self
+    {
+        $nickname = Nickname::normalize($nickname, check_already_used: true, which: Nickname::CHECK_LOCAL_GROUP, check_is_allowed: true);
+        $this->setNickname($nickname);
+        $this->getActor()->setNickname($nickname);
+        /// XXX: cache?
+        return $this;
     }
 
     public static function schemaDef(): array

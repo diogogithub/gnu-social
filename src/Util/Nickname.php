@@ -24,6 +24,7 @@ declare(strict_types = 1);
 namespace App\Util;
 
 use App\Core\DB\DB;
+use App\Entity\LocalUser;
 use App\Util\Exception\BugFoundException;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NicknameEmptyException;
@@ -33,7 +34,7 @@ use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NotFoundException;
-use App\Util\Exception\NotImplementedException;
+use Component\Group\Entity\LocalGroup;
 use Functional as F;
 use InvalidArgumentException;
 
@@ -150,7 +151,7 @@ class Nickname
                 switch ($which) {
                     case self::CHECK_LOCAL_USER:
                         try {
-                            $lu = DB::findOneBy('local_user', ['nickname' => $nickname]);
+                            $lu = DB::findOneBy(LocalUser::class, ['nickname' => $nickname]);
                             throw new NicknameTakenException($lu->getActor());
                         } catch (NotFoundException) {
                             // continue
@@ -158,9 +159,16 @@ class Nickname
                             throw new BugFoundException("Duplicate entry in `local_user` for nickname={$nickname}");
                         }
                         break;
-                    // @codeCoverageIgnoreStart
                 case self::CHECK_LOCAL_GROUP:
-                    throw new NotImplementedException();
+                        try {
+                            $lg = DB::findOneBy(LocalGroup::class, ['nickname' => $nickname]);
+                            throw new NicknameTakenException($lg->getActor());
+                        } catch (NotFoundException) {
+                            // continue
+                        } catch (DuplicateFoundException) {
+                            throw new BugFoundException("Duplicate entry in `local_group` for nickname={$nickname}");
+                        }
+                        break;                    // @codeCoverageIgnoreStart
                 default:
                     throw new InvalidArgumentException();
                     // @codeCoverageIgnoreEnd

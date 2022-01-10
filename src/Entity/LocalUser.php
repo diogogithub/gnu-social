@@ -29,6 +29,7 @@ use App\Core\Entity;
 use App\Core\UserRoles;
 use App\Util\Common;
 use App\Util\Exception\NicknameEmptyException;
+use App\Util\Exception\NicknameException;
 use App\Util\Exception\NicknameInvalidException;
 use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
@@ -349,19 +350,18 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
     /**
      * Checks if desired nickname is allowed, and in case it is, it sets Actor's nickname cache to newly set nickname
      *
-     * @param string $nickname Desired new nickname
-     *
+     * @param string $nickname Desired NEW nickname (do not use in local user creation)
+     * @return $this
      * @throws NicknameEmptyException
      * @throws NicknameInvalidException
      * @throws NicknameNotAllowedException
      * @throws NicknameTakenException
      * @throws NicknameTooLongException
-     *
-     * @return $this
+     * @throws NicknameException
      */
     public function setNicknameSanitizedAndCached(string $nickname): self
     {
-        $nickname = Nickname::normalize($nickname, check_already_used: false, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: true);
+        $nickname = Nickname::normalize($nickname, check_already_used: true, which: Nickname::CHECK_LOCAL_USER, check_is_allowed: true);
         $this->setNickname($nickname);
         $this->getActor()->setNickname($nickname);
         Cache::delete(self::cacheKeys($this->getId())['nickname']);

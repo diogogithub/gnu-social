@@ -77,7 +77,7 @@ class UserPanel extends Controller
         $user  = Common::ensureLoggedIn();
         $actor = $user->getActor();
 
-        $personal_form            = ActorForms::personalInfo($request, $actor);
+        $personal_form            = ActorForms::personalInfo($request, $actor, $user);
         $email_form               = self::email($request);
         $password_form            = self::password($request);
         $notifications_form_array = self::notifications($request);
