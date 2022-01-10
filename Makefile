@@ -46,7 +46,7 @@ tooling-php-shell: tooling-docker
 	docker exec -it $(call translate-container-name,tooling_php_1) sh
 
 acceptance-and-accessibility: tooling-docker
-	docker exec -it $(call translate-container-name,tooling_php_1) sh -c "SYMFONY_DEPRECATIONS_HELPER=weak vendor/bin/codecept run"
+	docker exec -it $(call translate-container-name,tooling_php_1) /var/tooling/acceptance_and_accessibility.sh
 
 test: tooling-docker
 	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,'')

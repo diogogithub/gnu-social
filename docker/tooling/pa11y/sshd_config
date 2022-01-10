@@ -1,0 +1,7 @@
+ChallengeResponseAuthentication no
+ListenAddress 0.0.0.0
+PasswordAuthentication yes
+PermitEmptyPasswords yes
+PermitRootLogin yes
+Port 22
+

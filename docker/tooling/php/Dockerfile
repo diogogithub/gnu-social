@@ -7,4 +7,4 @@ RUN apk update \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug
 
-RUN apk add npm && npm install -g pa11y
+RUN apk add --no-cache openssh sshpass

@@ -92,21 +92,16 @@ class AccessibilityValidator extends \Codeception\Module
             throw new Exception('Unknown standard: ' . $standard);
         }
 
-        $pa11yPath = $this->_getConfig('pa11yPath');
-        if (!$pa11yPath) {
-            $pa11yPath = 'pa11y';
-        }
-        if (!file_exists($pa11yPath)) {
-            throw new Exception('pa11y not found: ' . $pa11yPath);
-        }
+        exec('sshpass -p pa11y ssh -o StrictHostKeyChecking=no pa11y 2>/dev/null pa11y -c /pa11y/config.json' . ' -s ' . $standard . " -r json '" . addslashes($url) . "'", $output);
 
-        exec($pa11yPath . ' -s ' . $standard . " -r json '" . addslashes($url) . "'", $return);
-        $data = json_decode($return[0], true);
-        if (!$data) {
-            $msg = 'Invalid data returned from validation service: ';
-            throw new Exception($msg . $return);
+        if (!empty($output)) {
+            $data = json_decode($output[0], true);
+            if (!$data) {
+                throw new Exception('Invalid data returned from validation service: ' . implode("\n", $output));
+            }
+            return $data;
         }
-        return $data;
+        return [];
     }
 
     /**

@@ -2,10 +2,11 @@ version: '3'
 
 services:
     php:
-        build: .
+        build: php
         depends_on:
           - db
           - redis
+          - pa11y
         volumes:
             # Entrypoint
             - ../php/entrypoint.sh:/entrypoint.sh
@@ -13,6 +14,7 @@ services:
             - ../social/install.sh:/var/entrypoint.d/0_social_install.sh
             - ./coverage.sh:/var/tooling/coverage.sh
             - ./phpstan.sh:/var/tooling/phpstan.sh
+            - ./acceptance_and_accessibility.sh:/var/tooling/acceptance_and_accessibility.sh
             # Main files
             - ../../:/var/www/social
             - /var/www/social/docker # exclude docker folder
@@ -28,9 +30,6 @@ services:
             - php
         restart: always
         tty: false
-        # ports:
-        #     - "8080:80"
-        #     - "4443:443"
         volumes:
             # Nginx
             - ../nginx/nginx.conf:/var/nginx/social.conf
@@ -43,6 +42,13 @@ services:
         env_file:
             - ../bootstrap/bootstrap.env
         command: /bin/sh -c '/var/nginx/domain.sh; nginx -g "daemon off;"'
+
+    pa11y:
+        build: pa11y
+        volumes:
+          - ../../tests/CodeCeption/pa11y-config.json:/pa11y/config.json
+        cap_add:
+          - SYS_ADMIN
 
     db:
         image: postgres:alpine
