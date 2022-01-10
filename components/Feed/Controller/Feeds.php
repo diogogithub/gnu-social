@@ -47,10 +47,7 @@ class Feeds extends FeedController
      */
     public function public(Request $request): array
     {
-        $data = $this->query(
-            query: 'note-local:true',
-            locale: Common::currentLanguage()->getLocale(),
-        );
+        $data = $this->query('note-local:true');
         return [
             '_template'  => 'collection/notes.html.twig',
             'page_title' => _m(\is_null(Common::user()) ? 'Feed' : 'Planet'),
@@ -63,13 +60,8 @@ class Feeds extends FeedController
      */
     public function home(Request $request): array
     {
-        $user  = Common::ensureLoggedIn();
-        $actor = $user->getActor();
-        $data  = $this->query(
-            query: 'note-from:subscribed-person,subscribed-group,subscribed-organization,subscribed-business',
-            locale: Common::currentLanguage()->getLocale(),
-            actor: $actor,
-        );
+        Common::ensureLoggedIn();
+        $data = $this->query('note-from:subscribed-person,subscribed-group,subscribed-organization,subscribed-business');
         return [
             '_template'  => 'collection/notes.html.twig',
             'page_title' => _m('Home'),

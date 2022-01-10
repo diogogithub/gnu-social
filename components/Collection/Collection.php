@@ -68,8 +68,11 @@ class Collection extends Component
     {
         if (str_contains($term, ':')) {
             $term = explode(':', $term);
-            if (Formatting::startsWith($term[0], 'note-')) {
+            if (Formatting::startsWith($term[0], 'note')) {
                 switch ($term[0]) {
+                case 'notes-all':
+                    $note_expr = $eb->neq('note.created', null);
+                    break;
                 case 'note-local':
                     $note_expr = $eb->eq('note.is_local', filter_var($term[1], \FILTER_VALIDATE_BOOLEAN));
                     break;

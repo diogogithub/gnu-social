@@ -51,10 +51,7 @@ class Feeds extends FeedController
     public function network(Request $request): array
     {
         Common::ensureLoggedIn();
-        $data = $this->query(
-            query: 'note-local:false',
-            locale: Common::currentLanguage()->getLocale(),
-        );
+        $data = $this->query('note-local:false');
         return [
             '_template'     => 'collection/notes.html.twig',
             'page_title'    => _m('Meteorites'),
@@ -71,6 +68,7 @@ class Feeds extends FeedController
     public function clique(Request $request): array
     {
         Common::ensureLoggedIn();
+        // TODO: maybe make this a Collection::query
         $notes = DB::dql(
             <<<'EOF'
                 SELECT n FROM \App\Entity\Note AS n
@@ -99,10 +97,7 @@ class Feeds extends FeedController
     public function federated(Request $request): array
     {
         Common::ensureLoggedIn();
-        $data = $this->query(
-            query: '',
-            locale: Common::currentLanguage()->getLocale(),
-        );
+        $data = $this->query('notes-all:yeah');
         return [
             '_template'     => 'collection/notes.html.twig',
             'page_title'    => _m('Galaxy'),

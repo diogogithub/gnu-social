@@ -82,13 +82,13 @@ abstract class Parser
                     if (\is_null($note_res) && \is_null($actor_res)) { // @phpstan-ignore-line
                         throw new ServerException("No one claimed responsibility for a match term: {$term}");
                     }
-                    if (!\is_null($note_res) && !empty($note_res)) { // @phpstan-ignore-line
+                    if (!empty($note_res)) { // @phpstan-ignore-line
                         if (\is_array($note_res)) {
                             $note_res = $eb->orX(...$note_res);
                         }
                         $note_parts[] = $note_res;
                     }
-                    if (!\is_null($actor_res) && !empty($actor_res)) {
+                    if (!empty($actor_res)) {
                         if (\is_array($actor_res)) {
                             $actor_res = $eb->orX(...$actor_res);
                         }
