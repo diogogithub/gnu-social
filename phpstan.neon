@@ -25,6 +25,11 @@ parameters:
             message: '/^Property App\\PHPStan\\ClassFromTableNameDynamicStaticMethodReturnTypeExtension::\$provider is never read, only written\./'
             path: src/PHPStan/ClassFromTableNameDynamicStaticMethodReturnTypeExtension.php
 
+        -
+            message: '/Access to constant STANDARD_WCAG2A?A?A? on an unknown class Helper\\AccessibilityValidator/'
+            paths:
+                - *
+
         # -
         #     message: '/has no return typehint specified/'
         #     paths:

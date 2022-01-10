@@ -112,11 +112,7 @@
     "autoload-dev": {
         "psr-4": {
             "App\\Tests\\": "tests/"
-        },
-        "files": [
-            "tests/CodeCeption/_support/_generated/AcceptanceTesterActions.php",
-            "tests/CodeCeption/_support/AcceptanceTester.php"
-        ]
+        }
     },
     "replace": {
         "paragonie/random_compat": "2.*",
