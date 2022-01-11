@@ -47,17 +47,20 @@ use App\Util\Common;
 use App\Util\Exception\BugFoundException;
 use App\Util\Exception\NoSuchActorException;
 use App\Util\Nickname;
+use Component\Collection\Util\Controller\OrderedCollection;
 use Component\FreeNetwork\Entity\FreeNetworkActorProtocol;
 use Component\FreeNetwork\Util\Discovery;
 use Exception;
 use InvalidArgumentException;
 use const PHP_URL_HOST;
 use Plugin\ActivityPub\Controller\Inbox;
+use Plugin\ActivityPub\Controller\Outbox;
 use Plugin\ActivityPub\Entity\ActivitypubActivity;
 use Plugin\ActivityPub\Entity\ActivitypubActor;
 use Plugin\ActivityPub\Entity\ActivitypubObject;
 use Plugin\ActivityPub\Util\HTTPSignature;
 use Plugin\ActivityPub\Util\Model;
+use Plugin\ActivityPub\Util\OrderedCollectionController;
 use Plugin\ActivityPub\Util\Response\ActorResponse;
 use Plugin\ActivityPub\Util\Response\NoteResponse;
 use Plugin\ActivityPub\Util\TypeResponse;
@@ -127,7 +130,7 @@ class ActivityPub extends Plugin
         $r->connect(
             'activitypub_actor_outbox',
             '/actor/{gsactor_id<\d+>}/outbox.json',
-            [Inbox::class, 'handle'],
+            [Outbox::class, 'viewOutboxByActorId'],
             options: ['accept' => self::$accept_headers, 'format' => self::$accept_headers[0]],
         );
         return Event::next;
@@ -185,16 +188,21 @@ class ActivityPub extends Plugin
             case 'actor_view_id':
             case 'actor_view_nickname':
                 $response = ActorResponse::handle($vars['actor']);
-                return Event::stop;
+                break;
             case 'note_view':
                 $response = NoteResponse::handle($vars['note']);
-                return Event::stop;
+                break;
+            case 'activitypub_actor_outbox':
+                $response = new TypeResponse($vars['type']);
+                break;
             default:
-                if (Event::handle('ActivityPubActivityStreamsTwoResponse', [$route, $vars, &$response]) === Event::stop) {
-                    return Event::stop;
+                if (Event::handle('ActivityPubActivityStreamsTwoResponse', [$route, $vars, &$response]) !== Event::stop) {
+                    if (is_subclass_of($vars['controller'][0], OrderedCollection::class)) {
+                        $response = new TypeResponse(OrderedCollectionController::fromControllerVars($vars)['type']);
+                    }
                 }
-                return Event::next;
         }
+        return Event::stop;
     }
 
     /**

@@ -49,7 +49,7 @@ class TypeResponse extends JsonResponse
      * @param null|AbstractObject|string $json
      * @param int                        $status The response status code
      */
-    public function __construct(string|AbstractObject|null $json = null, int $status = 202)
+    public function __construct(string|AbstractObject|null $json = null, int $status = 200)
     {
         parent::__construct(
             data: \is_object($json) ? $json->toJson() : $json,

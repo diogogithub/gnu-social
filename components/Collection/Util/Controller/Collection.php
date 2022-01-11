@@ -11,7 +11,7 @@ use Component\Collection\Collection as CollectionModule;
 
 class Collection extends Controller
 {
-    public function query(string $query, ?string $locale = null, ?Actor $actor = null)
+    public function query(string $query, ?string $locale = null, ?Actor $actor = null): array
     {
         $actor  ??= Common::actor();
         $locale ??= Common::currentLanguage()->getLocale();

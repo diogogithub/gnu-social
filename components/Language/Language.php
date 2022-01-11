@@ -60,7 +60,7 @@ class Language extends Component
     /**
      * Populate $note_expr or $actor_expr with an expression to match a language
      */
-    public function onCollectionQueryCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr): bool
+    public function onCollectionQueryCreateExpression(ExpressionBuilder $eb, string $term, ?string $locale, ?Actor $actor, &$note_expr, &$actor_expr): bool
     {
         $search_term = str_contains($term, ':') ? explode(':', $term)[1] : $term;
 

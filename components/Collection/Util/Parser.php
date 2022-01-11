@@ -53,7 +53,7 @@ abstract class Parser
      *
      * @return Criteria[]
      */
-    public static function parse(string $input, ?string $language = null, ?Actor $actor = null, int $level = 0): array
+    public static function parse(string $input, ?string $locale = null, ?Actor $actor = null, int $level = 0): array
     {
         if ($level === 0) {
             $input = trim(preg_replace(['/\s+/', '/\s+AND\s+/', '/\s+OR\s+/'], [' ', '&', '|'], $input), ' |&');
@@ -78,7 +78,7 @@ abstract class Parser
                     $term      = mb_substr($input, $left, $end ? null : $right - $left);
                     $note_res  = null;
                     $actor_res = null;
-                    Event::handle('CollectionQueryCreateExpression', [$eb, $term, $language, $actor, &$note_res, &$actor_res]);
+                    Event::handle('CollectionQueryCreateExpression', [$eb, $term, $locale, $actor, &$note_res, &$actor_res]);
                     if (\is_null($note_res) && \is_null($actor_res)) { // @phpstan-ignore-line
                         throw new ServerException("No one claimed responsibility for a match term: {$term}");
                     }

@@ -23,12 +23,12 @@ class Collection extends Component
      * Supports a variety of query terms and is used both in feeds and
      * in search. Uses query builders to allow for extension
      */
-    public static function query(string $query, int $page, ?string $language = null, ?Actor $actor = null): array
+    public static function query(string $query, int $page, ?string $locale = null, ?Actor $actor = null): array
     {
         $note_criteria  = null;
         $actor_criteria = null;
         if (!empty($query = trim($query))) {
-            [$note_criteria, $actor_criteria] = Parser::parse($query, $language, $actor);
+            [$note_criteria, $actor_criteria] = Parser::parse($query, $locale, $actor);
         }
         $note_qb  = DB::createQueryBuilder();
         $actor_qb = DB::createQueryBuilder();
@@ -64,7 +64,7 @@ class Collection extends Component
      * Convert $term to $note_expr and $actor_expr, search criteria. Handles searching for text
      * notes, for different types of actors and for the content of text notes
      */
-    public function onCollectionQueryCreateExpression(ExpressionBuilder $eb, string $term, ?string $language, ?Actor $actor, &$note_expr, &$actor_expr)
+    public function onCollectionQueryCreateExpression(ExpressionBuilder $eb, string $term, ?string $locale, ?Actor $actor, &$note_expr, &$actor_expr)
     {
         if (str_contains($term, ':')) {
             $term = explode(':', $term);
