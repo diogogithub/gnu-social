@@ -69,7 +69,16 @@ class UserPanel extends Controller
     /**
      * Return main settings page forms
      *
-     * @throws Exception
+     * @throws \App\Util\Exception\NicknameEmptyException
+     * @throws \App\Util\Exception\NicknameInvalidException
+     * @throws \App\Util\Exception\NicknameNotAllowedException
+     * @throws \App\Util\Exception\NicknameTakenException
+     * @throws \App\Util\Exception\NicknameTooLongException
+     * @throws \App\Util\Exception\RedirectException
+     * @throws \Doctrine\DBAL\Exception
+     * @throws AuthenticationException
+     * @throws NoLoggedInUser
+     * @throws ServerException
      */
     public function allSettings(Request $request, LanguageController $language): array
     {
@@ -168,6 +177,10 @@ class UserPanel extends Controller
 
     /**
      * Local user notification settings tabbed panel
+     *
+     * @throws \Doctrine\DBAL\Exception
+     * @throws NoLoggedInUser
+     * @throws ServerException
      */
     private static function notifications(Request $request): array
     {
@@ -177,7 +190,8 @@ class UserPanel extends Controller
         $columns   = Common::arrayRemoveKeys($schema->listTableColumns('user_notification_prefs'), ['user_id', 'transport', 'created', 'modified']);
         $form_defs = ['placeholder' => []];
         foreach ($columns as $name => $col) {
-            $type     = $col->getType();
+            $type = $col->getType();
+            // TODO: current value is never retrieved properly, form always gets defaults
             $val      = $type->convertToPHPValue($col->getDefault(), $platform);
             $type_str = $type->getName();
             $label    = str_replace('_', ' ', ucfirst($name));
@@ -205,7 +219,7 @@ class UserPanel extends Controller
                     $form_defs['placeholder'][$name] = [$name, CheckboxType::class, ['data' => $val, 'required' => false, 'label' => _m($labels[$name] ?? $label), 'help' => _m($help[$name])]];
                     break;
                 case Types::INTEGER:
-                    if ($name == 'target_actor_id') {
+                    if ($name === 'target_actor_id') {
                         $form_defs['placeholder'][$name] = [$name, TextType::class, ['data' => $val, 'required' => false, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ActorArrayTransformer::class];
                     }
                     break;
@@ -233,16 +247,27 @@ class UserPanel extends Controller
             $tabbed_forms[$transport_name]['form']  = $form->createView();
 
             $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
+            // TODO: on submit, form reports a nonce error. Therefore, user changes are not applied
+            // errors: array:1 [▼
+            //    0 => Symfony\Component\Form\FormError {#2956 ▼
+            //      #messageTemplate: "Invalid nonce"
+            //      #messageParameters: []
+            //      #messagePluralization: null
+            //      -message: "Invalid nonce"
+            //      -cause: Symfony\Component\Security\Csrf\CsrfToken {#2955 ▶}
+            //      -origin: Symfony\Component\Form\Form {#2868}
+            //    }
+            //  ]
+            if ($form->isSubmitted()) {
                 $data = $form->getData();
                 unset($data['translation_domain']);
                 try {
-                    [$ent, $is_update] = UserNotificationPrefs::createOrUpdate(
+                    [$entity, $is_update] = UserNotificationPrefs::createOrUpdate(
                         array_merge(['user_id' => $user->getId(), 'transport' => $transport_name], $data),
                         find_by_keys: ['user_id', 'transport'],
                     );
                     if (!$is_update) {
-                        DB::persist($ent);
+                        DB::persist($entity);
                     }
                     DB::flush();
                     // @codeCoverageIgnoreStart
