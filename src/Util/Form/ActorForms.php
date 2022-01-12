@@ -81,7 +81,9 @@ class ActorForms
 
         // Setting nickname normalised and setting actor cache
         $extra_step = function ($data, $extra_args) use ($user, $target) {
-            $user->setNicknameSanitizedAndCached($data['nickname']);
+            if ($user->getNickname() !== $data['nickname']) {
+                $user->setNicknameSanitizedAndCached($data['nickname']);
+            }
 
             $cache_keys = Actor::cacheKeys($target->getId());
             foreach (['id', 'nickname', 'fullname'] as $key) {
