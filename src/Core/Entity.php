@@ -42,10 +42,10 @@ abstract class Entity
             $prop = Formatting::camelCaseToSnakeCase(Formatting::removePrefix($name, 'has'));
             // https://wiki.php.net/rfc/closure_apply#proposal
             $private_property_accessor = fn ($prop) => isset($this->{$prop});
-            $private_property_accessor = $private_property_accessor->bindTo($this, \get_called_class());
+            $private_property_accessor = $private_property_accessor->bindTo($this, static::class);
             return $private_property_accessor($prop);
         }
-        throw new BadMethodCallException('Non existent method ' . \get_called_class() . "::{$name} called with arguments: " . print_r($arguments, true));
+        throw new BadMethodCallException('Non existent method ' . static::class . "::{$name} called with arguments: " . print_r($arguments, true));
     }
 
     /**
@@ -89,12 +89,14 @@ abstract class Entity
     /**
      * Create a new instance, but check for duplicates
      *
+     * @throws \App\Util\Exception\ServerException
+     *
      * @return array [$obj, $is_update]
      */
     public static function createOrUpdate(array $args, array $find_by_keys = []): array
     {
-        $table   = DB::getTableForClass(\get_called_class());
-        $find_by = $find_by_keys == [] ? $args : array_intersect_key($args, array_flip($find_by_keys));
+        $table   = DB::getTableForClass(static::class);
+        $find_by = $find_by_keys === [] ? $args : array_intersect_key($args, array_flip($find_by_keys));
         try {
             $obj = DB::findOneBy($table, $find_by);
         } catch (NotFoundException) {
@@ -126,7 +128,7 @@ abstract class Entity
     public static function getByPK(mixed $values): ?self
     {
         $values  = \is_array($values) ? $values : [$values];
-        $class   = \get_called_class();
+        $class   = static::class;
         $keys    = DB::getPKForClass($class);
         $find_by = [];
         foreach ($values as $k => $v) {
