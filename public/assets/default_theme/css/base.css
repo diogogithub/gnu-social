@@ -1,8 +1,3 @@
-@import url("../fonts/poppins/poppins.css");
-@import url("../fonts/opensans/opensans.css");
-@import url("reset.css");
-@import url("widgets/buttons.css");
-@import url("widgets/sections.css");
 
 html {
     scroll-margin-top: var(--xxl);
@@ -12,16 +7,19 @@ html {
     align-self: center;
     fill: var(--foreground);
 }
+
 .active {
     font-size: 1.1em;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
 }
+
 .anchor-hidden {
     width: 1px;
     height: 1px;
     overflow: hidden;
 }
+
 .accessibility-menu {
     display: block;
     position: absolute;
@@ -35,17 +33,21 @@ html {
     background-color: var(--background-hard) !important;
     border: 2px solid var(--border);
 }
+
 .accessibility-menu ul {
     list-style-type: disc;
     margin-left: var(--m);
 }
+
 .accessibility-menu:focus-within:not(:active) {
     top: var(--s);
     left: var(--s);
 }
+
 .heading-no-margin {
     margin-bottom: initial;
 }
+
 .page-header {
     z-index: 1;
     display: inline-flex;
@@ -53,12 +55,13 @@ html {
     position: fixed;
     top: 0;
     align-items: baseline;
-    font-family: 'Poppins',sans-serif;
+    font-family: 'Poppins', sans-serif;
     height: var(--xxl);
     padding: var(--s);
     background: var(--gradient) !important;
     box-shadow: var(--shadow);
 }
+
 .header-instance {
     display: flex;
     position: absolute;
@@ -67,13 +70,16 @@ html {
     align-self: center;
     margin-left: auto;
 }
+
 .header-instance > * {
     margin: unset;
 }
+
 .header-extra-actions {
     justify-self: flex-end;
     margin-left: auto;
 }
+
 .header-extra-actions[open] > *:not(summary) {
     z-index: 2;
     position: absolute;
@@ -85,10 +91,11 @@ html {
     background: var(--background-hard);
     box-shadow: var(--shadow);
 }
+
 .header-panel {
     display: flex;
     flex-direction: column;
-    font-family: 'Open Sans',sans-serif;
+    font-family: 'Open Sans', sans-serif;
     position: fixed;
     top: 0;
     margin-top: var(--xxl);
@@ -96,10 +103,12 @@ html {
     padding: var(--s);
     overflow-y: auto;
 }
+
 .panel-content {
     display: flex;
     flex-direction: column;
 }
+
 .page-content-wrapper {
     position: relative;
     top: var(--xxl);
@@ -108,54 +117,64 @@ html {
     justify-content: center;
     padding: var(--s) var(--s) 0;
 }
+
 .page-content {
     display: flex;
     flex-direction: column;
     width: 100%;
 }
+
 .markdown-blocks {
     border-radius: 0 0 var(--s) var(--s);
     padding: var(--s);
     background-color: var(--background-card) !important;
 }
+
 .markdown-blocks ul {
     margin-left: 1em;
     list-style: disc;
 }
+
 .markdown-blocks ul li {
     margin-bottom: 0.2em;
 }
+
 .doc-navigation {
     border-radius: var(--s) var(--s) 0 0;
     border-bottom: 0;
     padding: var(--s);
     background-color: var(--background-card) !important;
 }
+
 .doc-navigation ul {
     display: flex;
     justify-content: space-evenly;
 }
 
-/* < 720p */
-@media only screen and (max-width:1280px) {
+@media only screen and (max-width: 1280px) {
     .page-header {
         width: 100%;
     }
+
     .page-content-wrapper {
         width: 100%;
     }
+
     .page-content {
         max-width: 100%;
     }
+
     .header-extra-actions[open] > *:not(summary) {
         width: 100%;
     }
-    #panel-left-toggle:not(:checked)+.header-panel,
-    #panel-right-toggle:not(:checked)+.header-panel {
+
+    #panel-left-toggle:not(:checked) + .header-panel,
+    #panel-right-toggle:not(:checked) + .header-panel {
         display: none;
     }
-    #panel-left-toggle:checked+.header-panel,
-    #panel-right-toggle:checked+.header-panel,
+
+    #panel-left-toggle:checked + .header-panel,
+    #panel-right-toggle:checked + .header-panel,
     a[id|="anchor"]:target ~ .panel-content {
         display: flex;
         width: 100%;
@@ -164,36 +183,28 @@ html {
         background-color: var(--background-hard) !important;
     }
 }
-/* > 720p */
-@media only screen and (min-width:1281px) {
-    /*
-    * Using the Van de Graaf Canon and Tschichold’s recommended 2:3 page-size ratio
-    * Except we use the whole page
-    *
-    * > .page-content-wrapper
-    * 100% * 2/3 = 66%
-    *
-    * > .header-panel
-    * 100 - 66% = 34%
-    * 34% / 2 = 17%
-    */
+
+@media only screen and (min-width: 1281px) {
     .page-header {
         width: 100%;
     }
+
     .header-panel {
         width: 17vw;
     }
+
     .page-content-wrapper {
         width: 66vw;
     }
-    a[id|="anchor"]:target+.accessibility-target {
+
+    a[id|="anchor"]:target + .accessibility-target {
         animation-name: highlight;
         animation-duration: 600ms;
         animation-timing-function: ease-in-out;
     }
 }
-/* > 1080p */
-@media only screen and (min-width:1921px) {
+
+@media only screen and (min-width: 1921px) {
     /*
     * Using the Van de Graaf Canon and Tschichold’s recommended 2:3 page-size ratio
     *
@@ -210,13 +221,16 @@ html {
         width: 66vw;
         align-self: center;
     }
+
     .header-panel {
         width: 11vw;
     }
+
     .page-content-wrapper {
         width: 44vw;
     }
 }
+
 @keyframes fadeIn {
     0% {
         opacity: 0;
@@ -227,6 +241,7 @@ html {
         transform: none;
     }
 }
+
 @keyframes fadeOut {
     100% {
         opacity: 0;
@@ -237,6 +252,7 @@ html {
         transform: none;
     }
 }
+
 @media (prefers-color-scheme: dark) {
     @keyframes highlight {
         0% {
@@ -255,6 +271,7 @@ html {
         }
     }
 }
+
 @media (prefers-color-scheme: light) {
     @keyframes highlight {
         0% {

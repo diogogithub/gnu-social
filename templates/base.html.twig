@@ -15,8 +15,17 @@
     </title>
 
     {% block stylesheets %}
+        <link rel='preload' type='text/css' as='style' href="{{ asset('assets/default_theme/fonts/opensans/opensans.css') }}">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/fonts/opensans/opensans.css') }}">
+
+        <link rel='preload' type='text/css' as='style' href="{{ asset('assets/default_theme/fonts/poppins/poppins.css') }}">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/fonts/poppins/poppins.css') }}">
+
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/root.css') }}">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/reset.css') }}">
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/base.css') }}">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/widgets/buttons.css') }}">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/widgets/sections.css') }}">
 
         {% for stylesheet in show_stylesheets(app.request.get('_route')) %}
             <link rel='preload' type='text/css' as='style' href="{{ preload(asset(stylesheet), { as: 'style' }) }}">
