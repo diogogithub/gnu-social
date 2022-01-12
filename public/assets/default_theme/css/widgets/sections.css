@@ -42,18 +42,18 @@
     opacity: 0.66;
 }
 
-.profile-stats-subscriptions,
-.profile-stats-subscribers {
+.profile-stats-subscribers,
+.profile-stats-subscriptions {
     display: block;
 }
 
-.profile-stats-subscriptions strong,
-.profile-stats-subscribers strong {
+.profile-stats-subscribers strong,
+.profile-stats-subscriptions strong {
     margin-right: 4px;
 }
 
-.profile-info-url,
-.profile-bio {
+.profile-bio,
+.profile-info-url {
     word-break: break-all;
 }
 
@@ -62,8 +62,7 @@
 }
 
 .profile-tags {
-    margin: unset;
-    margin-top: 4px;
+    margin: 4px unset unset;
 }
 
 .button-container {
@@ -180,26 +179,27 @@
     border: 2px solid var(--border);
 }
 
-.section-widget-title-details summary,
-.section-widget-subtitle-details summary {
+.section-widget-subtitle-details summary,
+.section-widget-title-details summary {
     display: inline-block;
     width: 100%;
     border-radius: var(--s);
     background: var(--gradient);
 }
-.section-widget-title-details summary > *,
-.section-widget-subtitle-details summary > * {
+
+.section-widget-subtitle-details summary > *,
+.section-widget-title-details summary > * {
     display: inline-block;
     vertical-align: baseline;
 }
 
-.section-widget-title-details summary > *:last-child,
-.section-widget-subtitle-details summary > *:last-child {
+.section-widget-subtitle-details summary > *:last-child,
+.section-widget-title-details summary > *:last-child {
     margin-right: 4px;
 }
 
-.section-widget-title-details summary:after,
-.section-widget-subtitle-details summary:after {
+.section-widget-subtitle-details summary:after,
+.section-widget-title-details summary:after {
     content: "\2193";
     float: right;
 }
@@ -272,10 +272,10 @@ textarea.form-row-widget {
     resize: vertical;
 }
 
-.form-row-widget-error,
-.form-error,
 .alert,
-.alert-danger {
+.alert-danger,
+.form-error,
+.form-row-widget-error {
     display: inline-block;
     font-style: italic;
     border: solid 2px #ff6347;

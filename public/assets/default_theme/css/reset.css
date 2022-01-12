@@ -2,38 +2,44 @@
     box-sizing: border-box !important;
     max-width: 100%;
 }
+
 body,
 html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--background-hard);
     background-attachment: fixed;
-    font-family: 'Open Sans',sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: var(--unit);
     display: flex;
     flex-direction: column;
 }
+
 body,
 input,
 select,
 textarea {
     color: var(--foreground);
 }
+
 :link,
 :visited {
     text-decoration: none;
     color: currentColor;
 }
+
 hr {
     all: unset;
     display: block;
     height: 1px;
     background-color: var(--border) !important;
 }
+
 ol,
 ul {
     list-style: none;
 }
+
 blockquote,
 body,
 fieldset,
@@ -46,46 +52,59 @@ textarea {
     padding: 0;
     border: 0;
 }
+
 fieldset {
     all: unset;
 }
+
 :link img,
 :visited img,
 a img {
     border: 0;
 }
+
 address {
     font-style: normal;
 }
+
 :focus {
     outline: 0;
 }
+
 ::-moz-focus-inner {
     border: 0;
 }
+
 details summary {
     cursor: pointer !important;
 }
+
 details summary > * {
     margin: unset;
     padding: unset;
 }
+
 details > summary {
     list-style: none;
 }
+
 details > summary::-webkit-details-marker {
     display: none;
 }
+
 @supports not(-ms-ime-align:auto) {
     details summary {
         cursor: pointer;
     }
 }
+
 [hidden] {
     display: none;
 }
 
-html {font-size: 100%;} /*16px*/
+html {
+    font-size: 100%;
+}
 
 body {
     font-family: 'Open Sans', sans-serif;
@@ -95,17 +114,28 @@ body {
 
 p {
     all: unset;
-    font-family: 'Open Sans',sans-serif;
+    font-family: 'Open Sans', sans-serif;
     margin-bottom: 1rem;
 }
 
-h1, h2, h3, h4, h5, legend {
+h1,
+h2,
+h3,
+h4,
+h5,
+legend {
     margin: 3rem 0 1.38rem;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     line-height: 1.3;
 }
-h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, legend:first-child {
+
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child,
+legend:first-child {
     margin-top: initial;
 }
 
@@ -114,44 +144,57 @@ h1 {
     font-size: 1.383rem;
 }
 
-h2 {font-size: 1.296rem;}
+h2 {
+    font-size: 1.296rem;
+}
 
-h3 {font-size: 1.215rem;}
+h3 {
+    font-size: 1.215rem;
+}
 
-h4 {font-size: 1.138rem;}
+h4 {
+    font-size: 1.138rem;
+}
 
-h5 {font-size: 1.067rem;}
+h5 {
+    font-size: 1.067rem;
+}
 
 legend {
     font-size: 1.296em;
 }
 
-small, .text_small {
-    font-family: 'Open Sans',sans-serif;
+.text_small,
+small {
+    font-family: 'Open Sans', sans-serif;
     font-size: 0.937rem;
 }
 
 input[type=password],
 input[type=text],
 textarea {
-    font-family: 'Open Sans',sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-weight: 400;
     padding: 4px 6px;
 }
+
 ul {
     text-decoration: none;
     margin: 0;
     padding: 0;
     list-style: none;
 }
+
 li {
     margin: 0;
     padding: 0;
 }
+
 a:focus,
 a:hover {
     text-decoration: underline;
 }
+
 *:focus-visible {
     box-shadow: var(--shadow-inset-accent);
 }
