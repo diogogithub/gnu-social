@@ -1,229 +1,235 @@
 {
-    "type": "project",
-    "name": "gnu/social",
-    "description": "Free software social networking platform.",
-    "license": "AGPL-3.0-only",
-    "require": {
-        "php": "^8.1",
-        "ext-ctype": "*",
-        "ext-curl": "*",
-        "ext-iconv": "*",
-        "ext-openssl": "*",
-        "composer/package-versions-deprecated": "1.11.*",
-        "doctrine/annotations": "^1.0",
-        "doctrine/doctrine-bundle": "^2.4",
-        "doctrine/doctrine-migrations-bundle": "^3.1",
-        "doctrine/orm": "^2.9",
-        "erusev/parsedown": "^1.7",
-        "knplabs/knp-time-bundle": "^1.17",
-        "lstrojny/functional-php": "^1.17",
-        "nyholm/psr7": "^1.4",
-        "odolbeau/phone-number-bundle": "^3.1",
-        "oro/doctrine-extensions": "^2.0",
-        "php-ds/php-ds": "^1.2",
-        "phpdocumentor/reflection-docblock": "^5.2",
-        "sensio/framework-extra-bundle": "6.*",
-        "someonewithpc/memcached-polyfill": "^1.0",
-        "someonewithpc/redis-polyfill": "dev-master",
-        "symfony/asset": "5.4.*",
-        "symfony/cache": "5.4.*",
-        "symfony/config": "5.4.*",
-        "symfony/console": "5.4.*",
-        "symfony/dom-crawler": "5.4.*",
-        "symfony/dotenv": "5.4.*",
-        "symfony/event-dispatcher": "5.4.*",
-        "symfony/expression-language": "5.4.*",
-        "symfony/filesystem": "5.4.*",
-        "symfony/flex": "^1.3.1",
-        "symfony/form": "5.4.*",
-        "symfony/framework-bundle": "5.4.*",
-        "symfony/http-client": "5.4.*",
-        "symfony/intl": "5.4.*",
-        "symfony/mailer": "5.4.*",
-        "symfony/messenger": "5.4.*",
-        "symfony/mime": "5.4.*",
-        "symfony/monolog-bundle": "^3.1",
-        "symfony/notifier": "5.4.*",
-        "symfony/process": "5.4.*",
-        "symfony/property-access": "5.4.*",
-        "symfony/property-info": "5.4.*",
-        "symfony/proxy-manager-bridge": "5.4.*",
-        "symfony/security-bundle": "5.4.*",
-        "symfony/serializer": "5.4.*",
-        "symfony/string": "5.4.*",
-        "symfony/translation": "5.4.*",
-        "symfony/twig-bundle": "5.4.*",
-        "symfony/validator": "5.4.*",
-        "symfony/var-exporter": "5.4.*",
-        "symfony/web-link": "5.4.*",
-        "symfony/yaml": "5.4.*",
-        "symfonycasts/reset-password-bundle": "^1.9",
-        "symfonycasts/verify-email-bundle": "^1.0",
-        "tgalopin/html-sanitizer-bundle": "^1.2",
-        "theofidry/psysh-bundle": "^4.4",
-        "twig/extra-bundle": "^2.12|^3.0",
-        "twig/markdown-extra": "^3.0",
-        "twig/twig": "^2.12|^3.0",
-        "wikimedia/composer-merge-plugin": "^2.0"
+  "type": "project",
+  "name": "gnu/social",
+  "description": "Free software social networking platform.",
+  "license": "AGPL-3.0-only",
+  "require": {
+    "php": "^8.1",
+    "ext-ctype": "*",
+    "ext-curl": "*",
+    "ext-iconv": "*",
+    "ext-openssl": "*",
+    "composer/package-versions-deprecated": "1.11.*",
+    "doctrine/annotations": "^1.0",
+    "doctrine/doctrine-bundle": "^2.4",
+    "doctrine/doctrine-migrations-bundle": "^3.1",
+    "doctrine/orm": "^2.9",
+    "erusev/parsedown": "^1.7",
+    "knplabs/knp-time-bundle": "^1.17",
+    "lstrojny/functional-php": "^1.17",
+    "masterminds/html5": "^2.7",
+    "mf2/mf2": "^0.4.6",
+    "nyholm/psr7": "^1.4",
+    "odolbeau/phone-number-bundle": "^3.1",
+    "oro/doctrine-extensions": "^2.0",
+    "php-ds/php-ds": "^1.2",
+    "phpdocumentor/reflection-docblock": "^5.2",
+    "sensio/framework-extra-bundle": "6.*",
+    "someonewithpc/memcached-polyfill": "^1.0",
+    "someonewithpc/redis-polyfill": "dev-master",
+    "symfony/asset": "5.4.*",
+    "symfony/cache": "5.4.*",
+    "symfony/config": "5.4.*",
+    "symfony/console": "5.4.*",
+    "symfony/dom-crawler": "5.4.*",
+    "symfony/dotenv": "5.4.*",
+    "symfony/event-dispatcher": "5.4.*",
+    "symfony/expression-language": "5.4.*",
+    "symfony/filesystem": "5.4.*",
+    "symfony/flex": "^1.3.1",
+    "symfony/form": "5.4.*",
+    "symfony/framework-bundle": "5.4.*",
+    "symfony/http-client": "5.4.*",
+    "symfony/intl": "5.4.*",
+    "symfony/mailer": "5.4.*",
+    "symfony/messenger": "5.4.*",
+    "symfony/mime": "5.4.*",
+    "symfony/monolog-bundle": "^3.1",
+    "symfony/notifier": "5.4.*",
+    "symfony/process": "5.4.*",
+    "symfony/property-access": "5.4.*",
+    "symfony/property-info": "5.4.*",
+    "symfony/proxy-manager-bridge": "5.4.*",
+    "symfony/security-bundle": "5.4.*",
+    "symfony/serializer": "5.4.*",
+    "symfony/string": "5.4.*",
+    "symfony/translation": "5.4.*",
+    "symfony/twig-bundle": "5.4.*",
+    "symfony/validator": "5.4.*",
+    "symfony/var-exporter": "5.4.*",
+    "symfony/web-link": "5.4.*",
+    "symfony/yaml": "5.4.*",
+    "symfonycasts/reset-password-bundle": "^1.9",
+    "symfonycasts/verify-email-bundle": "^1.0",
+    "tgalopin/html-sanitizer-bundle": "^1.2",
+    "theofidry/psysh-bundle": "^4.4",
+    "twig/extra-bundle": "^2.12|^3.0",
+    "twig/markdown-extra": "^3.0",
+    "twig/twig": "^2.12|^3.0",
+    "wikimedia/composer-merge-plugin": "^2.0"
+  },
+  "require-dev": {
+    "codeception/codeception": "^4.1",
+    "codeception/module-phpbrowser": "^2.0",
+    "codeception/module-symfony": "^2.1",
+    "doctrine/doctrine-fixtures-bundle": "^3.4",
+    "friendsofphp/php-cs-fixer": "^3.2.1",
+    "jchook/phpunit-assert-throws": "^1.0",
+    "niels-de-blaauw/php-doc-check": "^0.2.2",
+    "phpstan/phpstan": "dev-master",
+    "phpunit/phpunit": "^9.5",
+    "symfony/browser-kit": "^5.4.",
+    "symfony/css-selector": "^5.4.",
+    "symfony/debug-bundle": "^5.4.",
+    "symfony/error-handler": "^5.4.",
+    "symfony/maker-bundle": "^1.14",
+    "symfony/phpunit-bridge": "^5.4.",
+    "symfony/stopwatch": "5.4.*",
+    "symfony/web-profiler-bundle": "^5.4.",
+    "ulrichsg/getopt-php": "*",
+    "wp-cli/php-cli-tools": "^0.11.13",
+    "codeception/module-asserts": "^1.0.0"
+  },
+  "config": {
+    "preferred-install": {
+      "*": "dist"
     },
-    "require-dev": {
-        "codeception/codeception": "^4.1",
-        "codeception/module-phpbrowser": "^2.0",
-        "codeception/module-symfony": "^2.1",
-        "doctrine/doctrine-fixtures-bundle": "^3.4",
-        "friendsofphp/php-cs-fixer": "^3.2.1",
-        "jchook/phpunit-assert-throws": "^1.0",
-        "niels-de-blaauw/php-doc-check": "^0.2.2",
-        "phpstan/phpstan": "dev-master",
-        "phpunit/phpunit": "^9.5",
-        "symfony/browser-kit": "^5.4.",
-        "symfony/css-selector": "^5.4.",
-        "symfony/debug-bundle": "^5.4.",
-        "symfony/error-handler": "^5.4.",
-        "symfony/maker-bundle": "^1.14",
-        "symfony/phpunit-bridge": "^5.4.",
-        "symfony/stopwatch": "5.4.*",
-        "symfony/web-profiler-bundle": "^5.4.",
-        "ulrichsg/getopt-php": "*",
-        "wp-cli/php-cli-tools": "^0.11.13",
-        "codeception/module-asserts": "^1.0.0"
+    "sort-packages": true,
+    "allow-plugins": {
+      "composer/package-versions-deprecated": true,
+      "symfony/flex": true,
+      "wikimedia/composer-merge-plugin": true
+    }
+  },
+  "autoload": {
+    "files": [
+      "src/Core/I18n/I18n.php"
+    ],
+    "psr-4": {
+      "App\\": "src/",
+      "Plugin\\": "plugins/",
+      "Component\\": "components/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Tests\\": "tests/"
+    }
+  },
+  "replace": {
+    "paragonie/random_compat": "2.*",
+    "symfony/polyfill-ctype": "*",
+    "symfony/polyfill-iconv": "*",
+    "symfony/polyfill-php72": "*",
+    "symfony/polyfill-php71": "*",
+    "symfony/polyfill-php70": "*",
+    "symfony/polyfill-php56": "*"
+  },
+  "scripts": {
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "assets:install %PUBLIC_DIR%": "symfony-cmd"
     },
-    "config": {
-        "preferred-install": {
-            "*": "dist"
-        },
-        "sort-packages": true,
-        "allow-plugins": {
-            "composer/package-versions-deprecated": true,
-            "symfony/flex": true,
-            "wikimedia/composer-merge-plugin": true
-        }
-    },
-    "autoload": {
-        "files": [
-            "src/Core/I18n/I18n.php"
-        ],
-        "psr-4": {
-            "App\\": "src/",
-            "Plugin\\": "plugins/",
-            "Component\\": "components/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "App\\Tests\\": "tests/"
-        }
-    },
-    "replace": {
-        "paragonie/random_compat": "2.*",
-        "symfony/polyfill-ctype": "*",
-        "symfony/polyfill-iconv": "*",
-        "symfony/polyfill-php72": "*",
-        "symfony/polyfill-php71": "*",
-        "symfony/polyfill-php70": "*",
-        "symfony/polyfill-php56": "*"
-    },
-    "scripts": {
-        "auto-scripts": {
-            "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
-        },
-        "post-install-cmd": [
-            "@auto-scripts",
-            "cp -fu bin/pre-commit .git/hooks"
-        ],
-        "post-update-cmd": [
-            "@auto-scripts"
-        ]
-    },
-    "conflict": {
-        "symfony/symfony": "*"
-    },
-    "extra": {
-        "symfony": {
-            "allow-contrib": false,
-            "require": "5.4.*"
-        },
-        "merge-plugin": {
-            "include": [
-                "components/*/composer.json",
-                "plugins/*/composer.json"
-            ]
-        }
-    },
-    "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "niels-de-blaauw/php-doc-check",
-                "version": "0.2.2",
-                "bin": [
-                    "bin/php-doc-check"
-                ],
-                "autoload": {
-                    "psr-4": {
-                        "NdB\\PhpDocCheck\\": "src"
-                    }
-                },
-                "source": {
-                    "url": "https://github.com/someonewithpc/php-doc-check.git",
-                    "type": "git",
-                    "reference": "master"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "ulrichsg/getopt-php",
-                "version": "4.0.0",
-                "autoload": {
-                    "psr-4": {
-                        "GetOpt\\": "src"
-                    }
-                },
-                "source": {
-                    "url": "https://github.com/someonewithpc/getopt-php.git",
-                    "type": "git",
-                    "reference": "master"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "codeception/codeception",
-                "version": "4.1.30",
-                "autoload": {
-                    "psr-4": {
-                        "Codeception\\": "src/Codeception",
-                        "Codeception\\Extension\\": "ext"
-                    },
-                    "files": ["functions.php"]
-                },
-                "require": {
-                    "php": ">=5.6.0 <9.0",
-                    "ext-curl": "*",
-                    "ext-json": "*",
-                    "ext-mbstring": "*",
-                    "codeception/lib-asserts": "^1.0 | 2.0.*@dev",
-                    "guzzlehttp/psr7": "^1.4 | ^2.0",
-                    "symfony/finder": ">=2.7 <6.0",
-                    "symfony/console": ">=2.7 <6.0",
-                    "symfony/event-dispatcher": ">=2.7 <6.0",
-                    "symfony/yaml": ">=2.7 <6.0",
-                    "symfony/css-selector": ">=2.7 <6.0",
-                    "behat/gherkin": "^4.4.0",
-                    "codeception/phpunit-wrapper": ">6.0.15 <6.1.0 | ^6.6.1 | ^7.7.1 | ^8.1.1 | ^9.0",
-                    "codeception/stub": "^2.0 | ^3.0 | ^4.0"
-                },
-                "bin":["codecept"],
-                "source": {
-                    "url": "https://github.com/someonewithpc/Codeception.git",
-                    "type": "git",
-                    "reference": "4.1"
-                }
-            }
-        }
+    "post-install-cmd": [
+      "@auto-scripts",
+      "cp -fu bin/pre-commit .git/hooks"
+    ],
+    "post-update-cmd": [
+      "@auto-scripts"
     ]
+  },
+  "conflict": {
+    "symfony/symfony": "*"
+  },
+  "extra": {
+    "symfony": {
+      "allow-contrib": false,
+      "require": "5.4.*"
+    },
+    "merge-plugin": {
+      "include": [
+        "components/*/composer.json",
+        "plugins/*/composer.json"
+      ]
+    }
+  },
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "niels-de-blaauw/php-doc-check",
+        "version": "0.2.2",
+        "bin": [
+          "bin/php-doc-check"
+        ],
+        "autoload": {
+          "psr-4": {
+            "NdB\\PhpDocCheck\\": "src"
+          }
+        },
+        "source": {
+          "url": "https://github.com/someonewithpc/php-doc-check.git",
+          "type": "git",
+          "reference": "master"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "ulrichsg/getopt-php",
+        "version": "4.0.0",
+        "autoload": {
+          "psr-4": {
+            "GetOpt\\": "src"
+          }
+        },
+        "source": {
+          "url": "https://github.com/someonewithpc/getopt-php.git",
+          "type": "git",
+          "reference": "master"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "codeception/codeception",
+        "version": "4.1.30",
+        "autoload": {
+          "psr-4": {
+            "Codeception\\": "src/Codeception",
+            "Codeception\\Extension\\": "ext"
+          },
+          "files": [
+            "functions.php"
+          ]
+        },
+        "require": {
+          "php": ">=5.6.0 <9.0",
+          "ext-curl": "*",
+          "ext-json": "*",
+          "ext-mbstring": "*",
+          "codeception/lib-asserts": "^1.0 | 2.0.*@dev",
+          "guzzlehttp/psr7": "^1.4 | ^2.0",
+          "symfony/finder": ">=2.7 <6.0",
+          "symfony/console": ">=2.7 <6.0",
+          "symfony/event-dispatcher": ">=2.7 <6.0",
+          "symfony/yaml": ">=2.7 <6.0",
+          "symfony/css-selector": ">=2.7 <6.0",
+          "behat/gherkin": "^4.4.0",
+          "codeception/phpunit-wrapper": ">6.0.15 <6.1.0 | ^6.6.1 | ^7.7.1 | ^8.1.1 | ^9.0",
+          "codeception/stub": "^2.0 | ^3.0 | ^4.0"
+        },
+        "bin": [
+          "codecept"
+        ],
+        "source": {
+          "url": "https://github.com/someonewithpc/Codeception.git",
+          "type": "git",
+          "reference": "4.1"
+        }
+      }
+    }
+  ]
 }

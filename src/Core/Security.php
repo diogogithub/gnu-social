@@ -34,7 +34,6 @@ namespace App\Core;
 
 use App\Entity\LocalUser;
 use BadMethodCallException;
-use HtmlSanitizer\SanitizerInterface;
 use Symfony\Component\Security\Core\Security as SymfonySecurity;
 
 /**
@@ -43,19 +42,16 @@ use Symfony\Component\Security\Core\Security as SymfonySecurity;
  *
  * @codeCoverageIgnore
  * @mixin SymfonySecurity
- * @mixin SanitizerInterface
  *
  * @method static LocalUser getUser()
  */
 abstract class Security
 {
     private static ?SymfonySecurity $security;
-    private static ?SanitizerInterface $sanitizer;
 
-    public static function setHelper($sec, $san): void
+    public static function setHelper($sec): void
     {
-        self::$security  = $sec;
-        self::$sanitizer = $san;
+        self::$security = $sec;
     }
 
     public static function __callStatic(string $name, array $args)
@@ -63,11 +59,7 @@ abstract class Security
         if (method_exists(self::$security, $name)) {
             return self::$security->{$name}(...$args);
         } else {
-            if (method_exists(self::$sanitizer, $name)) {
-                return self::$sanitizer->{$name}(...$args);
-            } else {
-                throw new BadMethodCallException("Method Security::{$name} doesn't exist");
-            }
+            throw new BadMethodCallException("Method Security::{$name} doesn't exist");
         }
     }
 }

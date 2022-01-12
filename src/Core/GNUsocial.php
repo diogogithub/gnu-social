@@ -53,6 +53,7 @@ use App\Security\EmailVerifier;
 use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
 use App\Util\Formatting;
+use App\Util\HTML;
 use Doctrine\ORM\EntityManagerInterface;
 use HtmlSanitizer\SanitizerInterface;
 use Psr\Log\LoggerInterface;
@@ -169,7 +170,8 @@ class GNUsocial implements EventSubscriberInterface
             DB::setManager($this->entity_manager);
             Form::setFactory($this->form_factory);
             Queue::setMessageBus($this->message_bus);
-            Security::setHelper($this->security, $this->sanitizer);
+            Security::setHelper($this->security);
+            HTML::setSanitizer($this->sanitizer);
             Router::setRouter($this->router);
             HTTPClient::setClient($this->client);
             Formatting::setTwig($this->twig);

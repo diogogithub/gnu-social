@@ -29,11 +29,23 @@ declare(strict_types = 1);
 
 namespace App\Util;
 
+use BadMethodCallException;
 use Functional as F;
+use HtmlSanitizer\SanitizerInterface;
 use InvalidArgumentException;
 
+/**
+ * @mixin SanitizerInterface
+ */
 abstract class HTML
 {
+    private static ?SanitizerInterface $sanitizer;
+
+    public static function setSanitizer($sanitizer): void
+    {
+        self::$sanitizer = $sanitizer;
+    }
+
     /**
      * Tags whose content is sensitive to indentation, so we shouldn't indent them
      */
@@ -134,6 +146,15 @@ abstract class HTML
                 }
             }
             return $out;
+        }
+    }
+
+    public static function __callStatic(string $name, array $args)
+    {
+        if (method_exists(self::$sanitizer, $name)) {
+            return self::$sanitizer->{$name}(...$args);
+        } else {
+            throw new BadMethodCallException("Method Security::{$name} doesn't exist");
         }
     }
 }

@@ -30,7 +30,6 @@ use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Router\Router;
-use App\Core\Security;
 use App\Core\VisibilityScope;
 use App\Entity\Activity;
 use App\Entity\Actor;
@@ -43,6 +42,7 @@ use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;
+use App\Util\HTML;
 use Component\Attachment\Entity\ActorToAttachment;
 use Component\Attachment\Entity\AttachmentToNote;
 use Component\Conversation\Conversation;
@@ -74,7 +74,7 @@ class Posting extends Component
             return Event::next;
         }
 
-        $actor    = $user->getActor();
+        $actor = $user->getActor();
 
         $placeholder_strings = ['How are you feeling?', 'Have something to share?', 'How was your day?'];
         Event::handle('PostingPlaceHolderString', [&$placeholder_strings]);
@@ -146,7 +146,7 @@ class Posting extends Component
                     $extra_args   = [];
                     Event::handle('AddExtraArgsToNoteContent', [$request, $actor, $data, &$extra_args, $form_params, $form]);
 
-                    $target = !array_key_exists('in', $data) || $data['in'] === 'public' ? $context_actor : null;
+                    $target = !\array_key_exists('in', $data) || $data['in'] === 'public' ? $context_actor : null;
 
                     self::storeLocalNote(
                         actor: $user->getActor(),
@@ -290,7 +290,6 @@ class Posting extends Component
             Event::handle('NewNotification', [$actor, $activity, ['object' => $mention_ids], _m('{nickname} created a note {note_id}.', ['{nickname}' => $actor->getNickname(), '{note_id}' => $activity->getObjectId()])]);
         }
 
-
         return $note;
     }
 
@@ -303,7 +302,7 @@ class Posting extends Component
                 return Event::stop;
             case 'text/html':
                 // TODO: It has to linkify and stuff as well
-                $rendered = Security::sanitize($content);
+                $rendered = HTML::sanitize($content);
                 return Event::stop;
             default:
                 return Event::next;

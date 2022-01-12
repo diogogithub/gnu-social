@@ -103,7 +103,7 @@ class CommonTest extends GNUsocialTestCase
         $user->setId(0);
         $sec = $this->getMockBuilder(SSecurity::class)->setConstructorArgs([self::$kernel->getContainer()])->getMock();
         $sec->method('getUser')->willReturn($user);
-        Security::setHelper($sec, null);
+        Security::setHelper($sec);
 
         // $cookies = $client->loginUser($user)->getCookieJar();
         // $cookies->get('MOCKSESSID')->getValue();
