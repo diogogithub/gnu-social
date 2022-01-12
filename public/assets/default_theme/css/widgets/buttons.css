@@ -1,21 +1,23 @@
 input {
     all: unset;
 }
+
 input[type=checkbox] {
-    all: unset;
-    display: inline-block !important;
-    cursor: pointer !important;
+    display: inline-block;
+    cursor: pointer;
     width: 1em !important;
     height: 1em !important;
     background: var(--accent) !important;
-    background-repeat: no-repeat !important;
 }
+
 input[type=checkbox]:not(:hover, :focus) {
     background: var(--foreground) !important;
 }
+
 input[type=checkbox] {
     border: unset !important;
 }
+
 input[type=radio] {
     display: inline-block;
     width: var(--s) !important;
@@ -25,18 +27,21 @@ input[type=radio] {
     box-shadow: inset 0 0 0 2px var(--foreground) !important;
     border-radius: 50%;
 }
+
 input[type=radio]:checked {
     background: var(--background-hard);
 }
+
 input[type=file] {
     all: unset;
     display: block;
-    font-family: 'Open Sans',sans-serif !important;
+    font-family: 'Open Sans', sans-serif !important;
     font-weight: normal !important;
     padding: unset !important;
     border-radius: var(--s);
     background: var(--gradient) !important;
 }
+
 input[type=checkbox] {
     background-size: contain !important;
     margin-right: 4px !important;
@@ -45,12 +50,14 @@ input[type=checkbox] {
     -moz-mask-image: url("../../icons/check-off.svg") !important;
     mask-image: url("../../icons/check-off.svg") !important;
 }
+
 input[type=checkbox]:checked {
     -webkit-mask-image: url("../../icons/check-on.svg") !important;
     -o-mask-image: url("../../icons/check-on.svg") !important;
     -moz-mask-image: url("../../icons/check-on.svg") !important;
     mask-image: url("../../icons/check-on.svg") !important;
 }
+
 input[type=color] {
     appearance: none;
     width: var(--xxl);
@@ -59,50 +66,55 @@ input[type=color] {
     border: none;
     cursor: pointer;
 }
+
 input[type=color]::-webkit-color-swatch {
     border-radius: var(--s);
     border: none;
 }
+
 input[type=color]::-moz-color-swatch {
     border-radius: var(--s);
     border: none;
 }
+
 ::file-selector-button {
     cursor: pointer;
     background-color: unset;
     border: unset;
-    font-family: 'Open Sans',sans-serif !important;
+    font-family: 'Open Sans', sans-serif !important;
     font-weight: bold !important;
     color: var(--foreground);
     fill: var(--foreground);
     margin: 3px;
 }
+
 *|*::-moz-button-content {
     all: unset !important;
 }
+
 button {
     display: block !important;
     cursor: pointer !important;
     margin-left: auto !important;
     margin-top: var(--s);
 }
+
 button,
 label {
-    font-family: 'Poppins',sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-weight: bold !important;
     color: currentColor;
 }
+
 select::-ms-expand {
     display: none;
 }
+
 button,
 input,
 select,
 textarea {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    display: inline-flex;
+    display: inline-block;
     overflow: hidden;
     font-size: inherit;
     line-height: initial !important;
@@ -112,27 +124,30 @@ textarea {
     width: auto;
     max-width: border-box !important;
 }
+
 button,
 select,
 textarea {
     background: var(--gradient) !important;
 }
+
 button,
 input:not([type=checkbox], [type=radio]) {
     background: var(--gradient) !important;
 }
+
 select {
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
     cursor: pointer;
     background-repeat: no-repeat;
     border-radius: var(--s);
     max-width: 100% !important;
 }
+
 select[multiple] {
     overflow-y: scroll;
     height: 20rem;
 }
+
 button:focus,
 button:hover,
 input:focus,

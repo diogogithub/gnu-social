@@ -2,7 +2,6 @@
     <details class="section-widget-title-details" title="Expand if you want to access more options.">
         <summary class="section-title-summary">
             <h2>{{ctitle}}</h2>
-            {{ icon('arrow-down', 'icon icon-details-open') | raw }}
         </summary>
         {% if has_collections %}
             <fieldset class="section-form">
@@ -13,7 +12,6 @@
                      title="Expand if you want to access more options.">
                 <summary class="section-subtitle-summary">
                     <strong>{% trans %}Other options{% endtrans %}</strong>
-                    {{ icon('arrow-down', 'icon icon-details-close') | raw }}
                 </summary>
                 <fieldset class="section-form">
                     {{ form(create_form) }}

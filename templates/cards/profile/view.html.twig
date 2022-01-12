@@ -9,15 +9,25 @@
 {% set mention = mention(actor) %}
 
 {% block profile_view %}
-    <section id='profile-{{ actor.id }}' class='profile' title="{{ actor_nickname }}'s {{ 'profile information.' | trans }}">
+    <section id='profile-{{ actor.id }}' class='profile'
+             title="{% trans %} %actor_nickname%'s profile information{% endtrans %}">
         <header>
             <div class="profile-info">
-                <img src="{{ actor_avatar }}" class="profile-avatar avatar" alt="{% trans %} %actor_nickname%'s avatar. {% endtrans %}" width="{{actor_avatar_dimensions['width']}}" height="{{actor_avatar_dimensions['height']}}">
+                <img src="{{ actor_avatar }}" class="profile-avatar avatar"
+                     alt="{% trans %} %actor_nickname%'s avatar{% endtrans %}"
+                     title="{% trans %} %actor_nickname%'s avatar{% endtrans %}"
+                     width="{{ actor_avatar_dimensions['width'] }}"
+                     height="{{ actor_avatar_dimensions['height'] }}">
                 <div>
                     <a class="profile-info-url" href="{{ actor_uri }}">
-                        <strong class="profile-info-url-nickname" title="{{ actor_nickname }}{{ '\'s nickname.' | trans }}">{{ actor_nickname }}</strong>
+                        <strong class="profile-info-url-nickname"
+                                title="{% trans %} %actor_nickname%'s nickname {% endtrans %}">
+                            {{ actor_nickname }}
+                        </strong>
                         {% if not actor_is_local %}
-                            <span class="profile-info-url-remote">{{ mention }}</span>
+                            <span class="profile-info-url-remote">
+                                {{ mention }}
+                            </span>
                         {% endif %}
                     </a>
                     <ul class="profile-info-actions">
@@ -32,16 +42,24 @@
                 </div>
             </div>
             <div class="profile-stats">
-                <span class="profile-stats-subscriptions"><strong><a href="{{ actor.getSubscriptionsUrl() }}">{{ 'Subscribed' | trans }}</a></strong>{{ actor.getSubscribedCount() }}</span>
-                <span class="profile-stats-subscribers"><strong><a href="{{ actor.getSubscribersUrl() }}">{{ 'Subscribers' | trans }}</a></strong>{{ actor.getSubscribersCount() }}</span>
+                <span class="profile-stats-subscriptions" title="{% trans %} %actor_nickname%'s subscribed count{% endtrans %}">
+                    <strong>
+                        <a href="{{ actor.getSubscriptionsUrl() }}">{{ 'Subscribed' | trans }}</a>
+                    </strong>{{ actor.getSubscribedCount() }}
+                </span>
+                <span class="profile-stats-subscribers" title="{% trans %} %actor_nickname%'s subscribers count{% endtrans %}">
+                    <strong>
+                        <a href="{{ actor.getSubscribersUrl() }}">{{ 'Subscribers' | trans }}</a>
+                    </strong>{{ actor.getSubscribersCount() }}
+                </span>
             </div>
         </header>
         <div>
-            <section class="profile-bio">
+            <section class="profile-bio" title="{% trans %} %actor_nickname%'s bio{% endtrans %}">
                 <span>{{ actor.getBio() }}</span>
             </section>
 
-            <nav class="profile-tags">
+            <nav class="profile-tags" title="{% trans %} %actor_nickname%'s actor tags{% endtrans %}">
                 {% for tag in actor_tags %}
                     {% include 'cards/tag/actor_tag.html.twig' with { 'tag': tag, 'actor': actor } %}
                 {% endfor %}

@@ -1,32 +1,39 @@
 .profile {
-    font-family: 'Open Sans',sans-serif;
+    font-family: 'Open Sans', sans-serif;
     margin-bottom: var(--s);
     border: 2px solid var(--border);
     border-radius: var(--s);
     padding: var(--unit);
     background: var(--gradient) !important;
 }
+
 .profile header {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     vertical-align: middle;
 }
+
 .profile-info {
     display: flex;
 }
+
 .profile-info-url {
     display: block;
 }
+
 .profile-info-url-nickname {
     font-size: var(--m);
 }
+
 .profile-info-url-remote {
     opacity: 0.66;
 }
+
 .profile-info-url > * {
     display: block;
 }
+
 .profile-stats {
     align-self: center;
     margin-left: auto;
@@ -34,25 +41,31 @@
     font-size: 0.937rem;
     opacity: 0.66;
 }
+
 .profile-stats-subscriptions,
 .profile-stats-subscribers {
     display: block;
 }
+
 .profile-stats-subscriptions strong,
 .profile-stats-subscribers strong {
     margin-right: 4px;
 }
+
 .profile-info-url,
 .profile-bio {
     word-break: break-all;
 }
+
 .profile-bio {
     margin-top: 4px;
 }
+
 .profile-tags {
     margin: unset;
     margin-top: 4px;
 }
+
 .button-container {
     border: none !important;
     mask-repeat: no-repeat !important;
@@ -63,9 +76,11 @@
     background-color: var(--foreground);
     opacity: 0.33;
 }
+
 .button-container:not(:first-of-type) {
     margin-left: var(--s);
 }
+
 .button-container:focus,
 .button-container:hover {
     border: none !important;
@@ -74,18 +89,21 @@
     opacity: 1;
     background-color: var(--accent);
 }
+
 .add-actor-button-container {
     -o-mask-image: url("../../icons/add-actor.svg");
     -moz-mask-image: url("../../icons/add-actor.svg");
     -webkit-mask-image: url("../../icons/add-actor.svg");
     mask-image: url("../../icons/add-actor.svg");
 }
+
 .remove-actor-button-container {
     -o-mask-image: url("../../icons/remove-actor.svg");
     -moz-mask-image: url("../../icons/remove-actor.svg");
     -webkit-mask-image: url("../../icons/remove-actor.svg");
     mask-image: url("../../icons/remove-actor.svg");
 }
+
 .avatar {
     max-width: 4rem;
     max-height: 4rem;
@@ -95,10 +113,12 @@
     margin-right: 5px;
     border-radius: 2px;
 }
+
 .section-title {
     font-weight: 700;
     margin-bottom: unset;
 }
+
 .section-widget {
     display: flex;
     flex-direction: column;
@@ -108,12 +128,15 @@
     box-shadow: var(--shadow);
     border: 2px solid var(--border) !important;
 }
+
 .section-widget hr {
     margin-bottom: var(--s);
 }
+
 .section-padding {
     padding: var(--s);
 }
+
 .section-widget-paging {
     display: block;
     font-family: 'Poppins', sans-serif;
@@ -122,9 +145,11 @@
     margin-top: var(--s);
     margin-left: auto;
 }
+
 .section-widget-title {
     margin-left: unset;
 }
+
 .section-widget-button-like {
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
@@ -136,60 +161,81 @@
     border-radius: var(--s);
     border: 2px solid var(--border);
 }
-.section-widget-title-details summary{
+
+.section-widget-title-details summary {
     padding: 6px 12px;
 }
+
 .section-widget-subtitle-details summary {
     padding: 2px 8px;
 }
+
 .section-widget-subtitle-summary + * {
     border-radius: var(--s);
     background: var(--gradient);
     padding: 2px 8px;
 }
+
 .section-form .section-widget-subtitle-details summary {
     border: 2px solid var(--border);
 }
+
 .section-widget-title-details summary,
 .section-widget-subtitle-details summary {
-    align-items: center;
+    display: inline-block;
+    width: 100%;
     border-radius: var(--s);
-    background: var(--gradient) !important;
+    background: var(--gradient);
 }
-.section-widget-subtitle-details[open] svg,
-.section-widget-title-details[open] .icon-details-open {
+.section-widget-title-details summary > *,
+.section-widget-subtitle-details summary > * {
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+.section-widget-title-details summary > *:last-child,
+.section-widget-subtitle-details summary > *:last-child {
+    margin-right: 4px;
+}
+
+.section-widget-title-details summary:after,
+.section-widget-subtitle-details summary:after {
+    content: "\2193";
+    float: right;
+}
+
+.section-widget-subtitle-details[open] summary:after,
+.section-widget-title-details[open] summary:after {
     transform: rotate(180deg);
-    animation: fadeOut 200ms cubic-bezier(0,0.55,0.45,1);
+    animation: fadeOut 200ms cubic-bezier(0, 0.55, 0.45, 1);
 }
-.section-widget-subtitle-details:not([open]) svg,
-.section-widget-title-details:not([open]) .icon-details-open {
+
+.section-widget-subtitle-details:not([open]) summary:after,
+.section-widget-title-details:not([open]) summary:after {
     transform: initial;
-    animation: fadeIn 200ms cubic-bezier(0,0.55,0.45,1);
+    animation: fadeIn 200ms cubic-bezier(0, 0.55, 0.45, 1);
 }
-.section-subtitle-summary,
-.section-title-summary {
-    display: flex;
-}
+
 .section-subtitle-summary ~ [class|="form-row"] {
     font-size: 0.937rem;
     max-font-size: 0.937rem !important;
     padding: var(--s);
 }
-.section-subtitle-summary strong,
-.section-title-summary h2 {
-    margin-right: auto;
-}
+
 .section-subtitle-summary a,
 .section-title-summary a {
     line-height: initial;
 }
+
 .section-subtitle-summary svg:last-child,
 .section-title-summary svg:last-child {
     margin-left: 4px;
 }
+
 .section-widget-subtitle-details .section-widget-subtitle-details:not(:last-of-type) {
     margin-bottom: var(--s);
 }
+
 .section-form {
     display: flex;
     flex-direction: column;
@@ -199,27 +245,33 @@
     width: 100%;
     padding: var(--s);
 }
+
 .section-form-legend {
     margin-top: unset;
     margin-bottom: var(--s);
     font-weight: bold;
 }
+
 .form-row {
     display: flex;
     flex-direction: column;
     margin-bottom: var(--s);
 }
+
 .form-row-widget {
     display: block;
     width: 100%;
 }
+
 .form-row-help {
     margin-bottom: unset;
 }
+
 textarea.form-row-widget {
     height: 7rem;
     resize: vertical;
 }
+
 .form-row-widget-error,
 .form-error,
 .alert,
@@ -233,11 +285,13 @@ textarea.form-row-widget {
     margin-top: 6px;
     margin-bottom: 6px;
 }
+
 .footer ul {
     display: inline-flex;
     width: 100%;
     justify-content: flex-start;
 }
+
 .footer ul li {
     margin-right: 5px;
 }

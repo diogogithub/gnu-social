@@ -21,7 +21,6 @@
                                     {{ "Create a note" | trans }}
                                 {% endif %}
                             </h2>
-                            {{ icon('arrow-down', 'icon icon-details-open') | raw }}
                         </summary>
 
                         <div class="section-form">
@@ -40,7 +39,6 @@
                                         <strong>
                                             {{ "Additional options" | trans }}
                                         </strong>
-                                        {{ icon('arrow-down', 'icon icon-details-close') | raw }}
                                     </summary>
                                     {{ form_row(blocks['post_form'].language) }}
                                     {{ form_row(blocks['post_form'].tag_use_canonical) }}

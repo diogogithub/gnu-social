@@ -8,19 +8,6 @@ html {
     scroll-margin-top: var(--xxl);
 }
 
-@media(prefers-color-scheme:dark) {
-    select:not([multiple]) {
-        background: var(--gradient),url("../images/select_drop_dark.png") no-repeat center right 5px !important;
-        background-size: cover,16px !important;
-    }
-}
-@media(prefers-color-scheme:light) {
-    select:not([multiple]) {
-        background: var(--gradient),url("../images/select_drop_light.png") no-repeat center right 5px !important;
-        background-size: cover,16px !important;
-        background-blend-mode: saturation;
-    }
-}
 .icon {
     align-self: center;
     fill: var(--foreground);
