@@ -31,6 +31,8 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Core\Log;
+use App\Core\Router\Router;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -101,7 +103,7 @@ class Conversation extends FeedController
         $user     = Common::ensureLoggedIn();
         $is_muted = ConversationMute::isMuted($conversation_id, $user);
         $form     = Form::create([
-            ['mute_conversation', SubmitType::class, ['label' => $is_muted ? _m('Unmute conversation') : _m('Mute conversation')]],
+            ['mute_conversation', SubmitType::class, ['label' => $is_muted ? _m('Unmute') : _m('Mute'), 'attr' => ['class' => '']]],
         ]);
 
         $form->handleRequest($request);
@@ -113,11 +115,27 @@ class Conversation extends FeedController
             }
             DB::flush();
             Cache::delete(ConversationMute::cacheKeys($conversation_id, $user->getId())['mute']);
-            throw new RedirectException();
+
+            // Redirect user to where they came from
+            // Prevent open redirect
+            if (!\is_null($from = $this->string('from'))) {
+                if (Router::isAbsolute($from)) {
+                    Log::warning("Actor {$user->getId()} attempted to mute conversation {$conversation_id} and then get redirected to another host, or the URL was invalid ({$from})");
+                    throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
+                } else {
+                    // TODO anchor on element id
+                    throw new RedirectException(url: $from);
+                }
+            } else {
+                // If we don't have a URL to return to, go to the instance root
+                throw new RedirectException('root');
+            }
         }
 
         return [
             '_template' => 'conversation/mute.html.twig',
+            'notes'     => $this->query(query: "note-conversation:{$conversation_id}")['notes'] ?? [],
+            'is_muted'  => $is_muted,
             'form'      => $form->createView(),
         ];
     }

@@ -30,6 +30,7 @@ input[type=radio] {
 
 input[type=radio]:checked {
     background: var(--background-hard);
+    box-shadow: inset 0 0 0 2px var(--accent) !important;
 }
 
 input[type=file] {
@@ -97,6 +98,12 @@ button {
     cursor: pointer !important;
     margin-left: auto !important;
     margin-top: var(--s);
+}
+
+.alert button {
+    cursor: pointer !important;
+    margin-top: unset !important;
+    border-color: tomato !important;
 }
 
 button,

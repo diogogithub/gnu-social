@@ -276,7 +276,9 @@ textarea.form-row-widget {
 .alert-danger,
 .form-error,
 .form-row-widget-error {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
     font-style: italic;
     border: solid 2px #ff6347;
     background-color: #FF634733;

@@ -1,5 +1,21 @@
-{% extends 'base.html.twig' %}
+{% extends 'collection/notes.html.twig' %}
 
 {% block body %}
-    {{ form(form) }}
+    <div class="section-widget section-padding">
+        {% if is_muted %}
+            <span class="section-padding alert">
+            <label>Do you wish to <b>unmute</b> this conversation?</label>
+            {{ form(form) }}
+        </span>
+        {% else %}
+            <span class="section-padding alert">
+            <label>Do you wish to <b>mute</b> this conversation?</label>
+            {{ form(form) }}
+        </span>
+        {% endif %}
+
+        <hr>
+
+        {{ parent() }}
+    </div>
 {% endblock body %}

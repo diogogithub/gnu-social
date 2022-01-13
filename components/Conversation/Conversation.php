@@ -226,10 +226,23 @@ class Conversation extends Component
             return Event::next;
         }
 
+        $from = $request->query->has('from')
+            ? $request->query->get('from')
+            : $request->getPathInfo();
+
+        $mute_extra_action_url = Router::url(
+            'conversation_mute',
+            [
+                'conversation_id' => $note->getConversationId(),
+                'from'            => $from . '#note-anchor-' . $note->getId(),
+            ],
+            Router::ABSOLUTE_PATH,
+        );
+
         $actions[] = [
             'title'   => ConversationMute::isMuted($note, $user) ? _m('Unmute conversation') : _m('Mute conversation'),
             'classes' => '',
-            'url'     => Router::url('conversation_mute', ['conversation_id' => $note->getConversationId()]),
+            'url'     => $mute_extra_action_url,
         ];
 
         return Event::next;

@@ -82,7 +82,7 @@ class Favourite extends FeedController
             // Prevent open redirect
             if (!\is_null($from = $this->string('from'))) {
                 if (Router::isAbsolute($from)) {
-                    Log::warning("Actor {$actor_id} attempted to reply to a note and then get redirected to another host, or the URL was invalid ({$from})");
+                    Log::warning("Actor {$actor_id} attempted to favourite a note and then get redirected to another host, or the URL was invalid ({$from})");
                     throw new ClientException(_m('Can not redirect to outside the website from here'), 400); // 400 Bad request (deceptive)
                 } else {
                     // TODO anchor on element id
