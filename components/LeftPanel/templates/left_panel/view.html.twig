@@ -1,10 +1,10 @@
 {% block leftpanel %}
-    <label class="panel-left-icon" for="panel-left-toggle" aria-hidden="true"
+    <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab followed by a space to access left panel' | trans }}"></a>
+    <label class="panel-left-icon" for="panel-left-toggle"
            tabindex="-1">{{ icon('menu', 'icon icon-left') | raw }}</label>
-    <input type="checkbox" id="panel-left-toggle" aria-hidden="true" tabindex="-1">
+    <input type="checkbox" id="panel-left-toggle" tabindex="0" title="{{ 'Open right panel' | trans }}">
 
     <section class="header-panel section-panel-left">
-        <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
         <aside class="panel-content accessibility-target">
             {% if app.user %}
                 <section class='section-widget section-padding' title="{{ 'Your profile information.' | trans }}">

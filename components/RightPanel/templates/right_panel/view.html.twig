@@ -1,10 +1,10 @@
 {% block rightpanel %}
-    <label class="panel-right-icon" for="panel-right-toggle" aria-hidden="true"
+    <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab followed by a space to access right panel' | trans }}"></a>
+    <label class="panel-right-icon" for="panel-right-toggle"
            tabindex="-1">{{ icon('chevron-left', 'icon icon-right') | raw }}</label>
-    <input type="checkbox" id="panel-right-toggle" aria-hidden="true" tabindex="-1">
+    <input type="checkbox" id="panel-right-toggle" tabindex="0" title="{{ 'Open right panel' | trans }}">
 
     <div class="header-panel section-panel-right">
-        <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
         <aside class="panel-content accessibility-target">
 
             {% set blocks = handle_event('AppendRightPostingBlock', request) %}
