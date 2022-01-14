@@ -20,7 +20,7 @@ class HostMeta extends XrdController
 
     public function setXRD()
     {
-        if (Event::handle('StartHostMetaLinks', [&$this->xrd->links])) {
+        if (Event::handle('StartHostMetaLinks', [&$this->xrd->links]) !== Event::stop) {
             Event::handle('EndHostMetaLinks', [&$this->xrd->links]);
         }
     }

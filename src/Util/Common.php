@@ -325,4 +325,18 @@ abstract class Common
     {
         return self::actor()?->getTopLanguage() ?? Language::getByLocale(self::$request->headers->has('accept-language') ? I18n::clientPreferredLanguage(self::$request->headers->get('accept-language')) : self::config('site', 'language'));
     }
+
+    // Convert the ArrayBuffer to string using Uint8 array.
+    // btoa takes chars from 0-255 and base64 encodes.
+    // Then convert the base64 encoded to base64url encoded.
+    // (replace + with -, replace / with _, trim trailing =)
+    public static function base64url_encode(string $data): string
+    {
+        return rtrim(strtr(strtr(base64_encode($data), '+', '-'), '/', '_'), '=');
+    }
+
+    public static function base64url_decode(string $data): string
+    {
+        return base64_decode(str_pad(strtr(strtr($data, '_', '/'), '-', '+'), \mb_strlen($data) % 4, '=', \STR_PAD_RIGHT));
+    }
 }

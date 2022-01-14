@@ -42,6 +42,14 @@ security:
                 samesite: '%remember_me_samesite%'
                 token_provider: 'Symfony\Bridge\Doctrine\Security\RememberMe\DoctrineTokenProvider'
 
+        api_token:
+            pattern: ^/oauth/token$
+            security: false
+        api:
+            pattern: ^/api
+            security: true
+            stateless: true
+
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 
@@ -53,3 +61,4 @@ security:
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/settings, roles: ROLE_USER }
+        - { path: ^/authorize, roles: IS_AUTHENTICATED_REMEMBERED }

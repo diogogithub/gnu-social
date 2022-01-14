@@ -21,4 +21,5 @@ return [
     SymfonyCasts\Bundle\ResetPassword\SymfonyCastsResetPasswordBundle::class => ['all' => true],
     Knp\Bundle\TimeBundle\KnpTimeBundle::class                               => ['all' => true],
     Fidry\PsyshBundle\PsyshBundle::class                                     => ['all' => true],
+    Trikoder\Bundle\OAuth2Bundle\TrikoderOAuth2Bundle::class                 => ['all' => true],
 ];

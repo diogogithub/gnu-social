@@ -1,0 +1,6 @@
+{
+  "require": {
+    "nyholm/psr7": "*",
+    "trikoder/oauth2-bundle": "*"
+  }
+}
