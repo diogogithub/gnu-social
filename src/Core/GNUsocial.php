@@ -72,12 +72,15 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Security as SSecurity;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
+use Trikoder\Bundle\OAuth2Bundle\Event\UserResolveEvent;
 use Twig\Environment;
 
 /**
@@ -266,6 +269,22 @@ class GNUsocial implements EventSubscriberInterface
         $container->setParameter('gnusocial_defaults', $defaults);
     }
 
+    public function userResolve(UserResolveEvent $event, UserProviderInterface $userProvider, UserPasswordEncoderInterface $userPasswordEncoder): void
+    {
+        Log::debug('cenas: ', [$event, $userProvider, $userPasswordEncoder]);
+        $user = $userProvider->loadUserByUsername($event->getUsername());
+
+        if (null === $user) {
+            return;
+        }
+
+        if (!$userPasswordEncoder->isPasswordValid($user, $event->getPassword())) {
+            return;
+        }
+
+        $event->setUser($user);
+    }
+
     /**
      * Tell Symfony which events we want to listen to, which Symfony detects and auto-wires
      * due to this implementing the `EventSubscriberInterface`
@@ -273,8 +292,9 @@ class GNUsocial implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => 'onKernelRequest',
-            'console.command'     => 'onCommand',
+            KernelEvents::REQUEST          => 'onKernelRequest',
+            'console.command'              => 'onCommand',
+            'trikoder.oauth2.user_resolve' => 'userResolve',
         ];
     }
 }

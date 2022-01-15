@@ -35,7 +35,6 @@ use App\Util\Exception\NicknameNotAllowedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
 use App\Util\Nickname;
-use DateTimeInterface;
 use Exception;
 use libphonenumber\PhoneNumber;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;

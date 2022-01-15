@@ -1,4 +1,7 @@
 {
+    "ajgarlag/psr-http-message-bundle": {
+        "version": "1.2.1"
+    },
     "alchemy/binary-driver": {
         "version": "v5.2.0"
     },

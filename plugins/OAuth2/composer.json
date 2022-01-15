@@ -1,6 +1,6 @@
 {
   "require": {
     "nyholm/psr7": "*",
-    "trikoder/oauth2-bundle": "*"
+    "trikoder/oauth2-bundle": "v3.x-dev"
   }
 }
