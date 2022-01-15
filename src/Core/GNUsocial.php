@@ -48,6 +48,7 @@ use App\Core\DB\DB;
 use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
+use App\Entity\LocalUser;
 use App\Kernel;
 use App\Security\EmailVerifier;
 use App\Util\Common;
@@ -291,6 +292,7 @@ class GNUsocial implements EventSubscriberInterface
     {
         // TODO: if using 3rd party clients, make sure the user approves access
         $event->resolveAuthorization(true);
+        $event->setUser(LocalUser::getById(1));
     }
 
     /**
