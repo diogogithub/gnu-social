@@ -81,6 +81,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Trikoder\Bundle\OAuth2Bundle\Event\UserResolveEvent;
+use Trikoder\Bundle\OAuth2Bundle\OAuth2Events;
 use Twig\Environment;
 
 /**
@@ -292,9 +293,9 @@ class GNUsocial implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST          => 'onKernelRequest',
-            'console.command'              => 'onCommand',
-            'trikoder.oauth2.user_resolve' => 'userResolve',
+            KernelEvents::REQUEST      => 'onKernelRequest',
+            'console.command'          => 'onCommand',
+            OAuth2Events::USER_RESOLVE => 'userResolve',
         ];
     }
 }

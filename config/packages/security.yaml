@@ -21,8 +21,16 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         oauth_token:
-            pattern: ^/oauth/(token|authorize)$
+            pattern: ^/oauth/token$
             security: false
+        oauth_authorize:
+            pattern: ^/oauth/authorize$
+            security: true
+            entry_point: App\Security\Authenticator
+            guard:
+                authenticators:
+                    - App\Security\Authenticator
+            provider: local_user
         oauth:
             guard:
                 authenticators:

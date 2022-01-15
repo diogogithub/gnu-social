@@ -74,7 +74,8 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
 
     public function supports(Request $request): bool
     {
-        return self::LOGIN_ROUTE === $request->attributes->get('_route') && $request->isMethod('POST');
+        return (self::LOGIN_ROUTE === $request->attributes->get('_route') && $request->isMethod('POST'))
+            || ('oauth2_authorize' === $request->attributes->get('_route'));
     }
 
     /**
