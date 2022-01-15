@@ -11,3 +11,10 @@ trikoder_oauth2:
 
     persistence:
         doctrine: null
+
+    # Scopes that you wish to utilize in your application.
+    # This should be a simple array of strings.
+    scopes:
+    - read
+    - write
+    - follow
