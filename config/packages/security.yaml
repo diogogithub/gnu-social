@@ -21,24 +21,8 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         oauth_token:
-            pattern: ^/oauth/token$
+            pattern: ^/oauth/(token|authorize)$
             security: false
-        oauth_authorize:
-            pattern: ^/oauth/authorize$
-            security: true
-            entry_point: App\Security\Authenticator
-            guard:
-                authenticators:
-                    - App\Security\Authenticator
-            provider: local_user
-        oauth:
-            guard:
-                authenticators:
-                    - Trikoder\Bundle\OAuth2Bundle\Security\Guard\Authenticator\OAuth2Authenticator
-            provider: local_user
-            pattern: ^/oauth/
-            security: true
-            stateless: true
         api_apps:
             pattern: ^/api/v1/apps$
             security: false

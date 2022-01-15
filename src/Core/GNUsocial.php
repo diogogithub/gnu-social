@@ -80,6 +80,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
+use Trikoder\Bundle\OAuth2Bundle\Event\AuthorizationRequestResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\Event\UserResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\OAuth2Events;
 use Twig\Environment;
@@ -286,6 +287,12 @@ class GNUsocial implements EventSubscriberInterface
         $event->setUser($user);
     }
 
+    public function authRequestResolve(AuthorizationRequestResolveEvent $event): void
+    {
+        // TODO: if using 3rd party clients, make sure the user approves access
+        $event->resolveAuthorization(true);
+    }
+
     /**
      * Tell Symfony which events we want to listen to, which Symfony detects and auto-wires
      * due to this implementing the `EventSubscriberInterface`
@@ -293,9 +300,10 @@ class GNUsocial implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST      => 'onKernelRequest',
-            'console.command'          => 'onCommand',
-            OAuth2Events::USER_RESOLVE => 'userResolve',
+            KernelEvents::REQUEST                       => 'onKernelRequest',
+            'console.command'                           => 'onCommand',
+            OAuth2Events::USER_RESOLVE                  => 'userResolve',
+            OAuth2Events::AUTHORIZATION_REQUEST_RESOLVE => 'authRequestResolve',
         ];
     }
 }
