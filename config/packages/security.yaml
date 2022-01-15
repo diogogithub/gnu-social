@@ -21,7 +21,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         oauth_token:
-            pattern: ^/oauth/token$
+            pattern: ^/oauth/(token|authorize)$
             security: false
         oauth:
             guard:
