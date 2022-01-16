@@ -9,6 +9,14 @@ trikoder_oauth2:
         grant_types:
             authorization_code:
                 enable: true
+            client_credentials:
+                enable: true
+            implicit:
+                enable: true
+            password:
+                enable: true
+            refresh_token:
+                enable: true
 
     resource_server:
         public_key: '%kernel.project_dir%/var/oauth/public.key'
