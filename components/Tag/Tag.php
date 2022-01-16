@@ -213,8 +213,9 @@ class Tag extends Component
                 $actor_expr = $temp_actor_expr;
                 return Event::next;
             }
+            return Event::stop;
         }
-        return Event::stop;
+        return Event::next;
     }
 
     public function onCollectionQueryAddJoins(QueryBuilder &$note_qb, QueryBuilder &$actor_qb): bool
