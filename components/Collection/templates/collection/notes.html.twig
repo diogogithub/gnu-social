@@ -9,6 +9,10 @@
 {% endblock stylesheets %}
 
 {% block body %}
+    {% for block in handle_event('BeforeFeed', app.request) %}
+        {{ block | raw }}
+    {% endfor %}
+
     <header class="feed-header">
         {% if page_title is defined %}
             <h1 class="heading-no-margin">{{ page_title | trans }}</h1>
