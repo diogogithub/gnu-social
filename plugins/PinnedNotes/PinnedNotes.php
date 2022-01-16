@@ -129,4 +129,21 @@ class PinnedNotes extends Plugin
         $styles[] = 'plugins/PinnedNotes/assets/css/pinned-notes.css';
         return Event::next;
     }
+
+    // Activity Pub handling stuff
+    public function onActivityPubAddActivityStreamsTwoData(string $type_name, &$type): bool
+    {
+        if ($type_name === 'Note') {
+            $actor = \Plugin\ActivityPub\ActivityPub::getActorByUri($type->get('attributedTo'));
+            // Note uri is `https://domain:port/object/note/3`.
+            // is it always like that? I honestly don't know, but I see
+            // no other way of getting Note id:
+            $uri_parts = explode('/', $type->get('id'));
+            $note_id   = end($uri_parts);
+            $is_pinned = !\is_null(DB::findOneBy(E\PinnedNotes::class, ['actor_id' => $actor->getId(), 'note_id' => $note_id], return_null: true));
+
+            $type->set('pinned', $is_pinned);
+        }
+        return Event::next;
+    }
 }
