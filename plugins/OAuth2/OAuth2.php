@@ -43,6 +43,7 @@ use Plugin\OAuth2\Controller\Apps;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Trikoder\Bundle\OAuth2Bundle\Event\AuthorizationRequestResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\Event\UserResolveEvent;
+use Trikoder\Bundle\OAuth2Bundle\Model\Grant;
 use Trikoder\Bundle\OAuth2Bundle\OAuth2Events;
 use XML_XRD_Element_Link;
 
@@ -106,6 +107,7 @@ class OAuth2 extends Plugin implements EventSubscriberInterface
             $user = Common::ensureLoggedIn();
             $event->setUser($user);
             $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_APPROVED);
+            $event->getClient()->setGrants(new Grant('client_credentials'), new Grant('authorization_code'));
         } catch (NoLoggedInUser) {
             $event->setResponse(new Response(302, [
                 'Location' => Router::url('security_login', [

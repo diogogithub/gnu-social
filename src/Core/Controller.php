@@ -180,8 +180,15 @@ abstract class Controller extends AbstractController implements EventSubscriberI
         $event->getResponse()->headers->set('permissions-policy', 'interest-cohort=()');
         $event->getResponse()->headers->set('strict-transport-security', 'max-age=15768000; preload;');
         $event->getResponse()->headers->set('vary', 'Accept-Encoding,Cookie');
-        $event->getResponse()->headers->set('x-frame-options', 'SAMEORIGIN');
+        $event->getResponse()->headers->set('x-frame-options', 'DENY');
         $event->getResponse()->headers->set('x-xss-protection', '1; mode=block');
+        $event->getResponse()->headers->set('x-content-type-options', 'nosniff');
+        $event->getResponse()->headers->set('x-download-options', 'noopen');
+        $event->getResponse()->headers->set('x-permitted-cross-domain-policies', 'none');
+        $event->getResponse()->headers->set('access-control-allow-credentials', true);
+        $event->getResponse()->headers->set('access-control-allow-origin', '*');
+        $event->getResponse()->headers->set('referrer-policy', 'same-origin');
+        $event->getResponse()->headers->set('access-control-expose-headers', 'Link,X-RateLimit-Reset,X-RateLimit-Limit,X-RateLimit-Remaining,X-Request-Id,Idempotency-Key');
         $policy = "default-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; style-src 'self' 'unsafe-inline'; img-src * blob: data:;";
         $event->getResponse()->headers->set('Content-Security-Policy', $policy);
         $event->getResponse()->headers->set('X-Content-Security-Policy', $policy);
@@ -257,6 +264,7 @@ abstract class Controller extends AbstractController implements EventSubscriberI
             } else {
                 return null;
             }
+            // no break
         case 'params':
             return $this->request->query->all();
         default:
