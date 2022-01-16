@@ -239,4 +239,17 @@ class WebMonetization extends Plugin
         }
         return Event::next;
     }
+
+    public function onActivityPubAddActivityStreamsTwoData(string $type_name, &$type): bool
+    {
+        if ($type_name === 'Person') {
+            $actor   = \Plugin\ActivityPub\ActivityPub::getActorByUri($type->getId());
+            $wallet  = DB::findOneBy(Wallet::class, ['actor_id' => $actor->getId()], return_null: true);
+            $address = $wallet?->getAddress();
+            if ($address) {
+                $type->set('webmonetizationWallet', $address);
+            }
+        }
+        return Event::next;
+    }
 }
