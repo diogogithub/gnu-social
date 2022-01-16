@@ -36,6 +36,7 @@ use LogicException;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -49,11 +50,13 @@ class Security extends Controller
     /**
      * Log a user in
      */
-    public function login(AuthenticationUtils $authenticationUtils)
+    public function login(AuthenticationUtils $authenticationUtils): RedirectResponse|array
     {
         // Skip if already logged in
         if ($this->getUser()) {
-            return $this->redirectToRoute('root');
+            // TODO: Fix the Open Redirect security flaw here.
+            $targetPath = Common::getRequest()->query->get('returnUrl');
+            return \is_null($targetPath) ? $this->redirectToRoute('root') : new RedirectResponse($targetPath);
         }
 
         // get the login error if there is one

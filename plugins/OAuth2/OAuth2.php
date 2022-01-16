@@ -33,7 +33,6 @@ declare(strict_types = 1);
 namespace Plugin\OAuth2;
 
 use App\Core\Event;
-use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
@@ -44,8 +43,6 @@ use Nyholm\Psr7\Response;
 use Plugin\OAuth2\Controller\Apps;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Trikoder\Bundle\OAuth2Bundle\Event\AuthorizationRequestResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\Event\UserResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\OAuth2Events;
@@ -94,16 +91,11 @@ class OAuth2 extends Plugin implements EventSubscriberInterface
         return Event::next;
     }
 
-    public function userResolve(UserResolveEvent $event, UserProviderInterface $userProvider, UserPasswordEncoderInterface $userPasswordEncoder): void
+    public function userResolve(UserResolveEvent $event): void
     {
-        Log::debug('cenas: ', [$event, $userProvider, $userPasswordEncoder]);
-        $user = $userProvider->loadUserByUsername($event->getUsername());
+        $user = Common::user();
 
         if (\is_null($user)) {
-            return;
-        }
-
-        if (!$userPasswordEncoder->isPasswordValid($user, $event->getPassword())) {
             return;
         }
 
