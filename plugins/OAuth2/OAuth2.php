@@ -38,15 +38,12 @@ use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Util\Common;
 use App\Util\Exception\NoLoggedInUser;
-use App\Util\Formatting;
 use Nyholm\Psr7\Response;
 use Plugin\OAuth2\Controller\Apps;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Trikoder\Bundle\OAuth2Bundle\Event\AuthorizationRequestResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\Event\UserResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\OAuth2Events;
-use Trikoder\Bundle\OAuth2Bundle\OAuth2Grants;
 use XML_XRD_Element_Link;
 
 /**
@@ -107,38 +104,8 @@ class OAuth2 extends Plugin implements EventSubscriberInterface
         $request = Common::getRequest();
         try {
             $user = Common::ensureLoggedIn();
-            // get requests will be intercepted and shown the login form
-            // other verbs we will handle as an authorization denied
-            // and this implementation ensures a user is set at this point already
-            if ($request->getMethod() !== 'POST') {
-                $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_DENIED);
-                return;
-            } else {
-                if (!$request->request->has('action')) {
-                    // 1. successful login, goes to grant page
-                    $content = Formatting::twigRenderFile('security/grant.html.twig', [
-                        'scopes' => $event->getScopes(),
-                        'client' => $event->getClient(),
-                        'grant'  => OAuth2Grants::AUTHORIZATION_CODE,
-                        // very simple way to ensure user gets to this point in the
-                        // flow when granting or denying is to pre-add their credentials
-                        'email'    => $request->request->get('email'),
-                        'password' => $request->request->get('password'),
-                    ]);
-                    $response = new Response(200, [], $content);
-                    $event->setResponse($response);
-                } else {
-                    // 2. grant operation, either grants or denies
-                    if ($request->request->get('action') === OAuth2Grants::AUTHORIZATION_CODE) {
-                        $event->setUser($user);
-                        $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_APPROVED);
-                    } else {
-                        $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_DENIED);
-                    }
-                }
-            }
-            // Whoops!
-            throw new BadRequestException();
+            $event->setUser($user);
+            $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_APPROVED);
         } catch (NoLoggedInUser) {
             $event->setResponse(new Response(302, [
                 'Location' => Router::url('security_login', [
