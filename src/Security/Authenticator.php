@@ -157,7 +157,10 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
             $nickname,
         );
 
-        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+        // TODO: Fix the Open Redirect security flaw here.
+        $targetPath = $request->request->get('returnUrl');
+
+        if ($targetPath ??= $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
 
@@ -178,8 +181,8 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
         );
     }
 
-    protected function getLoginUrl()
+    protected function getLoginUrl(int $type = Router::ABSOLUTE_PATH): string
     {
-        return Router::url(self::LOGIN_ROUTE);
+        return Router::url(self::LOGIN_ROUTE, type: $type);
     }
 }

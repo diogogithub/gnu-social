@@ -48,7 +48,6 @@ use App\Core\DB\DB;
 use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
-use App\Entity\LocalUser;
 use App\Kernel;
 use App\Security\EmailVerifier;
 use App\Util\Common;
@@ -57,6 +56,7 @@ use App\Util\Formatting;
 use App\Util\HTML;
 use Doctrine\ORM\EntityManagerInterface;
 use HtmlSanitizer\SanitizerInterface;
+use Nyholm\Psr7\Response;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
@@ -84,6 +84,7 @@ use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Trikoder\Bundle\OAuth2Bundle\Event\AuthorizationRequestResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\Event\UserResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\OAuth2Events;
+use Trikoder\Bundle\OAuth2Bundle\OAuth2Grants;
 use Twig\Environment;
 
 /**
@@ -277,7 +278,7 @@ class GNUsocial implements EventSubscriberInterface
         Log::debug('cenas: ', [$event, $userProvider, $userPasswordEncoder]);
         $user = $userProvider->loadUserByUsername($event->getUsername());
 
-        if (null === $user) {
+        if (\is_null($user)) {
             return;
         }
 
@@ -290,9 +291,51 @@ class GNUsocial implements EventSubscriberInterface
 
     public function authRequestResolve(AuthorizationRequestResolveEvent $event): void
     {
-        // TODO: if using 3rd party clients, make sure the user approves access
-        $event->resolveAuthorization(true);
-        $event->setUser(LocalUser::getById(1));
+        $request = $this->request;
+
+        // only handle post requests for logged-in users:
+        // get requests will be intercepted and shown the login form
+        // other verbs we will handle as an authorization denied
+        // and this implementation ensures a user is set at this point already
+        if ($request->getMethod() !== 'POST' && \is_null($event->getUser())) {
+            $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_DENIED);
+            return;
+        }
+
+        if (!$request->request->has('action')) {
+            // 1. successful login, goes to grant page
+            $content = $this->twig->render('security/grant.html.twig', [
+                'scopes' => $event->getScopes(),
+                'client' => $event->getClient(),
+                'grant'  => OAuth2Grants::AUTHORIZATION_CODE,
+                // very simple way to ensure user gets to this point in the
+                // flow when granting or denying is to pre-add their credentials
+                'email'    => $request->request->get('email'),
+                'password' => $request->request->get('password'),
+            ]);
+
+            $response = new Response(200, [], $content);
+            $event->setResponse($response);
+        } else {
+            // 2. grant operation, either grants or denies
+            if ($request->request->get('action') == OAuth2Grants::AUTHORIZATION_CODE) {
+                $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_APPROVED);
+            } else {
+                $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_DENIED);
+            }
+        }
+
+        if (\is_null($event->getUser())) {
+            $event->setResponse(new Response(302, [
+                'Location' => Router::url('security_login', [
+                    'returnUrl' => $request->getUri(),
+                ]),
+            ]));
+
+            return;
+        }
+
+        $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_APPROVED);
     }
 
     /**

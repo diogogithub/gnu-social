@@ -6,6 +6,10 @@ trikoder_oauth2:
 
         encryption_key: '%env(string:OAUTH2_ENCRYPTION_KEY)%'   # (Optional) Change this
 
+        grant_types:
+            authorization_code:
+                enable: true
+
     resource_server:
         public_key: '%kernel.project_dir%/var/oauth/public.key'
 
