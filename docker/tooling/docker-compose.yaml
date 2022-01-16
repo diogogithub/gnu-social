@@ -6,7 +6,6 @@ services:
         depends_on:
           - db
           - redis
-          - pa11y
         volumes:
             # Entrypoint
             - ../php/entrypoint.sh:/entrypoint.sh
@@ -45,8 +44,10 @@ services:
 
     pa11y:
         build: pa11y
+        depends_on:
+            - nginx
         volumes:
-          - ../../tests/CodeCeption/pa11y-config.json:/pa11y/config.json
+          - ../../tests/pa11y-ci-config.json:/pa11y/config.json
         cap_add:
           - SYS_ADMIN
 

@@ -45,8 +45,8 @@ stop-tooling: .PHONY
 tooling-php-shell: tooling-docker
 	docker exec -it $(call translate-container-name,tooling_php_1) sh
 
-acceptance-and-accessibility: tooling-docker
-	docker exec -it $(call translate-container-name,tooling_php_1) /var/tooling/acceptance_and_accessibility.sh
+test-accesibility: tooling-docker
+	cd docker/tooling && docker-compose run pa11y /usr/local/bin/pa11y-ci -c /pa11y/config.json
 
 test: tooling-docker
 	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,'')

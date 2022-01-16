@@ -1,0 +1,24 @@
+{
+    "defaults": {
+        "chromeLaunchConfig": {
+            "ignoreHTTPSErrors": true
+        },
+        "timeout": 5000,
+        "viewport": {
+            "width": 320,
+            "height": 480
+        }
+    },
+    "concurrency": 4,
+    "urls": [
+        "https://nginx/",
+        "https://nginx/feed/public",
+        "https://nginx/doc/faq",
+        "https://nginx/doc/tos",
+        "https://nginx/doc/privacy",
+        "https://nginx/doc/source",
+        "https://nginx/doc/version",
+        "https://nginx/main/login",
+        "https://nginx/main/register"
+    ]
+}
