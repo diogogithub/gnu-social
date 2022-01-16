@@ -3,10 +3,11 @@
         "chromeLaunchConfig": {
             "ignoreHTTPSErrors": true
         },
-        "timeout": 5000,
+        "standard": "WCAG2AAA",
+        "timeout": 10000,
         "viewport": {
-            "width": 320,
-            "height": 480
+            "width": 1920,
+            "height": 1080
         }
     },
     "concurrency": 4,
@@ -19,6 +20,29 @@
         "https://nginx/doc/source",
         "https://nginx/doc/version",
         "https://nginx/main/login",
-        "https://nginx/main/register"
+        "https://nginx/main/register",
+        {
+            "url": "http://nginx/main/login",
+            "actions": [
+                "navigate to https://nginx/main/login",
+                "set field #inputNicknameOrEmail to taken_user",
+                "set field #inputPassword to foobar",
+                "click element #signIn",
+                "wait for path to not be /login"
+            ]
+        },
+        "https://nginx/feed/public",
+        "https://nginx/feed/home",
+        "https://nginx/@taken_user/circles",
+        "https://nginx/feed/network",
+        "https://nginx/feed/clique",
+        "https://nginx/feed/federated",
+        "https://nginx/feed/notifications",
+        "https://nginx/@taken_user/collections",
+        "https://nginx/@taken_user/favourites",
+        "https://nginx/@taken_user/reverse_favourites",
+        "https://nginx/directory/people",
+        "https://nginx/directory/groups",
+        "https://nginx/settings"
     ]
 }
