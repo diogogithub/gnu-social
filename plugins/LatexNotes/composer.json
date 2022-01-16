@@ -1,0 +1,5 @@
+{
+  "require": {
+    "xemlock/php-latex": "dev-master"
+  }
+}
