@@ -26,7 +26,12 @@ parameters:
             path: src/PHPStan/ClassFromTableNameDynamicStaticMethodReturnTypeExtension.php
 
         -
-            message: '/Access to constant STANDARD_WCAG2A?A?A? on an unknown class Helper\\AccessibilityValidator/'
+            message: '/Parameter \$I of method [a-zA-Z]+::[a-zA-Z_]+\(\) has invalid type AcceptanceTester\./'
+            paths:
+                - *
+
+        -
+            message: '/Call to method [a-zA-Z]+\(\) on an unknown class AcceptanceTester\./'
             paths:
                 - *
 
