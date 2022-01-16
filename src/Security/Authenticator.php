@@ -158,8 +158,7 @@ class Authenticator extends AbstractFormLoginAuthenticator implements Authentica
         );
 
         // TODO: Fix the Open Redirect security flaw here.
-        $targetPath = $request->request->get('returnUrl');
-
+        $targetPath = $request->query->get('returnUrl');
         if ($targetPath ??= $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }

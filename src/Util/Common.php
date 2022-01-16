@@ -135,17 +135,20 @@ abstract class Common
 
     public static function userNickname(): ?string
     {
-        return self::ensureLoggedIn()->getNickname();
+        return self::ensureLoggedIn()?->getNickname();
     }
 
     public static function userId(): ?int
     {
-        return self::ensureLoggedIn()->getId();
+        return self::ensureLoggedIn()?->getId();
     }
 
+    /**
+     * @throws NoLoggedInUser
+     */
     public static function ensureLoggedIn(): LocalUser
     {
-        if (($user = self::user()) == null) {
+        if (\is_null($user = self::user())) {
             throw new NoLoggedInUser();
         // TODO Maybe redirect to login page and back
         } else {
@@ -160,7 +163,7 @@ abstract class Common
      */
     public static function isLoggedIn(): bool
     {
-        return self::user() != null;
+        return !\is_null(self::user());
     }
 
     /**
@@ -337,6 +340,6 @@ abstract class Common
 
     public static function base64url_decode(string $data): string
     {
-        return base64_decode(str_pad(strtr(strtr($data, '_', '/'), '-', '+'), \mb_strlen($data) % 4, '=', \STR_PAD_RIGHT));
+        return base64_decode(str_pad(strtr(strtr($data, '_', '/'), '-', '+'), mb_strlen($data) % 4, '=', \STR_PAD_RIGHT));
     }
 }

@@ -52,6 +52,7 @@ use App\Kernel;
 use App\Security\EmailVerifier;
 use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
+use App\Util\Exception\NoLoggedInUser;
 use App\Util\Formatting;
 use App\Util\HTML;
 use Doctrine\ORM\EntityManagerInterface;
@@ -65,6 +66,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -233,7 +235,7 @@ class GNUsocial implements EventSubscriberInterface
     public static function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
         // Overriding doesn't work as we want, overrides the top-most key, do it manually
-        $local_file = INSTALLDIR . '/social.local.yaml';
+        $local_file = INSTALLDIR . \DIRECTORY_SEPARATOR . 'social.local.yaml';
         if (!file_exists($local_file)) {
             file_put_contents($local_file, "parameters:\n  locals:\n    gnusocial:\n");
         }
@@ -289,53 +291,51 @@ class GNUsocial implements EventSubscriberInterface
         $event->setUser($user);
     }
 
-    public function authRequestResolve(AuthorizationRequestResolveEvent $event): void
+    public function authorizeRequestResolve(AuthorizationRequestResolveEvent $event): void
     {
         $request = $this->request;
 
-        // only handle post requests for logged-in users:
-        // get requests will be intercepted and shown the login form
-        // other verbs we will handle as an authorization denied
-        // and this implementation ensures a user is set at this point already
-        if ($request->getMethod() !== 'POST' && \is_null($event->getUser())) {
-            $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_DENIED);
-            return;
-        }
-
-        if (!$request->request->has('action')) {
-            // 1. successful login, goes to grant page
-            $content = $this->twig->render('security/grant.html.twig', [
-                'scopes' => $event->getScopes(),
-                'client' => $event->getClient(),
-                'grant'  => OAuth2Grants::AUTHORIZATION_CODE,
-                // very simple way to ensure user gets to this point in the
-                // flow when granting or denying is to pre-add their credentials
-                'email'    => $request->request->get('email'),
-                'password' => $request->request->get('password'),
-            ]);
-
-            $response = new Response(200, [], $content);
-            $event->setResponse($response);
-        } else {
-            // 2. grant operation, either grants or denies
-            if ($request->request->get('action') == OAuth2Grants::AUTHORIZATION_CODE) {
-                $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_APPROVED);
-            } else {
+        try {
+            $user = Common::ensureLoggedIn();
+            // get requests will be intercepted and shown the login form
+            // other verbs we will handle as an authorization denied
+            // and this implementation ensures a user is set at this point already
+            if ($request->getMethod() !== 'POST') {
                 $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_DENIED);
+                return;
+            } else {
+                if (!$request->request->has('action')) {
+                    // 1. successful login, goes to grant page
+                    $content = $this->twig->render('security/grant.html.twig', [
+                        'scopes' => $event->getScopes(),
+                        'client' => $event->getClient(),
+                        'grant'  => OAuth2Grants::AUTHORIZATION_CODE,
+                        // very simple way to ensure user gets to this point in the
+                        // flow when granting or denying is to pre-add their credentials
+                        'email'    => $request->request->get('email'),
+                        'password' => $request->request->get('password'),
+                    ]);
+                    $response = new Response(200, [], $content);
+                    $event->setResponse($response);
+                } else {
+                    // 2. grant operation, either grants or denies
+                    if ($request->request->get('action') === OAuth2Grants::AUTHORIZATION_CODE) {
+                        $event->setUser($user);
+                        $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_APPROVED);
+                    } else {
+                        $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_DENIED);
+                    }
+                }
             }
-        }
-
-        if (\is_null($event->getUser())) {
+            // Whoops!
+            throw new BadRequestException();
+        } catch (NoLoggedInUser) {
             $event->setResponse(new Response(302, [
                 'Location' => Router::url('security_login', [
                     'returnUrl' => $request->getUri(),
                 ]),
             ]));
-
-            return;
         }
-
-        $event->resolveAuthorization(AuthorizationRequestResolveEvent::AUTHORIZATION_APPROVED);
     }
 
     /**
@@ -348,7 +348,7 @@ class GNUsocial implements EventSubscriberInterface
             KernelEvents::REQUEST                       => 'onKernelRequest',
             'console.command'                           => 'onCommand',
             OAuth2Events::USER_RESOLVE                  => 'userResolve',
-            OAuth2Events::AUTHORIZATION_REQUEST_RESOLVE => 'authRequestResolve',
+            OAuth2Events::AUTHORIZATION_REQUEST_RESOLVE => 'authorizeRequestResolve',
         ];
     }
 }

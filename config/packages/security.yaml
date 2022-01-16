@@ -22,6 +22,7 @@ security:
             security: false
         oauth_token:
             pattern: ^/oauth/(token|authorize)$
+            provider: local_user
             security: false
         api_apps:
             pattern: ^/api/v1/apps$
