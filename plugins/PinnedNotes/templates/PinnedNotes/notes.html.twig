@@ -1,0 +1,20 @@
+{% import '/cards/note/view.html.twig' as noteView %}
+
+{# Backwards compatibility with hAtom 0.1 #}
+{% if pinnednotes is not empty %}
+    <main class="feed pinned" tabindex="0" role="feed">
+        <h2>Pinned Notes</h2>
+        <div class="h-feed hfeed notes">
+            {% for conversation in pinnednotes %}
+                {% block current_note %}
+                    {% if conversation is instanceof('array') %}
+                        {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
+                    {% else %}
+                        {{ noteView.macro_note(conversation) }}
+                    {% endif %}
+                    <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                {% endblock current_note %}
+            {% endfor %}
+        </div>
+    </main>
+{% endif %}

@@ -1,0 +1,13 @@
+.pin-button-container {
+    -o-mask-image:      url("/plugins/PinnedNotes/assets/icons/pin.svg");
+    -moz-mask-image:    url("/plugins/PinnedNotes/assets/icons/pin.svg");
+    -webkit-mask-image: url("/plugins/PinnedNotes/assets/icons/pin.svg");
+    mask-image:         url("/plugins/PinnedNotes/assets/icons/pin.svg");
+}
+.pin-button-container.pinned {
+    opacity: 1 !important;
+}
+.feed.pinned {
+    margin-top: 2em;
+    margin-bottom: 6em;
+}
