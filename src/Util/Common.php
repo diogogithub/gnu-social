@@ -67,6 +67,14 @@ abstract class Common
         self::$request = $req;
     }
 
+    /**
+     * Don't use this
+     */
+    public static function getRequest(): ?Request
+    {
+        return self::$request;
+    }
+
     public static function route()
     {
         return self::$request->attributes->get('_route');
