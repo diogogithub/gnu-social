@@ -1,6 +1,7 @@
 {
   "require": {
     "nyholm/psr7": "*",
+    "symfony-bundles/json-request-bundle": "^4.1",
     "trikoder/oauth2-bundle": "v3.x-dev"
   }
 }

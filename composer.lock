@@ -5195,6 +5195,67 @@
             "time": "2021-04-01T19:09:10+00:00"
         },
         {
+            "name": "symfony-bundles/json-request-bundle",
+            "version": "4.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony-bundles/json-request-bundle.git",
+                "reference": "dfb6ca1697496a3c4d3914901c64ed946cce2f4b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony-bundles/json-request-bundle/zipball/dfb6ca1697496a3c4d3914901c64ed946cce2f4b",
+                "reference": "dfb6ca1697496a3c4d3914901c64ed946cce2f4b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=7.4 || ^8.0",
+                "symfony/framework-bundle": "^4.3 || ^5.0 || ^6.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.4",
+                "phpunit/php-code-coverage": "^9.2",
+                "phpunit/phpunit": "^9.5",
+                "symfony/browser-kit": "^5.2 || ^6.0",
+                "symfony/yaml": "^5.2 || ^6.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "SymfonyBundles\\JsonRequestBundle\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dmitry Khaperets",
+                    "email": "khaperets@gmail.com"
+                }
+            ],
+            "description": "Symfony JsonRequest Bundle",
+            "homepage": "https://github.com/symfony-bundles/json-request-bundle",
+            "keywords": [
+                "angular",
+                "bundle",
+                "json",
+                "symfony"
+            ],
+            "support": {
+                "issues": "https://github.com/symfony-bundles/json-request-bundle/issues",
+                "source": "https://github.com/symfony-bundles/json-request-bundle/tree/4.1.1"
+            },
+            "time": "2022-01-16T16:27:40+00:00"
+        },
+        {
             "name": "symfony/amqp-messenger",
             "version": "v5.4.0",
             "source": {
@@ -13024,12 +13085,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "e0b23a37d83b7d1bbfdb8c0b8aa4dcd702266a65"
+                "reference": "c070c4b7400e038737af1bf06b0d94d053686f72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e0b23a37d83b7d1bbfdb8c0b8aa4dcd702266a65",
-                "reference": "e0b23a37d83b7d1bbfdb8c0b8aa4dcd702266a65",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c070c4b7400e038737af1bf06b0d94d053686f72",
+                "reference": "c070c4b7400e038737af1bf06b0d94d053686f72",
                 "shasum": ""
             },
             "require": {
@@ -13081,7 +13142,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-15T15:04:05+00:00"
+            "time": "2022-01-16T19:23:59+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

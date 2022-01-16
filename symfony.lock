@@ -468,6 +468,9 @@
     "someonewithpc/redis-polyfill": {
         "version": "dev-master"
     },
+    "symfony-bundles/json-request-bundle": {
+        "version": "4.1.1"
+    },
     "symfony/amqp-messenger": {
         "version": "v5.4.0"
     },
