@@ -218,13 +218,14 @@ class Group extends FeedController
      */
     public function groupSettings(Request $request, string $nickname)
     {
-        $group = LocalGroup::getActorByNickname($nickname);
-        $actor = Common::actor();
-        if (!\is_null($group) && $actor->canAdmin($group)) {
+        $local_group = LocalGroup::getByNickname($nickname);
+        $group_actor = $local_group->getActor();
+        $actor       = Common::actor();
+        if (!\is_null($group_actor) && $actor->canAdmin($group_actor)) {
             return [
                 '_template'          => 'group/settings.html.twig',
-                'group'              => $group,
-                'personal_info_form' => ActorForms::personalInfo($request, $actor, $group)->createView(),
+                'group'              => $group_actor,
+                'personal_info_form' => ActorForms::personalInfo($request, $actor, $local_group)->createView(),
                 'open_details_query' => $this->string('open'),
             ];
         } else {
