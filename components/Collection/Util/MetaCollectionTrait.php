@@ -94,7 +94,7 @@ trait MetaCollectionTrait
      * It's compose of two forms: one to select collections to add
      * the current item to, and another to create a new collection.
      */
-    public function onAppendRightPanelBlock($vars, Request $request, &$res): bool
+    public function onAppendRightPanelBlock(Request $request, $vars, &$res): bool
     {
         $user = Common::actor();
         if (\is_null($user)) {

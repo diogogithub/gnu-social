@@ -28,10 +28,11 @@ use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Util\Common;
 use App\Util\Formatting;
+use Symfony\Component\HttpFoundation\Request;
 
 class AttachmentShowRelated extends Plugin
 {
-    public function onAppendRightPanelBlock($vars, $request, &$res): bool
+    public function onAppendRightPanelBlock(Request $request, $vars, &$res): bool
     {
         if ($vars['path'] === 'note_attachment_show') {
             $related_notes = DB::dql('select n from attachment_to_note an '

@@ -7,6 +7,7 @@
     <div class="header-panel section-panel-right">
         <aside class="panel-content accessibility-target">
 
+            {% set current_path = app.request.get('_route') %}
             {% set blocks = handle_event('AppendRightPostingBlock', request) %}
             {% if blocks['post_form'] is defined %}
                 <section class="section-widget" title="{{ 'Create a new note.' | trans }}">
@@ -51,11 +52,10 @@
                 </section>
             {% endif %}
 
-            {% set current_path = app.request.get('_route') %}
-            {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'request': request, 'vars': right_panel_vars | default }, request) %}
+            {% set extra_blocks = get_right_panel_blocks({'path': current_path, 'request': app.request, 'vars': (right_panel_vars | default)}) %}
+            {% for block in extra_blocks %}
                 {{ block | raw }}
             {% endfor %}
-
         </aside>
     </div>
 {% endblock rightpanel %}

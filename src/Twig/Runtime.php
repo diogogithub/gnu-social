@@ -88,6 +88,13 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $extra_actions;
     }
 
+    public function getRightPanelBlocks($vars)
+    {
+        $blocks = [];
+        Event::handle('AppendRightPanelBlock', [$this->request, $vars, &$blocks]);
+        return $blocks;
+    }
+
     /**
      * @codeCoverageIgnore
      */

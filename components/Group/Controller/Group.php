@@ -59,6 +59,15 @@ class Group extends FeedController
 
     /**
      * View a group feed and give the option of creating it if it doesn't exist
+     *
+     * @throws \App\Util\Exception\NicknameEmptyException
+     * @throws \App\Util\Exception\NicknameNotAllowedException
+     * @throws \App\Util\Exception\NicknameTakenException
+     * @throws \App\Util\Exception\NicknameTooLongException
+     * @throws \App\Util\Exception\ServerException
+     * @throws RedirectException
+     *
+     * @return array
      */
     public function groupViewNickname(Request $request, string $nickname)
     {

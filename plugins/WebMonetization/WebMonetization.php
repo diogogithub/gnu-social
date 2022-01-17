@@ -51,7 +51,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class WebMonetization extends Plugin
 {
-    public function onAppendRightPanelBlock($vars, Request $request, &$res): bool
+    public function onAppendRightPanelBlock(Request $request, $vars, &$res): bool
     {
         $user = Common::actor();
         if (\is_null($user)) {
