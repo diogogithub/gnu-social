@@ -8,6 +8,6 @@
     opacity: 1 !important;
 }
 .feed.pinned {
-    margin-top: 2em;
-    margin-bottom: 6em;
+    margin-top: var(--m);
+    margin-bottom: var(--m);
 }
