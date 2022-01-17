@@ -430,11 +430,14 @@ class Note extends Entity
     {
         $target_ids = $this->object_mentions_ids ?? [];
         if ($target_ids === []) {
+            $content = $this->getContent();
             if (!\array_key_exists('object', $ids_already_known)) {
-                $mentions = Formatting::findMentions($this->getContent(), $this->getActor());
-                foreach ($mentions as $mention) {
-                    foreach ($mention['mentioned'] as $m) {
-                        $target_ids[] = $m->getId();
+                if (!\is_null($content)) {
+                    $mentions = Formatting::findMentions($content, $this->getActor());
+                    foreach ($mentions as $mention) {
+                        foreach ($mention['mentioned'] as $m) {
+                            $target_ids[] = $m->getId();
+                        }
                     }
                 }
             } else {
