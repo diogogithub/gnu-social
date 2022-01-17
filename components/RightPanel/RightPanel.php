@@ -35,7 +35,7 @@ class RightPanel extends Component
      */
     public function onEndShowStyles(array &$styles, string $route): bool
     {
-        $styles[] = 'components/Right/assets/css/view.css';
+        $styles[] = 'components/RightPanel/assets/css/view.css';
         return Event::next;
     }
 }

@@ -1,42 +1,42 @@
 {% block note_actions %}
     {% if app.user or note_actions_hide is defined %}
-        <div class="note-actions note-info-end">
-            <ul>
-                <li class="note-actions-extra">
-                    <details class="note-actions-extra-details">
-                        <summary>
-                            {{ icon('kebab', 'icon icon-note-actions-extra') | raw }} {# button-container #}
-                        </summary>
-                        <ul>
+        <menu class="note-actions note-info-end">
+            <li class="note-actions-extra">
+                <details class="note-actions-extra-details">
+                    <summary>
+                        {{ icon('kebab', 'icon icon-note-actions-extra') | raw }} {# button-container #}
+                    </summary>
+                    <ul>
+                        <li>
+                            <a href="{{ note.getUrl() }}">{{ 'Permalink' | trans }}</a>
+                        </li>
+                        <hr>
+                        {% for current_action in get_extra_note_actions(note) %}
                             <li>
-                                <a href="{{ note.getUrl() }}">{{ 'Permalink' | trans }}</a>
+                                <a class="{{ current_action["classes"] }}"
+                                   href="{{ current_action["url"] }}">{{ current_action['title'] }}</a>
                             </li>
-                            <hr>
-                            {% for current_action in get_extra_note_actions(note) %}
-                                <li>
-                                    <a class="{{ current_action["classes"] }}"
-                                       href="{{ current_action["url"] }}">{{ current_action['title'] }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </details>
+                        {% endfor %}
+                    </ul>
+                </details>
+            </li>
+            <span class="note-actions-separator"></span>
+            {% for current_action in get_note_actions(note) %}
+                <li>
+                    <a title="{{ current_action["title"] | trans }}"
+                       class="{{ current_action["classes"] }}"
+                       href="{{ current_action["url"] }}"></a>
                 </li>
-                {% for current_action in get_note_actions(note) %}
-                    <li>
-                        <a title="{{ current_action["title"] | trans }}"
-                           class="{{ current_action["classes"] }}"
-                           href="{{ current_action["url"] }}"></a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+            {% endfor %}
+        </menu>
     {% endif %}
 {% endblock note_actions %}
 
 {% block note_replies %}
     {% if replies is defined and replies is not empty %}
         <div class="u-in-reply-to replies">
-            <span class="note-replies-start" tabindex="0">{{ 'Replies to ' | trans }}{{ nickname }}{{ '\'s note' | trans }}</span>
+            <span class="note-replies-start"
+                  tabindex="0">{{ 'Replies to ' | trans }}{{ nickname }}{{ '\'s note' | trans }}</span>
             {% for conversation in replies %}
                 {{ _self.macro_note(conversation['note'], conversation['replies']) }}
                 <hr tabindex="0" title="{{ 'End of reply' | trans }}">
@@ -158,10 +158,10 @@
              class="h-entry hentry note" lang={{ note.getLanguageLocale() }}>
         {{ block('note_sidebar') }}
         <div class="note-wrapper">
-            <div class="note-info">
+            <header class="note-info">
                 {{ block('note_info') }}
                 {{ block('note_actions') }}
-            </div>
+            </header>
 
             <section role="dialog" class="e-content entry-content note-content">
                 {{ block('note_text') }}
@@ -171,7 +171,6 @@
 
             {{ block('note_replies') }}
             {{ block('note_complementary_info') }}
-
         </div>
     </article>
 {% endmacro macro_note %}
@@ -187,9 +186,9 @@
     <article class="h-entry hentry note" lang={{ note.getLanguageLocale() }}>
         {{ block('note_sidebar') }}
         <div class="note-wrapper">
-            <div class="note-info">
+            <header class="note-info">
                 {{ block('note_info') }}
-            </div>
+            </header>
 
             <section role="dialog" class="e-content entry-content note-content">
                 {{ block('note_text') }}

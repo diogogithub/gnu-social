@@ -272,6 +272,46 @@ textarea.form-row-widget {
     resize: vertical;
 }
 
+.form-search {
+    display: inline-block;
+    padding-left: unset;
+    padding-right: unset;
+    padding-bottom: unset;
+    margin-bottom: var(--m);
+}
+
+.form-search label {
+    display: block;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.form-search span {
+    display: inline-flex;
+    width: 100%;
+}
+
+.form-search .form-row {
+    margin-bottom: unset;
+    width: 100%;
+}
+
+.form-search span input[type='text'] {
+    margin: unset;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    height: 100%;
+}
+
+.form-search span button {
+    margin: unset;
+    border-left: none !important;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    height: 100%;
+}
+
 .alert,
 .alert-danger,
 .form-error,

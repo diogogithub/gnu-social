@@ -29,6 +29,7 @@ use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
+use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormView;
@@ -83,7 +84,7 @@ class Search extends Component
                 'label' => _m('Search'),
                 'attr'  => [
                     //'class' => 'button-container search-button-container',
-                    'title' => _m('Query notes for specific tags.'),
+                    'title' => _m('Perform search'),
                 ],
             ],
         ];
@@ -119,9 +120,9 @@ class Search extends Component
      *
      * @throws RedirectException
      */
-    public function onAddExtraHeaderForms(Request $request, array &$elements)
+    public function onPrependRightPanel(Request $request, array &$elements)
     {
-        $elements[] = self::searchForm($request);
+        $elements[] = Formatting::twigRenderFile('cards/search/view.html.twig', ['search' => self::searchForm($request)]);
         return Event::next;
     }
 

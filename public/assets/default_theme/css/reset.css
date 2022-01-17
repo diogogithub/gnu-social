@@ -35,8 +35,10 @@ hr {
     background-color: var(--border) !important;
 }
 
-ol,
+menu,
 ul {
+    padding: unset;
+    margin: unset;
     list-style: none;
 }
 

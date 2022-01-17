@@ -1,25 +1,28 @@
 {% block leftpanel %}
-    <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab followed by a space to access left panel' | trans }}"></a>
-    <label class="panel-left-icon" for="panel-left-toggle"
-           tabindex="-1">{{ icon('menu', 'icon icon-left') | raw }}</label>
-    <input type="checkbox" id="panel-left-toggle" tabindex="0" title="{{ 'Open right panel' | trans }}">
+    <section class="section-panel-left">
+        <a id="anchor-left-panel" class="anchor-hidden"
+           title="{{ 'Press tab followed by a space to access left panel' | trans }}"></a>
+        <label class="panel-left-icon" for="panel-left-toggle"
+               tabindex="-1">{{ icon('menu', 'icon icon-left') | raw }}</label>
+        <input type="checkbox" id="panel-left-toggle" tabindex="0" title="{{ 'Open right panel' | trans }}">
 
-    <section class="header-panel section-panel-left">
-        <aside class="panel-content accessibility-target">
-            {% if app.user %}
-                <section class='section-widget section-padding' title="{{ 'Your profile information.' | trans }}">
-                    {% block profile_view %}{% include 'cards/profile/view.html.twig' with { actor: current_actor } %}{% endblock profile_view %}
-                    {{ block("profile_current_actor", "cards/navigation/view.html.twig") }}
-                </section>
-            {% else %}
-                <section>
-                    {{ block("profile_security", "cards/navigation/view.html.twig") }}
-                </section>
-            {% endif %}
+        <aside class="header-panel">
+            <article class="panel-content accessibility-target">
+                {% if app.user %}
+                    <section class='section-widget section-padding' title="{{ 'Your profile information.' | trans }}">
+                        {% block profile_view %}{% include 'cards/profile/view.html.twig' with { actor: current_actor } %}{% endblock profile_view %}
+                        {{ block("profile_current_actor", "cards/navigation/view.html.twig") }}
+                    </section>
+                {% else %}
+                    <section>
+                        {{ block("profile_security", "cards/navigation/view.html.twig") }}
+                    </section>
+                {% endif %}
 
-            {{ block("feeds", "cards/navigation/view.html.twig") }}
+                {{ block("feeds", "cards/navigation/view.html.twig") }}
 
-            {{ block("footer", "cards/navigation/view.html.twig") }}
+                {{ block("footer", "cards/navigation/view.html.twig") }}
+            </article>
         </aside>
     </section>
 {% endblock leftpanel %}

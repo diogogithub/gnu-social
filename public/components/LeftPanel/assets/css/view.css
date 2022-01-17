@@ -1,6 +1,7 @@
 
 
 .section-panel-left {
+    position: absolute;
     left: 0;
 }
 
@@ -12,7 +13,9 @@
 
 .panel-left-icon {
     cursor: pointer !important;
+    padding-left: var(--s);
     border: 2px solid transparent;
+    vertical-align: middle;
 }
 
 .profile-navigation {
@@ -66,8 +69,12 @@
 
 /* > 720p */
 @media only screen and (min-width:1281px) {
+    .section-panel-left #panel-left-toggle ~ .header-panel {
+        left: 0;
+    }
+
     .panel-left-icon {
-        display: none;
+        opacity: 0;
     }
 }
 

@@ -1,31 +1,38 @@
 {% block rightpanel %}
-    <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab followed by a space to access right panel' | trans }}"></a>
-    <label class="panel-right-icon" for="panel-right-toggle"
-           tabindex="-1">{{ icon('chevron-left', 'icon icon-right') | raw }}</label>
-    <input type="checkbox" id="panel-right-toggle" tabindex="0" title="{{ 'Open right panel' | trans }}">
+    <section class="section-panel-right">
+        <a id="anchor-right-panel" class="anchor-hidden"
+           title="{{ 'Press tab followed by a space to access right panel' | trans }}"></a>
+        <label class="panel-right-icon" for="panel-right-toggle"
+               tabindex="-1">{{ icon('chevron-left', 'icon icon-right') | raw }}</label>
+        <input type="checkbox" id="panel-right-toggle" tabindex="0" title="{{ 'Open right panel' | trans }}">
 
-    <div class="header-panel section-panel-right">
-        <aside class="panel-content accessibility-target">
+        <aside class="header-panel">
+            <article class="panel-content accessibility-target">
+                <section>
+                    {% set prepend_right_panel = handle_event('PrependRightPanel', request) %}
+                    {% for widget in prepend_right_panel %}
+                        {{ widget | raw }}
+                    {% endfor %}
+                </section>
 
-            {% set current_path = app.request.get('_route') %}
-            {% set blocks = handle_event('AppendRightPostingBlock', request) %}
-            {% if blocks['post_form'] is defined %}
-                <section class="section-widget" title="{{ 'Create a new note.' | trans }}">
-                    <details class="section-widget-title-details" open="open"
-                             title="{{ 'Expand if you want to access more options.' | trans }}">
-                        <summary class="section-title-summary">
-                            <h2>
-                                {% set current_path = app.request.get('_route') %}
-                                {% if current_path == 'conversation_reply_to' %}
-                                    {{ "Reply to note" | trans }}
-                                {% else %}
-                                    {{ "Create a note" | trans }}
-                                {% endif %}
-                            </h2>
-                        </summary>
+                {% set current_path = app.request.get('_route') %}
+                {% set blocks = handle_event('AppendRightPostingBlock', request) %}
+                {% if blocks['post_form'] is defined %}
+                    <section class="section-widget" title="{{ 'Create a new note.' | trans }}">
+                        <details class="section-widget-title-details" open="open"
+                                 title="{{ 'Expand if you want to access more options.' | trans }}">
+                            <summary class="section-title-summary">
+                                <h2>
+                                    {% set current_path = app.request.get('_route') %}
+                                    {% if current_path == 'conversation_reply_to' %}
+                                        {{ "Reply to note" | trans }}
+                                    {% else %}
+                                        {{ "Create a note" | trans }}
+                                    {% endif %}
+                                </h2>
+                            </summary>
 
-                        <div class="section-form">
-                            <fieldset>
+                            <fieldset class="section-form">
                                 {{ form_start(blocks['post_form']) }}
                                 {{ form_errors(blocks['post_form']) }}
                                 {% if blocks['post_form'].in is defined %}
@@ -48,15 +55,15 @@
                                 {{ form_rest(blocks['post_form']) }}
                                 {{ form_end(blocks['post_form']) }}
                             </fieldset>
-                        </div>
-                    </details>
-                </section>
-            {% endif %}
+                        </details>
+                    </section>
+                {% endif %}
 
-            {% set extra_blocks = get_right_panel_blocks({'path': current_path, 'request': app.request, 'vars': (right_panel_vars | default)}) %}
-            {% for block in extra_blocks %}
-                {{ block | raw }}
-            {% endfor %}
+                {% set extra_blocks = get_right_panel_blocks({'path': current_path, 'request': app.request, 'vars': (right_panel_vars | default)}) %}
+                {% for block in extra_blocks %}
+                    {{ block | raw }}
+                {% endfor %}
+            </article>
         </aside>
-    </div>
+    </section>
 {% endblock rightpanel %}

@@ -1,6 +1,7 @@
 
 
 .section-panel-right {
+    position: absolute;
     right: 0;
 }
 
@@ -10,10 +11,15 @@
     top: -100%;
 }
 
+.section-panel-right #panel-right-toggle:checked ~ .header-panel {
+    left: 0;
+}
+
 .panel-right-icon {
-    margin-left: var(--m) !important;
     cursor: pointer !important;
+    padding-right: var(--s);
     border: 2px solid transparent;
+    vertical-align: middle;
 }
 
 .section-panel-right textarea {
@@ -21,8 +27,12 @@
 }
 
 @media only screen and (min-width: 1281px) {
+    .section-panel-right #panel-right-toggle ~ .header-panel {
+        right: 0;
+    }
+
     .panel-right-icon {
-        display: none;
+        opacity: 0;
     }
 }
 

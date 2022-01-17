@@ -77,7 +77,7 @@ class LeftPanel extends Component
      */
     public function onEndShowStyles(array &$styles, string $route): bool
     {
-        $styles[] = 'components/Left/assets/css/view.css';
+        $styles[] = 'components/LeftPanel/assets/css/view.css';
         return Event::next;
     }
 }

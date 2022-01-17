@@ -14,46 +14,44 @@
     {% endfor %}
 
     {% if notes is defined %}
-        <section>
-            <header class="feed-header">
-                {% if page_title is defined %}
-                    <h1 class="heading-no-margin">{{ page_title | trans }}</h1>
-                {% else %}
-                    <h1 class="heading-no-margin">{{ 'Notes' | trans }}</h1>
-                {% endif %}
-                <nav class="feed-actions">
-                    <details class="feed-actions-details">
-                        <summary>
-                            {{ icon('filter', 'icon icon-feed-actions') | raw }} {# button-container #}
-                        </summary>
-                        <div class="feed-actions-details-dropdown">
-                            <ul>
-                                {% for block in handle_event('AddFeedActions', app.request, notes is defined and notes is not empty) %}
-                                    {{ block | raw }}
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </details>
-                </nav>
-            </header>
-
-            {% if notes is not empty %}
-            {# Backwards compatibility with hAtom 0.1 #}
-            <main class="feed" tabindex="0" role="feed">
-                <div class="h-feed hfeed notes">
-                    {% for conversation in notes %}
-                        {% block current_note %}
-                            {% if conversation is instanceof('array') %}
-                                {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
-                            {% else %}
-                                {{ noteView.macro_note(conversation) }}
-                            {% endif %}
-                            <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
-                        {% endblock current_note %}
-                    {% endfor %}
-                </div>
-            </main>
+    <article>
+        <header class="feed-header">
+            {% if page_title is defined %}
+                <h1 class="heading-no-margin">{{ page_title | trans }}</h1>
+            {% else %}
+                <h1 class="heading-no-margin">{{ 'Notes' | trans }}</h1>
             {% endif %}
+            <nav class="feed-actions">
+                <details class="feed-actions-details">
+                    <summary>
+                        {{ icon('filter', 'icon icon-feed-actions') | raw }} {# button-container #}
+                    </summary>
+                    <div class="feed-actions-details-dropdown">
+                        <menu>
+                            {% for block in handle_event('AddFeedActions', app.request, notes is defined and notes is not empty) %}
+                                {{ block | raw }}
+                            {% endfor %}
+                        </menu>
+                    </div>
+                </details>
+            </nav>
+        </header>
+
+        {% if notes is not empty %}
+        {# Backwards compatibility with hAtom 0.1 #}
+        <section class="feed h-feed hfeed notes" tabindex="0" role="feed">
+            {% for conversation in notes %}
+                {% block current_note %}
+                    {% if conversation is instanceof('array') %}
+                        {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
+                    {% else %}
+                        {{ noteView.macro_note(conversation) }}
+                    {% endif %}
+                    <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                {% endblock current_note %}
+            {% endfor %}
         </section>
+        {% endif %}
+    </article>
     {% endif %}
 {% endblock body %}

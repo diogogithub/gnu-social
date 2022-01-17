@@ -95,8 +95,6 @@
 </aside>
 
 {% block header %}
-    {% set extra_header_forms = handle_event('AddExtraHeaderForms', request) %}
-
     <header class="page-header">
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
@@ -107,22 +105,11 @@
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }}</h1>
         </a>
 
-        <details class="header-extra-actions">
-            <summary>
-                {{ icon('kebab', 'icon icon-details-open') | raw }}
-            </summary>
-            <div class="header-extra-actions-open">
-                {% for extra_form in extra_header_forms %}
-                    {{ form(extra_form) }}
-                {% endfor %}
-            </div>
-        </details>
-
         {{ block("rightpanel", "stdgrid.html.twig") }}
     </header>
 {% endblock header %}
 
-<div class="page-content-wrapper">
+<main class="page-content-wrapper">
     <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden"
        title="{{ 'Press tab to access main content.' | trans }}"></a>
     <div class='page-content accessibility-target'>
@@ -130,7 +117,7 @@
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock javascripts %}
     </div>
-</div>
+</main>
 </body>
 </html>
 
