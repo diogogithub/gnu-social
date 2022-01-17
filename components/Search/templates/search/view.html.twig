@@ -38,6 +38,7 @@
             {% endif %}
             {{ form_row(search_form.submit_search) }}
         </section>
+        {{ form_end(search_form)}}
 
         <section class="section-widget">
             <details class="section-widget-subtitle-details">
@@ -82,8 +83,6 @@
             </details>
         </section>
     </section>
-
-    {{ form_end(search_form)}}
 
     <section class="section-widget section-padding">
         <h2>{% trans %}Results{% endtrans %}</h2>
