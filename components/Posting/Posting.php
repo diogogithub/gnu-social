@@ -210,11 +210,12 @@ class Posting extends Component
         array $processed_attachments = [],
         array $process_note_content_extra_args = [],
         bool $notify = true,
+        ?string $rendered = null,
+        string $source = 'web',
     ): Note {
         $scope ??= VisibilityScope::EVERYWHERE; // TODO: If site is private, default to LOCAL
-        $rendered = null;
         $mentions = [];
-        if (!empty($content)) {
+        if (\is_null($rendered) && !empty($content)) {
             Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $locale, &$mentions]);
         }
 
@@ -227,6 +228,7 @@ class Posting extends Component
             'is_local'     => true,
             'scope'        => $scope,
             'reply_to'     => $reply_to_id,
+            'source'       => $source,
         ]);
 
         /** @var UploadedFile[] $attachments */
@@ -255,6 +257,7 @@ class Posting extends Component
                     DB::persist(ActorToAttachment::create($args));
                 }
                 DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
+                $a->livesIncrementAndGet();
             }
         }
 
@@ -265,9 +268,10 @@ class Posting extends Component
             'verb'        => 'create',
             'object_type' => 'note',
             'object_id'   => $note->getId(),
-            'source'      => 'web',
+            'source'      => $source,
         ]);
         DB::persist($activity);
+
         if (!\is_null($target)) {
             $target     = \is_int($target) ? Actor::getById($target) : $target;
             $mentions[] = [

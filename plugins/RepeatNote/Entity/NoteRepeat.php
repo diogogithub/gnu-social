@@ -26,6 +26,8 @@ namespace Plugin\RepeatNote\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Entity\Actor;
+use App\Entity\LocalUser;
 use App\Entity\Note;
 
 /**
@@ -81,13 +83,27 @@ class NoteRepeat extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public static function cacheKeys(int|Note $note_id): array
+    public static function cacheKeys(int|Note $note_id, null|int|Actor|LocalUser $actor_id = null): array
+    {
+        $note_id  = \is_int($note_id) ? $note_id : $note_id->getId();
+        $actor_id = \is_null($actor_id) ? null : (\is_int($actor_id) ? $actor_id : $actor_id->getId());
+        return [
+            'is_repeat'    => "note-repeat-is-{$note_id}",
+            'repeats'      => "note-repeats-{$note_id}",
+            'actor_repeat' => "note-repeat-{$note_id}-{$actor_id}",
+        ];
+    }
+
+    public static function getNoteActorRepeat(int|Note $note_id, int $actor_id): ?self
     {
         $note_id = \is_int($note_id) ? $note_id : $note_id->getId();
-        return [
-            'is_repeat' => "note-repeat-is-{$note_id}",
-            'repeats'   => "note-repeats-{$note_id}",
-        ];
+        return Cache::get(
+            self::cacheKeys($note_id, $actor_id)['actor_repeat'],
+            fn () => DB::findOneBy('note_repeat', [
+                'actor_id'  => $actor_id,
+                'repeat_of' => $note_id,
+            ], return_null: true),
+        );
     }
 
     /**

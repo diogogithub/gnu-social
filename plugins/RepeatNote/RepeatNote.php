@@ -30,7 +30,6 @@ use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Activity;
 use App\Entity\Actor;
-use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\BugFoundException;
@@ -46,15 +45,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RepeatNote extends NoteHandlerPlugin
 {
-    public static function cacheKeys(int|Note $note_id, int|Actor|LocalUser $actor_id): array
-    {
-        $note_id  = \is_int($note_id) ? $note_id : $note_id->getId();
-        $actor_id = \is_int($actor_id) ? $actor_id : $actor_id->getId();
-        return [
-            'repeat' => "note-repeat-{$note_id}-{$actor_id}",
-        ];
-    }
-
     /**
      * **Repeats a Note**
      *
@@ -74,28 +64,12 @@ class RepeatNote extends NoteHandlerPlugin
      */
     public static function repeatNote(Note $note, int $actor_id, string $source = 'web'): ?Activity
     {
-        $note_repeat = Cache::get(
-            self::cacheKeys($note->getId(), $actor_id)['repeat'],
-            fn () => DB::findOneBy('note_repeat', [
-                'actor_id' => $actor_id,
-                'note_id'  => $note->getId(),
-            ], return_null: true),
-        );
-
+        $note_repeat = RepeatEntity::getNoteActorRepeat($note, $actor_id);
         if (!\is_null($note_repeat)) {
             return null;
         }
 
-        // If it's a repeat, the reply_to should be to the original, conversation ought to be the same
-        $original_note_id       = $note->getId();
-        $extra_args['reply_to'] = $original_note_id;
-
-        $attachments = $note->getAttachmentsWithTitle();
-        foreach ($attachments as $attachment) {
-            // TODO: merge is going be deprecated in doctrine 3
-            $attachment[0]->livesIncrementAndGet();
-            DB::merge($attachment[0]);
-        }
+        $original_note_id = $note->getId();
 
         // Create a new note with the same content as the original
         $repeat = Posting::storeLocalNote(
@@ -103,9 +77,11 @@ class RepeatNote extends NoteHandlerPlugin
             content: $note->getContent(),
             content_type: $note->getContentType(),
             locale: \is_null($lang_id = $note->getLanguageId()) ? null : Language::getById($lang_id)->getLocale(),
+            // If it's a repeat, the reply_to should be to the original, conversation ought to be the same
+            reply_to_id: $note->getReplyTo(),
             processed_attachments: $note->getAttachmentsWithTitle(),
-            process_note_content_extra_args: $extra_args,
             notify: false,
+            rendered: $note->getRendered(),
         );
 
         DB::persist(RepeatEntity::create([
@@ -113,7 +89,8 @@ class RepeatNote extends NoteHandlerPlugin
             'actor_id'  => $actor_id,
             'repeat_of' => $original_note_id,
         ]));
-        Cache::delete(self::cacheKeys($note->getId(), $actor_id)['repeat']);
+        Cache::delete(RepeatEntity::cacheKeys($note->getId(), $actor_id)['actor_repeat']);
+        Cache::delete(RepeatEntity::cacheKeys($note->getId())['repeats']);
 
         // Log an activity
         $repeat_activity = Activity::create([
@@ -125,7 +102,7 @@ class RepeatNote extends NoteHandlerPlugin
         ]);
         DB::persist($repeat_activity);
 
-        Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $repeat_activity, [], _m('{nickname} repeated note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $repeat_activity->getObjectId()])]);
+        Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $repeat_activity, [], _m('{nickname} repeated note {note_id}.', ['{nickname}' => $actor->getNickname(), '{note_id}' => $repeat_activity->getObjectId()])]);
 
         return $repeat_activity;
     }
@@ -143,13 +120,7 @@ class RepeatNote extends NoteHandlerPlugin
      */
     public static function unrepeatNote(int $note_id, int $actor_id, string $source = 'web'): ?Activity
     {
-        $note_repeat = Cache::get(
-            self::cacheKeys($note_id, $actor_id)['repeat'],
-            fn () => DB::findOneBy('note_repeat', [
-                'actor_id' => $actor_id,
-                'note_id'  => $note_id,
-            ], return_null: true),
-        );
+        $note_repeat = RepeatEntity::getNoteActorRepeat($note_id, $actor_id);
 
         if (!\is_null($note_repeat)) { // If it was repeated, then we can undo it
             // Find previous repeat activity
@@ -162,11 +133,11 @@ class RepeatNote extends NoteHandlerPlugin
 
             // Remove the clone note
             DB::findOneBy(Note::class, ['id' => $note_repeat->getNoteId()])->delete(actor: Actor::getById($actor_id));
-            DB::flush();
 
             // Remove from the note_repeat table
             DB::removeBy(RepeatEntity::class, ['note_id' => $note_repeat->getNoteId()]);
-            Cache::delete(self::cacheKeys($note_id, $actor_id)['repeat']);
+            Cache::delete(RepeatEntity::cacheKeys($note_id, $actor_id)['actor_repeat']);
+            Cache::delete(RepeatEntity::cacheKeys($note_repeat->getNoteId())['repeats']);
 
             // Log an activity
             $undo_repeat_activity = Activity::create([
@@ -178,7 +149,7 @@ class RepeatNote extends NoteHandlerPlugin
             ]);
             DB::persist($undo_repeat_activity);
 
-            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $undo_repeat_activity, [], _m('{nickname} unrepeated note {note_id}.', ['nickname' => $actor->getNickname(), 'note_id' => $note_id])]);
+            Event::handle('NewNotification', [$actor = Actor::getById($actor_id), $undo_repeat_activity, [], _m('{nickname} unrepeated note {note_id}.', ['{nickname}' => $actor->getNickname(), '{note_id}' => $note_id])]);
 
             return $undo_repeat_activity;
         } else {
@@ -238,13 +209,7 @@ class RepeatNote extends NoteHandlerPlugin
             return Event::next;
         }
 
-        $note_repeat = Cache::get(
-            self::cacheKeys($note->getId(), $user->getId())['repeat'],
-            fn () => DB::findOneBy('note_repeat', [
-                'actor_id' => $user->getId(),
-                'note_id'  => $note->getId(),
-            ], return_null: true),
-        );
+        $note_repeat = RepeatEntity::getNoteActorRepeat($note, $user->getId());
 
         // If note is repeated, "is_repeated" is 1, 0 otherwise.
         $is_repeat = !\is_null($note_repeat);

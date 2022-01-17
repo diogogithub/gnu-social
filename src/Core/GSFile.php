@@ -54,7 +54,7 @@ use Symfony\Component\Mime\MimeTypes;
 class GSFile
 {
     /**
-     * Perform file validation (checks and normalization), store the given file if needed and increment lives
+     * Perform file validation (checks and normalization), store the given file if needed
      *
      * @throws DuplicateFoundException
      */
@@ -65,7 +65,6 @@ class GSFile
         try {
             $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
             // Attachment Exists
-            $attachment->livesIncrementAndGet();
             // We had this attachment, but not the file, thus no filename, update meta
             if (\is_null($attachment->getFilename())) {
                 $mimetype               = $attachment->getMimetype() ?? $file->getMimeType();
@@ -128,6 +127,7 @@ class GSFile
                 'size'     => $file->getSize(),
                 'width'    => $width,
                 'height'   => $height,
+                'lives'    => 0,
             ]);
             if (!$check_is_supported_mimetype || self::isMimetypeAllowed($mimetype)) {
                 $file->move(Common::config('attachments', 'dir'), $hash);
