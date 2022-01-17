@@ -64,7 +64,7 @@ remove-var:
 	rm -rf var/*
 
 remove-file:
-	rm -rf file/*
+	sudo rm -rf file/*
 
 flush-redis-cache:
 	docker exec -it $(call translate-container-name,$(strip $(DIR))_redis_1) sh -c 'redis-cli flushall'
