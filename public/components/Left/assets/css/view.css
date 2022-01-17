@@ -53,6 +53,17 @@
     font-size: var(--unit);
 }
 
+.footer ul {
+    display: inline-flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.footer ul li {
+    margin-right: 5px;
+}
+
 /* > 720p */
 @media only screen and (min-width:1281px) {
     .panel-left-icon {

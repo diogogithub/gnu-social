@@ -287,13 +287,3 @@ textarea.form-row-widget {
     margin-top: 6px;
     margin-bottom: 6px;
 }
-
-.footer ul {
-    display: inline-flex;
-    width: 100%;
-    justify-content: flex-start;
-}
-
-.footer ul li {
-    margin-right: 5px;
-}
