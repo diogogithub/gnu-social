@@ -1,9 +1,9 @@
 {
-    "ajgarlag/psr-http-message-bundle": {
-        "version": "1.2.1"
-    },
     "alchemy/binary-driver": {
         "version": "v5.2.0"
+    },
+    "barnabywalters/mf-cleaner": {
+        "version": "v0.1.4"
     },
     "behat/gherkin": {
         "version": "v4.9.0"
@@ -68,8 +68,8 @@
     "composer/xdebug-handler": {
         "version": "1.4.6"
     },
-    "defuse/php-encryption": {
-        "version": "v2.3.1"
+    "dflydev/fig-cookies": {
+        "version": "v3.0.0"
     },
     "doctrine/annotations": {
         "version": "1.0",
@@ -208,6 +208,15 @@
     "guzzlehttp/psr7": {
         "version": "2.1.0"
     },
+    "indieauth/client": {
+        "version": "1.1.5"
+    },
+    "indieweb/link-rel-parser": {
+        "version": "0.1.3"
+    },
+    "indieweb/representative-h-card": {
+        "version": "0.1.2"
+    },
     "jchook/phpunit-assert-throws": {
         "version": "v1.0.3"
     },
@@ -228,18 +237,6 @@
     },
     "landrok/activitypub": {
         "version": "0.5.6"
-    },
-    "lcobucci/clock": {
-        "version": "2.1.0"
-    },
-    "lcobucci/jwt": {
-        "version": "4.1.5"
-    },
-    "league/event": {
-        "version": "2.2.0"
-    },
-    "league/oauth2-server": {
-        "version": "8.3.3"
     },
     "league/uri-parser": {
         "version": "1.4.1"
@@ -300,6 +297,9 @@
     },
     "oscarotero/html-parser": {
         "version": "v0.1.6"
+    },
+    "p3k/http": {
+        "version": "0.1.12"
     },
     "paragonie/constant_time_encoding": {
         "version": "v2.4.0"
@@ -390,6 +390,12 @@
     "psr/http-message": {
         "version": "1.0.1"
     },
+    "psr/http-server-handler": {
+        "version": "1.0.1"
+    },
+    "psr/http-server-middleware": {
+        "version": "1.0.1"
+    },
     "psr/link": {
         "version": "1.1.1"
     },
@@ -467,9 +473,6 @@
     },
     "someonewithpc/redis-polyfill": {
         "version": "dev-master"
-    },
-    "symfony-bundles/json-request-bundle": {
-        "version": "4.1.1"
     },
     "symfony/amqp-messenger": {
         "version": "v5.4.0"
@@ -868,6 +871,9 @@
     "symfonycasts/verify-email-bundle": {
         "version": "v1.3.0"
     },
+    "taproot/indieauth": {
+        "version": "v0.1.0"
+    },
     "tgalopin/html-sanitizer": {
         "version": "1.4.0"
     },
@@ -885,19 +891,6 @@
     },
     "theseer/tokenizer": {
         "version": "1.2.0"
-    },
-    "trikoder/oauth2-bundle": {
-        "version": "3.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.0",
-            "ref": "43774de114904e86d18de0cea92f368d8e3c7499"
-        },
-        "files": [
-            "config/packages/trikoder_oauth2.yaml",
-            "config/routes/trikoder_oauth2.yaml"
-        ]
     },
     "twig/extra-bundle": {
         "version": "v3.3.0"
@@ -922,6 +915,9 @@
     },
     "webmozart/assert": {
         "version": "1.10.0"
+    },
+    "webmozart/path-util": {
+        "version": "2.3.0"
     },
     "wikimedia/composer-merge-plugin": {
         "version": "v2.0.1"

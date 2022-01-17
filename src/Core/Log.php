@@ -58,6 +58,11 @@ abstract class Log
         self::$logger = $l;
     }
 
+    public static function getLogger(): LoggerInterface
+    {
+        return self::$logger;
+    }
+
     /**
      * Log a critical error when a really unexpected exception occured. This indicates a bug in the software
      *

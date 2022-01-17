@@ -4,74 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9c0a2f7b8e803cba4400571f9a087948",
+    "content-hash": "7ed86573c398de55843ceec839486431",
     "packages": [
-        {
-            "name": "ajgarlag/psr-http-message-bundle",
-            "version": "1.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ajgarlag/psr-http-message-bundle.git",
-                "reference": "7f7e82f8a70b54c0c48a797b1b537421c9049e65"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ajgarlag/psr-http-message-bundle/zipball/7f7e82f8a70b54c0c48a797b1b537421c9049e65",
-                "reference": "7f7e82f8a70b54c0c48a797b1b537421c9049e65",
-                "shasum": ""
-            },
-            "require": {
-                "psr/http-factory": "^1.0",
-                "symfony/dependency-injection": "^4.4.8|^5.2.4",
-                "symfony/framework-bundle": "^4.4|^5.0",
-                "symfony/psr-http-message-bridge": "^1.1|^2.0"
-            },
-            "conflict": {
-                "sensio/framework-extra-bundle": "<5.3"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.18",
-                "nyholm/psr7": "^1.1",
-                "sensio/framework-extra-bundle": "^5.3|^6.0",
-                "symfony/browser-kit": "^4.4|^5.0",
-                "symfony/monolog-bridge": "^4.0|^5.0",
-                "symfony/monolog-bundle": "^3.2",
-                "symfony/phpunit-bridge": "^4.4.11|^5.0.11",
-                "symfony/yaml": "^4.4|^5.0"
-            },
-            "suggest": {
-                "nyholm/psr7": "Provides autowiring aliases for PSR-17"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "1.1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Ajgarlag\\Bundle\\PsrHttpMessageBundle\\": "src/"
-                },
-                "exclude-from-classmap": [
-                    "/tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Antonio J. García Lagar",
-                    "email": "aj@garcialagar.es"
-                }
-            ],
-            "support": {
-                "issues": "https://github.com/ajgarlag/psr-http-message-bundle/issues",
-                "source": "https://github.com/ajgarlag/psr-http-message-bundle/tree/1.2.1"
-            },
-            "time": "2021-03-10T18:29:27+00:00"
-        },
         {
             "name": "alchemy/binary-driver",
             "version": "v5.2.0",
@@ -137,6 +71,50 @@
                 "source": "https://github.com/alchemy-fr/BinaryDriver/tree/master"
             },
             "time": "2020-02-12T19:35:11+00:00"
+        },
+        {
+            "name": "barnabywalters/mf-cleaner",
+            "version": "v0.1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/barnabywalters/php-mf-cleaner.git",
+                "reference": "ef6a16628db6e8aee2b4f8bb8093d18c24b74cd4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/barnabywalters/php-mf-cleaner/zipball/ef6a16628db6e8aee2b4f8bb8093d18c24b74cd4",
+                "reference": "ef6a16628db6e8aee2b4f8bb8093d18c24b74cd4",
+                "shasum": ""
+            },
+            "require-dev": {
+                "php": ">=5.3",
+                "phpunit/phpunit": "*"
+            },
+            "suggest": {
+                "mf2/mf2": "To parse microformats2 structures from (X)HTML"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/BarnabyWalters/Mf2/Functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Barnaby Walters",
+                    "email": "barnaby@waterpigs.co.uk"
+                }
+            ],
+            "description": "Cleans up microformats2 array structures",
+            "support": {
+                "issues": "https://github.com/barnabywalters/php-mf-cleaner/issues",
+                "source": "https://github.com/barnabywalters/php-mf-cleaner/tree/v0.1.4"
+            },
+            "time": "2014-10-06T23:11:15+00:00"
         },
         {
             "name": "composer/ca-bundle",
@@ -288,34 +266,43 @@
             "time": "2021-09-13T08:41:34+00:00"
         },
         {
-            "name": "defuse/php-encryption",
-            "version": "v2.3.1",
+            "name": "dflydev/fig-cookies",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/defuse/php-encryption.git",
-                "reference": "77880488b9954b7884c25555c2a0ea9e7053f9d2"
+                "url": "https://github.com/dflydev/dflydev-fig-cookies.git",
+                "reference": "ea6934204b1b34ffdf5130dc7e0928d18ced2498"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/defuse/php-encryption/zipball/77880488b9954b7884c25555c2a0ea9e7053f9d2",
-                "reference": "77880488b9954b7884c25555c2a0ea9e7053f9d2",
+                "url": "https://api.github.com/repos/dflydev/dflydev-fig-cookies/zipball/ea6934204b1b34ffdf5130dc7e0928d18ced2498",
+                "reference": "ea6934204b1b34ffdf5130dc7e0928d18ced2498",
                 "shasum": ""
             },
             "require": {
-                "ext-openssl": "*",
-                "paragonie/random_compat": ">= 2",
-                "php": ">=5.6.0"
+                "ext-pcre": "*",
+                "php": "^7.2 || ^8.0",
+                "psr/http-message": "^1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4|^5|^6|^7|^8|^9"
+                "doctrine/coding-standard": "^8",
+                "phpstan/extension-installer": "^1.0",
+                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan-phpunit": "^0.12.16",
+                "phpunit/phpunit": "^7.2.6 || ^9",
+                "scrutinizer/ocular": "^1.8",
+                "squizlabs/php_codesniffer": "^3.3",
+                "vimeo/psalm": "^4.4"
             },
-            "bin": [
-                "bin/generate-defuse-key"
-            ],
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "3.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
-                    "Defuse\\Crypto\\": "src"
+                    "Dflydev\\FigCookies\\": "src/Dflydev/FigCookies"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -324,34 +311,21 @@
             ],
             "authors": [
                 {
-                    "name": "Taylor Hornby",
-                    "email": "taylor@defuse.ca",
-                    "homepage": "https://defuse.ca/"
-                },
-                {
-                    "name": "Scott Arciszewski",
-                    "email": "info@paragonie.com",
-                    "homepage": "https://paragonie.com"
+                    "name": "Beau Simensen",
+                    "email": "beau@dflydev.com"
                 }
             ],
-            "description": "Secure PHP Encryption Library",
+            "description": "Cookies for PSR-7 HTTP Message Interface.",
             "keywords": [
-                "aes",
-                "authenticated encryption",
-                "cipher",
-                "crypto",
-                "cryptography",
-                "encrypt",
-                "encryption",
-                "openssl",
-                "security",
-                "symmetric key cryptography"
+                "cookies",
+                "psr-7",
+                "psr7"
             ],
             "support": {
-                "issues": "https://github.com/defuse/php-encryption/issues",
-                "source": "https://github.com/defuse/php-encryption/tree/v2.3.1"
+                "issues": "https://github.com/dflydev/dflydev-fig-cookies/issues",
+                "source": "https://github.com/dflydev/dflydev-fig-cookies/tree/v3.0.0"
             },
-            "time": "2021-04-09T23:57:26+00:00"
+            "time": "2021-01-22T02:53:56+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -1367,20 +1341,20 @@
         },
         {
             "name": "doctrine/migrations",
-            "version": "3.3.2",
+            "version": "3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/migrations.git",
-                "reference": "b6e43bb5815f4dbb88c79a0fef1c669dfba52d58"
+                "reference": "e17a946a9d3693cc2f3c285e6667522ded237f71"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/migrations/zipball/b6e43bb5815f4dbb88c79a0fef1c669dfba52d58",
-                "reference": "b6e43bb5815f4dbb88c79a0fef1c669dfba52d58",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/e17a946a9d3693cc2f3c285e6667522ded237f71",
+                "reference": "e17a946a9d3693cc2f3c285e6667522ded237f71",
                 "shasum": ""
             },
             "require": {
-                "composer/package-versions-deprecated": "^1.8",
+                "composer-runtime-api": "^2",
                 "doctrine/dbal": "^2.11 || ^3.0",
                 "doctrine/deprecations": "^0.5.3",
                 "doctrine/event-manager": "^1.0",
@@ -1403,7 +1377,7 @@
                 "phpstan/phpstan-strict-rules": "^0.12",
                 "phpstan/phpstan-symfony": "^0.12",
                 "phpunit/phpunit": "^8.5 || ^9.4",
-                "symfony/cache": "^3.4.26 || ~4.1.12 || ^4.2.7 || ^5.0 || ^6.0",
+                "symfony/cache": "^3.4.26 || ^4.2.12 || ^5.0 || ^6.0",
                 "symfony/process": "^3.4 || ^4.0 || ^5.0 || ^6.0",
                 "symfony/yaml": "^3.4 || ^4.0 || ^5.0 || ^6.0"
             },
@@ -1453,7 +1427,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/migrations/issues",
-                "source": "https://github.com/doctrine/migrations/tree/3.3.2"
+                "source": "https://github.com/doctrine/migrations/tree/3.4.0"
             },
             "funding": [
                 {
@@ -1469,7 +1443,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-11-12T09:03:27+00:00"
+            "time": "2022-01-14T08:19:22+00:00"
         },
         {
             "name": "doctrine/orm",
@@ -2369,32 +2343,29 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.1.0",
+            "version": "1.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "089edd38f5b8abba6cb01567c2a8aaa47cec4c72"
+                "reference": "1afdd860a2566ed3c2b0b4a3de6e23434a79ec85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/089edd38f5b8abba6cb01567c2a8aaa47cec4c72",
-                "reference": "089edd38f5b8abba6cb01567c2a8aaa47cec4c72",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/1afdd860a2566ed3c2b0b4a3de6e23434a79ec85",
+                "reference": "1afdd860a2566ed3c2b0b4a3de6e23434a79ec85",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2.5 || ^8.0",
-                "psr/http-factory": "^1.0",
-                "psr/http-message": "^1.0",
-                "ralouphie/getallheaders": "^3.0"
+                "php": ">=5.4.0",
+                "psr/http-message": "~1.0",
+                "ralouphie/getallheaders": "^2.0.5 || ^3.0.0"
             },
             "provide": {
-                "psr/http-factory-implementation": "1.0",
                 "psr/http-message-implementation": "1.0"
             },
             "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.4.1",
-                "http-interop/http-factory-tests": "^0.9",
-                "phpunit/phpunit": "^8.5.8 || ^9.3.10"
+                "ext-zlib": "*",
+                "phpunit/phpunit": "~4.8.36 || ^5.7.27 || ^6.5.14 || ^7.5.20 || ^8.5.8 || ^9.3.10"
             },
             "suggest": {
                 "laminas/laminas-httphandlerrunner": "Emit PSR-7 responses"
@@ -2402,13 +2373,16 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1-dev"
+                    "dev-master": "1.7-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
                     "GuzzleHttp\\Psr7\\": "src/"
-                }
+                },
+                "files": [
+                    "src/functions_include.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -2444,11 +2418,6 @@
                     "name": "Tobias Schultze",
                     "email": "webmaster@tubo-world.de",
                     "homepage": "https://github.com/Tobion"
-                },
-                {
-                    "name": "Márk Sági-Kazár",
-                    "email": "mark.sagikazar@gmail.com",
-                    "homepage": "https://sagikazarmark.hu"
                 }
             ],
             "description": "PSR-7 message implementation that also provides common utility methods",
@@ -2464,7 +2433,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.1.0"
+                "source": "https://github.com/guzzle/psr7/tree/1.8.3"
             },
             "funding": [
                 {
@@ -2480,7 +2449,158 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-10-06T17:43:30+00:00"
+            "time": "2021-10-05T13:56:00+00:00"
+        },
+        {
+            "name": "indieauth/client",
+            "version": "1.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/indieweb/indieauth-client-php.git",
+                "reference": "2ebd8396913ae8c72438dc24f037c8e1717b66ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/indieweb/indieauth-client-php/zipball/2ebd8396913ae8c72438dc24f037c8e1717b66ed",
+                "reference": "2ebd8396913ae8c72438dc24f037c8e1717b66ed",
+                "shasum": ""
+            },
+            "require": {
+                "indieweb/representative-h-card": "^0.1.2",
+                "mf2/mf2": ">=0.3.2",
+                "p3k/http": ">=0.1.6",
+                "php": ">5.6.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.8.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "IndieAuth": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Parecki",
+                    "homepage": "https://aaronparecki.com"
+                }
+            ],
+            "description": "IndieAuth Client Library",
+            "support": {
+                "issues": "https://github.com/indieweb/indieauth-client-php/issues",
+                "source": "https://github.com/indieweb/indieauth-client-php/tree/1.1.5"
+            },
+            "funding": [
+                {
+                    "url": "https://opencollective.com/indieweb",
+                    "type": "opencollective"
+                }
+            ],
+            "time": "2021-01-10T00:19:07+00:00"
+        },
+        {
+            "name": "indieweb/link-rel-parser",
+            "version": "0.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/indieweb/link-rel-parser-php.git",
+                "reference": "295420e4f16d9a9d262a3c25a7a583794428f055"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/indieweb/link-rel-parser-php/zipball/295420e4f16d9a9d262a3c25a7a583794428f055",
+                "reference": "295420e4f16d9a9d262a3c25a7a583794428f055",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/IndieWeb/link_rel_parser.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Parecki",
+                    "homepage": "http://aaronparecki.com"
+                },
+                {
+                    "name": "Tantek Çelik",
+                    "homepage": "http://tantek.com"
+                }
+            ],
+            "description": "Parse rel values from HTTP headers",
+            "homepage": "https://github.com/indieweb/link-rel-parser-php",
+            "keywords": [
+                "http",
+                "indieweb",
+                "microformats2"
+            ],
+            "support": {
+                "issues": "https://github.com/indieweb/link-rel-parser-php/issues",
+                "source": "https://github.com/indieweb/link-rel-parser-php/tree/master"
+            },
+            "time": "2017-01-11T17:14:49+00:00"
+        },
+        {
+            "name": "indieweb/representative-h-card",
+            "version": "0.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/indieweb/representative-h-card-php.git",
+                "reference": "b70b01bd0dd7f2a940602137335dbf46ab6e2e38"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/indieweb/representative-h-card-php/zipball/b70b01bd0dd7f2a940602137335dbf46ab6e2e38",
+                "reference": "b70b01bd0dd7f2a940602137335dbf46ab6e2e38",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "mf2/mf2": "0.2.*",
+                "phpunit/phpunit": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/mf2/representative-h-card.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Parecki",
+                    "homepage": "http://aaronparecki.com"
+                }
+            ],
+            "keywords": [
+                "h-card",
+                "indieweb",
+                "mf2",
+                "microformats"
+            ],
+            "support": {
+                "issues": "https://github.com/indieweb/representative-h-card-php/issues",
+                "source": "https://github.com/indieweb/representative-h-card-php/tree/0.1.2"
+            },
+            "time": "2015-12-23T18:11:19+00:00"
         },
         {
             "name": "jcupitt/vips",
@@ -2730,281 +2850,6 @@
                 "source": "https://github.com/landrok/activitypub/tree/0.5.6"
             },
             "time": "2021-04-11T16:10:46+00:00"
-        },
-        {
-            "name": "lcobucci/clock",
-            "version": "2.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/lcobucci/clock.git",
-                "reference": "903513d28e85376a33385ebc601afd2ee69e5653"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/clock/zipball/903513d28e85376a33385ebc601afd2ee69e5653",
-                "reference": "903513d28e85376a33385ebc601afd2ee69e5653",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.0"
-            },
-            "require-dev": {
-                "infection/infection": "^0.25",
-                "lcobucci/coding-standard": "^8.0",
-                "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan": "^0.12",
-                "phpstan/phpstan-deprecation-rules": "^0.12",
-                "phpstan/phpstan-phpunit": "^0.12",
-                "phpstan/phpstan-strict-rules": "^0.12",
-                "phpunit/phpunit": "^9.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Lcobucci\\Clock\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Luís Cobucci",
-                    "email": "lcobucci@gmail.com"
-                }
-            ],
-            "description": "Yet another clock abstraction",
-            "support": {
-                "issues": "https://github.com/lcobucci/clock/issues",
-                "source": "https://github.com/lcobucci/clock/tree/2.1.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/lcobucci",
-                    "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/lcobucci",
-                    "type": "patreon"
-                }
-            ],
-            "time": "2021-10-31T21:32:07+00:00"
-        },
-        {
-            "name": "lcobucci/jwt",
-            "version": "4.1.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/lcobucci/jwt.git",
-                "reference": "fe2d89f2eaa7087af4aa166c6f480ef04e000582"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/fe2d89f2eaa7087af4aa166c6f480ef04e000582",
-                "reference": "fe2d89f2eaa7087af4aa166c6f480ef04e000582",
-                "shasum": ""
-            },
-            "require": {
-                "ext-hash": "*",
-                "ext-json": "*",
-                "ext-mbstring": "*",
-                "ext-openssl": "*",
-                "ext-sodium": "*",
-                "lcobucci/clock": "^2.0",
-                "php": "^7.4 || ^8.0"
-            },
-            "require-dev": {
-                "infection/infection": "^0.21",
-                "lcobucci/coding-standard": "^6.0",
-                "mikey179/vfsstream": "^1.6.7",
-                "phpbench/phpbench": "^1.0",
-                "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "^0.12",
-                "phpstan/phpstan-deprecation-rules": "^0.12",
-                "phpstan/phpstan-phpunit": "^0.12",
-                "phpstan/phpstan-strict-rules": "^0.12",
-                "phpunit/php-invoker": "^3.1",
-                "phpunit/phpunit": "^9.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Lcobucci\\JWT\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Luís Cobucci",
-                    "email": "lcobucci@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A simple library to work with JSON Web Token and JSON Web Signature",
-            "keywords": [
-                "JWS",
-                "jwt"
-            ],
-            "support": {
-                "issues": "https://github.com/lcobucci/jwt/issues",
-                "source": "https://github.com/lcobucci/jwt/tree/4.1.5"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/lcobucci",
-                    "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/lcobucci",
-                    "type": "patreon"
-                }
-            ],
-            "time": "2021-09-28T19:34:56+00:00"
-        },
-        {
-            "name": "league/event",
-            "version": "2.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/event.git",
-                "reference": "d2cc124cf9a3fab2bb4ff963307f60361ce4d119"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/event/zipball/d2cc124cf9a3fab2bb4ff963307f60361ce4d119",
-                "reference": "d2cc124cf9a3fab2bb4ff963307f60361ce4d119",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "henrikbjorn/phpspec-code-coverage": "~1.0.1",
-                "phpspec/phpspec": "^2.2"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.2-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "League\\Event\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Frank de Jonge",
-                    "email": "info@frenky.net"
-                }
-            ],
-            "description": "Event package",
-            "keywords": [
-                "emitter",
-                "event",
-                "listener"
-            ],
-            "support": {
-                "issues": "https://github.com/thephpleague/event/issues",
-                "source": "https://github.com/thephpleague/event/tree/master"
-            },
-            "time": "2018-11-26T11:52:41+00:00"
-        },
-        {
-            "name": "league/oauth2-server",
-            "version": "8.3.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/oauth2-server.git",
-                "reference": "f5698a3893eda9a17bcd48636990281e7ca77b2a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/oauth2-server/zipball/f5698a3893eda9a17bcd48636990281e7ca77b2a",
-                "reference": "f5698a3893eda9a17bcd48636990281e7ca77b2a",
-                "shasum": ""
-            },
-            "require": {
-                "defuse/php-encryption": "^2.2.1",
-                "ext-json": "*",
-                "ext-openssl": "*",
-                "lcobucci/jwt": "^3.4.6 || ^4.0.4",
-                "league/event": "^2.2",
-                "php": "^7.2 || ^8.0",
-                "psr/http-message": "^1.0.1"
-            },
-            "replace": {
-                "league/oauth2server": "*",
-                "lncd/oauth2": "*"
-            },
-            "require-dev": {
-                "laminas/laminas-diactoros": "^2.4.1",
-                "phpstan/phpstan": "^0.12.57",
-                "phpstan/phpstan-phpunit": "^0.12.16",
-                "phpunit/phpunit": "^8.5.13",
-                "roave/security-advisories": "dev-master"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "League\\OAuth2\\Server\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Alex Bilbie",
-                    "email": "hello@alexbilbie.com",
-                    "homepage": "http://www.alexbilbie.com",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Andy Millington",
-                    "email": "andrew@noexceptions.io",
-                    "homepage": "https://www.noexceptions.io",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A lightweight and powerful OAuth 2.0 authorization and resource server library with support for all the core specification grants. This library will allow you to secure your API with OAuth and allow your applications users to approve apps that want to access their data from your API.",
-            "homepage": "https://oauth2.thephpleague.com/",
-            "keywords": [
-                "Authentication",
-                "api",
-                "auth",
-                "authorisation",
-                "authorization",
-                "oauth",
-                "oauth 2",
-                "oauth 2.0",
-                "oauth2",
-                "protect",
-                "resource",
-                "secure",
-                "server"
-            ],
-            "support": {
-                "issues": "https://github.com/thephpleague/oauth2-server/issues",
-                "source": "https://github.com/thephpleague/oauth2-server/tree/8.3.3"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/sephster",
-                    "type": "github"
-                }
-            ],
-            "time": "2021-10-11T20:41:49+00:00"
         },
         {
             "name": "league/uri-parser",
@@ -3924,6 +3769,48 @@
             "time": "2020-11-19T17:43:46+00:00"
         },
         {
+            "name": "p3k/http",
+            "version": "0.1.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aaronpk/p3k-http.git",
+                "reference": "cf9c5b7cdbe1800bfb9587a20953ed8d20322e0b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aaronpk/p3k-http/zipball/cf9c5b7cdbe1800bfb9587a20953ed8d20322e0b",
+                "reference": "cf9c5b7cdbe1800bfb9587a20953ed8d20322e0b",
+                "shasum": ""
+            },
+            "require": {
+                "indieweb/link-rel-parser": "0.1.*",
+                "mf2/mf2": ">=0.3.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "p3k\\": "src/p3k"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Parecki",
+                    "homepage": "https://aaronparecki.com"
+                }
+            ],
+            "description": "A simple wrapper API around the PHP curl functions",
+            "homepage": "https://github.com/aaronpk/p3k-http",
+            "support": {
+                "issues": "https://github.com/aaronpk/p3k-http/issues",
+                "source": "https://github.com/aaronpk/p3k-http/tree/0.1.12"
+            },
+            "time": "2021-10-12T14:12:29+00:00"
+        },
+        {
             "name": "paragonie/constant_time_encoding",
             "version": "v2.4.0",
             "source": {
@@ -4809,6 +4696,120 @@
             "time": "2016-08-06T14:39:51+00:00"
         },
         {
+            "name": "psr/http-server-handler",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-server-handler.git",
+                "reference": "aff2f80e33b7f026ec96bb42f63242dc50ffcae7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/http-server-handler/zipball/aff2f80e33b7f026ec96bb42f63242dc50ffcae7",
+                "reference": "aff2f80e33b7f026ec96bb42f63242dc50ffcae7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0",
+                "psr/http-message": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Http\\Server\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for HTTP server-side request handler",
+            "keywords": [
+                "handler",
+                "http",
+                "http-interop",
+                "psr",
+                "psr-15",
+                "psr-7",
+                "request",
+                "response",
+                "server"
+            ],
+            "support": {
+                "issues": "https://github.com/php-fig/http-server-handler/issues",
+                "source": "https://github.com/php-fig/http-server-handler/tree/master"
+            },
+            "time": "2018-10-30T16:46:14+00:00"
+        },
+        {
+            "name": "psr/http-server-middleware",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-server-middleware.git",
+                "reference": "2296f45510945530b9dceb8bcedb5cb84d40c5f5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/http-server-middleware/zipball/2296f45510945530b9dceb8bcedb5cb84d40c5f5",
+                "reference": "2296f45510945530b9dceb8bcedb5cb84d40c5f5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0",
+                "psr/http-message": "^1.0",
+                "psr/http-server-handler": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Http\\Server\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for HTTP server-side middleware",
+            "keywords": [
+                "http",
+                "http-interop",
+                "middleware",
+                "psr",
+                "psr-15",
+                "psr-7",
+                "request",
+                "response"
+            ],
+            "support": {
+                "issues": "https://github.com/php-fig/http-server-middleware/issues",
+                "source": "https://github.com/php-fig/http-server-middleware/tree/master"
+            },
+            "time": "2018-10-30T17:12:04+00:00"
+        },
+        {
             "name": "psr/link",
             "version": "1.1.1",
             "source": {
@@ -5193,67 +5194,6 @@
                 "source": "https://github.com/someonewithpc/php-redis-polyfill/tree/1.1"
             },
             "time": "2021-04-01T19:09:10+00:00"
-        },
-        {
-            "name": "symfony-bundles/json-request-bundle",
-            "version": "4.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony-bundles/json-request-bundle.git",
-                "reference": "dfb6ca1697496a3c4d3914901c64ed946cce2f4b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony-bundles/json-request-bundle/zipball/dfb6ca1697496a3c4d3914901c64ed946cce2f4b",
-                "reference": "dfb6ca1697496a3c4d3914901c64ed946cce2f4b",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": ">=7.4 || ^8.0",
-                "symfony/framework-bundle": "^4.3 || ^5.0 || ^6.0"
-            },
-            "require-dev": {
-                "phpstan/phpstan": "^1.4",
-                "phpunit/php-code-coverage": "^9.2",
-                "phpunit/phpunit": "^9.5",
-                "symfony/browser-kit": "^5.2 || ^6.0",
-                "symfony/yaml": "^5.2 || ^6.0"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "SymfonyBundles\\JsonRequestBundle\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Dmitry Khaperets",
-                    "email": "khaperets@gmail.com"
-                }
-            ],
-            "description": "Symfony JsonRequest Bundle",
-            "homepage": "https://github.com/symfony-bundles/json-request-bundle",
-            "keywords": [
-                "angular",
-                "bundle",
-                "json",
-                "symfony"
-            ],
-            "support": {
-                "issues": "https://github.com/symfony-bundles/json-request-bundle/issues",
-                "source": "https://github.com/symfony-bundles/json-request-bundle/tree/4.1.1"
-            },
-            "time": "2022-01-16T16:27:40+00:00"
         },
         {
             "name": "symfony/amqp-messenger",
@@ -10961,6 +10901,64 @@
             "time": "2021-11-30T17:26:37+00:00"
         },
         {
+            "name": "taproot/indieauth",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Taproot/indieauth.git",
+                "reference": "13ebdf68e98fc1be35740279d9463ea9c996600b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Taproot/indieauth/zipball/13ebdf68e98fc1be35740279d9463ea9c996600b",
+                "reference": "13ebdf68e98fc1be35740279d9463ea9c996600b",
+                "shasum": ""
+            },
+            "require": {
+                "barnabywalters/mf-cleaner": "^0.1.4",
+                "dflydev/fig-cookies": "^3.0",
+                "guzzlehttp/psr7": "^1.8",
+                "indieauth/client": "^1.1",
+                "mf2/mf2": "^0.4.6",
+                "nyholm/psr7": "^1.4",
+                "php": ">= 7.3.0",
+                "psr/http-message": "^1.0",
+                "psr/http-server-middleware": "^1.0",
+                "psr/log": "^1.1",
+                "webmozart/path-util": "^2.3"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.3",
+                "phpunit/phpunit": "^9.5",
+                "vimeo/psalm": "^4.7"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Taproot\\IndieAuth\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Barnaby Walters",
+                    "email": "barnaby@waterpigs.co.uk"
+                }
+            ],
+            "description": "PHP PSR-7-compliant IndieAuth Server and Client implementation.",
+            "support": {
+                "issues": "https://github.com/Taproot/indieauth/issues",
+                "source": "https://github.com/Taproot/indieauth/tree/v0.1.0"
+            },
+            "time": "2021-06-24T11:48:53+00:00"
+        },
+        {
             "name": "tgalopin/html-sanitizer",
             "version": "1.5.0",
             "source": {
@@ -11125,89 +11123,6 @@
                 }
             ],
             "time": "2021-12-29T22:21:17+00:00"
-        },
-        {
-            "name": "trikoder/oauth2-bundle",
-            "version": "v3.x-dev",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/trikoder/oauth2-bundle.git",
-                "reference": "f970a9c6f4275960d77f24b851563ce99e70ba8d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/trikoder/oauth2-bundle/zipball/f970a9c6f4275960d77f24b851563ce99e70ba8d",
-                "reference": "f970a9c6f4275960d77f24b851563ce99e70ba8d",
-                "shasum": ""
-            },
-            "require": {
-                "ajgarlag/psr-http-message-bundle": "^1.1",
-                "doctrine/doctrine-bundle": "^1.8|^2.0",
-                "doctrine/orm": "^2.7",
-                "league/oauth2-server": "^8.0",
-                "php": ">=7.2",
-                "psr/http-factory": "^1.0",
-                "symfony/framework-bundle": "^4.4|^5.0",
-                "symfony/psr-http-message-bridge": "^2.0",
-                "symfony/security-bundle": "^4.4|^5.0"
-            },
-            "require-dev": {
-                "ext-timecop": "*",
-                "ext-xdebug": "*",
-                "laminas/laminas-diactoros": "^2.2",
-                "nyholm/psr7": "^1.2",
-                "phpunit/phpunit": "^8.5|^9.4",
-                "symfony/browser-kit": "^4.4|^5.0",
-                "symfony/phpunit-bridge": "^5.0"
-            },
-            "suggest": {
-                "defuse/php-encryption": "For better performance when doing encryption",
-                "nelmio/cors-bundle": "For handling CORS requests",
-                "nyholm/psr7": "For a super lightweight PSR-7/17 implementation"
-            },
-            "default-branch": true,
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Trikoder\\Bundle\\OAuth2Bundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Antonio Pauletich",
-                    "email": "antonio.pauletich@trikoder.net"
-                },
-                {
-                    "name": "Berislav Balogović",
-                    "email": "berislav.balogovic@trikoder.net"
-                },
-                {
-                    "name": "Petar Obradović",
-                    "email": "petar.obradovic@trikoder.net"
-                }
-            ],
-            "description": "Symfony bundle which provides OAuth 2.0 authorization/resource server capabilities.",
-            "homepage": "https://www.trikoder.net/",
-            "keywords": [
-                "oauth2"
-            ],
-            "support": {
-                "issues": "https://github.com/trikoder/oauth2-bundle/issues",
-                "source": "https://github.com/trikoder/oauth2-bundle/tree/v3.x"
-            },
-            "time": "2021-03-09T14:59:54+00:00"
         },
         {
             "name": "twig/extra-bundle",
@@ -11716,6 +11631,57 @@
                 "source": "https://github.com/webmozarts/assert/tree/1.10.0"
             },
             "time": "2021-03-09T10:59:23+00:00"
+        },
+        {
+            "name": "webmozart/path-util",
+            "version": "2.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webmozart/path-util.git",
+                "reference": "d939f7edc24c9a1bb9c0dee5cb05d8e859490725"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webmozart/path-util/zipball/d939f7edc24c9a1bb9c0dee5cb05d8e859490725",
+                "reference": "d939f7edc24c9a1bb9c0dee5cb05d8e859490725",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3",
+                "webmozart/assert": "~1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.6",
+                "sebastian/version": "^1.0.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Webmozart\\PathUtil\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bernhard Schussek",
+                    "email": "bschussek@gmail.com"
+                }
+            ],
+            "description": "A robust cross-platform utility for normalizing, comparing and modifying file paths.",
+            "support": {
+                "issues": "https://github.com/webmozart/path-util/issues",
+                "source": "https://github.com/webmozart/path-util/tree/2.3.0"
+            },
+            "abandoned": "symfony/filesystem",
+            "time": "2015-12-17T08:42:14+00:00"
         },
         {
             "name": "wikimedia/composer-merge-plugin",
@@ -15121,8 +15087,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "someonewithpc/redis-polyfill": 20,
-        "phpstan/phpstan": 20,
-        "trikoder/oauth2-bundle": 20
+        "phpstan/phpstan": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

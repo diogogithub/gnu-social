@@ -1,0 +1,7 @@
+{
+  "require": {
+    "nyholm/psr7": "^1.4",
+    "symfony/psr-http-message-bridge": "^2.1",
+    "taproot/indieauth": "^0.1.0"
+  }
+}

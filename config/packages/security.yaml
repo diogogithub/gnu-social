@@ -31,9 +31,7 @@ security:
             pattern: ^/api/
             security: true
             stateless: true
-            guard:
-                authenticators:
-                    - Trikoder\Bundle\OAuth2Bundle\Security\Guard\Authenticator\OAuth2Authenticator
+
         main:
             entry_point: App\Security\Authenticator
             guard:
