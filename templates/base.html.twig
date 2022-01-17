@@ -15,10 +15,12 @@
     </title>
 
     {% block stylesheets %}
-        <link rel='preload' type='text/css' as='style' href="{{ asset('assets/default_theme/fonts/opensans/opensans.css') }}">
+        <link rel='preload' type='text/css' as='style'
+              href="{{ asset('assets/default_theme/fonts/opensans/opensans.css') }}">
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/fonts/opensans/opensans.css') }}">
 
-        <link rel='preload' type='text/css' as='style' href="{{ asset('assets/default_theme/fonts/poppins/poppins.css') }}">
+        <link rel='preload' type='text/css' as='style'
+              href="{{ asset('assets/default_theme/fonts/poppins/poppins.css') }}">
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/fonts/poppins/poppins.css') }}">
 
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/default_theme/css/root.css') }}">
@@ -48,34 +50,48 @@
 <body>
 
 <aside class="accessibility-menu">
-    <h2 class="accessibility-menu-title" tabindex="0">{{ 'Accessibility menu.' | trans }}</h2>
-    <p tabindex="0">{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</p>
-    <p tabindex="0">{{ 'Provided the following keyboard shortcut, the link is targeted.' | trans }}</p>
+    <strong class="accessibility-menu-title" tabindex="0">{{ 'Accessibility menu' | trans }}</strong>
     <br>
-    <p tabindex="0">{{ 'Be mindful that another ' | trans }}<kbd>Tab</kbd>{{ ' is needed in order to focus.' | trans }}
-    </p>
-    <p tabindex="0">
-        {% if is_firefox() == true %}
-            <em><kbd>Alt</kbd> + <kbd>Shift</kbd> + "access key"</em>
-        {% else %}
-            <em><kbd>Alt</kbd> + "access key"</em>
-        {% endif %}
-    </p>
-    <br>
+    <section tabindex="0">
+        <p>{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</p>
+        <br>
+        <p>
+            {{ 'Be mindful that a ' | trans }}<em><kbd>Tab</kbd></em>{{ ' followed by a ' | trans }}<em><kbd>Space</kbd></em>
+            {{ ' is needed in order to focus each panel. Other anchors do only require a ' | trans }} <em><kbd>Tab</kbd></em>
+            {{ ' however. ' | trans }}
+        </p>
+    </section>
 
-    <a id="anchor-accessibility-menu" accesskey="z" href="#anchor-accessibility-menu">
-        <strong>{{ 'The keyboard key ' | trans }}<kbd>Z</kbd>{{ ' accesses this menu.' | trans }}</strong>
-        <strong>{{ 'The other access keys are:' | trans }}</strong>
-    </a>
+    <section tabindex="0">
+        <p>{% trans %}The accesskey default shortcut keybinding is as follows: {% endtrans %}</p>
+        <p>
+            {% if is_firefox() == true %}
+                <em><kbd>Alt</kbd> + <kbd>Shift</kbd></em>
+            {% else %}
+                <em><kbd>Alt</kbd></em>
+            {% endif %}
+        </p>
+    </section>
 
-    <nav>
-        <ul>
-            <li><a href="#anchor-left-panel" accesskey="s"><kbd>S</kbd>{{ ' for the Left panel.' | trans }}</a></li>
-            <li><a href="#anchor-main-content" accesskey="n"><kbd>N</kbd>{{ ' for the main content.' | trans }}</a></li>
-            <li><a href="#anchor-main-page" accesskey="y"><kbd>Y</kbd>{{ ' for the main page.' | trans }}</a></li>
-            <li><a href="#anchor-right-panel" accesskey="j"><kbd>J</kbd>{{ ' for the right panel.' | trans }}</a></li>
-        </ul>
-    </nav>
+    <section tabindex="0">
+        <a id="anchor-accessibility-menu" accesskey="z" href="#anchor-accessibility-menu">
+            <strong tabindex="0">{% trans %}Combined with the previous keybinding, the keyboard key
+                    <kbd>Z</kbd> returns focus to this menu.{% endtrans %}</strong>
+            <strong tabindex="0">{% trans %}Further access keys are provided via:{% endtrans %}</strong>
+        </a>
+        <nav>
+            <ul>
+                <li><a href="#anchor-left-panel" accesskey="s">{% trans %}Left panel is accessed with
+                            <kbd>S</kbd>{% endtrans %}</a></li>
+                <li><a href="#anchor-main-content" accesskey="n">{% trans %}Main content is accessed with
+                            <kbd>N</kbd>{% endtrans %}</a></li>
+                <li><a href="#anchor-main-page" accesskey="y">{% trans %}Main instance page is accessed with
+                            <kbd>Y</kbd>{% endtrans %}</a></li>
+                <li><a href="#anchor-right-panel" accesskey="j">{% trans %}Finally, the right panel is accessed with
+                            <kbd>J</kbd>{% endtrans %}</a></li>
+            </ul>
+        </nav>
+    </section>
 </aside>
 
 {% block header %}
