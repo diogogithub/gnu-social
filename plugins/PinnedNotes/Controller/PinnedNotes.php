@@ -27,10 +27,13 @@ use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Router\Router;
+use App\Entity\Actor;
+use App\Entity\LocalUser;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
+use Component\Collection\Collection;
 use Component\Collection\Util\Controller\FeedController;
 use Plugin\PinnedNotes\Entity as E;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -38,6 +41,25 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PinnedNotes extends FeedController
 {
+    public function listPinsByNickname(Request $request, string $nickname)
+    {
+        $actor = LocalUser::getByNickname($request->attributes->get('nickname'))->getActor();
+        return $this->listPins($request, $actor->getId());
+    }
+
+    public function listPinsById(Request $request, int $id)
+    {
+        return $this->listPins($request, $id);
+    }
+
+    public function listPins(Request $request, int $id)
+    {
+        $locale = Common::currentLanguage()->getLocale();
+        $actor  = DB::findOneBy(Actor::class, ['id' => $id]);
+        $page   = (int) ($request->query->get('page') ?? 1);
+        return Collection::query('pinned:true actor:' . $id, $page, $locale, $actor);
+    }
+
     public function togglePin(Request $request, int $id)
     {
         $user = Common::ensureLoggedIn();

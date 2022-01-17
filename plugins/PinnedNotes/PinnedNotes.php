@@ -41,6 +41,7 @@ use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Formatting;
+use App\Util\Nickname;
 use Component\Collection\Collection;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\Query\Expr;
@@ -57,6 +58,19 @@ class PinnedNotes extends Plugin
     {
         // Pin and unpin notes
         $r->connect(id: 'toggle_note_pin', uri_path: '/object/note/{id<\d+>}/pin', target: [C\PinnedNotes::class, 'togglePin']);
+        // list of user pins, by id and nickname
+        // it's meant to be used by the ActivityPub plugin
+        $r->connect(
+            id: 'list_pinned_notes_by_id',
+            uri_path: '/actor/{id<\d+>}/pinned_notes',
+            target: [C\PinnedNotes::class, 'listPinsById'],
+        );
+        $r->connect(
+            id: 'list_pinned_notes_by_nickname',
+            uri_path: '/@{nickname<' . Nickname::DISPLAY_FMT . '>}/pinned_notes',
+            target: [C\PinnedNotes::class, 'listPinsByNickname'],
+        );
+
         return Event::next;
     }
 
@@ -142,7 +156,14 @@ class PinnedNotes extends Plugin
             $note_id   = end($uri_parts);
             $is_pinned = !\is_null(DB::findOneBy(E\PinnedNotes::class, ['actor_id' => $actor->getId(), 'note_id' => $note_id], return_null: true));
 
-            $type->set('pinned', $is_pinned);
+            $type->set('featured', $is_pinned);
+        } elseif ($type_name === 'Person') {
+            $actor       = \Plugin\ActivityPub\ActivityPub::getActorByUri($type->get('id'));
+            $router_args = ['id' => $actor->getId()];
+            $router_type = Router::ABSOLUTE_URL;
+            $action_url  = Router::url('list_pinned_notes_by_id', $router_args, $router_type);
+
+            $type->set('featured', $action_url);
         }
         return Event::next;
     }
