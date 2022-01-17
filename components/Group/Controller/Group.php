@@ -32,7 +32,14 @@ use App\Core\UserRoles;
 use App\Entity as E;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\NicknameEmptyException;
+use App\Util\Exception\NicknameInvalidException;
+use App\Util\Exception\NicknameNotAllowedException;
+use App\Util\Exception\NicknameTakenException;
+use App\Util\Exception\NicknameTooLongException;
+use App\Util\Exception\NoLoggedInUser;
 use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use App\Util\Form\ActorForms;
 use App\Util\Nickname;
 use Component\Collection\Util\ActorControllerTrait;
@@ -41,11 +48,22 @@ use Component\Group\Entity\GroupMember;
 use Component\Group\Entity\LocalGroup;
 use Component\Subscription\Entity\ActorSubscription;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
 class Group extends FeedController
 {
     use ActorControllerTrait;
+
+    /**
+     * View a group providing its id
+     *
+     * @param int $id The id of the group to be shown
+     *
+     * @throws ClientException
+     *
+     * @return array Containing both the template to be used and the group actor
+     */
     public function groupViewId(Request $request, int $id)
     {
         return $this->handleActorById(
@@ -58,14 +76,15 @@ class Group extends FeedController
     }
 
     /**
-     * View a group feed and give the option of creating it if it doesn't exist
+     * View a group feed by its nickname
      *
-     * @throws \App\Util\Exception\NicknameEmptyException
-     * @throws \App\Util\Exception\NicknameNotAllowedException
-     * @throws \App\Util\Exception\NicknameTakenException
-     * @throws \App\Util\Exception\NicknameTooLongException
-     * @throws \App\Util\Exception\ServerException
-     * @throws RedirectException
+     * @param string $nickname The group's nickname to be shown
+     *
+     * @throws NicknameEmptyException
+     * @throws NicknameNotAllowedException
+     * @throws NicknameTakenException
+     * @throws NicknameTooLongException
+     * @throws ServerException
      *
      * @return array
      */
@@ -76,74 +95,27 @@ class Group extends FeedController
         $actor          = Common::actor();
         $subscribe_form = null;
 
-        if (\is_null($group)) {
-            if (!\is_null($actor)) {
-                $create_form = Form::create([
-                    ['create', SubmitType::class, ['label' => _m('Create this group')]],
-                ]);
-
-                $create_form->handleRequest($request);
-                if ($create_form->isSubmitted() && $create_form->isValid()) {
-                    Log::info(
-                        _m(
-                            'Actor id:{actor_id} nick:{actor_nick} created the group {nickname}',
-                            ['{actor_id}' => $actor->getId(), 'actor_nick' => $actor->getNickname(), 'nickname' => $nickname],
-                        ),
-                    );
-
-                    DB::persist($group = E\Actor::create([
-                        'nickname' => $nickname,
-                        'type'     => E\Actor::GROUP,
-                        'is_local' => true,
-                        'roles'    => UserRoles::BOT,
-                    ]));
-                    DB::persist(LocalGroup::create([
-                        'group_id' => $group->getId(),
-                        'nickname' => $nickname,
-                    ]));
-                    DB::persist(ActorSubscription::create([
-                        'subscriber' => $group->getId(),
-                        'subscribed' => $group->getId(),
-                    ]));
-                    DB::persist(GroupMember::create([
-                        'group_id' => $group->getId(),
-                        'actor_id' => $actor->getId(),
-                        'is_admin' => true,
-                    ]));
-                    DB::flush();
-                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscriber']);
-                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribed']);
-                    throw new RedirectException();
-                }
-
-                return [
-                    '_template'   => 'group/view.html.twig',
-                    'nickname'    => $nickname,
-                    'create_form' => $create_form->createView(),
-                ];
-            }
-        } else {
-            if (!\is_null($actor)
-                && \is_null(Cache::get(
-                    ActorSubscription::cacheKeys($actor, $group)['subscribed'],
-                    fn () => DB::findOneBy('subscription', [
-                        'subscriber' => $actor->getId(),
-                        'subscribed' => $group->getId(),
-                    ], return_null: true),
-                ))
-            ) {
-                $subscribe_form = Form::create([['subscribe', SubmitType::class, ['label' => _m('Subscribe to this group')]]]);
-                $subscribe_form->handleRequest($request);
-                if ($subscribe_form->isSubmitted() && $subscribe_form->isValid()) {
-                    DB::persist(ActorSubscription::create([
-                        'subscriber' => $actor->getId(),
-                        'subscribed' => $group->getId(),
-                    ]));
-                    DB::flush();
-                    Cache::delete(E\Actor::cacheKeys($group->getId())['subscriber']);
-                    Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribed']);
-                    Cache::delete(ActorSubscription::cacheKeys($actor, $group)['subscribed']);
-                }
+        if (!\is_null($group)
+            && !\is_null($actor)
+            && \is_null(Cache::get(
+                ActorSubscription::cacheKeys($actor, $group)['subscribed'],
+                fn () => DB::findOneBy('actor_subscription', [
+                    'subscriber_id' => $actor->getId(),
+                    'subscribed_id' => $group->getId(),
+                ], return_null: true),
+            ))
+        ) {
+            $subscribe_form = Form::create([['subscribe', SubmitType::class, ['label' => _m('Subscribe to this group')]]]);
+            $subscribe_form->handleRequest($request);
+            if ($subscribe_form->isSubmitted() && $subscribe_form->isValid()) {
+                DB::persist(ActorSubscription::create([
+                    'subscriber_id' => $actor->getId(),
+                    'subscribed_id' => $group->getId(),
+                ]));
+                DB::flush();
+                Cache::delete(E\Actor::cacheKeys($group->getId())['subscribers']);
+                Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribed']);
+                Cache::delete(ActorSubscription::cacheKeys($actor, $group)['subscribed']);
             }
         }
 
@@ -167,6 +139,83 @@ class Group extends FeedController
         ];
     }
 
+    /**
+     * Page that allows an actor to create a new group
+     *
+     * @throws RedirectException
+     * @throws ServerException
+     *
+     * @return array
+     */
+    public function groupCreate(Request $request)
+    {
+        if (\is_null($actor = Common::actor())) {
+            throw new RedirectException('security_login');
+        }
+
+        $create_form = Form::create([
+            ['group_nickname', TextType::class, ['label' => _m('Group nickname')]],
+            ['group_create', SubmitType::class, ['label' => _m('Create this group!')]],
+        ]);
+
+        $create_form->handleRequest($request);
+        if ($create_form->isSubmitted() && $create_form->isValid()) {
+            $data     = $create_form->getData();
+            $nickname = $data['group_nickname'];
+
+            Log::info(
+                _m(
+                    'Actor id:{actor_id} nick:{actor_nick} created the group {nickname}',
+                    ['{actor_id}' => $actor->getId(), 'actor_nick' => $actor->getNickname(), 'nickname' => $nickname],
+                ),
+            );
+
+            DB::persist($group = E\Actor::create([
+                'nickname' => $nickname,
+                'type'     => E\Actor::GROUP,
+                'is_local' => true,
+                'roles'    => UserRoles::BOT,
+            ]));
+            DB::persist(LocalGroup::create([
+                'group_id' => $group->getId(),
+                'nickname' => $nickname,
+            ]));
+            DB::persist(ActorSubscription::create([
+                'subscriber_id' => $group->getId(),
+                'subscribed_id' => $group->getId(),
+            ]));
+            DB::persist(GroupMember::create([
+                'group_id' => $group->getId(),
+                'actor_id' => $actor->getId(),
+                'is_admin' => true,
+            ]));
+            DB::flush();
+            Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribers']);
+            Cache::delete(E\Actor::cacheKeys($actor->getId())['subscribed']);
+
+            throw new RedirectException();
+        }
+
+        return [
+            '_template'   => 'group/create.html.twig',
+            'create_form' => $create_form->createView(),
+        ];
+    }
+
+    /**
+     * Settings page for the group with the provided nickname, checks if the current actor can administrate given group
+     *
+     * @throws ClientException
+     * @throws NicknameEmptyException
+     * @throws NicknameInvalidException
+     * @throws NicknameNotAllowedException
+     * @throws NicknameTakenException
+     * @throws NicknameTooLongException
+     * @throws NoLoggedInUser
+     * @throws ServerException
+     *
+     * @return array
+     */
     public function groupSettings(Request $request, string $nickname)
     {
         $group = LocalGroup::getActorByNickname($nickname);

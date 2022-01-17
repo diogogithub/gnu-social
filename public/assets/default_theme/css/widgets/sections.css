@@ -16,6 +16,11 @@
 
 .profile-info {
     display: flex;
+    flex-wrap: wrap;
+}
+
+.profile-info .avatar {
+    flex: 0.5;
 }
 
 .profile-info-url {
@@ -32,6 +37,10 @@
 
 .profile-info-url > * {
     display: block;
+}
+
+.profile-info section {
+    flex: 1;
 }
 
 .profile-stats {
@@ -63,6 +72,17 @@
 
 .profile-tags {
     margin: 4px unset unset;
+}
+
+.profile-extra-actions {
+    margin-top: var(--s);
+    margin-right: var(--s);
+    background: var(--gradient), var(--background-hard);
+    border: 2px solid var(--border);
+    border-radius: var(--s);
+    padding: 4px 8px;
+    font-weight: bold;
+    display: inline-block;
 }
 
 .button-container {

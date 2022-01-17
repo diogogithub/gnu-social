@@ -39,6 +39,7 @@ class Group extends Component
 {
     public function onAddRoute(RouteLoader $r): bool
     {
+        $r->connect(id: 'group_create', uri_path: '/group/new', target: [C\Group::class, 'groupCreate']);
         $r->connect(id: 'group_actor_view_id', uri_path: '/group/{id<\d+>}', target: [C\Group::class, 'groupViewId']);
         $r->connect(id: 'group_actor_view_nickname', uri_path: '/!{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\Group::class, 'groupViewNickname'], options: ['is_system_path' => false]);
         $r->connect(id: 'group_settings', uri_path: '/!{nickname<' . Nickname::DISPLAY_FMT . '>}/settings', target: [C\Group::class, 'groupSettings'], options: ['is_system_path' => false]);
@@ -54,7 +55,7 @@ class Group extends Component
         $group = $vars['actor'];
         if (!\is_null($actor) && $group->isGroup() && $actor->canAdmin($group)) {
             $url   = Router::url('group_settings', ['nickname' => $group->getNickname()]);
-            $res[] = HTML::html(['hr' => '', 'a' => ['attrs' => ['href' => $url, 'title' => _m('Edit group settings')], 'p' => _m('Group settings')]]);
+            $res[] = HTML::html(['a' => ['attrs' => ['href' => $url, 'title' => _m('Edit group settings'), 'class' => 'profile-extra-actions'], _m('Group settings')]]);
         }
         return Event::next;
     }

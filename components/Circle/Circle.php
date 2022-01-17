@@ -192,7 +192,7 @@ class Circle extends Component
      */
     protected function shouldAddToRightPanel(Actor $user, $vars, Request $request): bool
     {
-        return \in_array($vars['path'], ['actor_view_nickname', 'actor_view_id', 'group_actor_view_nickname', 'group_actor_view_id']);
+        return \in_array($vars['path'], ['actor_view_nickname', 'actor_view_id']);
     }
 
     protected function getCollectionsBy(Actor $owner, ?array $vars = null, bool $ids_only = false): array

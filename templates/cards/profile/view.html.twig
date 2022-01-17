@@ -18,7 +18,7 @@
                      title="{% trans %} %actor_nickname%'s avatar{% endtrans %}"
                      width="{{ actor_avatar_dimensions['width'] }}"
                      height="{{ actor_avatar_dimensions['height'] }}">
-                <div>
+                <section>
                     <a class="profile-info-url" href="{{ actor_uri }}">
                         <strong class="profile-info-url-nickname"
                                 title="{% trans %} %actor_nickname%'s nickname {% endtrans %}">
@@ -39,15 +39,17 @@
                             </li>
                         {% endfor %}
                     </ul>
-                </div>
+                </section>
             </div>
             <div class="profile-stats">
-                <span class="profile-stats-subscriptions" title="{% trans %} %actor_nickname%'s subscribed count{% endtrans %}">
+                <span class="profile-stats-subscriptions"
+                      title="{% trans %} %actor_nickname%'s subscribed count{% endtrans %}">
                     <strong>
                         <a href="{{ actor.getSubscriptionsUrl() }}">{{ 'Subscribed' | trans }}</a>
                     </strong>{{ actor.getSubscribedCount() }}
                 </span>
-                <span class="profile-stats-subscribers" title="{% trans %} %actor_nickname%'s subscribers count{% endtrans %}">
+                <span class="profile-stats-subscribers"
+                      title="{% trans %} %actor_nickname%'s subscribers count{% endtrans %}">
                     <strong>
                         <a href="{{ actor.getSubscribersUrl() }}">{{ 'Subscribers' | trans }}</a>
                     </strong>{{ actor.getSubscribersCount() }}

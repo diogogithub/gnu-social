@@ -10,41 +10,56 @@
 {% endblock stylesheets %}
 
 {% block body %}
-    {% if subscribe_form is defined and subscribe_form is not null %}
-        {{ form(subscribe_form) }}
-    {% endif %}
 
     {% if actor is defined and actor is not null %}
         {% block profile_view %}
             {% include 'cards/profile/view.html.twig' with { 'actor': actor } only %}
         {% endblock profile_view %}
 
-        <main class="feed" tabindex="0" role="feed">
-            <div class="h-feed hfeed notes">
-                {% if notes is defined and notes is not empty %}
-                    {% for conversation in notes %}
-                        {% block current_note %}
-                            {% if conversation is instanceof('array') %}
-                                {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
-                            {% else %}
-                                {{ noteView.macro_note(conversation) }}
-                            {% endif %}
-                            <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
-                        {% endblock current_note %}
-                    {% endfor %}
+        {% if notes is defined %}
+            <article>
+                <header class="feed-header">
+                    {% if page_title is defined %}
+                        <h1 class="heading-no-margin">{{ page_title | trans }}</h1>
+                    {% else %}
+                        <h1 class="heading-no-margin">{{ 'Notes' | trans }}</h1>
+                    {% endif %}
+                    <nav class="feed-actions">
+                        <details class="feed-actions-details">
+                            <summary>
+                                {{ icon('filter', 'icon icon-feed-actions') | raw }} {# button-container #}
+                            </summary>
+                            <div class="feed-actions-details-dropdown">
+                                <menu>
+                                    {% for block in handle_event('AddFeedActions', app.request, notes is defined and notes is not empty) %}
+                                        {{ block | raw }}
+                                    {% endfor %}
+                                </menu>
+                            </div>
+                        </details>
+                    </nav>
+                </header>
+
+                {% if notes is not empty %}
+                    {# Backwards compatibility with hAtom 0.1 #}
+                    <section class="feed h-feed hfeed notes" tabindex="0" role="feed">
+                        {% for conversation in notes %}
+                            {% block current_note %}
+                                {% if conversation is instanceof('array') %}
+                                    {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
+                                {% else %}
+                                    {{ noteView.macro_note(conversation) }}
+                                {% endif %}
+                                <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                            {% endblock current_note %}
+                        {% endfor %}
+                    </section>
                 {% else %}
-                    <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
+                    <section class="feed h-feed hfeed notes" tabindex="0" role="feed">
+                        <strong>{% trans %}No notes yet...{% endtrans %}</strong>
+                    </section>
                 {% endif %}
-            </div>
-        </main>
-        
-    {% else %}
-        <div class="section-padding section-widget">
-            <p>{% trans with { '%group%': nickname } %}The group <em>%group%</em> doesn't exist.{% endtrans %}</p>
-            {% if create_form is defined and create_form is not null %}
-                <p>{% trans %}Would you like to create it?{% endtrans %}</p>
-                {{ form(create_form) }}
-            {% endif %}
-        </div>
+            </article>
+        {% endif %}
     {% endif %}
 {% endblock body %}
