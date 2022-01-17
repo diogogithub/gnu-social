@@ -146,7 +146,9 @@ class Posting extends Component
                     $extra_args   = [];
                     Event::handle('AddExtraArgsToNoteContent', [$request, $actor, $data, &$extra_args, $form_params, $form]);
 
-                    $target = !\array_key_exists('in', $data) || $data['in'] === 'public' ? $context_actor : null;
+                    if (\array_key_exists('in', $data) && $data['in'] !== 'public') {
+                        $target = $data['in'];
+                    }
 
                     self::storeLocalNote(
                         actor: $user->getActor(),
