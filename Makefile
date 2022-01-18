@@ -37,7 +37,7 @@ database-force-schema-update:
 	docker exec -it $(call translate-container-name,$(strip $(DIR))_php_1) sh -c "/var/www/social/bin/console doctrine:schema:update --dump-sql --force"
 
 tooling-docker: .PHONY
-	@cd docker/tooling && docker-compose up -d > /dev/null 2>&1
+	@cd docker/tooling && docker-compose up -d --build > /dev/null 2>&1
 
 stop-tooling: .PHONY
 	cd docker/tooling && docker-compose down
@@ -46,7 +46,7 @@ tooling-php-shell: tooling-docker
 	docker exec -it $(call translate-container-name,tooling_php_1) sh
 
 test-accesibility: tooling-docker
-	cd docker/tooling && docker-compose run pa11y /usr/local/bin/pa11y-ci -c /pa11y/config.json
+	cd docker/tooling && docker-compose run pa11y /accessibility.sh
 
 test: tooling-docker
 	docker exec $(call translate-container-name,tooling_php_1) /var/tooling/coverage.sh $(call args,'')

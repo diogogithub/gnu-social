@@ -13,7 +13,7 @@ services:
             - ../social/install.sh:/var/entrypoint.d/0_social_install.sh
             - ./coverage.sh:/var/tooling/coverage.sh
             - ./phpstan.sh:/var/tooling/phpstan.sh
-            - ./acceptance_and_accessibility.sh:/var/tooling/acceptance_and_accessibility.sh
+            - ./acceptance.sh:/var/tooling/acceptance.sh
             # Main files
             - ../../:/var/www/social
             - /var/www/social/docker # exclude docker folder
@@ -47,7 +47,10 @@ services:
         depends_on:
             - nginx
         volumes:
-          - ../../tests/pa11y-ci-config.json:/pa11y/config.json
+          - ../../tests/screenshots:/screenshots
+          - ./accessibility.sh:/accessibility.sh
+          - ./generate_pa11y-ci-config.php:/generate_pa11y-ci-config.php
+          - /pa11y
         cap_add:
           - SYS_ADMIN
 
