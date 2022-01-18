@@ -89,7 +89,7 @@ class Attachment extends Controller
         try {
             return $this->attachment($attachment_id, $note_id, function ($res) use ($note_id, $attachment_id) {
                 return [
-                    '_template'        => '/cards/attachments/view.html.twig',
+                    '_template'        => '/cards/attachments/show.html.twig',
                     'download'         => $res['attachment']->getDownloadUrl(note: $note_id),
                     'title'            => $res['title'],
                     'attachment'       => $res['attachment'],
