@@ -29,7 +29,6 @@ use App\Core\Entity;
 use App\Core\Event;
 use App\Core\Router\Router;
 use App\Util\Exception\BugFoundException;
-use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;
@@ -38,7 +37,6 @@ use Component\Avatar\Avatar;
 use Component\Language\Entity\ActorLanguage;
 use Component\Language\Entity\Language;
 use Component\Subscription\Entity\ActorSubscription;
-use DateTimeInterface;
 use Functional as F;
 
 /**
@@ -352,7 +350,7 @@ class Actor extends Entity
     {
         return DB::dql(<<<EOF
             SELECT a FROM actor AS a
-            INNER JOIN subscription AS s
+            INNER JOIN actor_subscription AS s
             WITH a.id = s.subscribed_id
             WHERE s.subscriber_id = :self AND a.id != :self
         EOF, ['self' => $this->getId()]);
@@ -362,7 +360,7 @@ class Actor extends Entity
     {
         return DB::dql(<<<EOF
             SELECT a FROM actor AS a
-            INNER JOIN subscription AS s
+            INNER JOIN actor_subscription AS s
             WITH a.id = s.subscriber_id
             WHERE s.subscribed_id = :self AND a.id != :self
         EOF, ['self' => $this->getId()]);
@@ -405,8 +403,8 @@ class Actor extends Entity
             fn () => DB::dql(
                 <<<'EOF'
                     SELECT a FROM actor AS a WHERE
-                    a.id IN (SELECT sa.subscribed_id FROM subscription sa JOIN actor aa WITH sa.subscribed_id = aa.id WHERE sa.subscriber_id = :actor_id AND aa.nickname = :nickname) OR
-                    a.id IN (SELECT sb.subscriber_id FROM subscription sb JOIN actor ab WITH sb.subscriber_id = ab.id WHERE sb.subscribed_id = :actor_id AND ab.nickname = :nickname) OR
+                    a.id IN (SELECT sa.subscribed_id FROM actor_subscription sa JOIN actor aa WITH sa.subscribed_id = aa.id WHERE sa.subscriber_id = :actor_id AND aa.nickname = :nickname) OR
+                    a.id IN (SELECT sb.subscriber_id FROM actor_subscription sb JOIN actor ab WITH sb.subscriber_id = ab.id WHERE sb.subscribed_id = :actor_id AND ab.nickname = :nickname) OR
                     a.nickname = :nickname
                     EOF,
                 ['nickname' => $nickname, 'actor_id' => $this->getId()],

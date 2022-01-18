@@ -450,7 +450,7 @@ abstract class Formatting
         foreach ($points as $position => $mention) {
             $linkText = self::linkifyMentionArray($mention);
 
-            $text = substr_replace($text, $linkText, $position - 1, $mention['length'] + 1);
+            $text = substr_replace($text, $linkText, $position, $mention['length']);
         }
 
         return [$text, $mentions];
@@ -471,7 +471,7 @@ abstract class Formatting
             }
 
             $output = HTML::html(['span' => ['attrs' => ['class' => 'h-card'],
-                '@' . HTML::html(['a' => ['attrs' => $attrs, $mention['title'] ?? $mention['text']]], options: ['indent' => false]),
+                HTML::html(['a' => ['attrs' => $attrs, $mention['title'] ?? $mention['text']]], options: ['indent' => false]),
             ]], options: ['indent' => false, 'raw' => true]);
 
             Event::handle('EndLinkifyMention', [$mention, &$output]);
