@@ -243,9 +243,8 @@ class Actor extends Entity
 
     public const PERSON = 1;
     public const GROUP = 2;
-    public const ORGANIZATION = 3;
-    public const BUSINESS = 4;
-    public const BOT = 5;
+    public const ORGANISATION = 3;
+    public const BOT = 4;
 
     public static function cacheKeys(int|self $actor_id, mixed $other = null): array
     {
@@ -422,13 +421,10 @@ class Actor extends Entity
         if (Event::handle('StartGetActorUri', [$this, $type, &$uri]) === Event::next) {
             switch ($this->type) {
             case self::PERSON:
-            case self::ORGANIZATION:
-            case self::BUSINESS:
+            case self::ORGANISATION:
             case self::BOT:
-                $uri = Router::url('actor_view_id', ['id' => $this->getId()], $type);
-                break;
             case self::GROUP:
-                $uri = Router::url('group_actor_view_id', ['id' => $this->getId()], $type);
+                $uri = Router::url('actor_view_id', ['id' => $this->getId()], $type);
                 break;
             default:
                 throw new BugFoundException('Actor type added but `Actor::getUri` was not updated');
@@ -448,8 +444,7 @@ class Actor extends Entity
             if (Event::handle('StartGetActorUrl', [$this, $type, &$url]) === Event::next) {
                 switch ($this->type) {
                     case self::PERSON:
-                    case self::ORGANIZATION:
-                    case self::BUSINESS:
+                    case self::ORGANISATION:
                     case self::BOT:
                         $url = Router::url('actor_view_nickname', ['nickname' => $this->getNickname()], $type);
                         break;
@@ -538,7 +533,6 @@ class Actor extends Entity
      * @method bool isPerson()
      * @method bool isGroup()
      * @method bool isOrganization()
-     * @method bool isBusiness()
      * @method bool isBot()
      */
     public function __call(string $name, array $arguments): mixed

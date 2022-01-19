@@ -42,7 +42,6 @@ use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use App\Util\Form\ActorForms;
 use App\Util\Nickname;
-use Component\Collection\Util\ActorControllerTrait;
 use Component\Collection\Util\Controller\FeedController;
 use Component\Group\Entity\GroupMember;
 use Component\Group\Entity\LocalGroup;
@@ -53,28 +52,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Group extends FeedController
 {
-    use ActorControllerTrait;
-
-    /**
-     * View a group providing its id
-     *
-     * @param int $id The id of the group to be shown
-     *
-     * @throws ClientException
-     *
-     * @return array Containing both the template to be used and the group actor
-     */
-    public function groupViewId(Request $request, int $id)
-    {
-        return $this->handleActorById(
-            $id,
-            fn ($actor) => [
-                '_template' => 'group/view.html.twig',
-                'actor'     => $actor,
-            ],
-        );
-    }
-
     /**
      * View a group feed by its nickname
      *

@@ -128,8 +128,7 @@ class Collection extends Component
                             [
                                 Actor::PERSON => ['person', 'people'],
                                 Actor::GROUP => ['group', 'groups'],
-                                Actor::ORGANIZATION => ['org', 'orgs', 'organization', 'organizations', 'organisation', 'organisations'],
-                                Actor::BUSINESS => ['business', 'businesses'],
+                                Actor::ORGANISATION => ['org', 'orgs', 'organization', 'organizations', 'organisation', 'organisations'],
                                 Actor::BOT => ['bot', 'bots'],
                             ] as $type => $match) {
                             if (array_intersect(explode(',', $term[1]), $match) !== []) {

@@ -61,7 +61,7 @@ class Feeds extends FeedController
     public function home(Request $request): array
     {
         Common::ensureLoggedIn();
-        $data = $this->query('note-from:subscribed-person,subscribed-group,subscribed-organization,subscribed-business');
+        $data = $this->query('note-from:subscribed-person,subscribed-group,subscribed-organisation');
         return [
             '_template'  => 'collection/notes.html.twig',
             'page_title' => _m('Home'),

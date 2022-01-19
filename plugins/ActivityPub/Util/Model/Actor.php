@@ -61,6 +61,20 @@ use Plugin\ActivityPub\Util\Model;
  */
 class Actor extends Model
 {
+    private static array $_gs_actor_type_to_as2_actor_type = [
+        GSActor::PERSON       => 'Person',
+        GSActor::GROUP        => 'Group',
+        GSActor::ORGANISATION => 'Organization',
+        GSActor::BOT          => 'Application',
+    ];
+    private static array $_as2_actor_type_to_gs_actor_type = [
+        'Person'       => GSActor::PERSON,
+        'Group'        => GSActor::GROUP,
+        'Organization' => GSActor::ORGANISATION,
+        'Application'  => GSActor::BOT,
+        'Service'      => null,
+    ];
+
     /**
      * Create an Entity from an ActivityStreams 2.0 JSON string
      * This will persist a new GSActor, ActivityPubRSA, and ActivityPubActor
@@ -77,8 +91,8 @@ class Actor extends Model
             'fullname' => !empty($person->get('name')) ? $person->get('name') : null,
             'created'  => new DateTime($person->get('published') ?? 'now'),
             'bio'      => $person->get('summary'),
-            'is_local' => false,
-            'type'     => GSActor::PERSON,
+            'is_local' => false, // duh!
+            'type'     => self::$_as2_actor_type_to_gs_actor_type[$person->get('type')],
             'roles'    => UserRoles::USER,
             'modified' => new DateTime(),
         ];
@@ -184,7 +198,7 @@ class Actor extends Model
         $uri        = $object->getUri(Router::ABSOLUTE_URL);
         $attr       = [
             '@context'  => 'https://www.w3.org/ns/activitystreams',
-            'type'      => 'Person',
+            'type'      => self::$_gs_actor_type_to_as2_actor_type[$object->getType()],
             'id'        => $uri,
             'inbox'     => Router::url('activitypub_actor_inbox', ['gsactor_id' => $object->getId()], Router::ABSOLUTE_URL),
             'outbox'    => Router::url('activitypub_actor_outbox', ['gsactor_id' => $object->getId()], Router::ABSOLUTE_URL),
