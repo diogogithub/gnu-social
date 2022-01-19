@@ -94,12 +94,14 @@
     <header class="page-header">
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
-        <a id="anchor-main-page" class="anchor-hidden"
-           title="{{ 'Press tab to access instance\'s main page.' | trans }}"></a>
-        <a class="accessibility-target header-instance" href="{{ path('feed_public') }}" tabindex="0"
-           title="{{ 'This instance\'s name. Access public feed.' | trans }}">
-            <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }}</h1>
-        </a>
+        <span class="header-instance">
+            <a id="anchor-main-page" class="anchor-hidden"
+               title="{{ 'Press tab to access instance\'s main page.' | trans }}"></a>
+            <a class="accessibility-target" href="{{ path('feed_public') }}" tabindex="0"
+               title="{{ 'This instance\'s name. Access public feed.' | trans }}">
+                <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }}</h1>
+            </a>
+        </span>
 
         {{ block("rightpanel", "stdgrid.html.twig") }}
     </header>

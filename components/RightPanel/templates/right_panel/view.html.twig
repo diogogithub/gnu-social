@@ -1,69 +1,65 @@
 {% block rightpanel %}
-    <section class="section-panel-right">
-        <a id="anchor-right-panel" class="anchor-hidden"
-           title="{{ 'Press tab followed by a space to access right panel' | trans }}"></a>
-        <label class="panel-right-icon" for="panel-right-toggle"
-               tabindex="-1">{{ icon('chevron-left', 'icon icon-right') | raw }}</label>
-        <input type="checkbox" id="panel-right-toggle" tabindex="0" title="{{ 'Open right panel' | trans }}">
+<label class="panel-right-icon" for="toggle-panel-right" tabindex="-1">{{ icon('chevron-left', 'icon icon-right') | raw }}</label>
+<a id="anchor-right-panel" class="anchor-hidden" tabindex="0" title="{{ 'Press tab followed by a space to access right panel' | trans }}"></a>
+<input type="checkbox" id="toggle-panel-right" tabindex="0" title="{{ 'Open right panel' | trans }}">
 
-        <aside class="header-panel">
-            <article class="panel-content accessibility-target">
-                <section>
-                    {% set prepend_right_panel = handle_event('PrependRightPanel', request) %}
-                    {% for widget in prepend_right_panel %}
-                        {{ widget | raw }}
-                    {% endfor %}
-                </section>
+<aside class="section-panel section-panel-right">
+    <article class="panel-content accessibility-target">
+        <section>
+            {% set prepend_right_panel = handle_event('PrependRightPanel', request) %}
+            {% for widget in prepend_right_panel %}
+                {{ widget | raw }}
+            {% endfor %}
+        </section>
 
-                {% set current_path = app.request.get('_route') %}
-                {% set blocks = handle_event('AppendRightPostingBlock', request) %}
-                {% if blocks['post_form'] is defined %}
-                    <section class="section-widget" title="{{ 'Create a new note.' | trans }}">
-                        <details class="section-widget-title-details" open="open"
-                                 title="{{ 'Expand if you want to access more options.' | trans }}">
-                            <summary class="section-title-summary">
-                                <h2>
-                                    {% set current_path = app.request.get('_route') %}
-                                    {% if current_path == 'conversation_reply_to' %}
-                                        {{ "Reply to note" | trans }}
-                                    {% else %}
-                                        {{ "Create a note" | trans }}
-                                    {% endif %}
-                                </h2>
+        {% set current_path = app.request.get('_route') %}
+        {% set blocks = handle_event('AppendRightPostingBlock', request) %}
+        {% if blocks['post_form'] is defined %}
+            <section class="section-widget" title="{{ 'Create a new note.' | trans }}">
+                <details class="section-widget-title-details" open="open"
+                         title="{{ 'Expand if you want to access more options.' | trans }}">
+                    <summary class="section-title-summary">
+                        <h2>
+                            {% set current_path = app.request.get('_route') %}
+                            {% if current_path == 'conversation_reply_to' %}
+                                {{ "Reply to note" | trans }}
+                            {% else %}
+                                {{ "Create a note" | trans }}
+                            {% endif %}
+                        </h2>
+                    </summary>
+
+                    <section class="section-form">
+                        {{ form_start(blocks['post_form']) }}
+                        {{ form_errors(blocks['post_form']) }}
+                        {% if blocks['post_form'].in is defined %}
+                            {{ form_row(blocks['post_form'].in) }}
+                        {% endif %}
+                        {{ form_row(blocks['post_form'].visibility) }}
+                        {{ form_row(blocks['post_form'].content_type) }}
+                        {{ form_row(blocks['post_form'].content) }}
+                        {{ form_row(blocks['post_form'].attachments) }}
+
+                        <details class="section-widget-subtitle-details">
+                            <summary class="section-subtitle-summary">
+                                <strong>
+                                    {{ "Additional options" | trans }}
+                                </strong>
                             </summary>
-
-                            <fieldset class="section-form">
-                                {{ form_start(blocks['post_form']) }}
-                                {{ form_errors(blocks['post_form']) }}
-                                {% if blocks['post_form'].in is defined %}
-                                    {{ form_row(blocks['post_form'].in) }}
-                                {% endif %}
-                                {{ form_row(blocks['post_form'].visibility) }}
-                                {{ form_row(blocks['post_form'].content_type) }}
-                                {{ form_row(blocks['post_form'].content) }}
-                                {{ form_row(blocks['post_form'].attachments) }}
-
-                                <details class="section-widget-subtitle-details">
-                                    <summary class="section-subtitle-summary">
-                                        <strong>
-                                            {{ "Additional options" | trans }}
-                                        </strong>
-                                    </summary>
-                                    {{ form_row(blocks['post_form'].language) }}
-                                    {{ form_row(blocks['post_form'].tag_use_canonical) }}
-                                </details>
-                                {{ form_rest(blocks['post_form']) }}
-                                {{ form_end(blocks['post_form']) }}
-                            </fieldset>
+                            {{ form_row(blocks['post_form'].language) }}
+                            {{ form_row(blocks['post_form'].tag_use_canonical) }}
                         </details>
+                        {{ form_rest(blocks['post_form']) }}
+                        {{ form_end(blocks['post_form']) }}
                     </section>
-                {% endif %}
+                </details>
+            </section>
+        {% endif %}
 
-                {% set extra_blocks = get_right_panel_blocks({'path': current_path, 'request': app.request, 'vars': (right_panel_vars | default)}) %}
-                {% for block in extra_blocks %}
-                    {{ block | raw }}
-                {% endfor %}
-            </article>
-        </aside>
-    </section>
+        {% set extra_blocks = get_right_panel_blocks({'path': current_path, 'request': app.request, 'vars': (right_panel_vars | default)}) %}
+        {% for block in extra_blocks %}
+            {{ block | raw }}
+        {% endfor %}
+    </article>
+</aside>
 {% endblock rightpanel %}

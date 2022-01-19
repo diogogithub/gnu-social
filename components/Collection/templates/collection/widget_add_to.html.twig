@@ -4,23 +4,23 @@
             <h2>{{ctitle}}</h2>
         </summary>
         {% if has_collections %}
-            <fieldset class="section-form">
+            <section class="section-form">
                 {{ form(add_form) }}
-            </fieldset>
+            </section>
 
             <details class="section-widget-subtitle-details section-padding"
                      title="Expand if you want to access more options.">
                 <summary class="section-subtitle-summary">
                     <strong>{% trans %}Other options{% endtrans %}</strong>
                 </summary>
-                <fieldset class="section-form">
+                <section class="section-form">
                     {{ form(create_form) }}
-                </fieldset>
+                </section>
             </details>
         {% else %}
-            <fieldset class="section-form">
+            <section class="section-form">
                 {{ form(create_form) }}
-            </fieldset>
+            </section>
         {% endif %}
     </details>
 </section>

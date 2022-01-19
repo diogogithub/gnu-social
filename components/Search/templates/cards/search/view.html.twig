@@ -1,8 +1,6 @@
-<section title="{{ 'Search for notes, actors, and beyond' | trans }}">
-    <fieldset class="section-form form-search">
-    {{ form_start(search) }}
-        <span>{{ form_row(search.search_query) }}{{ form_row(search.submit_search) }}</span>
-        {{ form_rest(search) }}
-    {{ form_end(search) }}
-    </fieldset>
+<section class="section-form form-search" title="{{ 'Search for notes, actors, and beyond' | trans }}">
+{{ form_start(search) }}
+    <span>{{ form_row(search.search_query) }}{{ form_row(search.submit_search) }}</span>
+    {{ form_rest(search) }}
+{{ form_end(search) }}
 </section>

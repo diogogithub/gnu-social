@@ -74,6 +74,10 @@
     margin: 4px unset unset;
 }
 
+.profile-navigation > * {
+    display: block;
+}
+
 .profile-extra-actions {
     margin-top: var(--s);
     margin-right: var(--s);
@@ -346,4 +350,13 @@ textarea.form-row-widget {
     padding: 2px 6px;
     margin-top: 6px;
     margin-bottom: 6px;
+}
+
+.footer ul {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.footer ul li {
+    margin-right: var(--s);
 }

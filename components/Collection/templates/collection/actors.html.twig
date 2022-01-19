@@ -4,7 +4,7 @@
 
 {% block body %}
 <section class="section-widget section-padding">
-    <h2 class="section-title">{{ title }}</h2>
+    <h1 class="section-title">{{ title }}</h1>
 
     <div>
         <p>{% trans %}Sort by:{% endtrans %}</p>
@@ -26,7 +26,7 @@
             {% endfor %}
             <p>{% trans %}Page: %page%{% endtrans %}</p>
         {% else %}
-            <h3>{{ empty_message }}</h3>
+            <h2>{{ empty_message }}</h2>
         {% endif %}
     </div>
 </section>

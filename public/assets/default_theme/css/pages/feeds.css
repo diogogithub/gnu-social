@@ -32,8 +32,8 @@
 }
 
 .note-sidebar > * {
-    max-width: 4rem;
-    max-height: 4rem;
+    max-width: 3rem;
+    max-height: 3rem;
     width: 100%;
     height: auto;
     border-radius: 2px;
@@ -137,12 +137,11 @@ embed header {
     border-bottom: unset;
     border-radius: 0 var(--s) 0 0;
     line-height: initial;
-    padding: 8px var(--s) 8px 0;
+    padding: 4px var(--s) 4px 0;
 }
 
 .note-info {
     margin-top: 2px;
-    margin-right: 2px;
     background: var(--gradient-backwards);
 }
 
@@ -152,6 +151,7 @@ embed header {
 
 .note-info-start {
     display: flex;
+    flex: 1;
     flex-wrap: wrap;
 }
 
@@ -188,9 +188,7 @@ embed header {
 }
 
 .note-actions {
-    display: inline-block;
-    align-items: center;
-    margin-left: auto;
+    float: right;
 }
 
 .note-actions > li {
@@ -269,10 +267,10 @@ embed header {
 .button-container {
     border: none !important;
     mask-repeat: no-repeat !important;
-    mask-size: cover !important;
+    mask-size: contain !important;
     display: inline-block;
-    width: var(--unit);
-    height: var(--unit);
+    width: 14px;
+    height: 14px;
     background-color: var(--foreground);
     opacity: 0.33;
 }
@@ -322,7 +320,7 @@ embed header {
     display: flex;
     flex-direction: column;
     border-radius: 0 0 var(--s) var(--s);
-    padding: 0 var(--s) var(--s) 0;
+    padding: 0 4px 4px 0;
 }
 
 .note-text a {
@@ -341,7 +339,6 @@ embed header {
     border-radius: var(--s);
     padding: var(--s);
     align-self: flex-start;
-    background-color: var(--background-card) !important;
 }
 
 .note-attachments-unit:not(:only-child) {
@@ -401,13 +398,8 @@ embed header {
     .note-sidebar {
         padding: 8px 2px 0 2px;
     }
-
-    .note-sidebar .avatar {
-        width: 60%;
-    }
-
-    .button-container {
-        width: 0.937rem;
-        height: 0.937rem;
+    .note-sidebar > * {
+        max-width: 2rem;
+        max-height: 2rem;
     }
 }
