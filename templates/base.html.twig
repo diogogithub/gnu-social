@@ -110,11 +110,11 @@
 <main class="page-content-wrapper">
     <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden"
        title="{{ 'Press tab to access main content.' | trans }}"></a>
-    <div class='page-content accessibility-target'>
+    <section class='page-content accessibility-target'>
         {% block nav %}{% endblock %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock javascripts %}
-    </div>
+    </section>
 </main>
 </body>
 </html>

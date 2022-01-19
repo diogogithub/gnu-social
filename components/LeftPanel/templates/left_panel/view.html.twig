@@ -4,9 +4,9 @@
 <input type="checkbox" id="toggle-panel-left" tabindex="0" title="{{ 'Open left panel' | trans }}">
 
 <aside class="section-panel section-panel-left">
-    <article class="panel-content accessibility-target">
+    <section class="panel-content accessibility-target">
         {% if app.user %}
-            <section class='section-widget section-padding' title="{{ 'Your profile information.' | trans }}">
+            <section class='frame-section frame-section-padding' title="{{ 'Your profile information.' | trans }}">
                 {% block profile_view %}{% include 'cards/profile/view.html.twig' with { actor: current_actor } %}{% endblock profile_view %}
                 {{ block("profile_current_actor", "cards/navigation/view.html.twig") }}
             </section>
@@ -19,6 +19,6 @@
         {{ block("feeds", "cards/navigation/view.html.twig") }}
 
         {{ block("footer", "cards/navigation/view.html.twig") }}
-    </article>
+    </section>
 </aside>
 {% endblock leftpanel %}

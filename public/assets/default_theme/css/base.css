@@ -1,6 +1,5 @@
-
 html {
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'Open Sans',sans-serif;
     scroll-margin-top: var(--xxl);
 }
 
@@ -10,9 +9,7 @@ html {
 }
 
 .active {
-    font-size: 1.1em;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600;
+    font: 600 1.1em 'Poppins',sans-serif;
 }
 
 .anchor-hidden {
@@ -31,7 +28,7 @@ html {
     height: min-content;
     padding: var(--s);
     border-radius: var(--s);
-    background-color: var(--background-hard) !important;
+    background-color: var(--background-hard)!important;
     border: 2px solid var(--border);
 }
 
@@ -57,7 +54,7 @@ html {
     height: var(--xxl);
     align-items: baseline;
     padding: var(--s);
-    background: var(--gradient) !important;
+    background: var(--gradient)!important;
     box-shadow: var(--shadow);
 }
 
@@ -80,6 +77,7 @@ html {
 }
 
 .page-content {
+    margin-top: var(--s);
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -88,7 +86,7 @@ html {
 .markdown-blocks {
     border-radius: 0 0 var(--s) var(--s);
     padding: var(--s);
-    background-color: var(--background-card) !important;
+    background-color: var(--background-card)!important;
 }
 
 .markdown-blocks ul {
@@ -97,14 +95,14 @@ html {
 }
 
 .markdown-blocks ul li {
-    margin-bottom: 0.2em;
+    margin-bottom: .2em;
 }
 
 .doc-navigation {
     border-radius: var(--s) var(--s) 0 0;
     border-bottom: 0;
     padding: var(--s);
-    background-color: var(--background-card) !important;
+    background-color: var(--background-card)!important;
 }
 
 .doc-navigation ul {
@@ -154,13 +152,11 @@ html {
         top: -100%;
     }
 
-    #toggle-panel-left:not(:checked) ~ .section-panel-left,
-    #toggle-panel-right:not(:checked) ~ .section-panel-right {
+    #toggle-panel-left:not(:checked) ~ .section-panel-left,#toggle-panel-right:not(:checked) ~ .section-panel-right {
         display: none;
     }
 
-    #toggle-panel-left:checked ~ .section-panel-left,
-    #toggle-panel-right:checked ~ .section-panel-right {
+    #toggle-panel-left:checked ~ .section-panel-left,#toggle-panel-right:checked ~ .section-panel-right {
         z-index: 1;
         width: 100vw;
         left: 0;
@@ -173,9 +169,8 @@ html {
         width: 100%;
     }
 
-    label[for|="toggle-panel"],
-    input[id|="toggle-panel"] {
-        display: none !important;
+    label[for|="toggle-panel"],input[id|="toggle-panel"] {
+        display: none!important;
     }
 
     .section-panel {
@@ -194,26 +189,13 @@ html {
 }
 
 @media only screen and (min-width: 1921px) {
-    /*
-    * Using the Van de Graaf Canon and Tschichold’s recommended 2:3 page-size ratio
-    *
-    * 100% * 2/3 = 66%
-    *
-    * > .page-content-wrapper
-    * 66% * 2/3 = 44%
-    *
-    * > .section-panel
-    * 66% - 44% = 22%
-    * 22% / 2 = 11%
-    */
     .page-header {
         width: 66vw;
         align-self: center;
     }
 
-    label[for|="toggle-panel"],
-    input[id|="toggle-panel"] {
-        display: none !important;
+    label[for|="toggle-panel"],input[id|="toggle-panel"] {
+        display: none!important;
     }
 
     .section-panel {
@@ -238,6 +220,7 @@ html {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     100% {
         opacity: unset;
         transform: none;
@@ -249,45 +232,44 @@ html {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     0% {
         opacity: unset;
         transform: none;
     }
 }
 
-@media (prefers-color-scheme: dark) {
-    @keyframes highlight {
-        0% {
-            box-shadow: initial;
-            border-radius: var(--s);
-        }
-        50% {
-            border-radius: var(--s);
-            box-shadow: inset 0 20px 40px #FFF;
-            transition: box-shadow 0.3s ease-in-out;
-            z-index: 666;
-        }
-        100% {
-            box-shadow: initial;
-            border-radius: var(--s);
-        }
+@keyframes highlight {
+    0% {
+        box-shadow: initial;
+        border-radius: var(--s);
     }
-}
 
-@media (prefers-color-scheme: light) {
-    @keyframes highlight {
-        0% {
-            box-shadow: initial;
-            border-radius: var(--s);
-        }
-        50% {
-            border-radius: var(--s);
-            box-shadow: inset 0 20px 40px #000;
-            transition: box-shadow 0.3s ease-in-out;
-        }
-        100% {
-            box-shadow: initial;
-            border-radius: var(--s);
-        }
+    50% {
+        border-radius: var(--s);
+        box-shadow: inset 0 20px 40px #FFF;
+        transition: box-shadow .3s ease-in-out;
+        z-index: 666;
+    }
+
+    100% {
+        box-shadow: initial;
+        border-radius: var(--s);
+    }
+
+    0% {
+        box-shadow: initial;
+        border-radius: var(--s);
+    }
+
+    50% {
+        border-radius: var(--s);
+        box-shadow: inset 0 20px 40px #000;
+        transition: box-shadow .3s ease-in-out;
+    }
+
+    100% {
+        box-shadow: initial;
+        border-radius: var(--s);
     }
 }

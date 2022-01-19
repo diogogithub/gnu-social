@@ -14,12 +14,11 @@
     {% endfor %}
 
     {% if notes is defined %}
-    <article>
         <header class="feed-header">
             {% if page_title is defined %}
                 <h1 class="heading-no-margin">{{ page_title | trans }}</h1>
             {% else %}
-                <h1 class="heading-no-margin">{{ 'Notes' | trans }}</h1>
+                <h3 class="heading-no-margin">{{ 'Notes' | trans }}</h3>
             {% endif %}
             <nav class="feed-actions">
                 <details class="feed-actions-details">
@@ -38,20 +37,19 @@
         </header>
 
         {% if notes is not empty %}
-        {# Backwards compatibility with hAtom 0.1 #}
-        <section class="feed h-feed hfeed notes" tabindex="0" role="feed">
-            {% for conversation in notes %}
-                {% block current_note %}
-                    {% if conversation is instanceof('array') %}
-                        {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
-                    {% else %}
-                        {{ noteView.macro_note(conversation) }}
-                    {% endif %}
-                    <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
-                {% endblock current_note %}
-            {% endfor %}
-        </section>
+            {# Backwards compatibility with hAtom 0.1 #}
+            <section class="feed h-feed hfeed notes" tabindex="0" role="feed">
+                {% for conversation in notes %}
+                    {% block current_note %}
+                        {% if conversation is instanceof('array') %}
+                            {{ noteView.macro_note(conversation['note'], conversation['replies']) }}
+                        {% else %}
+                            {{ noteView.macro_note(conversation) }}
+                        {% endif %}
+                        <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
+                    {% endblock current_note %}
+                {% endfor %}
+            </section>
         {% endif %}
-    </article>
     {% endif %}
 {% endblock body %}

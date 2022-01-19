@@ -1,8 +1,8 @@
 {% block feeds %}
-  <section class="section-widget" title="{{ 'Feed navigation.' | trans }}">
-    <details class="section-widget-title-details" open="open"
+  <section class="frame-section" title="{{ 'Feed navigation.' | trans }}">
+    <details class="section-details-title" open="open"
              title="{{ 'Expand if you want to access more options.' | trans }}">
-      <summary class="section-title-summary">
+      <summary class="details-title-summary">
         <h2>{{ 'Feeds' | trans }}</h2>
         {% if app.user %}
           {# User custom feeds #}
@@ -10,7 +10,7 @@
         {% endif %}
       </summary>
 
-      <nav class='section-padding' tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
+      <nav class="frame-section-padding" tabindex="0" title="{{ 'Navigate through each feed.' | trans }}">
         {% if not app.user %} {# Default feeds #}
           <ul>
             <li>
@@ -54,7 +54,7 @@
 {% endblock profile_current_actor %}
 
 {% block profile_security %}
-    <section class='section-widget section-padding' title="{{ 'Your profile information.' | trans }}">
+    <section class='frame-section frame-section-padding' title="{{ 'Your profile information.' | trans }}">
         <h2 class="section-title">Account</h2>
         <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
 

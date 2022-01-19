@@ -8,7 +8,7 @@
 
 {% block body %}
     {% if note is defined or actor is defined %}
-        <div class="section-padding">
+        <div class="frame-section-padding">
             {% if note is defined and note is not null %}
                 {{ noteView.macro_note(note, {}) }}
             {% elseif actor is defined and actor is not null  %}
@@ -20,7 +20,7 @@
         <p>{{ label }}</p>
         {{ form(tags_form) }}
     {% endif %}
-    <div class="section-widget-button-like">
+    <div class="frame-section-button-like">
         <a href="{{ url('settings', {'open': 'settings-muting-' ~ type ~ '-tags-details'}) }}">{% trans %}Go to %type% muting settings{% endtrans %}</a>
     </div>
 {% endblock %}

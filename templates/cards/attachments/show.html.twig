@@ -2,9 +2,9 @@
 
 {% block body %}
     <div class="page">
-        <section class="section-widget section-padding">
+        <section class="frame-section frame-section-padding">
             {% include '/cards/attachments/view.html.twig' with {'attachment': attachment, 'note': note, 'title': title} only %}
-            <a class="section-widget-button-like" href="{{ download }}"> {{ 'Download link' | trans }}</a>
+            <a class="frame-section-button-like" href="{{ download }}"> {{ 'Download link' | trans }}</a>
         </section>
     </div>
 {% endblock body %}

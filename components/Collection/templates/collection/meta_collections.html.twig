@@ -3,14 +3,14 @@
 {% block title %}{{ page_title | trans }}{% endblock %}
 
 {% block body %}
-    <div class="section-widget section-padding">
-        <h2 class="section-widget-title">{{ page_title | trans }}</h2>
+    <div class="frame-section frame-section-padding">
+        <h2 class="frame-section-title">{{ page_title | trans }}</h2>
         {% if add_collection %}
-            <div class="section-widget section-form">
+            <div class="frame-section section-form">
                 {{ form(add_collection) }}
             </div>
         {% endif %}
-        <div class="section-widget collections-list">
+        <div class="frame-section collections-list">
             <h3>{{ list_title | trans }}</h3>
             {% for col in collections %}
                 <div class="collection-item">

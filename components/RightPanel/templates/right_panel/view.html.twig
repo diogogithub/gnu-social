@@ -4,21 +4,19 @@
 <input type="checkbox" id="toggle-panel-right" tabindex="0" title="{{ 'Open right panel' | trans }}">
 
 <aside class="section-panel section-panel-right">
-    <article class="panel-content accessibility-target">
-        <section>
-            {% set prepend_right_panel = handle_event('PrependRightPanel', request) %}
-            {% for widget in prepend_right_panel %}
-                {{ widget | raw }}
-            {% endfor %}
-        </section>
+    <section class="panel-content accessibility-target">
+        {% set prepend_right_panel = handle_event('PrependRightPanel', request) %}
+        {% for widget in prepend_right_panel %}
+            {{ widget | raw }}
+        {% endfor %}
 
         {% set current_path = app.request.get('_route') %}
         {% set blocks = handle_event('AppendRightPostingBlock', request) %}
         {% if blocks['post_form'] is defined %}
-            <section class="section-widget" title="{{ 'Create a new note.' | trans }}">
-                <details class="section-widget-title-details" open="open"
+            <section class="frame-section" title="{{ 'Create a new note.' | trans }}">
+                <details class="section-details-title" open="open"
                          title="{{ 'Expand if you want to access more options.' | trans }}">
-                    <summary class="section-title-summary">
+                    <summary class="details-summary-title">
                         <h2>
                             {% set current_path = app.request.get('_route') %}
                             {% if current_path == 'conversation_reply_to' %}
@@ -40,8 +38,8 @@
                         {{ form_row(blocks['post_form'].content) }}
                         {{ form_row(blocks['post_form'].attachments) }}
 
-                        <details class="section-widget-subtitle-details">
-                            <summary class="section-subtitle-summary">
+                        <details class="section-details-subtitle">
+                            <summary class="details-summary-subtitle">
                                 <strong>
                                     {{ "Additional options" | trans }}
                                 </strong>
@@ -60,6 +58,6 @@
         {% for block in extra_blocks %}
             {{ block | raw }}
         {% endfor %}
-    </article>
+    </section>
 </aside>
 {% endblock rightpanel %}

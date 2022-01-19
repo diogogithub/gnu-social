@@ -1,14 +1,14 @@
 {% extends 'collection/notes.html.twig' %}
 
 {% block body %}
-    <div class="section-widget section-padding">
+    <div class="frame-section frame-section-padding">
         {% if is_muted %}
-            <span class="section-padding alert">
+            <span class="frame-section-padding alert">
             <label>Do you wish to <b>unmute</b> this conversation?</label>
             {{ form(form) }}
         </span>
         {% else %}
-            <span class="section-padding alert">
+            <span class="frame-section-padding alert">
             <label>Do you wish to <b>mute</b> this conversation?</label>
             {{ form(form) }}
         </span>

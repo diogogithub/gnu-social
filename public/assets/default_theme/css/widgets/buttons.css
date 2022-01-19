@@ -106,8 +106,7 @@ button {
     border-color: tomato !important;
 }
 
-button,
-label {
+button, label {
     font-family: 'Poppins', sans-serif;
     font-weight: bold !important;
     color: currentColor;
@@ -117,10 +116,7 @@ select::-ms-expand {
     display: none;
 }
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
     display: inline-block;
     overflow: hidden;
     font-size: inherit;
@@ -132,14 +128,11 @@ textarea {
     max-width: border-box !important;
 }
 
-button,
-select,
-textarea {
+button, select, textarea {
     background: var(--gradient) !important;
 }
 
-button,
-input:not([type=checkbox], [type=radio]) {
+button, input:not([type=checkbox], [type=radio]) {
     background: var(--gradient) !important;
 }
 
@@ -155,13 +148,6 @@ select[multiple] {
     height: 20rem;
 }
 
-button:focus,
-button:hover,
-input:focus,
-input:hover,
-select:focus,
-select:hover,
-textarea:focus,
-textarea:hover {
+button:focus, button:hover, input:focus, input:hover, select:focus, select:hover, textarea:focus, textarea:hover {
     box-shadow: var(--shadow-inset-accent) !important;
 }

@@ -8,22 +8,22 @@
         </label>
     {% endif %}
 
-    <section class="section-widget section-padding">
+    <section class="frame-section frame-section-padding">
         <h2>{% trans %}Search{% endtrans %}</h2>
 
         {{ form_start(search_form) }}
-        <section class="section-widget section-form">
+        <section class="frame-section section-form">
             {{ form_errors(search_form) }}
             {{ form_row(search_form.search_query) }}
             {% if actor is not null %}
-                <details class="section-widget-subtitle-details">
-                    <summary class="section-subtitle-summary">
+                <details class="section-details-subtitle">
+                    <summary class="details-subtitle-summary">
                         <strong>{% trans %}Other options{% endtrans %}</strong>
                     </summary>
 
                     <div class="section-form">
-                        <details class="section-widget-subtitle-details">
-                            <summary class="section-subtitle-summary">
+                        <details class="section-details-subtitle">
+                            <summary class="details-subtitle-summary">
                                 <strong>
                                     {% trans %}Save query as a feed{% endtrans %}
                                 </strong>
@@ -40,17 +40,17 @@
         </section>
         {{ form_end(search_form)}}
 
-        <section class="section-widget">
-            <details class="section-widget-subtitle-details">
-                <summary class="section-subtitle-summary">
+        <section class="frame-section">
+            <details class="section-details-subtitle">
+                <summary class="details-subtitle-summary">
                     <strong>{% trans %}Build a search query{% endtrans %}</strong>
                 </summary>
 
                 {{ form_start(search_builder_form) }}
                 <div class="section-form">
                     {# actor options, display if first checked, with checkbox trick #}
-                    <details class="section-widget-subtitle-details">
-                        <summary class="section-subtitle-summary">
+                    <details class="section-details-subtitle">
+                        <summary class="details-subtitle-summary">
                             <strong>{% trans %}People search options{% endtrans %}</strong>
                         </summary>
                         {{ form_row(search_builder_form.include_actors) }}
@@ -64,8 +64,8 @@
                         {{ form_row(search_builder_form.actor_tags) }}
                     </details>
 
-                    <details class="section-widget-subtitle-details">
-                        <summary class="section-subtitle-summary">
+                    <details class="section-details-subtitle">
+                        <summary class="details-subtitle-summary">
                             <strong>{% trans %}Note search options{% endtrans %}</strong>
                         </summary>
                         {{ form_row(search_builder_form.include_notes) }}
@@ -84,18 +84,18 @@
         </section>
     </section>
 
-    <section class="section-widget section-padding">
+    <section class="frame-section frame-section-padding">
         <h2>{% trans %}Results{% endtrans %}</h2>
-        <div class="section-widget section-padding feed-empty">
-            <h3>{% trans %}Notes found{% endtrans %}</h3>
+        <div class="frame-section frame-section-padding feed-empty">
             {% if notes is defined and notes is not empty %}
                 {{ parent() }}
             {% else %}
+                <h3>{% trans %}No notes found{% endtrans %}</h3>
                 <em>{% trans %}No notes were found for the specified query...{% endtrans %}</em>
             {% endif %}
         </div>
 
-        <div class="section-widget section-padding feed-empty">
+        <div class="frame-section frame-section-padding feed-empty">
             <h3>{% trans %}Actors found{% endtrans %}</h3>
             {% if actors is defined and actors is not empty %}
                 {% for actor in actors %}

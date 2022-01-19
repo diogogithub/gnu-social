@@ -3,7 +3,7 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-<section class="section-widget section-padding">
+<section class="frame-section frame-section-padding">
     <h1 class="section-title">{{ title }}</h1>
 
     <div>
@@ -18,7 +18,7 @@
         </form>
     </div>
 
-    <div class="section-padding">
+    <div class="frame-section-padding">
         {% if actors is defined and actors is not empty %}
             {% for actor in actors %}
                 {% block profile_view %}{% include 'cards/profile/view.html.twig' %}{% endblock profile_view %}
