@@ -139,7 +139,7 @@ class Language extends Controller
         }
 
         return [
-            '_template' => 'settings/sort_languages.html.twig',
+            '_template' => 'language/sort.html.twig',
             'form'      => $form->createView(),
         ];
     }
