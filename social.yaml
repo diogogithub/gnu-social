@@ -278,3 +278,9 @@ parameters:
 
     feeds:
       entries_per_page: 32
+
+    oauth2:
+      private_key: '%kernel.project_dir%/file/oauth/private.key'
+      private_key_password: null
+      public_key: '%kernel.project_dir%/file/oauth/public.key'
+      encryption_key: 'lxZFUEsBCJ2Yb14IF2ygAHI5N4+ZAUXXaSeeJm6+twsUmIen'

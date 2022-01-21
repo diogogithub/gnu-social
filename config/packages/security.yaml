@@ -20,6 +20,9 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        oauth:
+            pattern: ^/oauth
+            security: false
         main:
             entry_point: App\Security\Authenticator
             guard:
