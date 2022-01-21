@@ -704,6 +704,9 @@
     "symfony/proxy-manager-bridge": {
         "version": "v5.2.4"
     },
+    "symfony/psr-http-message-bridge": {
+        "version": "v2.1.2"
+    },
     "symfony/redis-messenger": {
         "version": "v5.4.0"
     },
