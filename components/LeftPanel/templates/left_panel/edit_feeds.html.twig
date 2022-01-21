@@ -5,36 +5,49 @@
   <link rel="stylesheet" href="{{ asset('assets/default_theme/css/pages/feeds.css') }}" type="text/css">
 {% endblock stylesheets %}
 
+{% macro edit_feeds_form_row(child) %}
+    <div class="form-row">
+        {{ form_label(child) }}
+        {{ form_widget(child) }}
+    </div>
+{% endmacro  %}
+
 {% block body %}
   <div class="frame-section">
     <form class="section-form" action="{{ path('edit_feeds') }}" method="post">
-
-      <fieldset>
-        <legend class="section-form-legend">{{ "Edit feed navigation links" | trans }}</legend>
-
+        <h1 class="frame-section-title">{{ "Edit feed navigation links" | trans }}</h1>
         {# Since the form is not separated into individual groups, this happened #}
         {{ form_start(edit_feeds) }}
         {{ form_errors(edit_feeds) }}
-        {% for child in edit_feeds.children %}
-            {% if 'row_url' in child.vars.block_prefixes %}
-                <div class="frame-section frame-section-padding">
-                    {{ form_label(child) }}
-                    {{ form_widget(child) }}
+        <section class="container-grid">
+            {% for child in edit_feeds.children %}
+                {% if 'row_url' in child.vars.block_prefixes %}
+                    <div class="frame-section frame-section-padding">
+                        {{ _self.edit_feeds_form_row(child) }}
                 {% elseif 'row_title' in child.vars.block_prefixes %}
-                    {{ form_label(child) }}
-                    {{ form_widget(child) }}
+                        {{ _self.edit_feeds_form_row(child) }}
                 {% elseif 'row_order' in child.vars.block_prefixes %}
-                    {{ form_label(child) }}
-                    {{ form_widget(child) }}
+                        {{ _self.edit_feeds_form_row(child) }}
                 {% elseif 'row_remove' in child.vars.block_prefixes %}
-                    {{ form_label(child) }}
-                    {{ form_widget(child) }}
-                </div>
-            {% endif %}
-        {% endfor %}
+                        {{ _self.edit_feeds_form_row(child) }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </section>
+
+        <div class="form-row">
+            {{ form_row(edit_feeds.update_exisiting) }}
+            {{ form_row(edit_feeds.reset) }}
+        </div>
+
+        <hr>
+
+        <section class="frame-section frame-section-padding">
+            <h2>{% trans %}Add a new feed{% endtrans %}</h2>
+            {{ form_rest(edit_feeds) }}
+        </section>
         {{ form_end(edit_feeds) }}
 
-      </fieldset>
     </form>
 
   </div>
