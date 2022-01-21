@@ -9,11 +9,10 @@
 
 {% block body %}
     <section class="frame-section">
-
         <form class="section-form" method="post">
             {{ form_start(registration_form) }}
             {{ form_errors(registration_form) }}
-            <fieldset>
+            <fieldset class="container-block">
                 <legend class="section-form-legend">{{ "Register" | trans }}</legend>
 
                 {% for flashError in app.flashes('verify_email_error') %}

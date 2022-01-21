@@ -1,44 +1,47 @@
 * {
-    box-sizing: border-box!important;
+    box-sizing: border-box !important;
     max-width: 100%;
 }
 
-body,html {
-    -webkit-font-smoothing: antialiased;
+body, html {
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--background-hard);
+    -webkit-font-smoothing: antialiased;
     background-attachment: fixed;
+    background-color: var(--background-hard);
     display: flex;
     flex-direction: column;
-    font: var(--unit) 'Open Sans',sans-serif;
+    font-family: "var(--unit) 'Open Sans'", sans-serif;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
 }
 
-body,input,select,textarea {
+body, input, select, textarea {
     color: var(--foreground);
 }
 
-:link,:visited {
-    text-decoration: none;
+:link, :visited {
     color: currentColor;
+    text-decoration: none;
 }
 
 hr {
     all: unset;
+    background-color: var(--border) !important;
     display: block;
     height: 1px;
-    background-color: var(--border)!important;
 }
 
-menu,ul {
-    padding: unset;
-    margin: unset;
+menu, ul {
     list-style: none;
+    margin: unset;
+    padding: unset;
 }
 
-blockquote,body,fieldset,form,html,input,pre,textarea {
+blockquote, body, fieldset, form, html, input, pre, textarea {
+    border: 0;
     margin: 0;
     padding: 0;
-    border: 0;
 }
 
 fieldset {
@@ -49,7 +52,7 @@ section {
     all: unset;
 }
 
-:link img,:visited img,a img {
+:link img, :visited img, a img {
     border: 0;
 }
 
@@ -66,7 +69,7 @@ address {
 }
 
 details summary {
-    cursor: pointer!important;
+    cursor: pointer !important;
 }
 
 details summary > * {
@@ -91,31 +94,31 @@ html {
 }
 
 body {
-    font-family: 'Open Sans',sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-weight: 400;
     line-height: 1.75;
 }
 
 p {
     all: unset;
-    font-family: 'Open Sans',sans-serif;
+    font-family: 'Open Sans', sans-serif;
     margin-bottom: 1rem;
 }
 
-h1,h2,h3,h4,h5,legend {
-    margin: 3rem 0 1.38rem;
-    font-family: 'Poppins',sans-serif;
+h1, h2, h3, h4, h5, legend {
+    font-family: 'Poppins', sans-serif;
     font-weight: 600;
     line-height: 1.3;
+    margin: 3rem 0 1.38rem;
 }
 
-h1:first-child,h2:first-child,h3:first-child,h4:first-child,h5:first-child,legend:first-child {
+h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, legend:first-child {
     margin-top: initial;
 }
 
 h1 {
-    margin-top: 0;
     font-size: 1.383rem;
+    margin-top: 0;
 }
 
 h2 {
@@ -138,21 +141,21 @@ legend {
     font-size: 1.296em;
 }
 
-.text_small,small {
-    font: .937rem 'Open Sans',sans-serif;
+.text_small, small {
+    font: .937rem 'Open Sans', sans-serif;
 }
 
-input[type=password],input[type=text],textarea {
-    font-family: 'Open Sans',sans-serif;
+input[type=password], input[type=text], textarea {
+    font-family: 'Open Sans', sans-serif;
     font-weight: 400;
     padding: 4px 6px;
 }
 
 ul {
-    text-decoration: none;
+    list-style: none;
     margin: 0;
     padding: 0;
-    list-style: none;
+    text-decoration: none;
 }
 
 li {
@@ -160,7 +163,7 @@ li {
     padding: 0;
 }
 
-a:focus,a:hover {
+a:focus, a:hover {
     text-decoration: underline;
 }
 

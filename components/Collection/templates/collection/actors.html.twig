@@ -3,22 +3,49 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-<section class="frame-section frame-section-padding">
-    <h1 class="section-title">{{ title }}</h1>
+<div class="frame-section frame-section-padding">
+    <h1 class="frame-section-title">{{ title }}</h1>
 
-    <div>
-        <p>{% trans %}Sort by:{% endtrans %}</p>
-        <form method="GET">
-            {% for field in sort_form_fields %}
-                <label for="order_by_{{ field.value }}">{{ field.label }}</label>
-                <input id="order_by_{{ field.value }}" type="radio" name="order_by" value="{{ field.value }}" {% if field.checked %}checked="checked"{% endif %}>
-            {% endfor %}
-            <button type="submit" name="order_op" value="ASC">{% trans %}Ascending{% endtrans %}</button>
-            <button type="submit" name="order_op" value="DESC">{% trans %}Descending{% endtrans %}</button>
+    <details class="frame-section section-details-title">
+        <summary class="details-summary-title">
+            <strong>
+                {% trans %}Ordering rules{% endtrans %}
+            </strong>
+        </summary>
+        <form method="GET" class="section-form">
+            <div class="container-grid">
+                <section class="frame-section frame-section-padding">
+                    <strong>{% trans %}Sort by{% endtrans %}</strong>
+                    <hr>
+                    <div class="container-block">
+                        {% for field in sort_form_fields %}
+                            <span class="container-block">
+                                <label for="order_by_{{ field.value }}">{{ field.label }}</label>
+                                <input id="order_by_{{ field.value }}" type="radio" name="order_by" value="{{ field.value }}" {% if field.checked %}checked="checked"{% endif %}>
+                            </span>
+                        {% endfor %}
+                    </div>
+                </section>
+                <section class="frame-section frame-section-padding">
+                    <strong class="section-title">{% trans %}Order{% endtrans %}</strong>
+                    <hr>
+                    <section class="container-block">
+                        <span class="container-block">
+                            <label for="order_op_asc">{% trans %}Ascending{% endtrans %}</label>
+                            <input id="order_op_asc" type="radio" name="order_op" value="ASC">
+                        </span>
+                        <span class="container-block">
+                            <label for="order_op_desc">{% trans %}Descending{% endtrans %}</label>
+                            <input id="order_op_desc" type="radio" name="order_op" value="DESC" checked="checked">
+                        </span>
+                    </section>
+                </section>
+            </div>
+            <button type="submit">{% trans %}Order{% endtrans %}</button>
         </form>
-    </div>
+    </details>
 
-    <div class="frame-section-padding">
+    <section class="frame-section-padding">
         {% if actors is defined and actors is not empty %}
             {% for actor in actors %}
                 {% block profile_view %}{% include 'cards/profile/view.html.twig' %}{% endblock profile_view %}
@@ -28,6 +55,6 @@
         {% else %}
             <h2>{{ empty_message }}</h2>
         {% endif %}
-    </div>
-</section>
+    </section>
+</div>
 {% endblock body %}

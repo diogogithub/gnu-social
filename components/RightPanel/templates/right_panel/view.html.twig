@@ -44,8 +44,10 @@
                                     {{ "Additional options" | trans }}
                                 </strong>
                             </summary>
-                            {{ form_row(blocks['post_form'].language) }}
-                            {{ form_row(blocks['post_form'].tag_use_canonical) }}
+                            <section class="section-form">
+                                {{ form_row(blocks['post_form'].language) }}
+                                {{ form_row(blocks['post_form'].tag_use_canonical) }}
+                            </section>
                         </details>
                         {{ form_rest(blocks['post_form']) }}
                         {{ form_end(blocks['post_form']) }}

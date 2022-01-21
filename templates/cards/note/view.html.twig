@@ -187,10 +187,19 @@
         {{ block('note_sidebar') }}
         <div class="note-wrapper">
             <header class="note-info">
-                {{ block('note_info') }}
+                <div class="note-info-start">
+                    {{ block('note_author') }}
+                </div>
             </header>
 
             <section role="dialog" class="e-content entry-content note-content">
+                <small class="note-conversation-info">
+                    <a href="{{ note.getConversationUrl() }}"
+                       class="note-conversation-url">{{ 'in conversation' | trans }}</a>
+                    <a href="{{ note.getUrl() }}"
+                       class="note-url">{{ note.getModified() | ago }}</a>
+                </small>
+                <hr>
                 {{ block('note_text') }}
             </section>
         </div>
