@@ -17,13 +17,13 @@
             {{ form_row(search_form.search_query) }}
             {% if actor is not null %}
                 <details class="section-details-subtitle">
-                    <summary class="details-subtitle-summary">
+                    <summary class="details-summary-subtitle">
                         <strong>{% trans %}Other options{% endtrans %}</strong>
                     </summary>
 
                     <div class="section-form">
                         <details class="section-details-subtitle">
-                            <summary class="details-subtitle-summary">
+                            <summary class="details-summary-subtitle">
                                 <strong>
                                     {% trans %}Save query as a feed{% endtrans %}
                                 </strong>
@@ -32,6 +32,7 @@
                                 {{ form_row(search_form.title) }}
                                 {{ form_row(search_form.subscribe_to_search) }}
                             </div>
+                            <hr>
                         </details>
                     </div>
                 </details>
@@ -42,7 +43,7 @@
 
         <section class="frame-section">
             <details class="section-details-subtitle">
-                <summary class="details-subtitle-summary">
+                <summary class="details-summary-subtitle">
                     <strong>{% trans %}Build a search query{% endtrans %}</strong>
                 </summary>
 
@@ -50,33 +51,39 @@
                 <div class="section-form">
                     {# actor options, display if first checked, with checkbox trick #}
                     <details class="section-details-subtitle">
-                        <summary class="details-subtitle-summary">
+                        <summary class="details-summary-subtitle">
                             <strong>{% trans %}People search options{% endtrans %}</strong>
                         </summary>
-                        {{ form_row(search_builder_form.include_actors) }}
-                        {{ form_row(search_builder_form.include_actors_people) }}
-                        {{ form_row(search_builder_form.include_actors_groups) }}
-                        {{ form_row(search_builder_form.include_actors_lists) }}
-                        {{ form_row(search_builder_form.include_actors_businesses) }}
-                        {{ form_row(search_builder_form.include_actors_organizations) }}
-                        {{ form_row(search_builder_form.include_actors_bots) }}
-                        {{ form_row(search_builder_form.actor_langs) }}
-                        {{ form_row(search_builder_form.actor_tags) }}
+                        <div class="section-form">
+                            {{ form_row(search_builder_form.include_actors) }}
+                            {{ form_row(search_builder_form.include_actors_people) }}
+                            {{ form_row(search_builder_form.include_actors_groups) }}
+                            {{ form_row(search_builder_form.include_actors_lists) }}
+                            {{ form_row(search_builder_form.include_actors_businesses) }}
+                            {{ form_row(search_builder_form.include_actors_organizations) }}
+                            {{ form_row(search_builder_form.include_actors_bots) }}
+                            {{ form_row(search_builder_form.actor_langs) }}
+                            {{ form_row(search_builder_form.actor_tags) }}
+                        </div>
+                        <hr>
                     </details>
 
                     <details class="section-details-subtitle">
-                        <summary class="details-subtitle-summary">
+                        <summary class="details-summary-subtitle">
                             <strong>{% trans %}Note search options{% endtrans %}</strong>
                         </summary>
-                        {{ form_row(search_builder_form.include_notes) }}
-                        {{ form_row(search_builder_form.include_notes_text) }}
-                        {{ form_row(search_builder_form.include_notes_media) }}
-                        {{ form_row(search_builder_form.include_notes_polls) }}
-                        {{ form_row(search_builder_form.include_notes_bookmarks) }}
-                        {{ form_row(search_builder_form.note_langs) }}
-                        {{ form_row(search_builder_form.note_tags) }}
-                        {{ form_row(search_builder_form.note_actor_langs) }}
-                        {{ form_row(search_builder_form.note_actor_tags) }}
+                        <div class="section-form">
+                            {{ form_row(search_builder_form.include_notes) }}
+                            {{ form_row(search_builder_form.include_notes_text) }}
+                            {{ form_row(search_builder_form.include_notes_media) }}
+                            {{ form_row(search_builder_form.include_notes_polls) }}
+                            {{ form_row(search_builder_form.include_notes_bookmarks) }}
+                            {{ form_row(search_builder_form.note_langs) }}
+                            {{ form_row(search_builder_form.note_tags) }}
+                            {{ form_row(search_builder_form.note_actor_langs) }}
+                            {{ form_row(search_builder_form.note_actor_tags) }}
+                        </div>
+                        <hr>
                     </details>
                 </div>
                 {{ form_end(search_builder_form) }}
