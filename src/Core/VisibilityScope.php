@@ -21,6 +21,7 @@ declare(strict_types = 1);
 
 namespace App\Core;
 
+// The domain of this enum are Objects
 enum VisibilityScope: int // having an int is just convenient
 {
     case EVERYWHERE = 1;  // Can be shown everywhere (default)

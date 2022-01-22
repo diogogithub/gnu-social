@@ -4,13 +4,13 @@ declare(strict_types = 1);
 
 namespace App\Controller;
 
+use App\Core\ActorLocalRoles;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
-use App\Core\UserRoles;
 use App\Entity\Actor;
 use App\Entity\Feed;
 use App\Entity\LocalUser;
@@ -152,7 +152,8 @@ class Security extends Controller
                     'nickname' => $nickname,
                     'is_local' => true,
                     'type'     => Actor::PERSON,
-                    'roles'    => UserRoles::USER,
+                    // TODO: Operator may prefer users to start with Visitor and then have them being manually promoted
+                    'roles' => ActorLocalRoles::PARTICIPANT | ActorLocalRoles::VISITOR, // Can view and participate
                 ]);
                 $user = LocalUser::create([
                     'nickname'       => $nickname,

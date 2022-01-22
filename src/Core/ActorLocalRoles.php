@@ -34,12 +34,20 @@ namespace App\Core;
 
 use App\Util\Bitmap;
 
-class UserRoles extends Bitmap
+// The domain of this Bitmap are Actors
+// TODO: role permissions configuration and sandbox system
+class ActorLocalRoles extends Bitmap
 {
-    public const ADMIN     = 1;
-    public const MODERATOR = 2;
-    public const USER      = 4;
-    public const BOT       = 8;
+    // No permissions at all
+    public const NONE = 0;
+    // Can view and direct messages
+    public const VISITOR = 1;
+    // Can Participate
+    public const PARTICIPANT = 2;
+    // Privileged Access
+    public const MODERATOR = 4;
+    // System Administrator
+    public const OPERATOR = 8;
 
     public const PREFIX = 'ROLE_';
 }
