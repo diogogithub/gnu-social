@@ -23,12 +23,12 @@ declare(strict_types = 1);
 
 namespace Component\Group\Controller;
 
+use App\Core\ActorLocalRoles;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
-use App\Core\UserRoles;
 use App\Entity as E;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -151,7 +151,7 @@ class Group extends FeedController
                 'nickname' => $nickname,
                 'type'     => E\Actor::GROUP,
                 'is_local' => true,
-                'roles'    => UserRoles::BOT,
+                'roles'    => ActorLocalRoles::VISITOR, // Can send direct messages to other actors
             ]));
             DB::persist(LocalGroup::create([
                 'group_id' => $group->getId(),

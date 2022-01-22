@@ -33,13 +33,13 @@ declare(strict_types = 1);
 namespace Plugin\ActivityPub\Util\Model;
 
 use ActivityPhp\Type\AbstractObject;
+use App\Core\ActorLocalRoles;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
 use App\Core\Log;
 use App\Core\Router\Router;
-use App\Core\UserRoles;
 use App\Entity\Actor as GSActor;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
@@ -93,7 +93,8 @@ class Actor extends Model
             'bio'      => $person->get('summary'),
             'is_local' => false, // duh!
             'type'     => self::$_as2_actor_type_to_gs_actor_type[$person->get('type')],
-            'roles'    => UserRoles::USER,
+            // TODO: Operator may prefer users to start with Visitor and then have them being manually promoted
+            'roles'    => ActorLocalRoles::PARTICIPANT | ActorLocalRoles::VISITOR, // Can view and participate
             'modified' => new DateTime(),
         ];
 

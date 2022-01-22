@@ -26,7 +26,7 @@ namespace App\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Core\UserRoles;
+use App\Core\ActorLocalRoles;
 use App\Util\Common;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
@@ -379,7 +379,7 @@ class LocalUser extends Entity implements UserInterface, PasswordAuthenticatedUs
      */
     public function getRoles()
     {
-        return UserRoles::toArray($this->getActor()->getRoles());
+        return ActorLocalRoles::toArray($this->getActor()->getRoles());
     }
 
     public static function cacheKeys(mixed $identifier): array

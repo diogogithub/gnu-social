@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace App\DataFixtures;
 
-use App\Core\UserRoles;
+use App\Core\ActorLocalRoles;
 use App\Core\VisibilityScope;
 use App\Entity\Actor;
 use App\Entity\LocalUser;
@@ -25,7 +25,7 @@ class CoreFixtures extends Fixture
         foreach ([
             'taken_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('foobar'), 'outgoing_email' => 'email@provider'], []],
             'some_user' => [LocalUser::class, 'setId', [], []],
-            'admin' => [LocalUser::class, 'setId', [], ['roles' => UserRoles::ADMIN | UserRoles::USER]],
+            'admin' => [LocalUser::class, 'setId', [], ['roles' => ActorLocalRoles::OPERATOR | ActorLocalRoles::MODERATOR | ActorLocalRoles::PARTICIPANT | ActorLocalRoles::VISITOR]],
             'local_user_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('foobar')], []],
             'form_personal_info_test_user' => [LocalUser::class, 'setId', [], []],
             'form_account_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('some password')], []],
